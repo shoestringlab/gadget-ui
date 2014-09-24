@@ -1,0 +1,116 @@
+/*	
+ * 
+ * 	<div class="smartInput email">
+	<span>{{emailaddress}}</span>
+	<input type="text" name="emailaddress" class="input15em ui-corner-all ui-widget-content inline" value="{{emailaddress}}" placeholder="{{emaillbl}}" style="display:none;"/>
+	</div>
+	
+*
+*/
+
+function SmartInput( args ){
+	var that = this, val, ph;
+	that.emitEvents = true;
+	that.model;
+	that.func;
+
+	if( args.el === undefined ){
+		el = $( ".smartInput", document );
+	}else{
+		el = args.el;
+	}
+	
+	if( args.config !== undefined ){
+		that.config( args.config );
+	}
+	$.each( el,  function( index, obj ){
+		val = $( obj ).val();
+		ph = $( obj ).attr( "placeholder" );
+		//if( $( obj ).attr( "si-object" ) !== undefined ){
+			//o = window[ $( obj ).attr( "si-object" ) ];
+		//}
+		//f = o[ $( obj ).attr( "si-field" ) ];
+		if( val.length === 0 && ph !== undefined && ph.length > 0 ){
+			val = ph;
+		}
+		$( obj ).wrap( "<div style='display:inline'></div>");
+		$( obj ).parent().prepend( "<span>" + val + "</span>");
+		$( obj ).append( "<a href='javascript:void(0)'><img src='/img/recyclingcan_empty.png' height='25' style='display:none'/></a>" );
+		$( obj ).hide();
+
+		_bindSmartInput( $( obj ).parent(), that.emitEvents, that.model, that.func  );
+		//$( obj ).preprend( "<span>label</span>");
+	});	
+
+	function _bindSmartInput ( obj, emitEvents, model, func ) {
+		var oVar = {};
+		$( "span", $( obj ) ).on( "mouseenter", function( ) {
+			$( $( this ) ).hide( );
+			$( $( this ).parent( ) )
+				.on( "mouseleave", function( ) {
+					if ( $( "input", $( this ) ).is( ":focus" ) === false ) {
+						$( "span", $( this ) ).css( "display", "inline" );
+						$( "input", $( this ) ).hide( );
+						$( "img", $( this ) ).hide( );
+					}
+				} );
+			$( "input", $( this ).parent( ) ).css( "min-width", "10em" )
+				.css( "width", Math.round( $( "input", $( this ).parent() ).val().length * 0.66 ) + "em" )
+				.css( "display", "inline" )
+				.on( "blur", function( ) {
+					var that = this, newVal, displayVal;
+					setTimeout( function( ) {
+						newVal = $( that ).val( );
+						if ( oVar.isDirty === true ) {
+							displayVal = $( that ).val( );
+							if( displayVal.length === 0 && $( that ).attr( "placeholder" ) !== undefined ){
+								displayVal = $( that ).attr( "placeholder" );
+							}
+							oVar[ that.name ] = $( that ).val( );
+							//_saveContact( oVar );
+
+							$( "span", $( that ).parent( ) ).text( newVal );
+							//contact.change( );
+
+							//legacyAvatar.model.set( "activeContact", oVar );
+
+							if( model !== undefined ){
+								model.set( that.name, oVar[ that.name ] );
+							}
+
+							oVar.isDirty = false;
+							if( emitEvents === true ){
+								$( that )
+									.trigger( "smartInputChange", [ oVar ] );
+							}
+							if( func !== undefined ){
+								func( oVar );
+							}
+						}
+						$( "span", $( that ).parent( ) ).css( "display", "inline" );
+						$( "img", $( that ).parent( ) ).hide( );
+						$( that ).hide( );
+
+					}, 200 );
+				})
+				.on( "change", function( ) {
+					oVar.isDirty = true;
+					})
+				.on( "keyup", function( event ) {
+					if ( parseInt( event.keyCode, 10 ) === 13 ) {
+						$( this ).blur( );
+					}
+					$( this ).css( "width", Math.round( $( "input", $( this ).parent( ) ).val( ).length * 0.66 ) + "em" );
+				});
+			// show the trashcan icon
+			$( "img", $( this ).parent( ) ).css( "display", "inline" );
+		});
+	}
+}
+
+SmartInput.prototype.config = function( args ){
+	var that = this;
+	that.model =  (( args.model === undefined) ? that.model : args.model );
+	that.func = (( args.func === undefined) ? undefined : args.func );
+	that.emitEvents = (( args.emitEvents === undefined) ? true : args.emitEvents );
+};

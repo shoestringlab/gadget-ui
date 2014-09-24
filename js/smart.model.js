@@ -1,0 +1,128 @@
+var smart = {};
+smart.model = (function($) {
+	"use strict";
+
+	var _model = {};
+	function BindableObject(data, element) {
+		this.data = data;
+		this.elements = [];
+		if (element !== undefined) {
+			this.bind(element);
+		}
+	}
+
+	BindableObject.prototype.handleEvent = function(event) {
+		var that = this;
+		switch (event.type) {
+		case "change":
+			$.each(this.elements, function(i, value) {
+				that.change( $(this.elem[i]).val() );
+			});
+			break;
+		}
+	};
+
+	// for each bound control, update the value
+	BindableObject.prototype.change = function(value, property) {
+		if (property === undefined) {
+			this.data = value;
+		} else {
+			this.data[property] = value;
+		}
+
+		$.each(this.elements, function(i, obj) {
+			if (obj.prop.length === 0) {
+				obj.elem.val(value);
+			} else if (property !== undefined) {
+				obj.elem.val(value[property.prop]);
+			} else {
+				// property is not defined, meaning an object that has
+				// properties bound to controls has been replaced
+				// this code assumes that the object in 'value' has a property
+				// associated with the property being changed
+				// i.e. that value[ obj.elem.prop ] is a valid property of
+				// value, because if it isn't, this call will error
+				obj.elem.val(value[obj.elem.prop]);
+			}
+		});
+	};
+
+	// bind an object to an HTML element
+	BindableObject.prototype.bind = function(element, property) {
+		var e;
+		if (property === undefined) {
+			element.val(this.data);
+			e = {
+				elem : element,
+				prop : ""
+			};
+		} else {
+			element.val(this.data[property]);
+			e = {
+				elem : element,
+				prop : property
+			};
+		}
+		element[0].addEventListener("change", this, false);
+		this.elements.push(e);
+	};
+
+	return {
+		BindableObject : BindableObject,
+
+		create : function(name, value, element) {
+			if (element !== undefined) {
+				_model[name] = new BindableObject(value, element);
+			} else {
+				_model[name] = new BindableObject(value);
+			}
+		},
+
+		destroy : function(name) {
+			delete _model[name];
+		},
+
+		bind : function(name, element) {
+			var n = name.split(".");
+			if (n.length === 1) {
+				_model[name].bind(element);
+			} else {
+				_model[n[0]].bind(element, n[1]);
+			}
+		},
+
+		exists : function(name) {
+			if (_model.hasOwnProperty(name)) {
+				return true;
+			}
+
+			return false;
+		},
+		// getter - if the name of the object to get has a period, we are
+		// getting a property of the object, e.g. user.firstname
+		get : function(name) {
+			var n = name.split(".");
+			if (n.length === 1) {
+				return _model[name].data;
+			}
+			return _model[n[0]].data[n[1]];
+
+		},
+
+		// setter - if the name of the object to set has a period, we are
+		// setting a property of the object, e.g. user.firstname
+		set : function(name, value) {
+			if (smart.model.exists(name) === false) {
+				smart.model.create(name, value);
+			} else {
+				var n = name.split(".");
+				if (n.length === 1) {
+					_model[name].change(value);
+				} else {
+					_model[n[0]].change(value, n[1]);
+				}
+			}
+		}
+	};
+
+}(jQuery));
