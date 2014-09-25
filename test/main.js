@@ -1,8 +1,8 @@
 var contact = {};
 
 $( document ).ready( function(){
-	new GadgetUIInput( { config: { emitEvents: false, func : logChanges, model: gadgetui.model } } );
-	
+	var gadgetuiinput = new gadgetui.input.Input( { config: { emitEvents: false, func : logChanges, model: gadgetui.model } } );
+	//new GadgetUIInput( { config: { emitEvents: false, func : logChanges, model: gadgetui.model } } );
 	$( document )
 		.on( "gadgetUIInputChange", function(evt, obj){
 			console.log( evt );
@@ -14,7 +14,7 @@ $( document ).ready( function(){
 			lastname: ""
 	};
 	gadgetui.model.set( "user", user );
-	gadgetui.model.bind( "user.firstname", document.getElementsByName('user.firstname') );
+	gadgetui.model.bind( "user.firstname", document.getElementsByName('user.firstname')[0] );
 	
 	function logChanges( obj ){
 		console.log( obj );

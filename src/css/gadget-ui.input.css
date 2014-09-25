@@ -1,0 +1,23 @@
+div .gadgetUIInputDiv{
+	display:inline;
+
+	font-family: inherit;
+}
+div .gadgetUIInputDiv span{
+	padding-left: 4px;
+	font-size: .8em;
+	letter-spacing: 1px;
+	font-family: inherit;
+}
+div .gadgetUIInputDiv input{
+	line-height: 0.8em;
+	font-size: 0.8em;
+	letter-spacing: 1px;
+	font-family: inherit;
+	margin: 0px 0px -1px;
+	padding: 0px 0px 0px 1px;
+}
+
+div .gadgetUIInputDiv div{
+	
+}
