@@ -8,14 +8,14 @@
 *
 */
 
-function SmartInput( args ){
+function GadgetUIInput( args ){
 	var that = this, val, ph;
 	that.emitEvents = true;
 	that.model;
 	that.func;
 
 	if( args.el === undefined ){
-		el = $( ".smartInput", document );
+		el = $( ".gadgetUIInput", document );
 	}else{
 		el = args.el;
 	}
@@ -30,19 +30,23 @@ function SmartInput( args ){
 			//o = window[ $( obj ).attr( "si-object" ) ];
 		//}
 		//f = o[ $( obj ).attr( "si-field" ) ];
-		if( val.length === 0 && ph !== undefined && ph.length > 0 ){
-			val = ph;
+		if( val.length === 0 ){
+			if( ph !== undefined && ph.length > 0 ){
+				val = ph;
+			}else{
+				val = " ... ";
+			}
 		}
-		$( obj ).wrap( "<div style='display:inline'></div>");
+		$( obj ).wrap( "<div class='gadgetUIInputDiv'></div>");
 		$( obj ).parent().prepend( "<span>" + val + "</span>");
 		$( obj ).append( "<a href='javascript:void(0)'><img src='/img/recyclingcan_empty.png' height='25' style='display:none'/></a>" );
 		$( obj ).hide();
 
-		_bindSmartInput( $( obj ).parent(), that.emitEvents, that.model, that.func  );
+		_bindGadgetUIInput( $( obj ).parent(), that.emitEvents, that.model, that.func  );
 		//$( obj ).preprend( "<span>label</span>");
-	});	
+	});
 
-	function _bindSmartInput ( obj, emitEvents, model, func ) {
+	function _bindGadgetUIInput ( obj, emitEvents, model, func ) {
 		var oVar = {};
 		$( "span", $( obj ) ).on( "mouseenter", function( ) {
 			$( $( this ) ).hide( );
@@ -58,13 +62,12 @@ function SmartInput( args ){
 				.css( "width", Math.round( $( "input", $( this ).parent() ).val().length * 0.66 ) + "em" )
 				.css( "display", "inline" )
 				.on( "blur", function( ) {
-					var that = this, newVal, displayVal;
+					var that = this, newVal;
 					setTimeout( function( ) {
 						newVal = $( that ).val( );
 						if ( oVar.isDirty === true ) {
-							displayVal = $( that ).val( );
-							if( displayVal.length === 0 && $( that ).attr( "placeholder" ) !== undefined ){
-								displayVal = $( that ).attr( "placeholder" );
+							if( newVal.length === 0 && $( that ).attr( "placeholder" ) !== undefined ){
+								newVal = $( that ).attr( "placeholder" );
 							}
 							oVar[ that.name ] = $( that ).val( );
 							//_saveContact( oVar );
@@ -81,7 +84,7 @@ function SmartInput( args ){
 							oVar.isDirty = false;
 							if( emitEvents === true ){
 								$( that )
-									.trigger( "smartInputChange", [ oVar ] );
+									.trigger( "gadgetUIInputChange", [ oVar ] );
 							}
 							if( func !== undefined ){
 								func( oVar );
@@ -108,7 +111,7 @@ function SmartInput( args ){
 	}
 }
 
-SmartInput.prototype.config = function( args ){
+GadgetUIInput.prototype.config = function( args ){
 	var that = this;
 	that.model =  (( args.model === undefined) ? that.model : args.model );
 	that.func = (( args.func === undefined) ? undefined : args.func );

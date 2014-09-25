@@ -1,5 +1,5 @@
-var smart = {};
-smart.model = (function($) {
+
+gadgetui.model = (function() {
 	"use strict";
 
 	var _model = {};
@@ -12,25 +12,47 @@ smart.model = (function($) {
 	}
 
 	BindableObject.prototype.handleEvent = function(event) {
-		var that = this;
+		var i, value, that = this;
 		switch (event.type) {
 		case "change":
-			$.each(this.elements, function(i, value) {
+			for( i = 0; i < this.elements.length; i++ ){
+				that.change( this.elements[i].elem[0].value );
+			}
+			/*	$.each(this.elements, function(i, value) {
 				that.change( $(this.elem[i]).val() );
-			});
+			});	*/
 			break;
 		}
 	};
 
 	// for each bound control, update the value
 	BindableObject.prototype.change = function(value, property) {
+		var obj, i;
 		if (property === undefined) {
 			this.data = value;
 		} else {
 			this.data[property] = value;
 		}
-
-		$.each(this.elements, function(i, obj) {
+		
+		for( i = 0; i < this.elements.length; i++ ){
+			obj = this.elements[i];
+			if (obj.prop.length === 0) {
+				obj.elem.value = value;
+			} else if (property !== undefined) {
+				obj.elem.value = value[ property.prop ];
+			} else {
+				// property is not defined, meaning an object that has
+				// properties bound to controls has been replaced
+				// this code assumes that the object in 'value' has a property
+				// associated with the property being changed
+				// i.e. that value[ obj.elem.prop ] is a valid property of
+				// value, because if it isn't, this call will error
+				obj.elem.value = value[ obj.elem.prop ];
+			}			
+			i++;
+		}
+		
+		/*	$.each(this.elements, function(i, obj) {
 			if (obj.prop.length === 0) {
 				obj.elem.val(value);
 			} else if (property !== undefined) {
@@ -44,20 +66,20 @@ smart.model = (function($) {
 				// value, because if it isn't, this call will error
 				obj.elem.val(value[obj.elem.prop]);
 			}
-		});
+		});	*/
 	};
 
 	// bind an object to an HTML element
 	BindableObject.prototype.bind = function(element, property) {
 		var e;
 		if (property === undefined) {
-			element.val(this.data);
+			element.value = this.data;
 			e = {
 				elem : element,
 				prop : ""
 			};
 		} else {
-			element.val(this.data[property]);
+			element.value = this.data[property];
 			e = {
 				elem : element,
 				prop : property
@@ -77,11 +99,9 @@ smart.model = (function($) {
 				_model[name] = new BindableObject(value);
 			}
 		},
-
 		destroy : function(name) {
 			delete _model[name];
 		},
-
 		bind : function(name, element) {
 			var n = name.split(".");
 			if (n.length === 1) {
@@ -108,12 +128,11 @@ smart.model = (function($) {
 			return _model[n[0]].data[n[1]];
 
 		},
-
 		// setter - if the name of the object to set has a period, we are
 		// setting a property of the object, e.g. user.firstname
 		set : function(name, value) {
-			if (smart.model.exists(name) === false) {
-				smart.model.create(name, value);
+			if (this.exists(name) === false) {
+				this.create(name, value);
 			} else {
 				var n = name.split(".");
 				if (n.length === 1) {
@@ -125,4 +144,4 @@ smart.model = (function($) {
 		}
 	};
 
-}(jQuery));
+}());

@@ -1,0 +1,21 @@
+div .gadgetUIInputDiv{
+	display:inline;
+
+	font-family: Arial, sans;
+}
+div .gadgetUIInputDiv span{
+	padding-left: 4px;
+	font-size: .8em;
+	letter-spacing: 1px;
+	font-family: Arial, sans;
+}
+div .gadgetUIInputDiv input{
+	line-height:.9em;
+	font-size: .8em;
+	letter-spacing: 1px;
+	Font-family: Arial, sans;
+}
+
+div .gadgetUIInputDiv div{
+	
+}

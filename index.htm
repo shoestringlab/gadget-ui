@@ -5,40 +5,22 @@
 	
 	<script src="/bower_components/jquery/dist/jquery.min.js"></script>
 	<script src="/bower_components/jquery-ui/jquery-ui.min.js"></script>
-	<link rel="stylesheet" type="text/css" href="/bower_components/jquery-ui/themes/start/jquery-ui.min.css"/>	
-
-	<script src="/js/smartinput.js"></script>
-	<script src="/js/smart.model.js"></script>
+	<link rel="stylesheet" type="text/css" href="/bower_components/jquery-ui/themes/start/jquery-ui.min.css"/>
+	<link rel="stylesheet" type="text/css" href="styles/style.css"/>	
+	<script src="/js/gadget-ui.js"></script>
+	<script src="/js/gadget-ui.input.js"></script>
+	<script src="/js/gadget-ui.model.js"></script>
 	<script src="/js/main.js"></script>
 
-<!--- 
-	<style>
-		div .smartInput{
-		line-height:2.3em;
-		height:2.5em;
-		font-size: 0.8em;
-		}
-		div .smartInput span{
-			height:2em;
-			margin:4px;
-			padding:3px;
-			
-		}
-
-		div .smartInput div{
-			height: 2em;
-		}
-	</style>
- --->
 	</head>
 	<body>
 
 	<form>
 	<div>
-	First Name	<input name="firstname" class="smartInput" placeholder="first name" value="Robert"/>
+	First Name	<input name="user.firstname" class="gadgetUIInput" placeholder="first name" value="Robert"/>
 	</div>
 	<div>
-	Last Name <input name="lastname" class="smartInput" placeholder="last name" value=""/>	
+	Last Name <input name="lastname" class="gadgetUIInput" placeholder="last name" value=""/>	
 	</div>
 	</form>
 	</body>
