@@ -74,9 +74,13 @@ HTML:
 	<input name="firstname" class="gadget-ui-input" placeholder="first name" value=""/>
 
 JS:
+
     var user = {firstname: "", lastname: ""};
     gadgetui.model.set( "user", user );
-    var gadgetuiinput = new gadgetui.input.Input( { el : $("input[name='firstname']"), object : user, config : { emitEvents: false, func: logChanges } } );
+    var gadgetuiinput = new gadgetui.input.Input( { el : $("input[name='firstname']"), 
+        object : user, 
+        config : { emitEvents: false, func: logChanges } } );
+
     // data binding for two way binding between model and control
     gadgetui.model.bind( "user.firstname", $("input[name='firstname']"));
 
