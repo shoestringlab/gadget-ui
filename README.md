@@ -82,17 +82,21 @@ If you are binding to an object, e.g. user {firstname: "", lastname: "" }, prope
 "element" is the element that will be bound to the model. In the jQuery package, it is a jQuery selector. 
 							
 
-Auto-binding to the model:
+Auto-generating gadgetui.input objects and auto-binding to the model:
 
 HTML:
 
     <div>
-    First Name	<input name="firstname" class="gadget-ui-input" 
+    First Name	<input name="firstname" 
+                  class="gadget-ui-input" 
+                  gadgetui-input="true" 
                   gadgetui-bind="user.firstname" 
                   placeholder="first name" value=""/>
     </div>
     <div>
-    Last Name <input name="lastname" class="gadget-ui-input" 
+    Last Name <input name="lastname" 
+                  class="gadget-ui-input" 
+                  gadgetui-input="true" 
                   gadgetui-bind="user.lastname" 
                   placeholder="last name" value=""/>	
     </div>
@@ -105,7 +109,8 @@ JS:
                                 func : logChanges,
                                 model : gadgetui.model  } } );
 
-In this example, the controls are automatically bound to the user object in the model, each to a property based on the gadgetui-bind directive in the control.
+In this example, the controls are automatically turned into gadgetui.input controls by specifying the gadgetui-input directive in the control as true. Also,
+the controls are automatically bound to the user object in the model, each to a specific property based on the gadgetui-bind directive in the control.
 
 
 

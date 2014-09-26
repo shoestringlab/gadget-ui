@@ -7,7 +7,7 @@ gadgetui.input = (function($) {
 		that.func;
 
 		if( args.el === undefined ){
-			el = $( "input[class~='gadget-ui-input']", document );
+			el = $( "input[gadgetui-input='true']", document );
 		}else{
 			el = args.el;
 		}

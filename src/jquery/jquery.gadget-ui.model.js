@@ -10,7 +10,6 @@ gadgetui.model = ( function( $ ) {
 		}
 	}
 
-
 	BindableObject.prototype.handleEvent = function( e ) {
 		var that = this;
 		switch (e.type) {
