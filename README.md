@@ -8,7 +8,8 @@ JavaScript UI and data binding library
 
 ***gadget-ui.model***
 
-creating values: 
+Creating values:
+
     // Note: set can be used in place of create in most cases. set will throw an error if you try 
              to set() a new value with an explicit property, e.g. set( "user.firstname", "Robert" );
     var user = { firstname: "Rob", middlename: "", lastname: "Munn" };
