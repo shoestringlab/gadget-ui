@@ -58,24 +58,28 @@ Creating new input fields:
 
 	gadgetui.input.Input(  args );
 	
-	args.el : array of jquery elements, optional
-	args.object : object to map to args.el if only one element is passed into the constructor. 
-						Optional, will be used to pass changed value to args.config.func.
-	args.config.emitEvents : boolean, whether to trigger a custom event of type "gadget-ui-input-change", 
-						which you can listen for to capture changes in input values, optional, default = true.
-	args.config.func : custom function to execute when the element changes, optional.
-	args.config.model : model for data binding. 
+args.el : array of jquery elements, optional
+
+args.object : object to map to args.el if only one element is passed into the constructor. Optional, will be used to pass changed value to args.config.func.
+
+args.config.emitEvents : boolean, whether to trigger a custom event of type "gadget-ui-input-change", which you can listen for to capture changes in input values, optional, default = true.
+
+args.config.func : custom function to execute when the element changes, optional.
+
+args.config.model : model for data binding. 
 	
 gadget-ui.input expects a model with a set( name, value ) function that sets the new value. 
-	"name" is the value of the name property of the input. 
-	"value" is the value of the input.
+
+"name" is the value of the name property of the input. 
+
+"value" is the value of the input.
 
 gadget-ui.input also expect a bind( property, element ) method for auto-binding via the gadgetui-bind directive.
-	"property" is the model value that will be bound to the element. If you are binding
-		to a simple value, like "name", property will be that object name, e.g. "name".
-		If you are binding to an object, e.g. user {firstname: "", lastname: "" },
-		property will be the name of the object and the key to bind the control to, e.g. "user.firstname".
-	"element" is the element that will be bound to the model. In the jQuery package, it is a jQuery selector. 
+
+"property" is the model value that will be bound to the element. If you are binding to a simple value, like "name", property will be that object name, e.g. "name". 
+If you are binding to an object, e.g. user {firstname: "", lastname: "" }, property will be the name of the object and the key to bind the control to, e.g. "user.firstname".
+
+"element" is the element that will be bound to the model. In the jQuery package, it is a jQuery selector. 
 							
 
 Auto-binding to the model:
@@ -83,10 +87,14 @@ Auto-binding to the model:
 HTML:
 
     <div>
-    First Name	<input name="firstname" class="gadget-ui-input" gadgetui-bind="user.firstname" placeholder="first name" value=""/>
+    First Name	<input name="firstname" class="gadget-ui-input" 
+                  gadgetui-bind="user.firstname" 
+                  placeholder="first name" value=""/>
     </div>
     <div>
-    Last Name <input name="lastname" class="gadget-ui-input" gadgetui-bind="user.lastname" placeholder="last name" value=""/>	
+    Last Name <input name="lastname" class="gadget-ui-input" 
+                  gadgetui-bind="user.lastname" 
+                  placeholder="last name" value=""/>	
     </div>
 
 JS:
@@ -106,7 +114,8 @@ Manual binding:
 HTML:
 
     <div>
-    First Name	<input name="firstname" class="gadget-ui-input" placeholder="first name" value=""/>
+    First Name	<input name="firstname" 
+                   class="gadget-ui-input" placeholder="first name" value=""/>
     </div>
 
 JS:
