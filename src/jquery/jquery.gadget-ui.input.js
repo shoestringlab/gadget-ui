@@ -1,4 +1,3 @@
-
 gadgetui.input = (function($) {
 	function Input( args ){
 		var that = this, val, ph, o, bindVar;
@@ -47,20 +46,23 @@ gadgetui.input = (function($) {
 		});
 	
 		function _bindInput ( obj, emitEvents, model, func, object ) {
+			var that = this, oVar;
 			oVar = ( (object === undefined) ? {} : object );
 			
 			$( "span", $( obj ) ).on( "mouseenter", function( ) {
-				$( $( this ) ).hide( );
-				$( $( this ).parent( ) )
+				that = this;
+				$( $( that ) ).hide( );
+				$( $( that ).parent( ) )
 					.on( "mouseleave", function( ) {
-						if ( $( "input", $( this ) ).is( ":focus" ) === false ) {
-							$( "span", $( this ) ).css( "display", "inline" );
-							$( "input", $( this ) ).hide( );
-							$( "img", $( this ) ).hide( );
+						var that = this;
+						if ( $( "input", $( that ) ).is( ":focus" ) === false ) {
+							$( "span", $( that ) ).css( "display", "inline" );
+							$( "input", $( that ) ).hide( );
+							$( "img", $( that ) ).hide( );
 						}
 					} );
-				$( "input", $( this ).parent( ) ).css( "min-width", "10em" )
-					.css( "width", Math.round( $( "input", $( this ).parent() ).val().length * 0.66 ) + "em" )
+				$( "input", $( that ).parent( ) ).css( "min-width", "10em" )
+					.css( "width", Math.round( $( "input", $( that ).parent() ).val().length * 0.66 ) + "em" )
 					.css( "display", "inline" )
 					.on( "blur", function( ) {
 						var that = this, newVal;
@@ -99,17 +101,19 @@ gadgetui.input = (function($) {
 						}, 200 );
 					})
 					.on( "change", function( e ) {
+						var that = this;
 						oVar.isDirty = true;
-						$( "span", $( this ).parent( ) ).text( e.target.value );
+						$( "span", $( that ).parent( ) ).text( e.target.value );
 						})
 					.on( "keyup", function( event ) {
+						var that = this;
 						if ( parseInt( event.keyCode, 10 ) === 13 ) {
-							$( this ).blur( );
+							$( that ).blur( );
 						}
-						$( this ).css( "width", Math.round( $( "input", $( this ).parent( ) ).val( ).length * 0.66 ) + "em" );
+						$( that ).css( "width", Math.round( $( "input", $( that ).parent( ) ).val( ).length * 0.66 ) + "em" );
 					});
 				// show the trashcan icon
-				$( "img", $( this ).parent( ) ).css( "display", "inline" );
+				$( "img", $( that ).parent( ) ).css( "display", "inline" );
 			});
 		}
 		return this;
