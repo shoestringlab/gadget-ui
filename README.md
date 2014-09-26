@@ -4,12 +4,13 @@ gadget-ui
 JavaScript UI and data binding library
 
 
-** Usage **
+**Usage**
 
-*** gadget-ui.model ***
+***gadget-ui.model***
 
 creating values: 
-	// Note: set can be used in place of create in most cases. set will throw an error if you try to set() a new value with an explicit property, e.g. set( "user.firstname", "Robert" );
+    // Note: set can be used in place of create in most cases. set will throw an error if you try 
+             to set() a new value with an explicit property, e.g. set( "user.firstname", "Robert" );
     var user = { firstname: "Rob", middlename: "", lastname: "Munn" };
     gadgetui.model.create( "user", user);	
 
@@ -50,7 +51,7 @@ Removing values:
 	console.log( gadgetui.model.exists( "user" ) );
 	//returns false
 	
-*** jquery.gadget-ui.input ***
+***jquery.gadget-ui.input***
 	
 Creating new input fields:
 
@@ -72,11 +73,11 @@ HTML:
 	<input name="firstname" class="gadget-ui-input" placeholder="first name" value=""/>
 
 JS:
-	var user = {firstname: "", lastname: ""};
-	gadgetui.model.set( "user", user );
-	var gadgetuiinput = new gadgetui.input.Input( { el : $("input[name='firstname']"), object : user, config : { emitEvents: false, func: logChanges } } );
-	// data binding for two way binding between model and control
-	gadgetui.model.bind( "user.firstname", $("input[name='firstname']"));
+    var user = {firstname: "", lastname: ""};
+    gadgetui.model.set( "user", user );
+    var gadgetuiinput = new gadgetui.input.Input( { el : $("input[name='firstname']"), object : user, config : { emitEvents: false, func: logChanges } } );
+    // data binding for two way binding between model and control
+    gadgetui.model.bind( "user.firstname", $("input[name='firstname']"));
 
 In this example, the control "firstname" is bound to the firstname property of the user object stored in the model. If the control value changes, the model value will change. If the
 model value changes, the control value will change. Also note in this example that we passed the control to the construct via the "el" argument. When using data binding via the bind()
@@ -85,12 +86,12 @@ if you want to also pass a custom function to the constructor via the "func" con
 with the new value from the control, and to the "gadget-ui-input-change" event if you accept the default configuration for the control to emit events when its value changes. 
 
 
-** Notes **
+**Notes**
 
 The codebase is in active development. Expect things to change before the functionality is stable. If you choose to use the current code in production, you have been warned.
 
 Unit testing is a work in progress. Work is being done to integrate Syn event simulation framework into QUnit tests, but tests are not functioning at this time.
 
-*** License *** 
+***License*** 
 
 gadget-ui s released under the MIT license.
