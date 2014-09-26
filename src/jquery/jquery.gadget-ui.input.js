@@ -1,17 +1,20 @@
 
 gadgetui.input = (function($) {
 	function Input( args ){
-		var that = this, val, ph;
+		var that = this, val, ph, o;
 		that.emitEvents = true;
 		that.model;
 		that.func;
 
 		if( args.el === undefined ){
-			el = $( ".gadget-ui-input", document );
+			el = $( "input[class~='gadget-ui-input']", document );
 		}else{
 			el = args.el;
 		}
-		
+
+		if( el.length === 1 && args.object !== undefined ){
+			o = args.object;
+		}
 		if( args.config !== undefined ){
 			that.config( args.config );
 		}
@@ -34,12 +37,13 @@ gadgetui.input = (function($) {
 			//$( obj ).append( "<a href='javascript:void(0)'><img src='img/recyclingcan_empty.png' height='25' style='display:none'/></a>" );
 			$( obj ).hide();
 	
-			_bindInput( $( obj ).parent(), that.emitEvents, that.model, that.func  );
+			_bindInput( $( obj ).parent(), that.emitEvents, that.model, that.func, o  );
 			//$( obj ).preprend( "<span>label</span>");
 		});
 	
-		function _bindInput ( obj, emitEvents, model, func ) {
-			var oVar = {};
+		function _bindInput ( obj, emitEvents, model, func, object ) {
+			oVar = ( (object === undefined) ? {} : object );
+			
 			$( "span", $( obj ) ).on( "mouseenter", function( ) {
 				$( $( this ) ).hide( );
 				$( $( this ).parent( ) )
@@ -69,14 +73,14 @@ gadgetui.input = (function($) {
 	
 								//legacyAvatar.model.set( "activeContact", oVar );
 	
-								if( model !== undefined ){
+								if( model !== undefined ){	
 									model.set( that.name, oVar[ that.name ] );
 								}
 	
 								oVar.isDirty = false;
 								if( emitEvents === true ){
 									$( that )
-										.trigger( "gadgetUIInputChange", [ oVar ] );
+										.trigger( "gadget-ui-input-change", [ oVar ] );
 								}
 								if( func !== undefined ){
 									func( oVar );
@@ -88,8 +92,9 @@ gadgetui.input = (function($) {
 	
 						}, 200 );
 					})
-					.on( "change", function( ) {
+					.on( "change", function( e ) {
 						oVar.isDirty = true;
+						$( "span", $( this ).parent( ) ).text( e.target.value );
 						})
 					.on( "keyup", function( event ) {
 						if ( parseInt( event.keyCode, 10 ) === 13 ) {

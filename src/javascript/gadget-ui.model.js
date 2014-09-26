@@ -16,7 +16,7 @@ gadgetui.model = ( function( ) {
 		}
 	}
 
-	BindableObject.prototype.handleEvent = function( event ) {
+/*		BindableObject.prototype.handleEvent = function( event ) {
 		var i, that = this;
 		switch (event.type) {
 			case "change":
@@ -26,7 +26,7 @@ gadgetui.model = ( function( ) {
 				break;
 		}
 	};
-
+	*/
 	// for each bound control, update the value
 	BindableObject.prototype.change = function( value, property ) {
 		var obj, i;
