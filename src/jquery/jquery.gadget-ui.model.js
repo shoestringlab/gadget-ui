@@ -17,6 +17,7 @@ gadgetui.model = ( function( $ ) {
 				$.each( this.elements, function( i, value ) {
 					that.change( $( this.elem[ i ] ).val( ) );
 				} );
+				
 				break;
 		}
 	};

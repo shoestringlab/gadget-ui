@@ -18,6 +18,7 @@ gadgetui.model = ( function( $ ) {
 				$.each( this.elements, function( i, value ) {
 					that.change( $( this.elem[ i ] ).val( ) );
 				} );
+				
 				break;
 		}
 	};
@@ -141,15 +142,7 @@ gadgetui.model = ( function( $ ) {
 
 	}( jQuery ) );
 
-/*	
- * 
- * 	<div class="smartInput email">
-	<span>{{emailaddress}}</span>
-	<input type="text" name="emailaddress" class="input15em ui-corner-all ui-widget-content inline" value="{{emailaddress}}" placeholder="{{emaillbl}}" style="display:none;"/>
-	</div>
-	
-*
-*/
+
 gadgetui.input = (function($) {
 	function Input( args ){
 		var that = this, val, ph;
@@ -158,7 +151,7 @@ gadgetui.input = (function($) {
 		that.func;
 
 		if( args.el === undefined ){
-			el = $( ".gadgetUIInput", document );
+			el = $( ".gadget-ui-input", document );
 		}else{
 			el = args.el;
 		}
@@ -180,9 +173,9 @@ gadgetui.input = (function($) {
 					val = " ... ";
 				}
 			}
-			$( obj ).wrap( "<div class='gadgetUIInputDiv'></div>");
+			$( obj ).wrap( "<div class='gadget-ui-input-div'></div>");
 			$( obj ).parent().prepend( "<span>" + val + "</span>");
-			$( obj ).append( "<a href='javascript:void(0)'><img src='/img/recyclingcan_empty.png' height='25' style='display:none'/></a>" );
+			//$( obj ).append( "<a href='javascript:void(0)'><img src='img/recyclingcan_empty.png' height='25' style='display:none'/></a>" );
 			$( obj ).hide();
 	
 			_bindInput( $( obj ).parent(), that.emitEvents, that.model, that.func  );

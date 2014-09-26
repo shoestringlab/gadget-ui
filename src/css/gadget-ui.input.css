@@ -1,15 +1,15 @@
-div .gadgetUIInputDiv{
+div .gadget-ui-input-div{
 	display:inline;
-
+	font-size: 1.1em;
 	font-family: inherit;
 }
-div .gadgetUIInputDiv span{
+div .gadget-ui-input-div span{
 	padding-left: 4px;
 	font-size: .8em;
 	letter-spacing: 1px;
 	font-family: inherit;
 }
-div .gadgetUIInputDiv input{
+div .gadget-ui-input-div input{
 	line-height: 0.8em;
 	font-size: 0.8em;
 	letter-spacing: 1px;
@@ -18,6 +18,6 @@ div .gadgetUIInputDiv input{
 	padding: 0px 0px 0px 1px;
 }
 
-div .gadgetUIInputDiv div{
+div .gadget-ui-input-div div{
 	
 }

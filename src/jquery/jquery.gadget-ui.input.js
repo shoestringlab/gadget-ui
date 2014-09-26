@@ -7,7 +7,7 @@ gadgetui.input = (function($) {
 		that.func;
 
 		if( args.el === undefined ){
-			el = $( ".gadgetUIInput", document );
+			el = $( ".gadget-ui-input", document );
 		}else{
 			el = args.el;
 		}
@@ -29,9 +29,9 @@ gadgetui.input = (function($) {
 					val = " ... ";
 				}
 			}
-			$( obj ).wrap( "<div class='gadgetUIInputDiv'></div>");
+			$( obj ).wrap( "<div class='gadget-ui-input-div'></div>");
 			$( obj ).parent().prepend( "<span>" + val + "</span>");
-			$( obj ).append( "<a href='javascript:void(0)'><img src='/img/recyclingcan_empty.png' height='25' style='display:none'/></a>" );
+			//$( obj ).append( "<a href='javascript:void(0)'><img src='img/recyclingcan_empty.png' height='25' style='display:none'/></a>" );
 			$( obj ).hide();
 	
 			_bindInput( $( obj ).parent(), that.emitEvents, that.model, that.func  );

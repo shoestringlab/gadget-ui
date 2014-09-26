@@ -1,27 +1,36 @@
 <!doctype html>
 <html>
 	<head>
-	<title>New HTML Document</title>
+	<title>gadget-ui Tests</title>
 	
 	<script src="/bower_components/jquery/dist/jquery.min.js"></script>
 	<!--- <script src="/bower_components/jquery-ui/jquery-ui.min.js"></script> --->
 	<!--- <link rel="stylesheet" type="text/css" href="/bower_components/jquery-ui/themes/start/jquery-ui.min.css"/> --->
-	<link rel="stylesheet" type="text/css" href="styles/style.css"/>	
-	<script src="/js/gadget-ui.js"></script>
-	<script src="/js/jquery.gadget-ui.input.js"></script>
-	<script src="/js/gadget-ui.model.js"></script>
-	<script src="/js/main.js"></script>
-
+	<link rel="stylesheet" type="text/css" href="/dist/gadget-ui.css"/>	
+	<link rel="stylesheet" type="text/css" href="/bower_components/qunit/qunit/qunit.css"/>	
+	<script src="/dist/jquery.gadget-ui.js"></script>
+  	<script src="/bower_components/qunit/qunit/qunit.js"></script>
+	<script src="/bower_components/syn/dist/syn.min.js">
+		
+	</script><script src="main.js"></script>
+	
 	</head>
 	<body>
 
 	<form>
 	<div>
-	First Name	<input name="user.firstname" class="gadgetUIInput" placeholder="first name" value="Robert"/>
+	First Name	<input name="user.firstname" class="gadget-ui-input" placeholder="first name" value=""/>
 	</div>
 	<div>
-	Last Name <input name="user.lastname" class="gadgetUIInput" placeholder="last name" value=""/>	
+	Last Name <input name="user.lastname" class="gadget-ui-input" placeholder="last name" value=""/>	
 	</div>
+	
+	
 	</form>
+	
+	<div id="qunit"></div>
+	<div id="qunit-fixture"></div>
+
+  	
 	</body>
 </html>
