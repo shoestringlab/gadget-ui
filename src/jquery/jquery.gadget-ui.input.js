@@ -1,7 +1,7 @@
 
 gadgetui.input = (function($) {
 	function Input( args ){
-		var that = this, val, ph, o;
+		var that = this, val, ph, o, bindVar;
 		that.emitEvents = true;
 		that.model;
 		that.func;
@@ -21,6 +21,11 @@ gadgetui.input = (function($) {
 		$.each( el,  function( index, obj ){
 			val = $( obj ).val();
 			ph = $( obj ).attr( "placeholder" );
+			bindVar = $( obj ).attr( "gadgetui-bind" );
+			// if binding was specified, make it so
+			if( bindVar !== undefined && that.model !== undefined ){
+				that.model.bind( bindVar, $( obj ) );
+			}
 			//if( $( obj ).attr( "si-object" ) !== undefined ){
 				//o = window[ $( obj ).attr( "si-object" ) ];
 			//}
@@ -73,7 +78,8 @@ gadgetui.input = (function($) {
 	
 								//legacyAvatar.model.set( "activeContact", oVar );
 	
-								if( model !== undefined ){	
+								if( model !== undefined && $( that ).attr( "gadgetui-bind" ) === undefined ){	
+									// if we have specified a model but no data binding, change the model value
 									model.set( that.name, oVar[ that.name ] );
 								}
 	

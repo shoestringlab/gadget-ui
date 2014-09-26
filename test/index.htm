@@ -16,10 +16,10 @@
 
 	<form>
 	<div>
-	First Name	<input name="user.firstname" class="gadget-ui-input" placeholder="first name" value=""/>
+	First Name	<input name="firstname" class="gadget-ui-input" gadgetui-bind="user.firstname" placeholder="first name" value=""/>
 	</div>
 	<div>
-	Last Name <input name="user.lastname" class="gadget-ui-input" placeholder="last name" value=""/>	
+	Last Name <input name="lastname" class="gadget-ui-input" gadgetui-bind="user.lastname" placeholder="last name" value=""/>	
 	</div>
 	<div>
 		<input type="button" value="Change First Name" onclick="gadgetui.model.set('user', {firstname:'William', lastname:'Mason'});"/>

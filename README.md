@@ -64,31 +64,70 @@ Creating new input fields:
 	args.config.emitEvents : boolean, whether to trigger a custom event of type "gadget-ui-input-change", 
 						which you can listen for to capture changes in input values, optional, default = true.
 	args.config.func : custom function to execute when the element changes, optional.
-	args.config.model : model to set changed values to. gadget-ui expects a model with a set( name, value ) function that sets the new value. 
-						"Name" is the value of the name property of the input. 
-						"Value" is the value of the input.
-						optional, 
+	args.config.model : model for data binding. 
+	
+gadget-ui.input expects a model with a set( name, value ) function that sets the new value. 
+	"name" is the value of the name property of the input. 
+	"value" is the value of the input.
+
+gadget-ui.input also expect a bind( property, element ) method for auto-binding via the gadgetui-bind directive.
+	"property" is the model value that will be bound to the element. If you are binding
+		to a simple value, like "name", property will be that object name, e.g. "name".
+		If you are binding to an object, e.g. user {firstname: "", lastname: "" },
+		property will be the name of the object and the key to bind the control to, e.g. "user.firstname".
+	"element" is the element that will be bound to the model. In the jQuery package, it is a jQuery selector. 
+							
+
+Auto-binding to the model:
 
 HTML:
 
-	<input name="firstname" class="gadget-ui-input" placeholder="first name" value=""/>
+    <div>
+    First Name	<input name="firstname" class="gadget-ui-input" gadgetui-bind="user.firstname" placeholder="first name" value=""/>
+    </div>
+    <div>
+    Last Name <input name="lastname" class="gadget-ui-input" gadgetui-bind="user.lastname" placeholder="last name" value=""/>	
+    </div>
 
 JS:
 
     var user = {firstname: "", lastname: ""};
     gadgetui.model.set( "user", user );
-    var gadgetuiinput = new gadgetui.input.Input( { el : $("input[name='firstname']"), 
+    new gadgetui.input.Input( { config : { emitEvents: false, 
+                                func : logChanges,
+                                model : gadgetui.model  } } );
+
+In this example, the controls are automatically bound to the user object in the model, each to a property based on the gadgetui-bind directive in the control.
+
+
+
+Manual binding:
+
+HTML:
+
+    <div>
+    First Name	<input name="firstname" class="gadget-ui-input" placeholder="first name" value=""/>
+    </div>
+
+JS:
+
+    var user = {firstname: "", lastname: ""};
+    gadgetui.model.set( "user", user );
+    new gadgetui.input.Input( { el : $("input[name='firstname']"), 
         object : user, 
         config : { emitEvents: false, func: logChanges } } );
 
     // data binding for two way binding between model and control
     gadgetui.model.bind( "user.firstname", $("input[name='firstname']"));
 
+This is an older method of two-way binding and no longer preferred, though it is still supported.
+
 In this example, the control "firstname" is bound to the firstname property of the user object stored in the model. If the control value changes, the model value will change. If the
 model value changes, the control value will change. Also note in this example that we passed the control to the construct via the "el" argument. When using data binding via the bind()
 method, this isn't necessary for basic functionality. It only becomes necessary if you would like to pass a custom object to the constructor as we have done. You may find this useful
 if you want to also pass a custom function to the constructor via the "func" config argument, because when the control changes, the custom object will be passed to the custom function
 with the new value from the control, and to the "gadget-ui-input-change" event if you accept the default configuration for the control to emit events when its value changes. 
+
 
 
 **Notes**

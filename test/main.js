@@ -7,6 +7,14 @@ $( document ).ready( function(){
 	};	*/
 	
 	//var first = new gadgetui.input.Input( { el : $( "input[name='firstname']" ), object : user, config: { emitEvents: false, func : logChanges} } );
+
+	var user = {
+			firstname: "",
+			lastname: ""
+	};
+	// set the model first if we're using auto data-binding
+	gadgetui.model.set( "user", user );
+	
 	new gadgetui.input.Input( { config: { emitEvents: false, func : logChanges, model: gadgetui.model} } );
 	//new GadgetUIInput( { config: { emitEvents: false, func : logChanges, model: gadgetui.model } } );
 	$( document )
@@ -18,11 +26,7 @@ $( document ).ready( function(){
 	function logChanges( obj ){
 		console.log( obj );
 	}
-	var user = {
-			firstname: "",
-			lastname: ""
-	};
-	gadgetui.model.set( "user", user );
+
 	//gadgetui.model.bind( "user.firstname", $( "input[name='firstname']" ) );
 	//gadgetui.model.bind( "user.lastname", $( "input[name='lastname']" ) );
 	
