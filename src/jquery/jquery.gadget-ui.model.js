@@ -78,7 +78,7 @@ gadgetui.model = ( function( $ ) {
 				return true;
 			}
 			//var event = new Event('change');
-			obj.elem.change();
+			obj.elem.trigger("change");
 		} );
 	};
 

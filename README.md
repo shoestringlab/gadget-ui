@@ -6,7 +6,7 @@ JavaScript UI and data binding library
 
 **Usage**
 
-***gadget-ui.model***
+***gadgetui.model***
 
 Creating values:
 
@@ -21,14 +21,14 @@ Setting values:
     gadgetui.model.set( "user", user);
     console.log( gadgetui.model.get( "user") );
     //returns Object{ firstname: "Rob", middlename: "", lastname: "Munn" }
-    
+
     // change the object
     user = gadgetui.model.get( "user" );
     user.firstname = "Robert";
     gadgetui.model.set( "user", user);
     console.log( gadgetui.model.get( "user") );
     //returns Object{ firstname: "Robert", middlename: "", lastname: "Munn" }
-        
+
     // change a property of an object
     gadgetui.model.set( "user.middlename", "Daniel" );
     console.log( gadgetui.model.get( "user") );
@@ -51,13 +51,13 @@ Removing values:
 	gadgetui.model.destroy( "user");
 	console.log( gadgetui.model.exists( "user" ) );
 	//returns false
-	
-***jquery.gadget-ui.input***
-	
-Creating new input fields:
 
-	gadgetui.input.Input(  args );
-	
+***jquery.gadgetui.input.TextInput***
+
+Creating new text input fields:
+
+	gadgetui.input.TextInput(  args );
+
 args.el : array of jquery elements, optional
 
 args.object : object to map to args.el if only one element is passed into the constructor. Optional, will be used to pass changed value to args.config.func.
@@ -67,7 +67,7 @@ args.config.emitEvents : boolean, whether to trigger a custom event of type "gad
 args.config.func : custom function to execute when the element changes, optional.
 
 args.config.model : model for data binding. 
-	
+
 gadget-ui.input expects a model with a set( name, value ) function that sets the new value. 
 
 "name" is the value of the name property of the input. 
@@ -105,7 +105,7 @@ JS:
 
     var user = {firstname: "", lastname: ""};
     gadgetui.model.set( "user", user );
-    new gadgetui.input.Input( { config : { emitEvents: false, 
+    new gadgetui.input.TextInput( { config : { emitEvents: false, 
                                 func : logChanges,
                                 model : gadgetui.model  } } );
 
@@ -127,7 +127,7 @@ JS:
 
     var user = {firstname: "", lastname: ""};
     gadgetui.model.set( "user", user );
-    new gadgetui.input.Input( { el : $("input[name='firstname']"), 
+    new gadgetui.input.TextInput( { el : $("input[name='firstname']"), 
         object : user, 
         config : { emitEvents: false, func: logChanges } } );
 
@@ -142,11 +142,34 @@ method, this isn't necessary for basic functionality. It only becomes necessary 
 if you want to also pass a custom function to the constructor via the "func" config argument, because when the control changes, the custom object will be passed to the custom function
 with the new value from the control, and to the "gadget-ui-input-change" event if you accept the default configuration for the control to emit events when its value changes. 
 
+***jquery.gadgetui.input.Input***
+
+Creating new select input fields:
+
+HTML:
+
+	Relationship 
+
+    <select name="role" class="gadget-ui-selectinput" gadgetui-selectinput="true" gadgetui-bind="user.role">
+        <option value="">choose ...</option>
+        <option value="friend">Friend</option>
+        <option value="sibling">Sibling</option>
+        <option value="co-worker">co-worker</option>
+    </select>	
+
+JS:
+
+    var user = {firstname: "", lastname: "", role: ""};
+    gadgetui.model.set( "user", user );
+	new gadgetui.input.SelectInput( { config: { emitEvents: false, func : logChanges, model: gadgetui.model} } );
 
 
+	
 **Notes**
 
 The codebase is in active development. Expect things to change before the functionality is stable. If you choose to use the current code in production, you have been warned.
+
+Non-jQuery version of the library is currently the same as the jQuery version. The model does not depend on jQuery, but the input functions do.
 
 Unit testing is a work in progress. Work is being done to integrate Syn event simulation framework into QUnit tests, but tests are not functioning at this time.
 

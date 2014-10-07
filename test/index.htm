@@ -2,34 +2,47 @@
 <html>
 	<head>
 	<title>gadget-ui Tests</title>
-	
 	<script src="/bower_components/jquery/dist/jquery.min.js"></script>
-	<!--- <script src="/bower_components/jquery-ui/jquery-ui.min.js"></script> --->
-	<!--- <link rel="stylesheet" type="text/css" href="/bower_components/jquery-ui/themes/start/jquery-ui.min.css"/> --->
-	<link rel="stylesheet" type="text/css" href="/dist/gadget-ui.css"/>	
-	<script src="/dist/jquery.gadget-ui.js"></script>
-		
+	<link rel="stylesheet" type="text/css" href="/dist/gadget-ui.css"/>
+	<script src="/dist/jquery.gadget-ui.js"></script>	
 	</script><script src="main.js"></script>
-	
 	</head>
 	<body>
-
+		<p>
+			
+		</p>
 	<form>
-	<div>
-	First Name	<input name="firstname" class="gadget-ui-input" gadgetui-input="true" gadgetui-bind="user.firstname" placeholder="first name" value=""/>
+	<div style="padding: 20px;">
+	First Name	<input name="firstname" type="text" class="gadget-ui-textinput" gadgetui-textinput="true" gadgetui-bind="user.firstname" value=""/>
 	</div>
-	<div>
-	Last Name <input name="lastname" class="gadget-ui-input" gadgetui-input="true" gadgetui-bind="user.lastname" placeholder="last name" value=""/>	
+	<div style="padding: 20px;">
+	Last Name <input name="lastname" type="text" class="gadget-ui-textinput" gadgetui-textinput="true" gadgetui-bind="user.lastname" placeholder="" value=""/>	
 	</div>
-	<div>
-		<input type="button" value="Change First Name" onclick="gadgetui.model.set('user', {firstname:'William', lastname:'Mason'});"/>
+	<div style="padding: 20px;">
+	Tag Line <input name="tagline" type="text" class="gadget-ui-textinput" gadgetui-textinput="true" gadgetui-bind="user.tagline" placeholder="" value=""/>	
 	</div>
-	
+	<div style="padding: 20px;">
+	Relationship 
+	<select name="role" class="gadget-ui-selectinput" gadgetui-selectinput="true" gadgetui-bind="user.role">
+		<option value="">choose ...</option>
+		<option value="friend">Friend</option>
+		<option value="sibling">Sibling</option>
+		<option value="co-worker">co-worker</option>
+	</select>	
+	</div>
+
+	<div style="padding: 20px;">
+		<input type="button" value="Change Model" onclick="gadgetui.model.set('user', {firstname:'Theodore', lastname:'Roosevelt'});"/>
+		<p>
+		<input type="button" value="Show Model Values" onclick="$('#logDiv').html( 'firstname: '  + gadgetui.model.get('user.firstname') + '<br/><br/>lastname: ' + gadgetui.model.get('user.lastname') );"/>	
+		</p>
+	</div>
+	<div id="logDiv">
+		
+	</div>
 	</form>
-	
 	</body>
 </html>
-
 
 <!--- 
 	<input name="firstname" class="gadget-ui-input" placeholder="first name" value=""/>

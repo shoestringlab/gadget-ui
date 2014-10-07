@@ -16,6 +16,7 @@ div .gadget-ui-input-div input{
 	font-family: inherit;
 	margin: 0px 0px -1px;
 	padding: 0px 0px 0px 1px;
+	min-width: 2em;
 }
 
 div .gadget-ui-input-div div{
