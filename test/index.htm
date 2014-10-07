@@ -6,6 +6,20 @@
 	<link rel="stylesheet" type="text/css" href="/dist/gadget-ui.css"/>
 	<script src="/dist/jquery.gadget-ui.js"></script>	
 	</script><script src="main.js"></script>
+	<script>
+	
+		function showModel(){
+			$('#logDiv').html( 'firstname: '  +
+				gadgetui.model.get('user.firstname') + 
+				'<br/><br/>lastname: ' + 
+				gadgetui.model.get('user.lastname') +
+				'<br/><br/>tag line: ' + 
+				gadgetui.model.get('user.tagline') +
+				'<br/><br/>role: ' + 
+				gadgetui.model.get('user.role')	);
+		}
+		
+	</script>
 	</head>
 	<body>
 		<p>
@@ -28,13 +42,14 @@
 		<option value="friend">Friend</option>
 		<option value="sibling">Sibling</option>
 		<option value="co-worker">co-worker</option>
+		<option value="President">President</option>
 	</select>	
 	</div>
 
 	<div style="padding: 20px;">
-		<input type="button" value="Change Model" onclick="gadgetui.model.set('user', {firstname:'Theodore', lastname:'Roosevelt'});"/>
+		<input type="button" value="Change Model" onclick="gadgetui.model.set('user', {firstname:'Theodore', lastname:'Roosevelt', tagline: 'Square Deal', role: 'President'});"/>
 		<p>
-		<input type="button" value="Show Model Values" onclick="$('#logDiv').html( 'firstname: '  + gadgetui.model.get('user.firstname') + '<br/><br/>lastname: ' + gadgetui.model.get('user.lastname') );"/>	
+		<input type="button" value="Show Model Values" onclick="showModel();"/>	
 		</p>
 	</div>
 	<div id="logDiv">

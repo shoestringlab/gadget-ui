@@ -88,14 +88,6 @@ gadgetui.input = (function($) {
 	
 						}, 200 );
 					})
-					/*	.on( "change", function( e ) {
-						var that = this, value = e.target.value;
-						if( value.trim().length === 0 ){
-							value = " ... ";
-						}
-						oVar.isDirty = true;
-						$( "span", $( that ).parent( ) ).text( value );
-						})		*/
 					.on( "keyup", function( event ) {
 						var that = this;
 						if ( parseInt( event.keyCode, 10 ) === 13 ) {
@@ -212,14 +204,7 @@ gadgetui.input = (function($) {
 							$( that ).hide( );
 						}, 100 );
 					})
-					.on( "change", function( e ) {
-						var that = this, value = e.target.value;
-						if( value.trim().length === 0 ){
-							value = " ... ";
-						}
-						oVar.isDirty = true;
-						$( "span", $( that ).parent( ) ).text( value );
-						})					
+				
 					.on( "keyup", function( event ) {
 						var that = this;
 						if ( parseInt( event.keyCode, 10 ) === 13 ) {
@@ -227,6 +212,15 @@ gadgetui.input = (function($) {
 						}
 					});
 			});
+			$( obj )			
+				.on( "change", function( e ) {
+					var that = this, value = e.target.value;
+					if( value.trim().length === 0 ){
+						value = " ... ";
+					}
+					oVar.isDirty = true;
+					$( "span", $( that ).parent( ) ).text( value );
+				});
 		}
 		return this;
 	}
