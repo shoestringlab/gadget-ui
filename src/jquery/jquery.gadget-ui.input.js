@@ -75,8 +75,7 @@ gadgetui.input = (function($) {
 	
 								oVar.isDirty = false;
 								if( emitEvents === true ){
-									$( that )
-										.trigger( "gadgetui-input-change", [ oVar ] );
+									$( that ).trigger( "gadgetui-input-change", [ oVar ] );
 								}
 								if( func !== undefined ){
 									func( oVar );

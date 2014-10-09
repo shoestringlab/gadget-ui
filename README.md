@@ -142,7 +142,7 @@ method, this isn't necessary for basic functionality. It only becomes necessary 
 if you want to also pass a custom function to the constructor via the "func" config argument, because when the control changes, the custom object will be passed to the custom function
 with the new value from the control, and to the "gadget-ui-input-change" event if you accept the default configuration for the control to emit events when its value changes. 
 
-***jquery.gadgetui.input.Input***
+***jquery.gadgetui.input.SelectInput***
 
 Creating new select input fields:
 
