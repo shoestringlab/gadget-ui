@@ -116,11 +116,23 @@ gadgetui.model = ( function( ) {
 		// getting a property of the object, e.g. user.firstname
 		get : function( name ) {
 			var n = name.split( "." );
-			if ( n.length === 1 ) {
-				return _model[ name ].data;
+			try{
+				if ( n.length === 1 ) {
+					if( _model[name] === undefined ){
+						throw "Key '" + name + "' does not exist in the model.";
+					}else{
+						return _model[ name ].data;
+					}
+				}
+				if( _model[n[0]] === undefined ){
+					throw "Key '" + n[0] + "' does not exist in the model.";
+				}
+				return _model[n[0]].data[ n[ 1 ] ];
+				
+			}catch( e ){
+				console.log( e );
+				return undefined;
 			}
-			return _model[n[0]].data[ n[ 1 ] ];
-
 		},
 		// setter - if the name of the object to set has a period, we are
 		// setting a property of the object, e.g. user.firstname

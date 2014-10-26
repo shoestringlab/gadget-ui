@@ -3,6 +3,8 @@ gadget-ui
 
 JavaScript UI and data binding library
 
+Version 0.8.2
+
 
 **Usage**
 
@@ -162,6 +164,13 @@ JS:
     var user = {firstname: "", lastname: "", role: ""};
     gadgetui.model.set( "user", user );
 	new gadgetui.input.SelectInput( { config: { emitEvents: false, func : logChanges, model: gadgetui.model} } );
+
+***Release Notes***
+
+0.8.2
+======
+
+Added exception handling around get() method of model to log an error with the key name and return undefined in the case that a requested key does not exist in the model.
 
 
 	
