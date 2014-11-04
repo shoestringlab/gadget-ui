@@ -3,7 +3,7 @@ gadget-ui
 
 JavaScript UI and data binding library
 
-Version 0.8.2
+Version 0.9.0
 
 
 **Usage**
@@ -166,6 +166,14 @@ JS:
 	new gadgetui.input.SelectInput( { config: { emitEvents: false, func : logChanges, model: gadgetui.model} } );
 
 ***Release Notes***
+
+0.9.0
+======
+
+- Changed 'that' to 'self' for naming convention. 
+
+- Changed _bind* method signatures to pass in object reference rather than specific properties so signature will not change when properties change.
+- Expanded test page with explanatory text and some additional tests of functionality.
 
 0.8.2
 ======

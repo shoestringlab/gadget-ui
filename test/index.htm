@@ -23,20 +23,31 @@
 	</head>
 	<body>
 		<p>
+			Basic test page for jquery-gadget-ui. Three dots indicate presence of a ui element. Relationship is a select box, the others are text inputs.
 			
+		</p>
+		<p>
+			Tests: 
+			<ul>
+				<li>Text inputs should activate on click.</li>
+				<li>Select should activate on mouseenter.</li>
+				<li>Changing the value of a field should change the label that appears when the input is hidden and should change the value of the bound field in the model.
+				<li>Clicking 'Change Model' should change the values stored in the model to preset values. <br/>The model, in turn, should change the labels and input fields of the bound elements
+					to the same values.</li>
+			</ul>
 		</p>
 	<form>
 	<div style="padding: 20px;">
-	First Name	<input name="firstname" type="text" class="gadget-ui-textinput" gadgetui-textinput="true" gadgetui-bind="user.firstname" value=""/>
+	First Name - bound to user.firstname <input name="firstname" type="text" class="gadget-ui-textinput" gadgetui-textinput="true" gadgetui-bind="user.firstname" value=""/>
 	</div>
 	<div style="padding: 20px;">
-	Last Name <input name="lastname" type="text" class="gadget-ui-textinput" gadgetui-textinput="true" gadgetui-bind="user.lastname" placeholder="" value=""/>	
+	Last Name	- bound to user.lastname <input name="lastname" type="text" class="gadget-ui-textinput" gadgetui-textinput="true" gadgetui-bind="user.lastname" placeholder="" value=""/>
 	</div>
 	<div style="padding: 20px;">
-	Tag Line <input name="tagline" type="text" class="gadget-ui-textinput" gadgetui-textinput="true" gadgetui-bind="user.tagline" placeholder="" value=""/>	
+	Tag Line - bound to user.tagline <input name="tagline" type="text" class="gadget-ui-textinput" gadgetui-textinput="true" gadgetui-bind="user.tagline" placeholder="" value=""/>
 	</div>
 	<div style="padding: 20px;">
-	Relationship 
+	Relationship  - bound to user.role
 	<select name="role" class="gadget-ui-selectinput" gadgetui-selectinput="true" gadgetui-bind="user.role">
 		<option value="">choose ...</option>
 		<option value="friend">Friend</option>
