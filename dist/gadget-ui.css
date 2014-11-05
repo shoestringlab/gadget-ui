@@ -23,27 +23,27 @@ div .gadget-ui-input-div div{
 	
 }
 
-div.collapsiblePane{
+div.gadget-ui-collapsiblePane{
 	padding: 0px;
 	
 }
 
-div.collapsiblePane div:nth-child(2){
+div.gadget-ui-collapsiblePane div:nth-child(2){
 	padding: .5em;
 	
 }
 
-div.collapsiblePane-header{
+div.gadget-ui-collapsiblePane-header{
 	padding: 2px 0px 2px .5em;
-	
+	text-align:left;
 }
 
-div.collapsiblePane-header span{
+div.gadget-ui-collapsiblePane-header span{
 	float: right;
 
 }
 
-div.collapsiblePane-header div{
+div.gadget-ui-collapsiblePane-header div{
 	float: right;
 	display:inline;
 	padding-right:.25em;

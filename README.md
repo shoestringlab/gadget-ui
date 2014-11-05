@@ -3,7 +3,7 @@ gadget-ui
 
 JavaScript UI and data binding library
 
-Version 1.0.0
+Version 1.0.1
 
 
 **Usage**
@@ -193,27 +193,6 @@ JS:
     new gadgetui.display.CollapsiblePane( { selector: $( "#modelDiv" ), config : { title: "Model", path : "/dist/img/" } } );
 	
 In this example, a pane is created from a basic div. Note that the pane copies the width of the selector and sets the selector width at 100% to fill the pane.
-		
-***Release Notes***
-
-1.0.0
-======
-
-- Added CollapsiblePane display control. 
-
-0.9.0
-======
-
-- Changed 'that' to 'self' for naming convention. 
-
-- Changed _bind* method signatures to pass in object reference rather than specific properties so signature will not change when properties change.
-- Expanded test page with explanatory text and some additional tests of functionality.
-
-0.8.2
-======
-
-- Added exception handling around get() method of model to log an error with the key name and return undefined in the case that a requested key does not exist in the model.
-
 
 	
 **Notes**

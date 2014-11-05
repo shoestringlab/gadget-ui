@@ -1,6 +1,6 @@
 {
   "name": "gadget-ui",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "authors": [
     "Robert Munn <robert.d.munn@gmail.com>"
   ],
@@ -22,7 +22,8 @@
     "WEB-INF"
   ],
   "dependencies": {
-    "jquery": "~2.1.1"
+    "jquery": "~2.1.1",
+    "jquery-ui": "~1.9.2"
   },
   "devDependencies": {
     "qunit": "~1.15.0",
