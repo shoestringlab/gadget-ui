@@ -5,7 +5,7 @@ module.exports = {
 		dest : 'dist/<%= pkg.name %>.js'
 	},
 	jquery : {
-		src : [ 'src/gadget-ui.js','src/jquery/jquery.gadget-ui.model.js','src/jquery/jquery.gadget-ui.input.js' ],
+		src : [ 'src/gadget-ui.js','src/jquery/jquery.gadget-ui.model.js','src/jquery/jquery.gadget-ui.input.js','src/jquery/jquery.gadget-ui.display.js' ],
 		dest : 'dist/jquery.<%= pkg.name %>.js'
 	},
 	css : {

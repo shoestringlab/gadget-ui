@@ -1,103 +1,110 @@
 <!doctype html>
 <html>
 	<head>
-	<title>gadget-ui Tests</title>
-	<script src="/bower_components/jquery/dist/jquery.min.js"></script>
-	<link rel="stylesheet" type="text/css" href="/dist/gadget-ui.css"/>
-	<script src="/dist/jquery.gadget-ui.js"></script>	
-	</script><script src="main.js"></script>
-	<script>
-	
-		function showModel(){
-			$('#logDiv').html( 'firstname: '  +
-				gadgetui.model.get('user.firstname') + 
-				'<br/><br/>lastname: ' + 
-				gadgetui.model.get('user.lastname') +
-				'<br/><br/>tag line: ' + 
-				gadgetui.model.get('user.tagline') +
-				'<br/><br/>role: ' + 
-				gadgetui.model.get('user.role')	);
-		}
-		
-	</script>
+		<title>gadget-ui Tests</title>
+		<script src="/bower_components/jquery/dist/jquery.min.js"></script>
+		<link rel="stylesheet" type="text/css" href="/dist/gadget-ui.css"/>
+		<script src="/dist/jquery.gadget-ui.js"></script>
+		<link rel="stylesheet" type="text/css" href="/bower_components/jquery-ui/themes/humanity/jquery-ui.min.css"/>
+		<script src="/bower_components/jquery-ui/jquery-ui.min.js"></script>
+		</script><script src="main.js"></script>
+		<script>
+			function showModel( ) {
+				$( '#modelDiv' ).html( 'firstname: ' + gadgetui.model.get( 'user.firstname' ) + '<br/><br/>lastname: ' + gadgetui.model.get( 'user.lastname' ) + '<br/><br/>tag line: ' + gadgetui.model.get( 'user.tagline' ) + '<br/><br/>role: ' + gadgetui.model.get( 'user.role' ) );
+			}
+		</script>
 	</head>
 	<body>
 		<p>
 			Basic test page for jquery-gadget-ui. Three dots indicate presence of a ui element. Relationship is a select box, the others are text inputs.
-			
 		</p>
 		<p>
-			Tests: 
+			Tests:
 			<ul>
-				<li>Text inputs should activate on click.</li>
-				<li>Select should activate on mouseenter.</li>
-				<li>Changing the value of a field should change the label that appears when the input is hidden and should change the value of the bound field in the model.
-				<li>Clicking 'Change Model' should change the values stored in the model to preset values. <br/>The model, in turn, should change the labels and input fields of the bound elements
-					to the same values.</li>
+				<li>
+					Text inputs should activate on click.
+				</li>
+				<li>
+					Select should activate on mouseenter.
+				</li>
+				<li>
+					Changing the value of a field should change the label that appears when the input is hidden and should change the value of the bound field in the model.
+				<li>
+					Clicking 'Change Model' should change the values stored in the model to preset values.
+					<br/>
+					The model, in turn, should change the labels and input fields of the bound elements
+					to the same values.
+				</li>
 			</ul>
 		</p>
-	<form>
-	<div style="padding: 20px;">
-	First Name - bound to user.firstname <input name="firstname" type="text" class="gadget-ui-textinput" gadgetui-textinput="true" gadgetui-bind="user.firstname" value=""/>
-	</div>
-	<div style="padding: 20px;">
-	Last Name	- bound to user.lastname <input name="lastname" type="text" class="gadget-ui-textinput" gadgetui-textinput="true" gadgetui-bind="user.lastname" placeholder="" value=""/>
-	</div>
-	<div style="padding: 20px;">
-	Tag Line - bound to user.tagline <input name="tagline" type="text" class="gadget-ui-textinput" gadgetui-textinput="true" gadgetui-bind="user.tagline" placeholder="" value=""/>
-	</div>
-	<div style="padding: 20px;">
-	Relationship  - bound to user.role
-	<select name="role" class="gadget-ui-selectinput" gadgetui-selectinput="true" gadgetui-bind="user.role">
-		<option value="">choose ...</option>
-		<option value="friend">Friend</option>
-		<option value="sibling">Sibling</option>
-		<option value="co-worker">co-worker</option>
-		<option value="President">President</option>
-	</select>	
-	</div>
+		<div id="InputsDiv" style="width: 50%;">
+			<form>
+				<div style="padding: 20px;">
+					First Name - bound to user.firstname
+					<input name="firstname" type="text" class="gadget-ui-textinput" gadgetui-textinput="true" gadgetui-bind="user.firstname" value=""/>
+				</div>
+				<div style="padding: 20px;">
+					Last Name	- bound to user.lastname
+					<input name="lastname" type="text" class="gadget-ui-textinput" gadgetui-textinput="true" gadgetui-bind="user.lastname" placeholder="" value=""/>
+				</div>
+				<div style="padding: 20px;">
+					Tag Line - bound to user.tagline
+					<input name="tagline" type="text" class="gadget-ui-textinput" gadgetui-textinput="true" gadgetui-bind="user.tagline" placeholder="" value=""/>
+				</div>
+				<div style="padding: 20px;">
+					Relationship  - bound to user.role
+					<select name="role" class="gadget-ui-selectinput" gadgetui-selectinput="true" gadgetui-bind="user.role">
+						<option value="">choose ...</option>
+						<option value="friend">Friend</option>
+						<option value="sibling">Sibling</option>
+						<option value="co-worker">co-worker</option>
+						<option value="President">President</option>
+					</select>
+				</div>
 
-	<div style="padding: 20px;">
-		<input type="button" value="Change Model" onclick="gadgetui.model.set('user', {firstname:'Theodore', lastname:'Roosevelt', tagline: 'Square Deal', role: 'President'});"/>
-		<p>
-		<input type="button" value="Show Model Values" onclick="showModel();"/>	
-		</p>
-	</div>
-	<div id="logDiv">
+		</div>
+
+		<div style="padding: 20px;">
+			<input type="button" value="Change Model" onclick="gadgetui.model.set('user', {firstname:'Theodore', lastname:'Roosevelt', tagline: 'Square Deal', role: 'President'});"/>
+			<p>
+			<input type="button" value="Show Model Values" onclick="showModel();"/>	
+			</p>
+		</div>
 		
-	</div>
-	</form>
+		<div id="modelDiv" style="width: 50%;">
+
+		</div>
+		</form>
 	</body>
 </html>
 
-<!--- 
-	<input name="firstname" class="gadget-ui-input" placeholder="first name" value=""/>
-	
-	combine with data binding
-	
-	new gadgetui.input.Input( { config: { emitEvents: false, func : logChanges} } );
-	var user = {
-			firstname: "",
-			lastname: ""
-	};
-	
-	gadgetui.model.set( "user", user );
-	gadgetui.model.bind( "user.firstname", $( "input[name='firstname']" ) );
-	
-	Provides two-way data-binding between the model and the input
-	 --->
-	 
+<!---
+<input name="firstname" class="gadget-ui-input" placeholder="first name" value=""/>
+
+combine with data binding
+
+new gadgetui.input.Input( { config: { emitEvents: false, func : logChanges} } );
+var user = {
+firstname: "",
+lastname: ""
+};
+
+gadgetui.model.set( "user", user );
+gadgetui.model.bind( "user.firstname", $( "input[name='firstname']" ) );
+
+Provides two-way data-binding between the model and the input
+--->
 
 <!--- <input name="user.firstname" class="gadget-ui-input" placeholder="first name" value=""/>
-		new gadgetui.input.Input( { config: { emitEvents: false, func : logChanges, model: gadgetui.model} } );
+new gadgetui.input.Input( { config: { emitEvents: false, func : logChanges, model: gadgetui.model} } );
 
-		register the model, but no data binding
+register the model, but no data binding
 
-		var user = {
-				firstname: "",
-				lastname: ""
-		};
-		gadgetui.model.set( "user", user );
-			
-		Provides one-way binding from the control to the model only	
-	 --->
+var user = {
+firstname: "",
+lastname: ""
+};
+gadgetui.model.set( "user", user );
+
+Provides one-way binding from the control to the model only
+--->

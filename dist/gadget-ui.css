@@ -22,3 +22,29 @@ div .gadget-ui-input-div input{
 div .gadget-ui-input-div div{
 	
 }
+
+div.collapsiblePane{
+	padding: 0px;
+	
+}
+
+div.collapsiblePane div:nth-child(2){
+	padding: .5em;
+	
+}
+
+div.collapsiblePane-header{
+	padding: 2px 0px 2px .5em;
+	
+}
+
+div.collapsiblePane-header span{
+	float: right;
+
+}
+
+div.collapsiblePane-header div{
+	float: right;
+	display:inline;
+	padding-right:.25em;
+}

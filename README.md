@@ -3,7 +3,7 @@ gadget-ui
 
 JavaScript UI and data binding library
 
-Version 0.9.0
+Version 1.0.0
 
 
 **Usage**
@@ -58,7 +58,7 @@ Removing values:
 
 Creating new text input fields:
 
-	gadgetui.input.TextInput(  args );
+	new gadgetui.input.TextInput(  args );
 
 args.el : array of jquery elements, optional
 
@@ -165,7 +165,41 @@ JS:
     gadgetui.model.set( "user", user );
 	new gadgetui.input.SelectInput( { config: { emitEvents: false, func : logChanges, model: gadgetui.model} } );
 
+
+***jquery.gadgetui.display.CollapsiblePane***
+
+Creating a new CollapsiblePane:
+
+	new gadgetui.display.CollapsiblePane( args );
+
+args.selector : The jQuery selector to create the CollapsiblePane. The selector must be a div.
+
+args.config : The config object for the control.
+
+args.config.title : The title to disple in the header bar of the control.
+
+args.config.path : The path to the gadgetui script folder. Defaults to /bower_components/gadget-ui/dist/. Used for icon display.
+
+args.config.padding : The cell padding for the selector. Defaults to .5em.
+
+args.config.paddingTop : The cell padding for the top of the selector. Defaults to .3em. Used to correct offset shift in pane show/hide transition.
+
+HTML:
+
+    <div id="modelDiv" style="width: 50%;">
+    </div>
+   
+JS:
+    new gadgetui.display.CollapsiblePane( { selector: $( "#modelDiv" ), config : { title: "Model", path : "/dist/img/" } } );
+	
+In this example, a pane is created from a basic div. Note that the pane copies the width of the selector and sets the selector width at 100% to fill the pane.
+		
 ***Release Notes***
+
+1.0.0
+======
+
+- Added CollapsiblePane display control. 
 
 0.9.0
 ======
@@ -178,7 +212,7 @@ JS:
 0.8.2
 ======
 
-Added exception handling around get() method of model to log an error with the key name and return undefined in the case that a requested key does not exist in the model.
+- Added exception handling around get() method of model to log an error with the key name and return undefined in the case that a requested key does not exist in the model.
 
 
 	
