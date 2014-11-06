@@ -1,6 +1,12 @@
 		
 ***Release Notes***
 
+1.0.2
+======
+
+- Moved CollapsiblePabe.toggle method to object prototype.
+- Added collapse config argument to allow pane to start expanded or collapsed.
+
 1.0.1
 ======
 

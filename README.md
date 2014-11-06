@@ -3,7 +3,7 @@ gadget-ui
 
 JavaScript UI and data binding library
 
-Version 1.0.1
+Version 1.0.2
 
 
 **Usage**
@@ -183,6 +183,12 @@ args.config.path : The path to the gadgetui script folder. Defaults to /bower_co
 args.config.padding : The cell padding for the selector. Defaults to .5em.
 
 args.config.paddingTop : The cell padding for the top of the selector. Defaults to .3em. Used to correct offset shift in pane show/hide transition.
+
+args.config.width : Width of the resulting control. Defaults to the width of the selector.
+
+args.config.interiorWidth : Width of the selector div after rendering is complete. Default to 100% to fill the control.
+
+args.config.collapse : Whether to start the resulting control expanded or collapsed. Defaults to false.
 
 HTML:
 
