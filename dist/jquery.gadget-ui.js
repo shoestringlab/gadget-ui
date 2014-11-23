@@ -286,12 +286,21 @@ function LookupListInput( args ){
 
 				elem.remove( );
 			}
-		}).autocomplete( "instance" )._renderItem = function( ul, item ) {
-			return $( "<li>" )
-			.attr( "data-value", item.value )
-			.append( $( "<a>" ).text( self.labelRenderer( item ) ) )
-			.appendTo( ul );
-		};			
+		});
+		
+		$.ui.autocomplete.prototype._renderItem = function( ul, item){
+			if( typeof self.labelRenderer === "function"){
+				return $( "<li>" )
+				.attr( "data-value", item.value )
+				.append( $( "<a>" ).text( self.labelRenderer( item ) ) )
+				.appendTo( ul );
+			}else{
+				//default jquery-ui implementation
+				return $( "<li>" )
+				.append( $( "<a>" ).text( item.label ) )
+				.appendTo( ul );
+			}
+		};	
 	};
 }
 
