@@ -206,7 +206,7 @@ gadgetui.input = (function($) {
 	
 
 function LookupListInput( args ){
-	var self = this, index, obj, o;
+	var self = this, index, obj;
 
 	_renderLabel = function( item ){
 		return item.label;
@@ -222,9 +222,6 @@ function LookupListInput( args ){
 	}else{
 		this.el = args.el;
 	}
-	if( el.length === 1 && args.object !== undefined ){
-		o = args.object;
-	}
 	if( args.config !== undefined ){
 		self.config( args.config );
 	}
@@ -235,11 +232,11 @@ function LookupListInput( args ){
 
 		$( obj ).wrap( '<div class="gadgetui-lookuplistinput-div ui-widget-content ui-corner-all" style="width:100%;"></div>');
 
-		_bind( obj, self, o );
+		_bind( obj, self );
 
 	});
 	
-	function _bind( obj, component, o ){
+	function _bind( obj, component ){
 		var self = component;
 		
 		$( obj ).parent()
@@ -248,7 +245,6 @@ function LookupListInput( args ){
 			})
 			.on( "click", "div[class~='gadgetui-lookuplist-input-cancel']", function(e){
 				self.remove( obj, $( e.target ).attr( "gadgetui-lookuplist-input-value" ) );
-				//console.log( e );
 			});
 		
 		$( obj )
