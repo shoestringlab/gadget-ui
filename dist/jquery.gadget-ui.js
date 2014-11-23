@@ -305,9 +305,13 @@ function LookupListInput( args ){
 }
 
 LookupListInput.prototype.add = function( el, item ){
-	var prop, list;
+	var prop, list, title;
+	title = item.title || "";
 	$( "<div class='gadgetui-lookuplist-input-item-wrapper'><div class='gadgetui-lookuplist-input-cancel ui-corner-all ui-widget-content' gadgetui-lookuplist-input-value='" + item.value + "'><div class='gadgetui-lookuplist-input-item'>" + this.labelRenderer( item ) + "</div></div></div>" )
 		.insertBefore( el );
+	if( item.title !== undefined ){
+		$( "div[class~='gadgetui-lookuplist-input-cancel']", $( el ).parent() ).last().attr( "title", item.title );
+	}
 	if( this.emitEvents === true ){
 		$( el ).trigger( "gadgetui-lookuplistinput-add", [ item ] );
 	}

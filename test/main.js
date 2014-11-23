@@ -9,7 +9,7 @@ $( document ).ready( function(){
 	};
 
 	var lookuplist = [
-		{label: "Abby", email: "abby@abby", value: "123"},
+		{label: "Abby", email: "abby@abby", value: "123", title: "BFF"},
 		{label:"Bobby", email: "bobby@bobby", value: "456"},
 		{label: "Cara", email: "cara@cara", value: "789"},
 		{label: "Dan", email: "dan@dan", value: "102"}	
