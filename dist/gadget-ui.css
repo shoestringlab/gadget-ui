@@ -23,12 +23,38 @@ div .gadget-ui-input-div div{
 	
 }
 
+div.gadgetui-lookuplistinput-div{
+	background:#fff;
+}
+
+div.gadgetui-lookuplistinput-div input{
+	border:0;
+	outline: none;
+}
+
+div.gadgetui-lookuplistinput-div .gadgetui-lookuplist-input-item{
+	/*	padding: 2px;	*/
+}
+
+div.gadgetui-lookuplistinput-div .gadgetui-lookuplist-input-cancel{
+	background: url('img/cancel.png') 98% center no-repeat #f4f0ec;
+	border: 1px solid #f4f0ec;
+	padding: 0px 20px 0px 3px;
+	margin:0px;
+	display:inline-block;
+}
+
+div.gadgetui-lookuplistinput-div > .gadgetui-lookuplist-input-item-wrapper{
+	margin:3px;
+	display:inline-block;
+}
+
 div.gadget-ui-collapsiblePane{
 	padding: 0px;
 	
 }
 
-div.gadget-ui-collapsiblePane div:nth-child(2){
+div.gadget-ui-collapsiblePane > div:nth-child(2){
 	padding: .5em;
 	
 }

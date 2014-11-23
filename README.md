@@ -66,9 +66,12 @@ args.object : object to map to args.el if only one element is passed into the co
 
 args.config.emitEvents : boolean, whether to trigger a custom event of type "gadget-ui-input-change", which you can listen for to capture changes in input values, optional, default = true.
 
-args.config.func : custom function to execute when the element changes, optional.
+args.config.func : custom function to execute when the element changes, optional. Will pass the args.object object, if it exists, as an argument.
 
-args.config.model : model for data binding. 
+args.config.model : model for data binding.
+
+args.config.activate : event used to activate the select input, optional. defaults to "mouseenter".
+
 
 gadget-ui.input expects a model with a set( name, value ) function that sets the new value. 
 
@@ -148,6 +151,21 @@ with the new value from the control, and to the "gadget-ui-input-change" event i
 
 Creating new select input fields:
 
+	new gadgetui.input.SelectInput(  args );
+
+args.el : array of jquery elements, optional. If not specified, the component will bind to any text input with the attribute  "gadgetui-selectinput='true'".
+
+args.object : object to map to args.el if only one element is passed into the constructor. Optional, will be used to pass changed value to args.config.func.
+
+args.config.emitEvents : boolean, whether to trigger a custom event of type "gadget-ui-input-change", which you can listen for to capture changes in input values, optional, default = true.
+
+args.config.func : custom function to execute when the element changes, optional. Will pass the args.object object, if it exists, as an argument.
+
+args.config.model : model for data binding.
+
+args.config.activate : event used to activate the select input, optional. defaults to "mouseenter".
+
+
 HTML:
 
 	Relationship 
@@ -164,6 +182,46 @@ JS:
     var user = {firstname: "", lastname: "", role: ""};
     gadgetui.model.set( "user", user );
 	new gadgetui.input.SelectInput( { config: { emitEvents: false, func : logChanges, model: gadgetui.model} } );
+
+***jquery.gadgetui.input.LookupListInput***
+
+Creating a new LookupListInput field.
+
+	new gadgetui.input.LookupListInput(  args );
+
+args.el : array of jquery elements, optional. If not specified, the component will bind to any text input with the attribute "gadgetui-lookuplist-input='true'". 
+
+args.config.func : custom function to execute when the element changes, optional. Will pass the selected item from lookupList and either "add" or "remove" as arguments, func( obj, "add|remove" ).
+
+args.config.emitEvents : boolean, whether to trigger a custom event of type "gadget-ui-input-change", which you can listen for to capture changes in input values, optional, default = true.
+
+args.config.labelRenderer : custom function that renders elements for the menu of items and for selected items, optional.
+
+args.config.model : model for data binding. 
+
+args.lookupList : array of items to use as the source for the autocomplete function of the input, required.
+
+args.minLength : minimum length of input value to trigger autocomplete, optional, default 0.
+
+HTML: 
+
+    <input name="friends" type="text" gadgetui-lookuplist-input="true" gadget-ui-bind="user.friends" placeholder="Friends"/>
+
+JS: 
+	var lookuplist = [
+		{label: "Abby", email: "abby@abby", value: "123"},
+		{label:"Bobby", email: "bobby@bobby", value: "456"},
+		{label: "Cara", email: "cara@cara", value: "789"},
+		{label: "Dan", email: "dan@dan", value: "102"}	
+	];
+
+	function renderLabel( item ){
+		return item.label + "(" + item.email + ")";
+	}
+	
+ 	var user = {firstname: "", lastname: "", role: "", friends : []};
+	new gadgetui.input.LookupListInput( { config:{ emitEvents: false, lookupList: lookuplist, model: gadgetui.model, labelRenderer : renderLabel } } );
+	
 
 
 ***jquery.gadgetui.display.CollapsiblePane***

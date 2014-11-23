@@ -1,6 +1,6 @@
 $( document ).ready( function(){
 	var gadgetuiinput = new gadgetui.input.Input( { config: { emitEvents: false, func : logChanges, model: gadgetui.model } } );
-	//new GadgetUIInput( { config: { emitEvents: false, func : logChanges, model: gadgetui.model } } );
+
 	$( document )
 		.on( "gadgetui-textinput-change", function(evt, obj){
 			console.log( evt );
@@ -10,11 +10,6 @@ $( document ).ready( function(){
 	function logChanges( obj ){
 		console.log( obj );
 	}
-
-
-	//gadgetui.model.bind( "user.firstname", document.getElementsByName('user.firstname')[0] );
-
-	//console.log( gadgetui.model.get( "user.firstname" ) );
 
 	QUnit.module("binding", {
 		setup: function() {
@@ -34,8 +29,6 @@ $( document ).ready( function(){
 		}
 	});
 
-
-	
 	QUnit.test( "Input to model binding", function( assert ) {
 		// change the first name field
 		//$( "span", $( "input[name='user.firstname']" ).parent() )
