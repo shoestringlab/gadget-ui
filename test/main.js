@@ -9,7 +9,7 @@ $( document ).ready( function(){
 	};
 
 	var lookuplist = [
-		{label: "Abby", email: "abby@abby", value: "123", title: "BFF"},
+		{label: "Abby", email: "abby@abby", value: "123", title: "Abby abby@abby"},
 		{label:"Bobby", email: "bobby@bobby", value: "456"},
 		{label: "Cara", email: "cara@cara", value: "789"},
 		{label: "Dan", email: "dan@dan", value: "102"}	
@@ -27,7 +27,7 @@ $( document ).ready( function(){
 	
 	new gadgetui.input.TextInput( { config: { emitEvents: false, func : logChanges, model: gadgetui.model, activate: "click"} } );
 	new gadgetui.input.SelectInput( { config: { emitEvents: false, func : logChanges, model: gadgetui.model} } );
-	new gadgetui.input.LookupListInput( { config:{ emitEvents: false, lookupList: lookuplist, model: gadgetui.model, labelRenderer : renderLabel } } );
+	new gadgetui.input.LookupListInput( { config:{ emitEvents: false, lookupList: lookuplist, model: gadgetui.model, menuItemRenderer : renderLabel } } );
 	
 	new gadgetui.display.CollapsiblePane( { selector: $( "#InputsDiv" ), config : { title: "Inputs", path : "/dist/" } } );
 	new gadgetui.display.CollapsiblePane( { selector: $( "#modelDiv" ), config : { title: "Model", path : "/dist/", collapse: true } } );

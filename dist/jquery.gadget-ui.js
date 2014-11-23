@@ -212,7 +212,8 @@ function LookupListInput( args ){
 		return item.label;
 	};
 
-	this.labelRenderer = _renderLabel;
+	this.itemRenderer = _renderLabel;
+	this.menuItemRenderer = _renderLabel;
 	this.lookupList;
 	this.emitEvents = true;
 	this.model;
@@ -289,10 +290,10 @@ function LookupListInput( args ){
 		});
 		
 		$.ui.autocomplete.prototype._renderItem = function( ul, item){
-			if( typeof self.labelRenderer === "function"){
+			if( typeof self.menuItemRenderer === "function"){
 				return $( "<li>" )
 				.attr( "data-value", item.value )
-				.append( $( "<a>" ).text( self.labelRenderer( item ) ) )
+				.append( $( "<a>" ).text( self.menuItemRenderer( item ) ) )
 				.appendTo( ul );
 			}else{
 				//default jquery-ui implementation
@@ -307,7 +308,7 @@ function LookupListInput( args ){
 LookupListInput.prototype.add = function( el, item ){
 	var prop, list, title;
 	title = item.title || "";
-	$( "<div class='gadgetui-lookuplist-input-item-wrapper'><div class='gadgetui-lookuplist-input-cancel ui-corner-all ui-widget-content' gadgetui-lookuplist-input-value='" + item.value + "'><div class='gadgetui-lookuplist-input-item'>" + this.labelRenderer( item ) + "</div></div></div>" )
+	$( "<div class='gadgetui-lookuplist-input-item-wrapper'><div class='gadgetui-lookuplist-input-cancel ui-corner-all ui-widget-content' gadgetui-lookuplist-input-value='" + item.value + "'><div class='gadgetui-lookuplist-input-item'>" + this.itemRenderer( item ) + "</div></div></div>" )
 		.insertBefore( el );
 	if( item.title !== undefined ){
 		$( "div[class~='gadgetui-lookuplist-input-cancel']", $( el ).parent() ).last().attr( "title", item.title );
@@ -347,7 +348,8 @@ LookupListInput.prototype.config = function( args ){
 	var self = this;
 	self.model =  (( args.model === undefined) ? self.model : args.model );
 	self.func = (( args.func === undefined) ? undefined : args.func );
-	self.labelRenderer = (( args.labelRenderer === undefined) ? self.labelRenderer : args.labelRenderer );
+	self.itemRenderer = (( args.itemRenderer === undefined) ? self.itemRenderer : args.itemRenderer );
+	self.menuItemRenderer = (( args.menuItemRenderer === undefined) ? self.menuItemRenderer : args.menuItemRenderer );
 	self.emitEvents = (( args.emitEvents === undefined) ? true : args.emitEvents );
 	self.lookupList = (( args.lookupList === undefined) ? true : args.lookupList );
 	self.minLength = (( args.minLength === undefined) ? 0 : args.minLength );

@@ -3,7 +3,7 @@ gadget-ui
 
 JavaScript UI and data binding library
 
-Version 1.1.3
+Version 1.1.4
 
 
 **Usage**
@@ -195,7 +195,9 @@ args.config.func : custom function to execute when the element changes, optional
 
 args.config.emitEvents : boolean, whether to trigger a custom event of type "gadget-ui-input-change", which you can listen for to capture changes in input values, optional, default = true.
 
-args.config.labelRenderer : custom function that renders elements for the menu of items and for selected items, optional.
+args.config.itemRenderer : custom function that renders elements for the selected items, optional.
+
+args.config.menuItemRenderer : custom function that renders elements for the menu of items, optional. 
 
 args.config.model : model for data binding. 
 
