@@ -208,12 +208,13 @@ HTML:
     <input name="friends" type="text" gadgetui-lookuplist-input="true" gadget-ui-bind="user.friends" placeholder="Friends"/>
 
 JS: 
-	var lookuplist = [
-		{label: "Abby", email: "abby@abby", value: "123"},
-		{label:"Bobby", email: "bobby@bobby", value: "456"},
-		{label: "Cara", email: "cara@cara", value: "789"},
-		{label: "Dan", email: "dan@dan", value: "102"}	
-	];
+    
+    var lookuplist = [
+        {label: "Abby", email: "abby@abby", value: "123"},
+        {label:"Bobby", email: "bobby@bobby", value: "456"},
+        {label: "Cara", email: "cara@cara", value: "789"},
+        {label: "Dan", email: "dan@dan", value: "102"}	
+    ];
 
 	function renderLabel( item ){
 		return item.label + "(" + item.email + ")";
