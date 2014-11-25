@@ -328,7 +328,7 @@ LookupListInput.prototype.add = function( el, item ){
 };
 
 LookupListInput.prototype.remove = function( el, value ){
-	$( "div[gadgetui-lookuplist-input-value='" + value + "']", $( el ).parent() ).remove();
+	$( "div[gadgetui-lookuplist-input-value='" + value + "']", $( el ).parent() ).parent().remove();
 
 	var self = this, i, obj, prop, list;
 

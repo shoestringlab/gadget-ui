@@ -1,6 +1,11 @@
 		
 ***Release Notes***
 
+1.1.0
+======
+
+- Added LookupListInput control for adding tags, email addresses, etc from a source array through autocomplete function.
+
 1.0.2
 ======
 
