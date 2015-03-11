@@ -24,6 +24,7 @@
 				+ '<br/><br/>role: ' + gadgetui.model.get( 'user.role' ) 
 				+ '<br/><br/>friends: ' + gadgetui.model.get( 'user.friends' ) );
 			}
+								
 		</script>
 	</head>
 	<body>
@@ -74,7 +75,7 @@
 					</select>
 				</div>
 				<div style="padding: 20px;">
-					<input name="friends" type="text" gadgetui-lookuplist-input="true" gadget-ui-bind="user.friends" placeholder="Friends"/>
+					<input name="friends" type="text" gadgetui-lookuplist-input="true" gadgetui-bind="user.friends" placeholder="Friends"/>
 				</div>
 			</form>
 		</div>
@@ -84,6 +85,9 @@
 			<input type="button" value="Change Model" onclick="gadgetui.model.set('user', {firstname:'Theodore', lastname:'Roosevelt', tagline: 'Square Deal', role: 'President', friends: []});"/>
 			<p>
 			<input type="button" value="Show Model Values" onclick="showModel();"/>	
+			</p>
+			<p>
+				<input type="button" value="Reset Friends list" name="resetLookupList" />
 			</p>
 		</div>
 		

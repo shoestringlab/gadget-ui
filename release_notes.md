@@ -1,6 +1,11 @@
 		
 ***Release Notes***
 
+1.1.7
+======
+
+- Added reset method to LookupListInput control to reset contents of input.
+
 1.1.0
 ======
 

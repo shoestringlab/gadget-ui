@@ -26,7 +26,8 @@ gadgetui.model = ( function( $ ) {
 
 	// for each bound control, update the value
 	BindableObject.prototype.change = function( value, property ) {
-		var that = this;
+		var that = this, n;
+
 		// this code changes the value of the BinableObject to the incoming value
 		if ( property === undefined ) {
 			// Directive is to replace the entire value stored in the BindableObject
@@ -39,7 +40,15 @@ gadgetui.model = ( function( $ ) {
 			// verifies that "data" is an object and not a simple value
 			// update the BindableObject's specified property with the incoming value
 			// value could be anything, simple value or object, does not matter
-			this.data[ property ] = value;
+			
+			if( this.data[ property ] === undefined ){
+				throw( "Property '" + property + "' of object is undefined." );
+			}
+			else{
+				this.data[ property ] = value;
+			}			
+			// check if we are updating only a single property or the entire object
+		
 		}
 		else {
 			throw "Attempt to treat a simple value as an object with properties. Change fails.";
@@ -186,7 +195,7 @@ gadgetui.model = ( function( $ ) {
 					_model[ name ].change( value );
 				}
 				else {
-					_model[ n[ 0 ] ].change( value, n[ 1 ] );
+					_model[ n[ 0 ] ].change( value, n[1] );
 				}
 			}
 		}
@@ -310,6 +319,7 @@ LookupListInput.prototype.add = function( el, item ){
 	title =  item.title || "" ;
 	$( "<div class='gadgetui-lookuplist-input-item-wrapper'><div class='gadgetui-lookuplist-input-cancel ui-corner-all ui-widget-content' gadgetui-lookuplist-input-value='" + item.value + "'><div class='gadgetui-lookuplist-input-item'>" + this.itemRenderer( item ) + "</div></div></div>" )
 		.insertBefore( el );
+	$( el ).val('');
 	if( item.title !== undefined ){
 		$( "div[class~='gadgetui-lookuplist-input-cancel']", $( el ).parent() ).last().attr( "title", item.title );
 	}
@@ -321,9 +331,10 @@ LookupListInput.prototype.add = function( el, item ){
 	}
 	if( this.model !== undefined ){
 		//update the model 
-		prop = $( el ).attr( "gadget-ui-bind" );
+		prop = $( el ).attr( "gadgetui-bind" );
 		list = this.model.get( prop );
 		list.push( item );
+		this.model.set( prop, list );
 	}
 };
 
@@ -333,7 +344,7 @@ LookupListInput.prototype.remove = function( el, value ){
 	var self = this, i, obj, prop, list;
 
 	if( this.model !== undefined ){
-		prop = $( el ).attr( "gadget-ui-bind" );
+		prop = $( el ).attr( "gadgetui-bind" );
 		list = this.model.get( prop );
 		$.each( list, function( i, obj ){
 			if( obj.value === value ){
@@ -341,9 +352,23 @@ LookupListInput.prototype.remove = function( el, value ){
 				if( self.func !== undefined ){
 					self.func( obj, 'remove' );
 				}
+				if( self.emitEvents === true ){
+					$( el ).trigger( "gadgetui-lookuplistinput-remove", [ obj ] );
+				}
+				self.model.set( prop, list );
 				return false;
 			}
 		});
+	}
+};
+
+LookupListInput.prototype.reset = function(){
+	$( ".gadgetui-lookuplist-input-item-wrapper", $(  this.el ).parent() ).empty();
+
+	if( this.model !== undefined ){
+		prop = $( this.el ).attr( "gadget-ui-bind" );
+		list = this.model.get( prop );
+		list.length = 0;
 	}
 };
 

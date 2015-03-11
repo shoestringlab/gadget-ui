@@ -104,6 +104,7 @@ LookupListInput.prototype.add = function( el, item ){
 	title =  item.title || "" ;
 	$( "<div class='gadgetui-lookuplist-input-item-wrapper'><div class='gadgetui-lookuplist-input-cancel ui-corner-all ui-widget-content' gadgetui-lookuplist-input-value='" + item.value + "'><div class='gadgetui-lookuplist-input-item'>" + this.itemRenderer( item ) + "</div></div></div>" )
 		.insertBefore( el );
+	$( el ).val('');
 	if( item.title !== undefined ){
 		$( "div[class~='gadgetui-lookuplist-input-cancel']", $( el ).parent() ).last().attr( "title", item.title );
 	}
@@ -115,9 +116,10 @@ LookupListInput.prototype.add = function( el, item ){
 	}
 	if( this.model !== undefined ){
 		//update the model 
-		prop = $( el ).attr( "gadget-ui-bind" );
+		prop = $( el ).attr( "gadgetui-bind" );
 		list = this.model.get( prop );
 		list.push( item );
+		this.model.set( prop, list );
 	}
 };
 
@@ -127,7 +129,7 @@ LookupListInput.prototype.remove = function( el, value ){
 	var self = this, i, obj, prop, list;
 
 	if( this.model !== undefined ){
-		prop = $( el ).attr( "gadget-ui-bind" );
+		prop = $( el ).attr( "gadgetui-bind" );
 		list = this.model.get( prop );
 		$.each( list, function( i, obj ){
 			if( obj.value === value ){
@@ -135,9 +137,23 @@ LookupListInput.prototype.remove = function( el, value ){
 				if( self.func !== undefined ){
 					self.func( obj, 'remove' );
 				}
+				if( self.emitEvents === true ){
+					$( el ).trigger( "gadgetui-lookuplistinput-remove", [ obj ] );
+				}
+				self.model.set( prop, list );
 				return false;
 			}
 		});
+	}
+};
+
+LookupListInput.prototype.reset = function(){
+	$( ".gadgetui-lookuplist-input-item-wrapper", $(  this.el ).parent() ).empty();
+
+	if( this.model !== undefined ){
+		prop = $( this.el ).attr( "gadget-ui-bind" );
+		list = this.model.get( prop );
+		list.length = 0;
 	}
 };
 

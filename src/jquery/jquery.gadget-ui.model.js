@@ -25,7 +25,8 @@ gadgetui.model = ( function( $ ) {
 
 	// for each bound control, update the value
 	BindableObject.prototype.change = function( value, property ) {
-		var that = this;
+		var that = this, n;
+
 		// this code changes the value of the BinableObject to the incoming value
 		if ( property === undefined ) {
 			// Directive is to replace the entire value stored in the BindableObject
@@ -38,7 +39,15 @@ gadgetui.model = ( function( $ ) {
 			// verifies that "data" is an object and not a simple value
 			// update the BindableObject's specified property with the incoming value
 			// value could be anything, simple value or object, does not matter
-			this.data[ property ] = value;
+			
+			if( this.data[ property ] === undefined ){
+				throw( "Property '" + property + "' of object is undefined." );
+			}
+			else{
+				this.data[ property ] = value;
+			}			
+			// check if we are updating only a single property or the entire object
+		
 		}
 		else {
 			throw "Attempt to treat a simple value as an object with properties. Change fails.";
@@ -185,7 +194,7 @@ gadgetui.model = ( function( $ ) {
 					_model[ name ].change( value );
 				}
 				else {
-					_model[ n[ 0 ] ].change( value, n[ 1 ] );
+					_model[ n[ 0 ] ].change( value, n[1] );
 				}
 			}
 		}
