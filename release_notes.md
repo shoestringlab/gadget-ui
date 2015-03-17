@@ -1,6 +1,13 @@
 		
 ***Release Notes***
 
+
+1.1.9
+======
+
+- Added z-index option to floatingPane ui component.
+
+
 1.1.8
 ======
 

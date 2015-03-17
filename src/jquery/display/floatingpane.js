@@ -21,7 +21,8 @@
 		wrapper = $( self.selector ).parent();
 		//copy width from selector
 		wrapper.css( "width", self.width )
-				.css( "opacity", self.opacity );
+				.css( "opacity", self.opacity )
+				.css( "z-index", self.zIndex );
 
 		//now make the width of the selector to fill the wrapper
 		$( self.selector )
@@ -50,6 +51,7 @@
 		this.width = ( args.width === undefined ? $( this.selector ).css( "width" ) : args.width );
 		this.interiorWidth = ( args.interiorWidth === undefined ? "100%": args.interiorWidth );
 		this.opacity = ( ( args.opacity === undefined ? 1 : args.opacity ) );
+		this.zIndex = ( ( args.zIndex === undefined ? 100000 : args.zIndex ) );		
 	};
 	
 	/*	FloatingPane.prototype.toggle = function( img ){
