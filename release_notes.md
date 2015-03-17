@@ -2,6 +2,11 @@
 ***Release Notes***
 
 
+1.1.10
+======
+
+- Added expand/minimize function to header button.
+
 1.1.9
 ======
 

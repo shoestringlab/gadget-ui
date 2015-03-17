@@ -59,6 +59,10 @@ div.gadget-ui-collapsiblePane > div:nth-child(2), div.gadget-ui-floatingPane > d
 	
 }
 
+div.gadget-ui-floatingPane > div:nth-child(2){
+	overflow:scroll;
+}
+
 div.gadget-ui-collapsiblePane-header, div.gadget-ui-floatingPane-header{
 	padding: 2px 0px 2px .5em;
 	text-align:left;
