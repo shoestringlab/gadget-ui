@@ -1,6 +1,11 @@
 		
 ***Release Notes***
 
+1.1.8
+======
+
+- Added floatingPane ui component.
+
 1.1.7
 ======
 

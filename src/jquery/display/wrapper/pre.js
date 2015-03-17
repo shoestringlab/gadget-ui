@@ -1,0 +1,2 @@
+gadgetui.display = (function($) {
+	
