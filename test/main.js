@@ -30,7 +30,7 @@ $( document ).ready( function(){
 
 	new gadgetui.display.CollapsiblePane( { selector: $( "#InputsDiv" ), config : { title: "Inputs", path : "/dist/" } } );
 	new gadgetui.display.CollapsiblePane( { selector: $( "#modelDiv" ), config : { title: "Model", path : "/dist/", collapse: true } } );
-	var fp = new gadgetui.display.FloatingPane( { selector: $( "#debugDiv" ), config : { title: "Floating Pane", path : "/dist/", opacity: .5, position: { my: "right top", at: "right top", of: window } } } );
+	var fp = new gadgetui.display.FloatingPane( { selector: $( "#debugDiv" ), config : { title: "A", path : "/dist/", opacity: .5, position: { my: "right top", at: "right top", of: window } } } );
 	
 	$( document )
 		.on( "gadgetui-input-change", function(evt, obj){

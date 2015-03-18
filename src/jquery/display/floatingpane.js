@@ -46,7 +46,7 @@
 		this.padding = ( args.padding === undefined ? ".5em": args.padding );
 		this.paddingTop = ( args.paddingTop === undefined ? ".3em": args.paddingTop );
 		this.width = ( args.width === undefined ? $( this.selector ).css( "width" ) : args.width );
-		this.minWidth = ( this.title.length > 0 ? this.title.length * 10 : 100 );
+		this.minWidth = ( this.title.length > 0 ? Math.max( 100, this.title.length * 10 ) : 100 );
 
 		this.height = ( args.height === undefined ? $( this.selector ).css( "height" ) : args.height );
 		this.interiorWidth = ( args.interiorWidth === undefined ? "100%": args.interiorWidth );

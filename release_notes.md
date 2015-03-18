@@ -1,6 +1,11 @@
 		
 ***Release Notes***
 
+1.1.12
+======
+
+- Bug fix for minWidth on FloatingPane
+
 1.1.11
 ======
 
