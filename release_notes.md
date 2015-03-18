@@ -1,6 +1,11 @@
 		
 ***Release Notes***
 
+1.1.11
+======
+
+- Changed icons to jquery-ui icons.
+
 
 1.1.10
 ======

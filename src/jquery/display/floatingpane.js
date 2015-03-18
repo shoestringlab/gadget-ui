@@ -1,26 +1,15 @@
 	function FloatingPane( args ){
-		var self = this, img, header;
+		var self = this, header;
 		self.selector = args.selector;
 		if( args.config !== undefined ){
 			self.config( args.config );
 		}
 		
-/*			$( self.selector )
-			.dialog({
-				draggable: true,
-				title: self.title,
-				width: self.width,
-				position: self.position
-			});
-		
-		var pane = $( self.selector ).parent();
-		
-		pane.css( "opacity", self.opacity );	*/
-		
 		$( self.selector ).wrap( '<div class="gadget-ui-floatingPane ui-corner-all ui-widget-content"></div>');
 		self.wrapper = $( self.selector ).parent();
 		//copy width from selector
 		self.wrapper.css( "width", self.width )
+				.css( "minWidth", self.minWidth )
 				.css( "opacity", self.opacity )
 				.css( "z-index", self.zIndex );
 
@@ -29,15 +18,15 @@
 			.css( "width", self.interiorWidth )
 			.css( "padding", self.padding );
 
-		self.wrapper.prepend( '<div class="ui-widget-header ui-corner-all gadget-ui-floatingPane-header">' + self.title + '<div><img src="' + self.path + 'img/close.png"/></div></div>');
+		self.wrapper.prepend( '<div class="ui-widget-header ui-corner-all gadget-ui-floatingPane-header">' + self.title + '<div class="ui-icon ui-icon-arrow-4"></div></div>');
 		header = $( "div.gadget-ui-floatingPane-header", self.wrapper );
 
 		// jquery-ui draggable
 		self.wrapper.draggable( {addClasses: false } );
 
-		img = $( "div div img", self.wrapper );
+		self.maxmin = $( "div div[class~='ui-icon']", self.wrapper );
 		
-		img.on("click", function(){
+		self.maxmin.on("click", function(){
 			if( self.minimized ){
 				self.expand();
 			}else{
@@ -45,7 +34,7 @@
 			}
 		});
 		
-		img.parent()
+		self.maxmin
 			.css( "float", "right" )
 			.css( "display", "inline" );	
 	}
@@ -57,6 +46,8 @@
 		this.padding = ( args.padding === undefined ? ".5em": args.padding );
 		this.paddingTop = ( args.paddingTop === undefined ? ".3em": args.paddingTop );
 		this.width = ( args.width === undefined ? $( this.selector ).css( "width" ) : args.width );
+		this.minWidth = ( this.title.length > 0 ? this.title.length * 10 : 100 );
+
 		this.height = ( args.height === undefined ? $( this.selector ).css( "height" ) : args.height );
 		this.interiorWidth = ( args.interiorWidth === undefined ? "100%": args.interiorWidth );
 		this.opacity = ( ( args.opacity === undefined ? 1 : args.opacity ) );
@@ -65,12 +56,12 @@
 	};
 	
 	FloatingPane.prototype.expand = function(){
-		var offset = $( this.wrapper).offset();
+		var self = this, offset = $( this.wrapper).offset();
 		var l =  parseInt( new Number( offset.left ), 10 );
 		var width = parseInt( this.width.substr( 0,this.width.length - 2), 10 );
 		
 		this.wrapper.animate({
-			left: l - width + 100 - 8,
+			left: l - width + self.minWidth,
 		},{queue: false, duration: 500}, function() {
 			// Animation complete.
 		});
@@ -83,28 +74,34 @@
 
 		this.wrapper.animate({
 			height: this.height,
-		},{queue: false, duration: 500}, function() {
-			// Animation complete.
+		},{queue: false, duration: 500, complete: function() {
+			self.maxmin
+			.removeClass( "ui-icon-arrow-4-diag" )
+			.addClass( "ui-icon-arrow-4" );
+		}
 		});
 
 		this.minimized = false;
 	};
 
 	FloatingPane.prototype.minimize = function(){
-		var offset = $( this.wrapper).offset();
+		var self = this, offset = $( this.wrapper).offset();
 		var l =  parseInt( new Number( offset.left ), 10 );
 		var width = parseInt( this.width.substr( 0,this.width.length - 2), 10 );
 
 		this.wrapper.animate({
-			left: l + width - 100 - 8,
+			left: l + width - self.minWidth,
 		},{queue: false, duration: 500}, function() {
-			// Animation complete.
+
 		});
 
 		this.wrapper.animate({
-			width: "100px",
-		},{queue: false, duration: 500}, function() {
-			// Animation complete.
+			width: self.minWidth,
+		},{queue: false, duration: 500, complete: function() {
+			self.maxmin
+			.removeClass( "ui-icon-arrow-4" )
+			.addClass( "ui-icon-arrow-4-diag" );
+			}
 		});
 
 		this.wrapper.animate({
@@ -112,6 +109,7 @@
 		},{queue: false, duration: 500}, function() {
 			// Animation complete.
 		});
+
 		this.minimized = true;
 
 	};

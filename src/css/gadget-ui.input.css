@@ -48,36 +48,3 @@ div.gadgetui-lookuplistinput-div > .gadgetui-lookuplist-input-item-wrapper{
 	margin:3px;
 	display:inline-block;
 }
-
-div.gadget-ui-collapsiblePane, div.gadget-ui-floatingPane{
-	padding: 0px;
-	
-}
-
-div.gadget-ui-collapsiblePane > div:nth-child(2), div.gadget-ui-floatingPane > div:nth-child(2){
-	padding: .5em;
-	
-}
-
-div.gadget-ui-floatingPane > div:nth-child(2){
-	overflow:scroll;
-}
-
-div.gadget-ui-collapsiblePane-header, div.gadget-ui-floatingPane-header{
-	padding: 2px 0px 2px .5em;
-	text-align:left;
-}
-
-div.gadget-ui-collapsiblePane-header span, div.gadget-ui-floatingPane-header span{
-	float: right;
-
-}
-div.gadget-ui-floatingPane-header img{
-	margin: -1px -2px;
-}
-
-div.gadget-ui-collapsiblePane-header div, div.gadget-ui-floatingPane-header div{
-	float: right;
-	display:inline;
-	padding-right:.25em;
-}
