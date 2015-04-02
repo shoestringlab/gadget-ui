@@ -23,7 +23,7 @@ function TextInput( args ){
 		ph = $( obj ).attr( "placeholder" );
 		// bind to the model if binding is specified
 		_bindToModel( obj, self.model );
-		
+
 		if( val.length === 0 ){
 			if( ph !== undefined && ph.length > 0 ){
 				val = ph;
@@ -42,22 +42,20 @@ function TextInput( args ){
 		$( "input[class='gadgetui-inputlabelinput']" )
 			.css( "font-size", $( obj ).css( "font-size" ) )
 			.css( "border", "1px solid transparent" );
-		
-		
+
 		$( "div[class='gadgetui-inputlabel']", $( obj ).parent() )
 			.css( "height", lineHeight )
 			.css( "padding-left", "2px" )
 			.css( "font-size", $( obj ).css( "font-size" ) )
 			.css( "display", "block" );
-		
-		
+
 		_bindTextInput( $( obj ).parent(), self, o );
 	});
 
 	function _bindTextInput( obj, txtInput, object ) {
 		var self = this, oVar;
 		oVar = ( (object === undefined) ? {} : object );
-		
+
 		$( "div[class='gadgetui-inputlabel']", $( obj ) ).on( txtInput.activate, function( ) {
 			self = this;
 			$( $( self ) ).hide( );
@@ -70,9 +68,11 @@ function TextInput( args ){
 					}
 				});
 			
-			$( "input[class!='gadgetui-inputlabelinput']", obj )
+			$( "input", obj )
 				.css( "min-width", "10em" )
-				.css( "width", Math.round( $( "input", $( self ).parent() ).val().length * 0.66 ) + "em" )
+				.css( "width", Math.round( $( "input[class!='gadgetui-inputlabelinput']", $( self ).parent() ).val().length * 0.66 ) + "em" )
+			
+			$( "input[class!='gadgetui-inputlabelinput']", obj )
 				.css( "display", "block" )
 				.on( "blur", function( ) {
 					var self = this, newVal;
@@ -109,7 +109,8 @@ function TextInput( args ){
 					if ( parseInt( event.keyCode, 10 ) === 13 ) {
 						$( self ).blur( );
 					}
-					$( self ).css( "width", Math.round( $( "input", $( self ).parent( ) ).val( ).length * 0.66 ) + "em" );
+					$( "input", obj )
+						.css( "width", Math.round( $( "input[class!='gadgetui-inputlabelinput']", $( self ).parent( ) ).val( ).length * 0.66 ) + "em" );
 				});
 			// if we are only showing the input on click, focus on the element immediately
 			if( txtInput.activate === "click" ){
