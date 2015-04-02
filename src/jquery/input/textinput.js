@@ -41,6 +41,7 @@ function TextInput( args ){
 
 		$( "input[class='gadgetui-inputlabelinput']" )
 			.css( "font-size", $( obj ).css( "font-size" ) )
+			.css( "width", Math.round( $( "input[class!='gadgetui-inputlabelinput']", $( obj ).parent() ).val().length * 0.66 ) + "em" )
 			.css( "border", "1px solid transparent" );
 
 		$( "div[class='gadgetui-inputlabel']", $( obj ).parent() )

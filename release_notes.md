@@ -1,6 +1,12 @@
 		
 ***Release Notes***
 
+1.1.15
+======
+
+- Bug fix for initial label size of TextInput.
+
+
 1.1.14
 ======
 
