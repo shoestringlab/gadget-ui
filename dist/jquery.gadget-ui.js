@@ -739,7 +739,7 @@ function TextInput( args ){
 
 		$( obj ).parent().css( "min-height", lineHeight );
 
-		$( "input[class='gadgetui-inputlabelinput']" )
+		$( "input[class='gadgetui-inputlabelinput']", $( obj ).parent()  )
 			.css( "font-size", $( obj ).css( "font-size" ) )
 			.css( "width", Math.round( $( "input[class!='gadgetui-inputlabelinput']", $( obj ).parent() ).val().length * 0.66 ) + "em" )
 			.css( "border", "1px solid transparent" );
