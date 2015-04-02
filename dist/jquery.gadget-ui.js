@@ -699,7 +699,7 @@ SelectInput.prototype.config = function( args ){
 };
 	
 function TextInput( args ){
-	var self = this, val, ph, o, bindVar;
+	var self = this, val, ph, o, bindVar, lineHeight, minHeight, borderSize, paddingLeft;
 	self.emitEvents = true;
 	self.model;
 	self.func;
@@ -732,9 +732,25 @@ function TextInput( args ){
 			}
 		}
 		$( obj ).wrap( "<div class='gadgetui-textinput-div'></div>");
-		$( obj ).parent().prepend( "<span>" + val + "</span>");
+		$( obj ).parent().prepend( "<div class='gadgetui-inputlabel'><input class='gadgetui-inputlabelinput' readonly='true' style='border:0;background:none;' value='" + val + "'></div>");
 		$( obj ).hide();
 
+		lineHeight = $( obj ).css( "height" );
+
+		$( obj ).parent().css( "min-height", lineHeight );
+
+		$( "input[class='gadgetui-inputlabelinput']" )
+			.css( "font-size", $( obj ).css( "font-size" ) )
+			.css( "border", "1px solid transparent" );
+		
+		
+		$( "div[class='gadgetui-inputlabel']", $( obj ).parent() )
+			.css( "height", lineHeight )
+			.css( "padding-left", "2px" )
+			.css( "font-size", $( obj ).css( "font-size" ) )
+			.css( "display", "block" );
+		
+		
 		_bindTextInput( $( obj ).parent(), self, o );
 	});
 
@@ -742,20 +758,22 @@ function TextInput( args ){
 		var self = this, oVar;
 		oVar = ( (object === undefined) ? {} : object );
 		
-		$( "span", $( obj ) ).on( txtInput.activate, function( ) {
+		$( "div[class='gadgetui-inputlabel']", $( obj ) ).on( txtInput.activate, function( ) {
 			self = this;
 			$( $( self ) ).hide( );
 			$( $( self ).parent( ) )
 				.on( "mouseleave", function( ) {
 					var self = this;
-					if ( $( "input", $( self ) ).is( ":focus" ) === false ) {
-						$( "span", $( self ) ).css( "display", "inline" );
-						$( "input", $( self ) ).hide( );
+					if ( $( "input", obj ).is( ":focus" ) === false ) {
+						$( "div[class='gadgetui-inputlabel']", $( self ) ).css( "display", "block" );
+						$( "input[class!='gadgetui-inputlabelinput']", obj ).hide( );
 					}
 				});
-				$( "input", $( self ).parent( ) ).css( "min-width", "10em" )
+			
+			$( "input[class!='gadgetui-inputlabelinput']", obj )
+				.css( "min-width", "10em" )
 				.css( "width", Math.round( $( "input", $( self ).parent() ).val().length * 0.66 ) + "em" )
-				.css( "display", "inline" )
+				.css( "display", "block" )
 				.on( "blur", function( ) {
 					var self = this, newVal;
 					setTimeout( function( ) {
@@ -765,7 +783,7 @@ function TextInput( args ){
 								newVal = $( self ).attr( "placeholder" );
 							}
 							oVar[ self.name ] = $( self ).val( );
-							$( "span", $( self ).parent( ) ).text( newVal );
+							$( "div[class='gadgetui-inputlabel'] input", $( self ).parent( ) ).val( newVal );
 
 							if( txtInput.model !== undefined && $( self ).attr( "gadgetui-bind" ) === undefined ){	
 								// if we have specified a model but no data binding, change the model value
@@ -780,7 +798,7 @@ function TextInput( args ){
 								txtInput.func( oVar );
 							}
 						}
-						$( "span", $( self ).parent( ) ).css( "display", "inline" );
+						$( "div[class='gadgetui-inputlabel']", $( self ).parent( ) ).css( "display", "block" );
 						$( "img", $( self ).parent( ) ).hide( );
 						$( self ).hide( );
 
@@ -795,17 +813,17 @@ function TextInput( args ){
 				});
 			// if we are only showing the input on click, focus on the element immediately
 			if( txtInput.activate === "click" ){
-				$( "input", $( self ).parent( ) ).focus();
+				$( "input[class!='gadgetui-inputlabelinput']", obj ).focus();
 			}
 		});
-		$( obj )
+		$( "input[class!='gadgetui-inputlabelinput']", obj )
 			.on( "change", function( e ) {
 				var self = this, value = e.target.value;
 				if( value.trim().length === 0 ){
 					value = " ... ";
 				}
 				oVar.isDirty = true;
-				$( "span", $( self ).parent( ) ).text( value );
+				$( "div[class='gadgetui-inputlabel'] input", $( self ).parent( ) ).val( value );
 				});			
 	}
 	return this;

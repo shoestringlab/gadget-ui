@@ -44,6 +44,9 @@ gadgetui.input = (function($) {
 			$( obj ).wrap( "<div class='gadgetui-textinput-div'></div>");
 			$( obj ).parent().prepend( "<span>" + val + "</span>");
 			$( obj ).hide();
+			
+			$( "span", $( obj.parent() ) )
+				.css( "padding", ".3em" );
 	
 			_bindTextInput( $( obj ).parent(), self, o );
 		});

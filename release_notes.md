@@ -1,6 +1,12 @@
 		
 ***Release Notes***
 
+1.1.13
+======
+
+- Re-worked label, styling, and some internal references for TextInput. Styling for font size and alignment should now be (generally) automatic.
+
+
 1.1.12
 ======
 

@@ -24,7 +24,7 @@ $( document ).ready( function(){
 
 	showModel();
 
-	new gadgetui.input.TextInput( { config: { emitEvents: false, func : logChanges, model: gadgetui.model, activate: "click"} } );
+	new gadgetui.input.TextInput( { config: { emitEvents: false, func : logChanges, model: gadgetui.model, activate: "mouseover"} } );
 	new gadgetui.input.SelectInput( { config: { emitEvents: false, func : logChanges, model: gadgetui.model} } );
 	var ll = new gadgetui.input.LookupListInput( { config:{ emitEvents: false, lookupList: lookuplist, model: gadgetui.model, menuItemRenderer : renderLabel } } );
 

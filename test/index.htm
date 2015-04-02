@@ -8,6 +8,23 @@
   				console.log('All files have been loaded');
 }			);
 		 </script>
+		 <style>
+		 	body, div, span, select, input{
+		 		font-family:Arial, Helvetica, sans-serif;
+		 	}
+
+			body{
+				font-size:1.5em;
+			}
+
+			input {
+				height:1.5em;
+				font-size:1em;
+			  -webkit-box-sizing: border-box;
+			  -moz-box-sizing: border-box;
+			  box-sizing: border-box;
+			}		 	
+		 </style>
 		 
 <!-- 		<script src="/bower_components/jquery/dist/jquery.min.js"></script>
 		<link rel="stylesheet" type="text/css" href="/dist/gadget-ui.css"/>
@@ -53,19 +70,19 @@
 
 		<div id="InputsDiv" style="width: 50%;">
 			<form>
-				<div style="padding: 20px;">
+				<div>
 					First Name - bound to user.firstname
 					<input name="firstname" type="text" class="gadget-ui-textinput" gadgetui-textinput="true" gadgetui-bind="user.firstname" value=""/>
 				</div>
-				<div style="padding: 20px;">
+				<div>
 					Last Name	- bound to user.lastname
 					<input name="lastname" type="text" class="gadget-ui-textinput" gadgetui-textinput="true" gadgetui-bind="user.lastname" placeholder="" value=""/>
 				</div>
-				<div style="padding: 20px;">
+				<div>
 					Tag Line - bound to user.tagline
 					<input name="tagline" type="text" class="gadget-ui-textinput" gadgetui-textinput="true" gadgetui-bind="user.tagline" placeholder="" value=""/>
 				</div>
-				<div style="padding: 20px;">
+				<div>
 					Relationship  - bound to user.role
 					<select name="role" class="gadget-ui-selectinput" gadgetui-selectinput="true" gadgetui-bind="user.role">
 						<option value="">choose ...</option>
@@ -75,14 +92,14 @@
 						<option value="President">President</option>
 					</select>
 				</div>
-				<div style="padding: 20px;">
+				<div>
 					<input name="friends" type="text" gadgetui-lookuplist-input="true" gadgetui-bind="user.friends" placeholder="Friends"/>
 				</div>
 			</form>
 		</div>
 
 	<br/>
-		<div style="padding: 20px;">
+		<div>
 			<input type="button" value="Change Model" onclick="gadgetui.model.set('user', {firstname:'Theodore', lastname:'Roosevelt', tagline: 'Square Deal', role: 'President', friends: []});"/>
 			<p>
 			<input type="button" value="Show Model Values" onclick="showModel();"/>	
@@ -97,7 +114,20 @@
 		</div>
 		
 		<div id="debugDiv" style="width: 50%; height:300px;">
-			
+When push.default is set to 'matching', git will push local branches
+to the remote branches that already exist with the same name.
+
+Since Git 2.0, Git defaults to the more conservative 'simple'
+behavior, which only pushes the current branch to the corresponding
+remote branch that 'git pull' uses to update the current branch.
+
+See 'git help config' and search for 'push.default' for further information.
+(the 'simple' mode was introduced in Git 1.7.11. Use the similar mode
+'current' instead of 'simple' if you sometimes use older versions of Git)
+
+To https://github.com/robertdmunn/gadget-ui.git
+   10f2ee7..7231ab0  master -> master
+		
 			Need some content.
 		</div>
 	
