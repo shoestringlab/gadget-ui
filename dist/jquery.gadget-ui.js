@@ -732,7 +732,7 @@ function TextInput( args ){
 			}
 		}
 		$( obj ).wrap( "<div class='gadgetui-textinput-div'></div>");
-		$( obj ).parent().prepend( "<div class='gadgetui-inputlabel'><input class='gadgetui-inputlabelinput' readonly='true' style='border:0;background:none;' value='" + val + "'></div>");
+		$( obj ).parent().prepend( "<div class='gadgetui-inputlabel'><input type='text' class='gadgetui-inputlabelinput' readonly='true' style='border:0;background:none;' value='" + val + "'></div>");
 		$( obj ).hide();
 
 		lineHeight = $( obj ).css( "height" );

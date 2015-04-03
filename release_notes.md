@@ -1,6 +1,12 @@
 		
 ***Release Notes***
 
+
+1.1.17
+======
+
+- Add type='text' to inputlabel on TextInput
+
 1.1.16
 ======
 
