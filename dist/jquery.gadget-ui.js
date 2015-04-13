@@ -757,7 +757,7 @@ SelectInput.prototype.config = function( args ){
 };
 	
 function TextInput( args ){
-	var self = this, val, ph, o, bindVar, lineHeight, minHeight, borderSize, paddingLeft;
+	var self = this, val, ph, o, bindVar, lineHeight, minHeight, borderSize, paddingLeft, input;
 	self.emitEvents = true;
 	self.model;
 	self.func;
@@ -803,10 +803,10 @@ function TextInput( args ){
 
 		$( obj ).parent()
 			.css( "min-height", lineHeight );
-
+		input = $( "input[class!='gadgetui-inputlabelinput']", $( obj ).parent() );
 		$( "input[class='gadgetui-inputlabelinput']", $( obj ).parent()  )
 			.css( "font-size", $( obj ).css( "font-size" ) )
-			.css( "width", Math.round( $( "input[class!='gadgetui-inputlabelinput']", $( obj ).parent() ).val().length * 0.5 ) + "em" )
+			.css( "width", $.gadgetui.textWidth( input.val(), input.css( "font" ) ) + 30 )
 			.css( "border", "1px solid transparent" );
 
 		$( "div[class='gadgetui-inputlabel']", $( obj ).parent() )
@@ -843,10 +843,11 @@ function TextInput( args ){
 				$( self ).hide();
 				
 				// both input and label
+				
 				$( "input", obj )
 					.css( "max-width",  "" )
 					.css( "min-width", "10em" )
-					.css( "width", Math.round( input.val().length * 0.5 ) + "em" );
+					.css( "width", $.gadgetui.textWidth( input.val(), input.css( "font" ) ) + 30 );
 
 				//just input
 				input.css( "display", "block" );
@@ -903,7 +904,7 @@ function TextInput( args ){
 					$( self ).blur( );
 				}
 				$( "input", obj )
-					.css( "width", Math.round( input.val( ).length * 0.5 ) + "em" );
+					.css( "width", $.gadgetui.textWidth( input.val(), input.css( "font" ) ) + 30 );
 			})	
 			.on( "change", function( e ) {
 				var value = e.target.value;
