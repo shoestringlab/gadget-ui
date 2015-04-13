@@ -1,6 +1,11 @@
 		
 ***Release Notes***
 
+1.2.3
+======
+
+- Fixed bugs with text width order of font-size and font-family.
+
 1.2.2
 ======
 
