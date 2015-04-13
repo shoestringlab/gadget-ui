@@ -3,6 +3,7 @@ $( document ).ready( function(){
 	var user = {
 			firstname: "",
 			lastname: "",
+			nickname: "What to do when the text goes beyond the boundaries",
 			tagline: "",
 			role: "",
 			friends: []
@@ -29,6 +30,7 @@ $( document ).ready( function(){
 	var ll = new gadgetui.input.LookupListInput( { config:{ emitEvents: false, lookupList: lookuplist, model: gadgetui.model, menuItemRenderer : renderLabel } } );
 
 	new gadgetui.display.CollapsiblePane( { selector: $( "#InputsDiv" ), config : { title: "Inputs", path : "/dist/" } } );
+	new gadgetui.display.CollapsiblePane( { selector: $( "#NarrowDiv" ), config : { title: "Nickname", path : "/dist/" } } );
 	new gadgetui.display.CollapsiblePane( { selector: $( "#modelDiv" ), config : { title: "Model", path : "/dist/", collapse: true } } );
 	var fp = new gadgetui.display.FloatingPane( { selector: $( "#debugDiv" ), config : { title: "A", path : "/dist/", opacity: .5, position: { my: "right top", at: "right top", of: window } } } );
 	

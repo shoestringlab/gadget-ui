@@ -61,7 +61,7 @@ gadgetui.model = ( function( $ ) {
 				// set the DOM element value to the incoming value
 				obj.elem.val( value );
 			}
-			else if ( property !== undefined && typeof value === 'object' ) {
+			else if ( property !== undefined && typeof value === 'object' && obj.prop === property ) {
 				// incoming value is an object
 				// this code sets the value of each control bound to the BindableObject
 				// to the correspondingly bound property of the incoming value
@@ -72,12 +72,12 @@ gadgetui.model = ( function( $ ) {
 				// no need to update the control, it already holds the correct value
 				return true;
 			}
-			else if ( typeof value === 'object' ) {
+			else if ( typeof value === 'object' && obj.prop === property ) {
 				// property is not defined, meaning an object that has
 				// properties bound to controls has been replaced
 				// this code assumes that the object in 'value' has a property
 				// associated with the property being changed
-				// i.e. that value[ obj.elem.prop ] is a valid property of
+				// i.e. that value[ obj.prop ] is a valid property of
 				// value, because if it isn't, this call will error
 				obj.elem.val( value[ obj.prop ] );
 			}

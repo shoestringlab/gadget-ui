@@ -7,4 +7,5 @@ gadgetui.input = (function($) {
 			model.bind( bindVar, $( obj ) );
 		}
 	};
+
 	

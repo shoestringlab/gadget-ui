@@ -25,12 +25,12 @@ function LookupListInput( args ){
 		// bind to the model if binding is specified
 		_bindToModel( obj, self.model );
 
-		$( obj ).wrap( '<div class="gadgetui-lookuplistinput-div ui-widget-content ui-corner-all" style="width:100%;"></div>');
+		$( obj ).wrap( '<div class="gadgetui-lookuplistinput-div ui-widget-content ui-corner-all"></div>');
 
 		_bind( obj, self );
 
 	});
-	
+
 	function _bind( obj, component ){
 		var self = component;
 		
@@ -43,45 +43,41 @@ function LookupListInput( args ){
 			});
 		
 		$( obj )
-
-		.on( "keydown", function( event ) {
-			if ( event.keyCode === $.ui.keyCode.TAB && $( this ).data( "ui-autocomplete" ).menu.active ) {
-				event.preventDefault( );
-			}
-		} ).autocomplete( {
-			minLength : self.minLength,
-			source : function( request, response ) {
-				response( $.ui.autocomplete.filter( self.lookupList, gadgetui.util.extractLast( request.term ) ) );
-			},
-
-			focus : function( ) {
-				// prevent value inserted on
-				// focus
-				return false;
-			},
-			select : function( event, ui ) {
-				var terms = gadgetui.util.split( this.value );
-				// remove the current input
-				terms.pop( );
-
-				self.add( this, ui.item );
-				this.value = '';
-				this.focus( );
-				return false;
-			}
-		} ).on( "keydown", function( event ) {
-			$( this ).css( "width", Math.round( ( $( this ).val( ).length * 0.66 ) + 3 ) + "em" );
+			.autocomplete( {
+				minLength : self.minLength,
+				source : function( request, response ) {
+					response( $.ui.autocomplete.filter( self.lookupList, gadgetui.util.extractLast( request.term ) ) );
+				},
 	
-			if ( event.keyCode === $.ui.keyCode.TAB && $( this ).data( "ui-autocomplete" ).menu.active ) {
-				event.preventDefault( );
-			}
-			if ( event.keyCode === $.ui.keyCode.BACKSPACE && $( this ).val( ).length === 0 ) {
-				event.preventDefault();
-				var elem = $( this ).prev( "div[class~='gadgetui-lookuplist-input-item-wrapper']" );
-
-				elem.remove( );
-			}
-		});
+				focus : function( ) {
+					// prevent value inserted on
+					// focus
+					return false;
+				},
+				select : function( event, ui ) {
+					var terms = gadgetui.util.split( this.value );
+					// remove the current input
+					terms.pop( );
+	
+					self.add( this, ui.item );
+					this.value = '';
+					this.focus( );
+					return false;
+				}
+			} ).on( "keydown", function( event ) {
+				$( this )
+					.css( "width", Math.round( ( $( this ).val( ).length * 0.66 ) + 3 ) + "em" );
+		
+				if ( event.keyCode === $.ui.keyCode.TAB && $( this ).data( "ui-autocomplete" ).menu.active ) {
+					event.preventDefault( );
+				}
+				if ( event.keyCode === $.ui.keyCode.BACKSPACE && $( this ).val( ).length === 0 ) {
+					event.preventDefault();
+					var elem = $( this ).prev( "div[class~='gadgetui-lookuplist-input-item-wrapper']" );
+	
+					elem.remove( );
+				}
+			});
 		
 		$.ui.autocomplete.prototype._renderItem = function( ul, item){
 			if( typeof self.menuItemRenderer === "function"){

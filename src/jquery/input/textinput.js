@@ -31,17 +31,24 @@ function TextInput( args ){
 				val = " ... ";
 			}
 		}
+
 		$( obj ).wrap( "<div class='gadgetui-textinput-div'></div>");
 		$( obj ).parent().prepend( "<div class='gadgetui-inputlabel'><input type='text' class='gadgetui-inputlabelinput' readonly='true' style='border:0;background:none;' value='" + val + "'></div>");
 		$( obj ).hide();
 
 		lineHeight = $( obj ).css( "height" );
 
-		$( obj ).parent().css( "min-height", lineHeight );
+		self.maxWidth = $( obj ).parent().width();
+		
+		$( "input", $( obj ).parent() )
+			.css( "max-width", self.maxWidth );
+
+		$( obj ).parent()
+			.css( "min-height", lineHeight );
 
 		$( "input[class='gadgetui-inputlabelinput']", $( obj ).parent()  )
 			.css( "font-size", $( obj ).css( "font-size" ) )
-			.css( "width", Math.round( $( "input[class!='gadgetui-inputlabelinput']", $( obj ).parent() ).val().length * 0.66 ) + "em" )
+			.css( "width", Math.round( $( "input[class!='gadgetui-inputlabelinput']", $( obj ).parent() ).val().length * 0.5 ) + "em" )
 			.css( "border", "1px solid transparent" );
 
 		$( "div[class='gadgetui-inputlabel']", $( obj ).parent() )
@@ -54,78 +61,99 @@ function TextInput( args ){
 	});
 
 	function _bindTextInput( obj, txtInput, object ) {
-		var self = this, oVar;
+		var self = this, oVar, 
+			labeldiv = $( "div[class='gadgetui-inputlabel']", obj ),
+			label = $( "input", labeldiv ),
+			input = $( "input[class!='gadgetui-inputlabelinput']", obj ),
+			span = $( "span", obj );
 		oVar = ( (object === undefined) ? {} : object );
 
-		$( "div[class='gadgetui-inputlabel']", $( obj ) ).on( txtInput.activate, function( ) {
-			self = this;
-			$( $( self ) ).hide( );
-			$( $( self ).parent( ) )
-				.on( "mouseleave", function( ) {
-					var self = this;
-					if ( $( "input", obj ).is( ":focus" ) === false ) {
-						$( "div[class='gadgetui-inputlabel']", $( self ) ).css( "display", "block" );
-						$( "input[class!='gadgetui-inputlabelinput']", obj ).hide( );
-					}
-				});
-			
-			$( "input", obj )
-				.css( "min-width", "10em" )
-				.css( "width", Math.round( $( "input[class!='gadgetui-inputlabelinput']", $( self ).parent() ).val().length * 0.66 ) + "em" )
-			
-			$( "input[class!='gadgetui-inputlabelinput']", obj )
-				.css( "display", "block" )
-				.on( "blur", function( ) {
-					var self = this, newVal;
-					setTimeout( function( ) {
-						newVal = $( self ).val( );
-						if ( oVar.isDirty === true ) {
-							if( newVal.length === 0 && $( self ).attr( "placeholder" ) !== undefined ){
-								newVal = $( self ).attr( "placeholder" );
-							}
-							oVar[ self.name ] = $( self ).val( );
-							$( "div[class='gadgetui-inputlabel'] input", $( self ).parent( ) ).val( newVal );
+		obj
+			.on( "mouseleave", function( ) {
+				if( input.is( ":focus" ) === false ) {
+					labeldiv.css( "display", "block" );
+					input.hide( );
+					//
+					$( "input", $( obj ).parent() )
+						.css( "max-width",  txtInput.maxWidth );					
+				}
+			});		
+		
+		labeldiv
+			.on( txtInput.activate, function( ) {
+				self = this;
+				$( self ).hide();
+				
+				// both input and label
+				$( "input", obj )
+					.css( "max-width",  "" )
+					.css( "min-width", "10em" )
+					.css( "width", Math.round( input.val().length * 0.5 ) + "em" );
 
-							if( txtInput.model !== undefined && $( self ).attr( "gadgetui-bind" ) === undefined ){	
-								// if we have specified a model but no data binding, change the model value
-								txtInput.model.set( self.name, oVar[ self.name ] );
-							}
-
-							oVar.isDirty = false;
-							if( txtInput.emitEvents === true ){
-								$( self ).trigger( "gadgetui-input-change", [ oVar ] );
-							}
-							if( txtInput.func !== undefined ){
-								txtInput.func( oVar );
-							}
+				//just input
+				input.css( "display", "block" );
+					
+				// if we are only showing the input on click, focus on the element immediately
+				if( txtInput.activate === "click" ){
+					input.focus();
+				}
+			});
+		input
+			.on( "blur", function( ) {
+				var self = this, newVal, txtWidth, labelText;
+				setTimeout( function( ) {
+					newVal = $( self ).val( );
+					if ( oVar.isDirty === true ) {
+						if( newVal.length === 0 && $( self ).attr( "placeholder" ) !== undefined ){
+							newVal = $( self ).attr( "placeholder" );
 						}
-						$( "div[class='gadgetui-inputlabel']", $( self ).parent( ) ).css( "display", "block" );
-						$( "img", $( self ).parent( ) ).hide( );
-						$( self ).hide( );
-
-					}, 200 );
-				})
-				.on( "keyup", function( event ) {
-					var self = this;
-					if ( parseInt( event.keyCode, 10 ) === 13 ) {
-						$( self ).blur( );
+						oVar[ self.name ] = $( self ).val( );
+						txtWidth = $.gadgetui.textWidth( newVal, obj.css( "font" ) );
+						labelText = $.gadgetui.fitText( newVal, obj.css( "font" ), txtInput.maxWidth );
+						label.val( labelText );
+						//span.text( newVal );
+						if( txtInput.model !== undefined && $( self ).attr( "gadgetui-bind" ) === undefined ){	
+							// if we have specified a model but no data binding, change the model value
+							txtInput.model.set( self.name, oVar[ self.name ] );
+						}
+		
+						oVar.isDirty = false;
+						if( txtInput.emitEvents === true ){
+							$( self ).trigger( "gadgetui-input-change", [ oVar ] );
+						}
+						if( txtInput.func !== undefined ){
+							txtInput.func( oVar );
+						}
 					}
-					$( "input", obj )
-						.css( "width", Math.round( $( "input[class!='gadgetui-inputlabelinput']", $( self ).parent( ) ).val( ).length * 0.66 ) + "em" );
-				});
-			// if we are only showing the input on click, focus on the element immediately
-			if( txtInput.activate === "click" ){
-				$( "input[class!='gadgetui-inputlabelinput']", obj ).focus();
-			}
-		});
-		$( "input[class!='gadgetui-inputlabelinput']", obj )
+					
+					label.css( "display", "block" );
+					labeldiv.css( "display", "block" );
+					//$( "img", $( self ).parent( ) ).hide( );
+
+
+					
+					$( "input", $( obj ).parent() )
+						.css( "max-width",  txtInput.maxWidth );
+					
+					$( self ).hide( );
+		
+				}, 200 );
+			})
+			.on( "keyup", function( event ) {
+				var self = this;
+				if ( parseInt( event.keyCode, 10 ) === 13 ) {
+					$( self ).blur( );
+				}
+				$( "input", obj )
+					.css( "width", Math.round( input.val( ).length * 0.5 ) + "em" );
+			})	
 			.on( "change", function( e ) {
-				var self = this, value = e.target.value;
+				var value = e.target.value;
 				if( value.trim().length === 0 ){
 					value = " ... ";
 				}
 				oVar.isDirty = true;
-				$( "div[class='gadgetui-inputlabel'] input", $( self ).parent( ) ).val( value );
+				label.val( value );
 				});			
 	}
 	return this;

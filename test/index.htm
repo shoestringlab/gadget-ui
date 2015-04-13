@@ -25,14 +25,7 @@
 			  box-sizing: border-box;
 			}		 	
 		 </style>
-		 
-<!-- 		<script src="/bower_components/jquery/dist/jquery.min.js"></script>
-		<link rel="stylesheet" type="text/css" href="/dist/gadget-ui.css"/>
-		<script src="/dist/jquery.gadget-ui.js"></script>
-		<script src="/src/jquery/jquery.widgets.js"></script>
-		<link rel="stylesheet" type="text/css" href="/bower_components/jquery-ui/themes/humanity/jquery-ui.min.css"/>
-		<script src="/bower_components/jquery-ui/jquery-ui.min.js"></script>
-		</script><script src="main.js"></script> -->
+
 		<script>
 			function showModel( ) {
 				$( '#modelDiv' ).html( 'firstname: ' + gadgetui.model.get( 'user.firstname' ) 
@@ -98,6 +91,15 @@
 			</form>
 		</div>
 
+		<div id="NarrowDiv" style="width: 700px;">
+			<div style="display:inline-table; width:300px;">
+				<input name="nickname" type="text" class="gadget-ui-textinput" gadgetui-textinput="true" gadgetui-bind="user.nickname" value=""/>
+			</div>
+			<div style="display:inline-table; width:300px; float:right;">
+				Some Text For Testing
+			</div>
+			
+		</div>
 	<br/>
 		<div>
 			<input type="button" value="Change Model" onclick="gadgetui.model.set('user', {firstname:'Theodore', lastname:'Roosevelt', tagline: 'Square Deal', role: 'President', friends: []});"/>
@@ -108,7 +110,9 @@
 				<input type="button" value="Reset Friends list" name="resetLookupList" />
 			</p>
 		</div>
-		
+
+	
+			
 		<div id="modelDiv" style="width: 50%;">
 
 		</div>

@@ -31,7 +31,7 @@
 		this.padding = ( args.padding === undefined ? ".5em": args.padding );
 		this.paddingTop = ( args.paddingTop === undefined ? ".3em": args.paddingTop );
 		this.width = ( args.width === undefined ? $( this.selector ).css( "width" ) : args.width );
-		this.interiorWidth = ( args.interiorWidth === undefined ? "100%": args.interiorWidth );
+		this.interiorWidth = ( args.interiorWidth === undefined ? "": args.interiorWidth );
 		this.collapse = ( ( args.collapse === undefined || args.collapse === false ? false : true ) );
 	};
 	

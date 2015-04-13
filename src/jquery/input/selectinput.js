@@ -39,67 +39,81 @@ function SelectInput( args ){
 	});
 
 	function _bindSelectInput( obj, slctInput, object ) {
-		var self = this, oVar;
+		var self = this, oVar,
+			span = $( "span", $( obj ) ),
+			select = $( "select", obj );
 		oVar = ( (object === undefined) ? {} : object );
 		
-		$( "span", $( obj ) ).on( slctInput.activate, function( ) {
-			self = this;
-			$( $( self ) ).hide( );
-			
-			$( $( this ).parent( ) ).on( "mouseleave", function( ) {
-				if ( $( "select", $( this ) ).is( ":focus" ) === false && $( "input", $( this ).parent( ).parent( ) ).is( ":focus" ) === false ) {
-					$( "span", $( this ) ).css( "display", "inline" );
-					$( "select", $( this ) ).hide( );
-				}
-			} );				
+		span
+			.on( slctInput.activate, function( ) {
+				self = this;
+				$( self ).hide( );
 				
-			$( "select", $( self ).parent( ) ).css( "min-width", "10em" )
-				.css( "display", "inline" )
-				.on( "blur", function( ) {
-					var self = this, newVal;
-					setTimeout( function( ) {
-						newVal = $( self ).val( );
-						if ( oVar.isDirty === true ) {
-							if( newVal.trim().length === 0 ){
-								newVal = " ... ";
-							}
-							oVar[ self.name ] = $( self ).val( );
+				select
+					.css( "min-width", "10em" )
+					.css( "display", "inline" );
+			});
 
-							$( "span", $( self ).parent( ) ).text( newVal );
-							if( slctInput.model !== undefined && $( self ).attr( "gadgetui-bind" ) === undefined ){	
-								// if we have specified a model but no data binding, change the model value
-								slctInput.model.set( self.name, oVar[ self.name ] );
-							}
-
-							oVar.isDirty = false;
-							if( emitEvents === true ){
-								$( self )
-									.trigger( "gadgetui-input-change", [ oVar ] );
-							}
-							if( slctInput.func !== undefined ){
-								slctInput.func( oVar );
-							}
-						}
-						$( "span", $( self ).parent( ) ).css( "display", "inline" );
-						$( self ).hide( );
-					}, 100 );
-				})
-			
-				.on( "keyup", function( event ) {
-					var self = this;
-					if ( parseInt( event.keyCode, 10 ) === 13 ) {
-						$( self ).blur( );
-					}
-				});
-		});
 		$( obj )			
 			.on( "change", function( e ) {
-				var self = this, value = e.target.value;
+				var value = e.target.value;
 				if( value.trim().length === 0 ){
 					value = " ... ";
 				}
 				oVar.isDirty = true;
-				$( "span", $( self ).parent( ) ).text( value );
+				span
+					.text( value );
+			});
+
+		select
+			//.css( "min-width", "10em" )
+			.on( "blur", function( ) {
+				var self = this, newVal;
+				setTimeout( function( ) {
+					newVal = $( self ).val( );
+					if ( oVar.isDirty === true ) {
+						if( newVal.trim().length === 0 ){
+							newVal = " ... ";
+						}
+						oVar[ self.name ] = $( self ).val( );
+	
+						span
+							.text( newVal );
+						if( slctInput.model !== undefined && $( self ).attr( "gadgetui-bind" ) === undefined ){	
+							// if we have specified a model but no data binding, change the model value
+							slctInput.model.set( self.name, oVar[ self.name ] );
+						}
+	
+						oVar.isDirty = false;
+						if( emitEvents === true ){
+							$( self )
+								.trigger( "gadgetui-input-change", [ oVar ] );
+						}
+						if( slctInput.func !== undefined ){
+							slctInput.func( oVar );
+						}
+					}
+					span
+						.css( "display", "inline" );
+					$( self ).hide( );
+				}, 100 );
+			})
+		
+			.on( "keyup", function( event ) {
+				var self = this;
+				if ( parseInt( event.keyCode, 10 ) === 13 ) {
+					$( self ).blur( );
+				}
+			});
+
+		obj
+			.on( "mouseleave", function( ) {
+				if ( select.is( ":focus" ) === false ) {
+					span
+						.css( "display", "inline" );
+					select
+						.hide( );
+				}
 			});
 	}
 	return this;

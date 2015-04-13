@@ -3,7 +3,7 @@ gadget-ui
 
 JavaScript UI and data binding library
 
-Version 1.1.17
+Version 1.2.1
 
 
 **Usage**
@@ -247,7 +247,7 @@ args.config.paddingTop : The cell padding for the top of the selector. Defaults 
 
 args.config.width : Width of the resulting control. Defaults to the width of the selector.
 
-args.config.interiorWidth : Width of the selector div after rendering is complete. Default to 100% to fill the control.
+args.config.interiorWidth : Width of the selector div after rendering is complete. Defaults to "".
 
 args.config.collapse : Whether to start the resulting control expanded or collapsed. Defaults to false.
 

@@ -1,6 +1,15 @@
 		
 ***Release Notes***
 
+1.2.1
+======
+
+- Changed default innerWidth of CollapsiblePane from 100% to "".
+- Re-worked internals of TextInput and SelectInput for cleaner binding of events.
+- Re-worked model setting code to avoid blanking inputs not passed in as changed but bound to elements where a property of an object is being changed but other
+  properties of the object are also bound to controls.
+- Added functions textWidth and fitText to get text size and fit text into specific width.
+- Implemented text fitting functionality in TextInput so label does not overflow its container.
 
 1.1.17
 ======
