@@ -1,6 +1,11 @@
 		
 ***Release Notes***
 
+1.2.2
+======
+
+- Fixed bugs with text width.
+
 1.2.1
 ======
 
