@@ -4,7 +4,7 @@
 		<title>gadget-ui Tests</title>
 		 <script src='../bower_components/lazyloader/dist/lazy.1.0.0.min.js'></script>
 		 <script>
-		 	lazy.load(['/test/main.js < /bower_components/jquery-ui/jquery-ui.min.js < /dist/jquery.gadget-ui.js < /bower_components/jquery/dist/jquery.min.js', '/dist/gadget-ui.css', '/bower_components/jquery-ui/themes/humanity/jquery-ui.min.css'], function(){
+		 	lazy.load(['main.js < ../bower_components/jquery-ui/jquery-ui.min.js < ../dist/jquery.gadget-ui.js < ../bower_components/jquery/dist/jquery.min.js', '../dist/gadget-ui.css', '../bower_components/jquery-ui/themes/humanity/jquery-ui.min.css'], function(){
   				console.log('All files have been loaded');
 }			);
 		 </script>
@@ -65,19 +65,19 @@
 			<form>
 				<div>
 					First Name - bound to user.firstname
-					<input name="firstname" type="text" class="gadget-ui-textinput" gadgetui-textinput="true" gadgetui-bind="user.firstname" value=""/>
+					<input name="firstname" type="text" class="gadgetui-textinput" gadgetui-textinput="true" gadgetui-bind="user.firstname" value=""/>
 				</div>
 				<div>
 					Last Name	- bound to user.lastname
-					<input name="lastname" type="text" class="gadget-ui-textinput" gadgetui-textinput="true" gadgetui-bind="user.lastname" placeholder="" value=""/>
+					<input name="lastname" type="text" class="gadgetui-textinput" gadgetui-textinput="true" gadgetui-bind="user.lastname" placeholder="" value=""/>
 				</div>
 				<div>
 					Tag Line - bound to user.tagline
-					<input name="tagline" type="text" class="gadget-ui-textinput" gadgetui-textinput="true" gadgetui-bind="user.tagline" placeholder="" value=""/>
+					<input name="tagline" type="text" class="gadgetui-textinput" gadgetui-textinput="true" gadgetui-bind="user.tagline" placeholder="" value=""/>
 				</div>
 				<div>
 					Relationship  - bound to user.role
-					<select name="role" class="gadget-ui-selectinput" gadgetui-selectinput="true" gadgetui-bind="user.role">
+					<select name="role" class="gadgetui-selectinput" gadgetui-selectinput="true" gadgetui-bind="user.role">
 						<option value="">choose ...</option>
 						<option value="friend">Friend</option>
 						<option value="sibling">Sibling</option>
@@ -93,7 +93,7 @@
 
 		<div id="NarrowDiv" style="width: 700px;">
 			<div style="display:inline-table; width:300px;">
-				<input name="nickname" type="text" class="gadget-ui-textinput" gadgetui-textinput="true" gadgetui-bind="user.nickname" value=""/>
+				<input name="nickname" type="text" gadgetui-textinput="true" gadgetui-bind="user.nickname" value=""/>
 			</div>
 			<div style="display:inline-table; width:300px; float:right;">
 				Some Text For Testing

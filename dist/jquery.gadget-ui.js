@@ -776,11 +776,13 @@ function TextInput( args ){
 		self.config( args.config );
 	}
 
-	$.each( el,  function( index, obj ){
-		val = $( obj ).val();
-		ph = $( obj ).attr( "placeholder" );
+	$.each( el,  function( index, input ){
+		val = $( input ).val();
+		ph = $( input ).attr( "placeholder" );
+		$( input )
+			.addClass( "gadgetui-textinput" );
 		// bind to the model if binding is specified
-		_bindToModel( obj, self.model );
+		_bindToModel( input, self.model );
 
 		if( val.length === 0 ){
 			if( ph !== undefined && ph.length > 0 ){
@@ -790,45 +792,47 @@ function TextInput( args ){
 			}
 		}
 
-		$( obj ).wrap( "<div class='gadgetui-textinput-div'></div>");
-		$( obj ).parent().prepend( "<div class='gadgetui-inputlabel'><input type='text' class='gadgetui-inputlabelinput' readonly='true' style='border:0;background:none;' value='" + val + "'></div>");
-		$( obj ).hide();
+		$( input ).wrap( "<div class='gadgetui-textinput-div'></div>");
+		$( input ).parent().prepend( "<div class='gadgetui-inputlabel'><input type='text' class='gadgetui-inputlabelinput' readonly='true' style='border:0;background:none;' value='" + val + "'></div>");
+		$( input ).hide();
 
-		lineHeight = $( obj ).css( "height" );
+		lineHeight = $( input ).css( "height" );
 
-		self.maxWidth = $( obj ).parent().width();
-		
-		$( "input", $( obj ).parent() )
+		self.maxWidth = $( input ).parent().width();
+
+		$( "input", $( input ).parent() )
 			.css( "max-width", self.maxWidth );
 
-		$( obj ).parent()
+		$( input ).parent()
 			.css( "min-height", lineHeight );
-		input = $( "input[class!='gadgetui-inputlabelinput']", $( obj ).parent() );
-		font = input.css( "font-size" ) + " " + input.css( "font-family" );
-		$( "input[class='gadgetui-inputlabelinput']", $( obj ).parent()  )
-			.css( "font-size", $( obj ).css( "font-size" ) )
-			.css( "width", $.gadgetui.textWidth( input.val(), font ) + 10 )
+		//input = $( "input[class!='gadgetui-inputlabelinput']", $( obj ).parent() );
+		font = $( input ).css( "font-size" ) + " " + $( input ).css( "font-family" );
+		$( "input[class='gadgetui-inputlabelinput']", $( input ).parent()  )
+			.css( "font-size", $( input ).css( "font-size" ) )
+			.css( "width", $.gadgetui.textWidth( $( input ).val(), font ) + 10 )
 			.css( "border", "1px solid transparent" );
 
-		$( "div[class='gadgetui-inputlabel']", $( obj ).parent() )
+		$( "div[class='gadgetui-inputlabel']", $( input ).parent() )
 			.css( "height", lineHeight )
 			.css( "padding-left", "2px" )
-			.css( "font-size", $( obj ).css( "font-size" ) )
+			.css( "font-size", $( input ).css( "font-size" ) )
 			.css( "display", "block" );
 
-		_bindTextInput( $( obj ).parent(), self, o );
+		_bindTextInput( $( input ), self, o );
 	});
 
-	function _bindTextInput( obj, txtInput, object ) {
+	function _bindTextInput( input, txtInput, object ) {
 		var self = this, oVar, 
+			obj = $( input ).parent(),
 			labeldiv = $( "div[class='gadgetui-inputlabel']", obj ),
 			label = $( "input", labeldiv ),
-			input = $( "input[class!='gadgetui-inputlabelinput']", obj ),
+			//input = $( "input[class~='gadgetui-textinput']", obj ),
 			span = $( "span", obj ),
 			font = obj.css( "font-size" ) + " " + obj.css( "font-family" );
 		oVar = ( (object === undefined) ? {} : object );
 
 		obj
+			.off( "mouseleave" )
 			.on( "mouseleave", function( ) {
 				if( input.is( ":focus" ) === false ) {
 					labeldiv.css( "display", "block" );
@@ -838,8 +842,9 @@ function TextInput( args ){
 						.css( "max-width",  txtInput.maxWidth );					
 				}
 			});		
-		
+
 		labeldiv
+			.off( txtInput.activate )
 			.on( txtInput.activate, function( ) {
 				self = this;
 				$( self ).hide();
@@ -860,6 +865,12 @@ function TextInput( args ){
 				}
 			});
 		input
+			.off( "focus" )
+			.on( "focus", function(e){
+				e.preventDefault();
+			});
+		input
+			.off( "blur" )
 			.on( "blur", function( ) {
 				var self = this, newVal, txtWidth, labelText;
 				setTimeout( function( ) {
@@ -887,20 +898,20 @@ function TextInput( args ){
 							txtInput.func( oVar );
 						}
 					}
-					
+
 					label.css( "display", "block" );
 					labeldiv.css( "display", "block" );
 					//$( "img", $( self ).parent( ) ).hide( );
 
-
-					
 					$( "input", $( obj ).parent() )
 						.css( "max-width",  txtInput.maxWidth );
 					
 					$( self ).hide( );
 		
 				}, 200 );
-			})
+			});
+		input
+			.off( "keyup" )
 			.on( "keyup", function( event ) {
 				var self = this;
 				if ( parseInt( event.keyCode, 10 ) === 13 ) {
@@ -908,7 +919,9 @@ function TextInput( args ){
 				}
 				$( "input", obj )
 					.css( "width", $.gadgetui.textWidth( input.val(), font ) + 10 );
-			})	
+			});
+		input
+			.off( "change" )
 			.on( "change", function( e ) {
 				var value = e.target.value;
 				if( value.trim().length === 0 ){
