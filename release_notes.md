@@ -1,6 +1,11 @@
 		
 ***Release Notes***
 
+1.2.5
+======
+
+- Simplified textinput conventions.
+
 1.2.3
 ======
 
