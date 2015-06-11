@@ -1,6 +1,6 @@
 {
   "name": "gadget-ui",
-  "version": "1.2.5",
+  "version": "1.2.6",
   "description": "JavaScript UI and data binding library",
   "authors": [
     "Robert Munn <robert.d.munn@gmail.com>"

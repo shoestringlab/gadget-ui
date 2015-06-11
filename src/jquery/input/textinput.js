@@ -19,12 +19,13 @@ function TextInput( args ){
 	}
 
 	$.each( el,  function( index, input ){
+		// bind to the model if binding is specified
+		_bindToModel( input, self.model );
+		
 		val = $( input ).val();
 		ph = $( input ).attr( "placeholder" );
 		$( input )
 			.addClass( "gadgetui-textinput" );
-		// bind to the model if binding is specified
-		_bindToModel( input, self.model );
 
 		if( val.length === 0 ){
 			if( ph !== undefined && ph.length > 0 ){

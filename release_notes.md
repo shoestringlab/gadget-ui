@@ -1,6 +1,11 @@
 		
 ***Release Notes***
 
+1.2.6
+======
+
+- Bug fix for model/view binding in text input.
+
 1.2.5
 ======
 

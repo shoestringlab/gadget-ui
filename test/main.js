@@ -1,7 +1,7 @@
 $( document ).ready( function(){
 
 	var user = {
-			firstname: "",
+			firstname: "Robert",
 			lastname: "",
 			nickname: "What to do when the text goes beyond the boundaries",
 			tagline: "",
