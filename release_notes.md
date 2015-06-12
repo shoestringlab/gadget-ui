@@ -1,6 +1,11 @@
 		
 ***Release Notes***
 
+1.3.0
+======
+
+- Addition of enforceMaxWidth config setting on TextInput, defaults to false
+
 1.2.7
 ======
 

@@ -757,7 +757,7 @@ SelectInput.prototype.config = function( args ){
 };
 	
 function TextInput( args ){
-	var self = this, val, ph, o, bindVar, lineHeight, minHeight, maxWidth, borderSize, paddingLeft, input, font;
+	var self = this, val, ph, o, bindVar, lineHeight, minHeight, maxWidth, width, borderSize, paddingLeft, input, font;
 	self.emitEvents = true;
 	self.model;
 	self.func;
@@ -796,28 +796,32 @@ function TextInput( args ){
 		$( input ).wrap( "<div class='gadgetui-textinput-div'></div>");
 		$( input ).parent().prepend( "<div class='gadgetui-inputlabel'><input type='text' class='gadgetui-inputlabelinput' readonly='true' style='border:0;background:none;' value='" + val + "'></div>");
 		$( input ).hide();
-	
-		lineHeight = $( input ).css( "height" );
-		lineHeight = parseInt( lineHeight.substring( 0, lineHeight.length - 2 ), 10 );
+
+		lineHeight = $( input ).outerHeight();
 		// minimum height
 		if( lineHeight > 20 ){
 			$( input ).parent()
 				.css( "min-height", lineHeight );
 		}
 		// maximum width
-		
-			maxWidth = $( input ).parent().width();
-			if( maxWidth > 10 ){
+
+		width = $.gadgetui.textWidth( $( input ).val(), font ) + 10;
+
+		maxWidth = $( input ).parent().parent().width();
+		if( maxWidth > 10 && this.enforceMaxWidth === true ){
 			$( "input", $( input ).parent() )
 				.css( "max-width", self.maxWidth );
 			self.maxWidth = maxWidth;
+			if( width === 10 ){
+				width = maxWidth;
+			}
 		}
-	
+
 		//input = $( "input[class!='gadgetui-inputlabelinput']", $( obj ).parent() );
 		font = $( input ).css( "font-size" ) + " " + $( input ).css( "font-family" );
 		$( "input[class='gadgetui-inputlabelinput']", $( input ).parent()  )
 			.css( "font-size", $( input ).css( "font-size" ) )
-			.css( "width", $.gadgetui.textWidth( $( input ).val(), font ) + 10 )
+			.css( "width", width )
 			.css( "border", "1px solid transparent" );
 
 		$( "div[class='gadgetui-inputlabel']", $( input ).parent() )
@@ -947,7 +951,8 @@ TextInput.prototype.config = function( args ){
 	self.model =  (( args.model === undefined) ? self.model : args.model );
 	self.func = (( args.func === undefined) ? undefined : args.func );
 	self.emitEvents = (( args.emitEvents === undefined) ? true : args.emitEvents );
-	self.activate = (( args.activate === undefined) ? "mouseenter" : args.activate );		
+	self.activate = (( args.activate === undefined) ? "mouseenter" : args.activate );
+	self.enforceMaxWidth = ( args.enforceMaxWidth === undefined ? false : args.enforceMaxWidth );
 };
 
 

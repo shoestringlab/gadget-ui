@@ -3,7 +3,7 @@ gadget-ui
 
 JavaScript UI and data binding library
 
-Version 1.2.7
+Version 1.3.0
 
 
 **Usage**
