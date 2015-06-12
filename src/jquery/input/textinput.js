@@ -1,5 +1,5 @@
 function TextInput( args ){
-	var self = this, val, ph, o, bindVar, lineHeight, minHeight, borderSize, paddingLeft, input, font;
+	var self = this, val, ph, o, bindVar, lineHeight, minHeight, maxWidth, borderSize, paddingLeft, input, font;
 	self.emitEvents = true;
 	self.model;
 	self.func;
@@ -38,16 +38,23 @@ function TextInput( args ){
 		$( input ).wrap( "<div class='gadgetui-textinput-div'></div>");
 		$( input ).parent().prepend( "<div class='gadgetui-inputlabel'><input type='text' class='gadgetui-inputlabelinput' readonly='true' style='border:0;background:none;' value='" + val + "'></div>");
 		$( input ).hide();
-
+	
 		lineHeight = $( input ).css( "height" );
-
-		self.maxWidth = $( input ).parent().width();
-
-		$( "input", $( input ).parent() )
-			.css( "max-width", self.maxWidth );
-
-		$( input ).parent()
-			.css( "min-height", lineHeight );
+		lineHeight = parseInt( lineHeight.substring( 0, lineHeight.length - 2 ), 10 );
+		// minimum height
+		if( lineHeight > 20 ){
+			$( input ).parent()
+				.css( "min-height", lineHeight );
+		}
+		// maximum width
+		
+			maxWidth = $( input ).parent().width();
+			if( maxWidth > 10 ){
+			$( "input", $( input ).parent() )
+				.css( "max-width", self.maxWidth );
+			self.maxWidth = maxWidth;
+		}
+	
 		//input = $( "input[class!='gadgetui-inputlabelinput']", $( obj ).parent() );
 		font = $( input ).css( "font-size" ) + " " + $( input ).css( "font-family" );
 		$( "input[class='gadgetui-inputlabelinput']", $( input ).parent()  )

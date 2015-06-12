@@ -1,6 +1,11 @@
 		
 ***Release Notes***
 
+1.2.7
+======
+
+- Adjustments to CSS for TextInput
+
 1.2.6
 ======
 
