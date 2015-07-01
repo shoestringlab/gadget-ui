@@ -36,3 +36,23 @@ div.gadget-ui-collapsiblePane-header div, div.gadget-ui-floatingPane-header div{
 	padding-right:.25em;
 	margin-top: 0.1em;	
 }
+
+p.gadgetui_bubble_speech
+{
+	display:none;
+	
+	
+/*		padding:20px;
+	width: 200px;
+	height: 100px;
+	
+	line-height: 20px;
+	background-color: #fff;
+	border: 8px solid #CC4B4B;
+	-webkit-border-radius: 30px;
+	-moz-border-radius: 30px;
+	border-radius: 30px;
+	-webkit-box-shadow: 2px 2px 4px #F49090;
+	-moz-box-shadow: 2px 2px 4px #F49090;
+	box-shadow: 2px 2px 4px #F49090;	*/
+}

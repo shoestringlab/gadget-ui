@@ -1,5 +1,6 @@
+
 function TextInput( args ){
-	var self = this, val, ph, o, bindVar, lineHeight, minHeight, maxWidth, width, borderSize, paddingLeft, input, font;
+	var self = this, val, ph, o, bindVar, lineHeight, minHeight, maxWidth, width, borderSize, paddingLeft, input, style, parentStyle, font;
 	self.emitEvents = true;
 	self.model;
 	self.func;
@@ -21,7 +22,7 @@ function TextInput( args ){
 	$.each( el,  function( index, input ){
 		// bind to the model if binding is specified
 		_bindToModel( input, self.model );
-		
+
 		val = $( input ).val();
 		ph = $( input ).attr( "placeholder" );
 		$( input )
@@ -34,7 +35,7 @@ function TextInput( args ){
 				val = " ... ";
 			}
 		}
-
+		
 		$( input ).wrap( "<div class='gadgetui-textinput-div'></div>");
 		$( input ).parent().prepend( "<div class='gadgetui-inputlabel'><input type='text' class='gadgetui-inputlabelinput' readonly='true' style='border:0;background:none;' value='" + val + "'></div>");
 		$( input ).hide();
@@ -45,25 +46,37 @@ function TextInput( args ){
 			$( input ).parent()
 				.css( "min-height", lineHeight );
 		}
-		// maximum width
 
+		style = window.getComputedStyle( $( input )[0] );
+		parentStyle = window.getComputedStyle( $( input ).parent().parent()[0] );
+		font = style.fontFamily + " " + style.fontSize + " " + style.fontWeight + " " + style.fontVariant;
 		width = $.gadgetui.textWidth( $( input ).val(), font ) + 10;
-
-		maxWidth = $( input ).parent().parent().width();
-		if( maxWidth > 10 && this.enforceMaxWidth === true ){
+		//maxWidth = $( input ).parent().width();
+		maxWidth = parentStyle.width;
+		maxWidth = parseInt( maxWidth.substring( 0, maxWidth.length - 2 ), 10 );
+		//console.log( val + ": " + "width: " + width + " maxWidth: " + maxWidth );
+		
+		if( maxWidth > 10 && self.enforceMaxWidth === true ){
 			$( "input", $( input ).parent() )
-				.css( "max-width", self.maxWidth );
+				.css( "max-width", maxWidth );
 			self.maxWidth = maxWidth;
 			if( width === 10 ){
 				width = maxWidth;
 			}
+			if( maxWidth < width ){
+				$( "input[class='gadgetui-inputlabelinput']", $( input ).parent() )
+					.val( $.gadgetui.fitText( val ), font, maxWidth );
+			}
+		}
+		if( maxWidth > width ){
+			width = maxWidth;
 		}
 
 		//input = $( "input[class!='gadgetui-inputlabelinput']", $( obj ).parent() );
-		font = $( input ).css( "font-size" ) + " " + $( input ).css( "font-family" );
+		//font = $( input ).css( "font-size" ) + " " + $( input ).css( "font-family" );
 		$( "input[class='gadgetui-inputlabelinput']", $( input ).parent()  )
-			.css( "font-size", $( input ).css( "font-size" ) )
-			.css( "width", width )
+			.css( "font-size", style.fontSize )
+			//.css( "width", width )
 			.css( "border", "1px solid transparent" );
 
 		$( "div[class='gadgetui-inputlabel']", $( input ).parent() )
@@ -73,6 +86,7 @@ function TextInput( args ){
 			.css( "display", "block" );
 
 		_bindTextInput( $( input ), self, o );
+		//console.log( "rendered input" );
 	});
 
 	function _bindTextInput( input, txtInput, object ) {

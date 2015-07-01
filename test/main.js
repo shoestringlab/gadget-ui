@@ -33,7 +33,9 @@ $( document ).ready( function(){
 	new gadgetui.display.CollapsiblePane( { selector: $( "#NarrowDiv" ), config : { title: "Nickname", path : "/dist/" } } );
 	new gadgetui.display.CollapsiblePane( { selector: $( "#modelDiv" ), config : { title: "Model", path : "/dist/", collapse: true } } );
 	var fp = new gadgetui.display.FloatingPane( { selector: $( "#debugDiv" ), config : { title: "A", path : "/dist/", opacity: .5, position: { my: "right top", at: "right top", of: window } } } );
-	
+
+	var bubble = new gadgetui.display.Bubble( $( "input[name='friends']" ).parent().parent(), "Possible friends are Abby, Cara, Dan, and Bobby", { arrowPosition: "bottom left", position: "bottom right", arrowDirection: "bottom left", closable: true } );
+
 	$( document )
 		.on( "gadgetui-input-change", function(evt, obj){
 			console.log( evt );
