@@ -287,78 +287,38 @@ Bubble.prototype.calculateArrowPosition = function(){
 };
 
 Bubble.prototype.calculateArrowStyle = function(){
-	/*
-	 * valid arrow directions:
-	 * 		right side: top right, bottom left
-	 * 		left side: bottom right, top right
-	 * 		top: top left, top right
-	 * 		bottom: bottom left, bottom right
-	 */
+	// working and re-factored
 	switch( this.arrowPosition + " " + this.arrowDirection ){
-	
+		case "right top center":
+		case "right bottom corner":
+		case "top right center":
 		case "top left corner":
 			this.beforeBorderColor = " transparent transparent " + this.borderColor + " " + this.borderColor;
 			this.afterBorderColor = "transparent transparent #fff #fff";			
 			break;
+		case "left top center":
+		case "left bottom corner":			
 		case "top left center":
-			this.beforeBorderColor = "transparent " + this.borderColor + " " + this.borderColor + " transparent";
-			this.afterBorderColor = "transparent #fff #fff transparent";			
-			break;			
 		case "top right corner":
 			this.beforeBorderColor = " transparent " + this.borderColor + " " + this.borderColor + " transparent";
 			this.afterBorderColor = "transparent #fff #fff" + " transparent";			
 			break;
-		case "top right center":
-			this.beforeBorderColor = " transparent transparent " + this.borderColor + " " + this.borderColor;
-			this.afterBorderColor = "transparent transparent #fff #fff";				
-			break;	
+
+		case "right bottom center":			
+		case "right top corner":
+		case "bottom right center":
 		case "bottom left corner":
 			this.beforeBorderColor = this.borderColor + " transparent transparent " + this.borderColor;
 			this.afterBorderColor = "#fff transparent transparent #fff";			
 			break;
 		case "bottom left center":
-			this.beforeBorderColor = this.borderColor + this.borderColor + " transparent transparent";
-			this.afterBorderColor = "#fff #fff transparent transparent ";				
-			break;
 		case "bottom right corner":
-			this.beforeBorderColor = this.borderColor + this.borderColor + " transparent transparent";
-			this.afterBorderColor = "#fff #fff transparent transparent ";			
-			break;
-		case "bottom right center":
-			this.beforeBorderColor = this.borderColor + " transparent transparent " + this.borderColor;
-			this.afterBorderColor = "#fff transparent transparent #fff";			
-			break;
+		case "left bottom center":			
 		case "left top corner":
 			//working
 			this.beforeBorderColor = this.borderColor + this.borderColor + " transparent transparent";
 			this.afterBorderColor = "#fff #fff transparent transparent ";			
 			break;
-		case "left top center":
-		case "left bottom corner":
-			this.beforeBorderColor = "transparent " + this.borderColor + this.borderColor + " transparent";
-			this.afterBorderColor = "transparent #fff #fff transparent";			
-			break;
-		case "left bottom center":
-			this.beforeBorderColor = this.borderColor + this.borderColor + " transparent transparent";
-			this.afterBorderColor = "#fff #fff transparent transparent ";			
-			break;
-		case "right top corner":
-			this.beforeBorderColor = this.borderColor + " transparent transparent " + this.borderColor;
-			this.afterBorderColor = " #fff transparent transparent #fff";					
-			break;
-		case "right top center":
-			/*	this.beforeBorderColor = " transparent transparent " + this.borderColor + " " + this.borderColor;
-			this.afterBorderColor = "transparent transparent #fff #fff";			
-			break;	*/
-		case "right bottom corner":
-			this.beforeBorderColor = " transparent transparent " + this.borderColor + " " + this.borderColor;
-			this.afterBorderColor = "transparent transparent #fff #fff";			
-			break;
-		case "right bottom center":
-			this.beforeBorderColor = this.borderColor + " transparent transparent " + this.borderColor;
-			this.afterBorderColor = " #fff transparent transparent #fff";				
-			break;
-
 	}	
 };
 
