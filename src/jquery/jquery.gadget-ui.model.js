@@ -169,7 +169,7 @@ gadgetui.model = ( function( $ ) {
 					throw "Key '" + n[0] + "' does not exist in the model.";
 				}
 				return _model[n[0]].data[ n[ 1 ] ];
-				
+
 			}catch( e ){
 				console.log( e );
 				return undefined;

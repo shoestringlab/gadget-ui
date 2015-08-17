@@ -1,6 +1,6 @@
 module.exports = {
 	dist : {
-		files : [ '<%= jshint.files %>' ],
-		tasks : [ 'jshint', 'qunit' ]
+		files : [  'src/**/*.js' ],
+		tasks : [ "newer:concat", "newer:uglify" ]
 	}		
 };

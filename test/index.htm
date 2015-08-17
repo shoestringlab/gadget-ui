@@ -32,11 +32,11 @@
 
 		<script>
 			function showModel( ) {
-				$( '#modelDiv' ).html( 'firstname: ' + gadgetui.model.get( 'user.firstname' ) 
+				/*	$( '#modelDiv' ).html( 'firstname: ' + gadgetui.model.get( 'user.firstname' ) 
 				+ '<br/><br/>lastname: ' + gadgetui.model.get( 'user.lastname' ) 
 				+ '<br/><br/>tag line: ' + gadgetui.model.get( 'user.tagline' ) 
 				+ '<br/><br/>role: ' + gadgetui.model.get( 'user.role' ) 
-				+ '<br/><br/>friends: ' + gadgetui.model.get( 'user.friends' ) );
+				+ '<br/><br/>friends: ' + gadgetui.model.get( 'user.friends' ) );	*/
 			}
 								
 		</script>
@@ -118,7 +118,12 @@
 	
 			
 		<div id="modelDiv" style="width: 50%;">
-
+			<div>firstname: <span name="firstname"></span></div>
+			<div>lastname: <span name="lastname"></span></div>
+			<div>tagline: <span name="tagline"></span></div>
+			<div>role: <span name="role"></span></div>
+			<div>friends: <span name="friends"></span></div>
+			<div>nickname: <span name="nickname"></span></div>
 		</div>
 		
 		<div id="debugDiv" style="width: 50%; height:300px;">

@@ -150,7 +150,11 @@ function TextInput( args ){
 						oVar[ self.name ] = $( self ).val( );
 						
 						txtWidth = $.gadgetui.textWidth( newVal, font );
-						labelText = $.gadgetui.fitText( newVal, font, txtInput.maxWidth );
+						if( txtInput.maxWidth < txtWidth ){
+							labelText = $.gadgetui.fitText( newVal, font, txtInput.maxWidth );
+						}else{
+							labelText = newVal;
+						}
 						label.val( labelText );
 						//span.text( newVal );
 						if( txtInput.model !== undefined && $( self ).attr( "gadgetui-bind" ) === undefined ){	

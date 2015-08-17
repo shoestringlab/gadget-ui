@@ -1,15 +1,15 @@
-div .gadget-ui-input-div{
+div.gadget-ui-input-div{
 	display:inline;
 	font-size: 1.1em;
 	font-family: inherit;
 }
-div .gadget-ui-input-div span{
+div.gadget-ui-input-div span{
 	padding-left: 4px;
 	font-size: .8em;
 	letter-spacing: 1px;
 	font-family: inherit;
 }
-div .gadget-ui-input-div input{
+div.gadget-ui-input-div input{
 	line-height: 0.8em;
 	font-size: 0.8em;
 	letter-spacing: 1px;
@@ -19,7 +19,7 @@ div .gadget-ui-input-div input{
 	min-width: 2em;
 }
 
-div .gadget-ui-input-div div{
+div.gadget-ui-input-div div{
 	
 }
 
@@ -47,4 +47,48 @@ div.collapsiblePane-header div{
 	float: right;
 	display:inline;
 	padding-right:.25em;
+}
+
+p.gadgetui_bubble_speech
+{
+	position: relative;
+	text-align: left;
+	
+/*		padding:20px;
+	width: 200px;
+	height: 100px;
+	
+	line-height: 20px;
+	background-color: #fff;
+	border: 8px solid #CC4B4B;
+	-webkit-border-radius: 30px;
+	-moz-border-radius: 30px;
+	border-radius: 30px;
+	-webkit-box-shadow: 2px 2px 4px #F49090;
+	-moz-box-shadow: 2px 2px 4px #F49090;
+	box-shadow: 2px 2px 4px #F49090;	*/
+}
+
+p.gadgetui_bubble_speech:before
+{
+/*		content: ' ';
+	position: absolute;
+	width: 0;
+	height: 0;
+	left: 30px;
+	top: 140px;
+	border: 25px solid;
+	border-color: #CC4B4B transparent transparent #CC4B4B;	*/
+}
+
+p.gadgetui_bubble_speech:after
+{
+/*		content: ' ';
+	position: absolute;
+	width: 0;
+	height: 0;
+	left: 38px;
+	top: 140px;
+	border: 15px solid;
+	border-color: #fff transparent transparent #fff;	*/
 }
