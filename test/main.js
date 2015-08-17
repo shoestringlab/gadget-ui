@@ -103,12 +103,25 @@ $(document)
 			"bubble",
 			{
 				arrowPosition : "bottom left",
-				position : "top center",
-				arrowDirection : "corner",
-				borderWidth : 3,
+				position : "top right",
+				arrowDirection : "center",
+				borderWidth : 8,
+				height: 150,
 				closable : true
 			});
-/*	
+
+/*			new gadgetui.display.Bubble($(
+		"input[name='friends']").parent().parent(),
+		"bubble",
+		{	name : "bubble2",
+			arrowPosition : "right top",
+			position : "top center",
+			arrowDirection : "corner",
+			borderWidth : 8,
+			height: 150,
+			closable : true
+		});		*/	
+		/*	
 		new gadgetui.display.Bubble($(
 		"input[name='friends']").parent().parent(),
 		"Two",
