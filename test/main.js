@@ -102,86 +102,17 @@ $(document)
 			"input[name='friends']").parent().parent(),
 			"bubble",
 			{
-				arrowPosition : "bottom left",
+				arrowPosition : "left bottom",
 				position : "top right",
 				arrowDirection : "middle",
-				borderWidth : 5,
+				borderWidth : 10,
 				height: 150,
-				padding: 5,
-				arrowSize: 25,
+				padding: 15,
+				arrowSize: 30,
 				borderRadius: 15,
 				closable : true
 			});
 
-/*			new gadgetui.display.Bubble($(
-		"input[name='friends']").parent().parent(),
-		"bubble",
-		{	name : "bubble2",
-			arrowPosition : "right top",
-			position : "top center",
-			arrowDirection : "corner",
-			borderWidth : 8,
-			height: 150,
-			closable : true
-		});		*/	
-		/*	
-		new gadgetui.display.Bubble($(
-		"input[name='friends']").parent().parent(),
-		"Two",
-		{
-			name : "bubble2",
-			arrowPosition : "right top",
-			position : "bottom center",
-			arrowDirection : "bottom left",
-			borderWidth : 3,
-			closable : true
-		});	*/
-
-		/*	new gadgetui.display.Bubble($(
-		"input[name='friends']").parent().parent(),
-		"Three",
-		{
-			name : "bubble3",
-			arrowPosition : "top left",
-			position : "bottom center",
-			arrowDirection : "top left",
-			borderWidth : 3,
-			closable : true
-		});	*/
-/*			new gadgetui.display.Bubble($(
-		"input[name='friends']").parent().parent(),
-		"Possible friends are Abby, Cara, Dan, and Bobby",
-		{
-			name : "bubble4",
-			arrowPosition : "top right",
-			position : "top center",
-			arrowDirection : "top right",
-			borderWidth : 3,
-			closable : true
-		});
-
-		new gadgetui.display.Bubble($(
-		"input[name='friends']").parent().parent(),
-		"Possible friends are Abby, Cara, Dan, and Bobby",
-		{
-			name : "bubble5",
-			arrowPosition : "bottom left",
-			position : "top center",
-			arrowDirection : "bottom right",
-			borderWidth : 3,
-			closable : true
-		});
-		new gadgetui.display.Bubble($(
-		"input[name='friends']").parent().parent(),
-		"Possible friends are Abby, Cara, Dan, and Bobby",
-		{
-			name : "bubble6",
-			arrowPosition : "bottom right",
-			position : "top center",
-			arrowDirection : "bottom left",
-			borderWidth : 3,
-			closable : true
-		});	*/
 		
 		gadgetui.model.bind( "user.firstname", $( "span[name='firstname']" ) );
 		

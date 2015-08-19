@@ -1,6 +1,11 @@
 		
 ***Release Notes***
 
+1.4.0
+======
+
+- Added Bubble UI element
+
 1.3.0
 ======
 

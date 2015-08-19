@@ -284,6 +284,7 @@ Bubble.prototype.config = function( options ){
 	this.position = ( options.position === undefined ? "top right" : options.position ); // position of arrow tip on selector - top right | bottom right | top center | bottom center | top left | bottom left
 	this.width = ( options.width === undefined ? 200 : options.width ); // width of bubble
 	this.padding = ( options.padding === undefined ? 20 : options.padding ); // interior padding of bubble
+	this.opacity = ( options.opacity === undefined ? 1 : options.opacity ); // interior padding of bubble
 	// baseline position
 	this.top = this.selector.offset().top;
 	this.left = this.selector.offset().left;
@@ -293,9 +294,10 @@ Bubble.prototype.config = function( options ){
 	this.borderColor = ( options.borderColor === undefined ? baseUIColor : options.borderColor );
 	this.borderWidth = ( options.borderWidth === undefined ? 8 : options.borderWidth ); //	border: 8px solid #CC4B4B; // width of bubble border
 	this.arrowPosition = ( options.arrowPosition === undefined ? "bottom left" : options.arrowPosition ); // location of arrow on bubble - top left | top right | top center | right top | right center | right bottom | bottom right | bottom center | bottom right | left bottom | left center | left top 
-	this.arrowDirection =  ( options.arrowDirection === undefined ? "corner" : options.arrowDirection ); // direction arrow points - center | corner
+	this.arrowDirection =  ( options.arrowDirection === undefined ? "middle" : options.arrowDirection ); // direction arrow points - center | corner | middle
 	this.arrowPositionArray = this.arrowPosition.split( " " );
-
+	this.bubbleWidth = this.width + (this.padding * 2) + (this.borderWidth * 2); // full width of visible bubble
+	this.bubbleHeight = this.height + (this.padding * 2) + (this.borderWidth * 2); // full height of visible bubble
 	//this.setArrowDirection();
 
 	this.closeIconSize = 16; // ui-icon css
@@ -303,7 +305,7 @@ Bubble.prototype.config = function( options ){
 	this.backgroundColor = ( options.backgroundColor === undefined ? "#FFFFFF" : options.backgroundColor );
 	this.lineHeight = ( options.lineHeight === undefined ? 20 : options.lineHeight ); // line height of text in bubble
 	this.borderRadius = ( options.borderRadius === undefined ? 30 : options.borderRadius );	//border-radius
-	this.boxShadowColor = ( options.boxShadowColor === undefined ? "#F49090" : options.boxShadowColor );
+	this.boxShadowColor = ( options.boxShadowColor === undefined ? baseUIColor : options.boxShadowColor );
 	this.font = ( options.font === undefined ? "Arial sans" : options.font );
 	this.zIndex = ( options.zIndex === undefined ? 100 : options.zIndex );
 	this.closable = ( options.closable === undefined ? false : options.closable );
@@ -327,7 +329,7 @@ Bubble.prototype.show = function(){
 };
 
 Bubble.prototype.setStyles = function(){
-	var self = this;
+
 	this.setBubbleStyles();
 	
 	this.calculateArrowPosition();
@@ -345,10 +347,10 @@ Bubble.prototype.setStyles = function(){
 		.css( "left", this.left );
 
 	$( "span", this.bubbleSelector )
-		.css( "left", this.width + this.borderRadius - this.closeIconSize )
+		.css( "left", this.bubbleWidth - 6 - this.closeIconSize - this.borderWidth * 2 )
 		.css( "position", "absolute" )
 		.css( "cursor", "pointer" )
-		.css( "top", this.borderRadius / 5 );
+		.css( "top", 6 );
 };
 
 Bubble.prototype.setBubbleStyles = function(){
@@ -372,12 +374,9 @@ Bubble.prototype.setBubbleStyles = function(){
 		.css( "background-color", this.backgroundColor )
 		.css( "position", "absolute" )
 		.css( "text-align", "left" )
-		.css( "opacity", .5 )
-		
-		//.css( "float", "left" )
+		.css( "opacity", this.opacity )
 		.css( "font", this.font )
 		.css( "z-index", this.zIndex );
-		//.css( "top", this.selector.position().top - this.offsetY )
 };
 
 Bubble.prototype.setBeforeRules = function(){
@@ -442,9 +441,7 @@ Bubble.prototype.calculateArrowPosition = function(){
 		afterArrowCenter,
 		doublePadding = this.padding * 2,
 		arrowOffset = this.borderWidth + this.borderRadius + this.arrowSize;
-		afterArrowOffset =  Math.floor( Math.sqrt( Math.pow( this.borderWidth, 2 ) + Math.pow( this.borderWidth, 2 ) ) ) - 1,
-		bubbleWidth = this.width + (this.padding * 2) + (this.borderWidth * 2),
-		bubbleHeight = this.height + (this.padding * 2) + (this.borderWidth * 2);
+		afterArrowOffset =  Math.floor( Math.sqrt( Math.pow( this.borderWidth, 2 ) + Math.pow( this.borderWidth, 2 ) ) ) - 1;
 		
 		this.afterArrowSize = this.arrowSize - afterArrowOffset;
 		afterArrowCenter = ( doubleArrow - this.afterArrowSize * 2) / 2;
@@ -457,7 +454,7 @@ Bubble.prototype.calculateArrowPosition = function(){
 		case "right":
 			this.beforeArrowLeft = this.width + doublePadding;
 			this.afterArrowLeft = this.beforeArrowLeft;
-			this.left = this.left - bubbleWidth - this.arrowSize + this.borderWidth;
+			this.left = this.left - this.bubbleWidth - this.arrowSize + this.borderWidth;
 			break;
 		case "top":
 			this.arrowTop = -( doubleArrow );
@@ -468,7 +465,7 @@ Bubble.prototype.calculateArrowPosition = function(){
 
 			this.arrowTop = this.height + doublePadding;
 			this.afterArrowTop = this.arrowTop;
-			this.top = this.top - bubbleHeight - this.arrowSize + this.borderWidth;
+			this.top = this.top - this.bubbleHeight - this.arrowSize + this.borderWidth;
 			break;
 	}
 
@@ -480,14 +477,14 @@ Bubble.prototype.calculateArrowPosition = function(){
 			break;
 		case "bottom":
 
-			this.arrowTop = bubbleHeight - this.borderWidth * 2 - doubleArrow - this.borderRadius;
+			this.arrowTop = this.bubbleHeight - this.borderWidth * 2 - doubleArrow - this.borderRadius;
 			this.afterArrowTop = this.arrowTop + afterArrowCenter;
-			this.top = this.top - bubbleHeight + arrowOffset;
+			this.top = this.top - this.bubbleHeight + arrowOffset;
 			break;
 		case "right":
-			this.beforeArrowLeft = bubbleWidth - this.borderWidth * 2 - doubleArrow - this.borderRadius;
+			this.beforeArrowLeft = this.bubbleWidth - this.borderWidth * 2 - doubleArrow - this.borderRadius;
 			this.afterArrowLeft = this.beforeArrowLeft + afterArrowOffset;
-			this.left = this.left - bubbleWidth + arrowOffset;
+			this.left = this.left - this.bubbleWidth + arrowOffset;
 			break;
 		case "left":
 			this.beforeArrowLeft = this.borderRadius;

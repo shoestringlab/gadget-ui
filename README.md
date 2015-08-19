@@ -3,7 +3,7 @@ gadget-ui
 
 JavaScript UI and data binding library
 
-Version 1.3.0
+Version 1.4.0
 
 
 **Usage**
@@ -261,7 +261,84 @@ JS:
 	
 In this example, a pane is created from a basic div. Note that the pane copies the width of the selector and sets the selector width at 100% to fill the pane.
 
+
+***jquery.gadgetui.display.Bubble***
+
+Creating a new Bubble:
+
+	new gadgetui.display.Bubble( selector, message, options );
+
+selector : The jQuery selector to create the Bubble. The selector must be an HTML element with positioning.
 	
+message : The message to display in the Bubble.
+
+options.bubbleType : Type of Bubble. Currently only "speech" type is supported.
+
+options.name : Name of Bubble element. Defaults to "bubble".
+
+options.height : Height of Bubble paragraph element.
+
+options.width : Width of Bubble paragraph element.
+
+options.padding : Padding of Bubble paragraph element.
+
+options.opacity : Opacity of Bubble.
+
+options.shadowColor : Color of Bubble shadow. Defaults to .ui-state-active color from jQuery UI CSS.
+
+options.shadowSize : Width of shadow. Defaults to 2.
+
+options.borderColor : Color of Bubble border. Defaults to .ui-state-active color from jQuery UI CSS.
+
+options.borderWidth : Width of Bubble border. Defaults to 8.
+
+options.arrowPosition : Position of arrow on Bubble. Defaults to "bottom left". ( top left | top right | top center | right top | right center | right bottom | bottom right | bottom center | bottom right | left bottom | left center | left top )
+
+options.arrowDirection : Direction of arrow. May point toward middle of arrow ( middle ), toward nearest corner of Bubble ( corner ), or toward center of Bubble ( center ) Defaults to middle. 
+
+options.arrowSize : Size of arrow. Defaults to 25.
+
+options.backgroundColor : Background color inside Bubble. Defaults to "#FFFFFF".
+
+options.lineHeight : line height of text in Bubble. Defaults to 20.
+
+options.borderRadius : Rounded corner radius of Bubble. Defaults to 30.
+
+options.boxShadowColor : Box shadow color of Bubble. Defaults to .ui-state-active color from jQuery UI CSS.
+
+options.font : Font setting of text in Bubble. Defaults to "Arial sans".
+
+options.zIndex : z-index of Bubble. Defaults to 100.
+
+options.closable : Whether to add a close icon to Bubble to allow it to be closed manually. Defaults to false.
+
+options.autoClose : Whether to auto-close the Bubble after a delay. Defaults to false.
+
+options.autoCloseDelay : Delay in milliseconds before auto-closing the Bubble. Defaults to 5000.
+
+HTML:
+
+    <input name="firstname"/>
+       
+JS:
+		var message = "Please indicate your first name.";
+		new gadgetui.display.Bubble( $( "input[name='firstname']" ),
+			message,
+			{
+				arrowPosition : "left bottom",
+				position : "top right",
+				arrowDirection : "middle",
+				borderWidth : 10,
+				height: 100,
+				padding: 15,
+				arrowSize: 30,
+				borderRadius: 15,
+				autoClose : true
+			});
+			
+In this example, we add a Bubble to the input named "firstname", with a message instructing the user how to fill in the input. The bubble is set to close automatically after 5 seconds.
+
+
 **Notes**
 
 The codebase is in active development. Expect things to change before the functionality is stable. If you choose to use the current code in production, you have been warned.
