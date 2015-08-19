@@ -321,7 +321,9 @@ HTML:
     <input name="firstname"/>
        
 JS:
+
     var message = "Please indicate your first name.";
+    
     new gadgetui.display.Bubble( $( "input[name='firstname']" ),
         message,
         {
