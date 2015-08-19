@@ -104,9 +104,12 @@ $(document)
 			{
 				arrowPosition : "bottom left",
 				position : "top right",
-				arrowDirection : "center",
-				borderWidth : 8,
+				arrowDirection : "middle",
+				borderWidth : 5,
 				height: 150,
+				padding: 5,
+				arrowSize: 25,
+				borderRadius: 15,
 				closable : true
 			});
 

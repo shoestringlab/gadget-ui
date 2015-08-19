@@ -74,7 +74,7 @@ Bubble.prototype.setStyles = function(){
 	
 	this.bubbleSelector
 		.css( "top", this.top )
-		.css( "left", this.left - this.borderRadius - this.borderWidth );
+		.css( "left", this.left );
 
 	$( "span", this.bubbleSelector )
 		.css( "left", this.width + this.borderRadius - this.closeIconSize )
@@ -104,6 +104,8 @@ Bubble.prototype.setBubbleStyles = function(){
 		.css( "background-color", this.backgroundColor )
 		.css( "position", "absolute" )
 		.css( "text-align", "left" )
+		.css( "opacity", .5 )
+		
 		//.css( "float", "left" )
 		.css( "font", this.font )
 		.css( "z-index", this.zIndex );
@@ -133,9 +135,9 @@ Bubble.prototype.setAfterRules = function(){
 		position: "absolute",
 		width: 0,
 		height: 0,
-		left: this.afterArrowLeft + "px", // 2 is shadow size
+		left: this.afterArrowLeft + "px",
 		top: this.afterArrowTop + "px",
-		border: ( this.arrowSize - this.borderWidth - this.shadowSize ) + "px solid",
+		border: this.afterArrowSize + "px solid",
 		borderColor: this.afterBorderColor
 	};
 
@@ -149,7 +151,7 @@ Bubble.prototype.calculatePosition = function(){
 	$.each(  this.position.split( " " ), function( ix, ele ){
 			switch( ele ){
 			case "top":
-
+				//self.top =  self.top - self.selector.outerHeight();
 				break;
 			case "bottom":
 				self.top =  self.top + self.selector.outerHeight();
@@ -168,106 +170,114 @@ Bubble.prototype.calculatePosition = function(){
 };
 
 Bubble.prototype.calculateArrowPosition = function(){
-	var arrow = this.arrowSize * 2, halfBorder = this.borderWidth / 2, doubleBorder = this.borderWidth * 2, doublePadding = this.padding * 2;
+	var doubleArrow = this.arrowSize * 2, 
+		afterArrowCenter,
+		doublePadding = this.padding * 2,
+		arrowOffset = this.borderWidth + this.borderRadius + this.arrowSize;
+		afterArrowOffset =  Math.floor( Math.sqrt( Math.pow( this.borderWidth, 2 ) + Math.pow( this.borderWidth, 2 ) ) ) - 1,
+		bubbleWidth = this.width + (this.padding * 2) + (this.borderWidth * 2),
+		bubbleHeight = this.height + (this.padding * 2) + (this.borderWidth * 2);
+		
+		this.afterArrowSize = this.arrowSize - afterArrowOffset;
+		afterArrowCenter = ( doubleArrow - this.afterArrowSize * 2) / 2;
 	switch( this.arrowPositionArray[0] ){
 		case "left":
-			this.beforeArrowLeft = -arrow;
-			this.afterArrowLeft = -( arrow - doubleBorder ) + halfBorder;
-			this.left = this.left + this.borderRadius + arrow;
+			this.beforeArrowLeft = -doubleArrow;
+			this.afterArrowLeft = -this.afterArrowSize * 2;
+			this.left = this.left + this.arrowSize - this.borderWidth;
 			break;
 		case "right":
-			this.left = this.left - this.width - this.padding - doubleBorder - this.arrowSize;
 			this.beforeArrowLeft = this.width + doublePadding;
 			this.afterArrowLeft = this.beforeArrowLeft;
-			break;			
+			this.left = this.left - bubbleWidth - this.arrowSize + this.borderWidth;
+			break;
 		case "top":
-			this.top = this.top + arrow - this.borderWidth;
-			this.arrowTop = -( arrow );
-			this.afterArrowTop = this.arrowTop + doubleBorder + halfBorder;			
-			
+			this.arrowTop = -( doubleArrow );
+			this.afterArrowTop = -( this.afterArrowSize * 2 );			
+			this.top = this.top + this.arrowSize - this.borderWidth;
 			break;
 		case "bottom":
-				this.top = this.top 
-				- this.height 
-				- this.borderWidth 
-				- arrow 
-				- this.selector.outerHeight();
-			
+
 			this.arrowTop = this.height + doublePadding;
 			this.afterArrowTop = this.arrowTop;
+			this.top = this.top - bubbleHeight - this.arrowSize + this.borderWidth;
 			break;
 	}
 
 	switch( this.arrowPositionArray[1] ){
 		case "top":
-			this.top = this.top - this.borderRadius - this.borderWidth;
 			this.arrowTop = this.borderRadius;
-			this.afterArrowTop = this.arrowTop + this.borderWidth;
+			this.afterArrowTop = this.arrowTop + afterArrowCenter;
+			this.top = this.top - arrowOffset;
 			break;
 		case "bottom":
-			this.top = this.top 
-				- this.height 
-				- doublePadding 
-				- doubleBorder 
-				+ this.borderRadius;
-			this.arrowTop = this.height - this.borderRadius;
-			this.afterArrowTop = this.arrowTop + this.borderWidth + halfBorder;
+
+			this.arrowTop = bubbleHeight - this.borderWidth * 2 - doubleArrow - this.borderRadius;
+			this.afterArrowTop = this.arrowTop + afterArrowCenter;
+			this.top = this.top - bubbleHeight + arrowOffset;
 			break;
 		case "right":
-			this.left = this.left - this.selector.outerWidth() / 2 + this.arrowSize;
-			this.beforeArrowLeft = this.width - this.borderRadius;
-			this.afterArrowLeft = this.beforeArrowLeft + this.borderWidth + halfBorder;
+			this.beforeArrowLeft = bubbleWidth - this.borderWidth * 2 - doubleArrow - this.borderRadius;
+			this.afterArrowLeft = this.beforeArrowLeft + afterArrowOffset;
+			this.left = this.left - bubbleWidth + arrowOffset;
 			break;
 		case "left":
 			this.beforeArrowLeft = this.borderRadius;
-			this.afterArrowLeft = this.beforeArrowLeft + this.borderWidth;
-			//this.left = this.left + this.borderRadius - arrow;
+			this.afterArrowLeft = this.beforeArrowLeft + afterArrowOffset;
+			this.left = this.left - arrowOffset;
 			break;
 	}
 
-	switch( this.arrowPositionArray[1] + " " + this.arrowDirection ){
-		case "top center":
-			this.top = this.top - arrow ;		
-			this.afterArrowTop = this.arrowTop + this.borderWidth + halfBorder;			
-			break;
-		case "bottom center":
-			this.top = this.top + arrow;
-			this.afterArrowTop = this.afterArrowTop - halfBorder;
-			break;
-		case "right center":
-			this.left = this.left + arrow;
-			this.afterArrowLeft = this.afterArrowLeft - halfBorder;
-			break;
-		case "left center":
-			this.left = this.left - arrow;
-			this.afterArrowLeft = this.afterArrowLeft + halfBorder;
-			break;	
-	}
 };
 
 Bubble.prototype.calculateArrowStyle = function(){
 	var colorArray = [], arrowStart = this.arrowPositionArray[0], arrowEnd = this.arrowPositionArray[1] + " " + this.arrowDirection;
 
-	if( arrowStart === 'top' || arrowEnd === 'bottom corner' || arrowEnd === 'top center' ){
-		colorArray[0] = 'transparent';
-		colorArray[2] =  this.borderColor;
-	}else if( arrowStart === 'bottom' || arrowEnd === 'bottom center' || arrowEnd === 'top corner' ){
-		colorArray[0] = this.borderColor;
-		colorArray[2] =  'transparent';
-	}
+	
+	if( this.arrowDirection === 'middle' ){
+		switch( this.arrowPositionArray[0] ){
+		case "top":
+			this.beforeBorderColor = "transparent transparent " + this.borderColor + " transparent";
+			this.afterBorderColor = "transparent transparent #fff transparent";	
+			break;
+		case "bottom":
+			this.beforeBorderColor = this.borderColor + " transparent transparent transparent";
+			this.afterBorderColor = "#fff transparent transparent transparent";
+			break;
+		case "right":
+			this.beforeBorderColor = "transparent transparent transparent " + this.borderColor;
+			this.afterBorderColor = "transparent transparent transparent #fff";			
+			break;
+		case "left":
+			this.beforeBorderColor = "transparent " + this.borderColor + " transparent transparent";
+			this.afterBorderColor = "transparent #fff transparent transparent";			
+			break;
+		}
+	}else{
+		if( arrowStart === 'top' || arrowEnd === 'bottom corner' || arrowEnd === 'top center' ){
+			colorArray[0] = 'transparent';
+			colorArray[2] =  this.borderColor;
+		}else if( arrowStart === 'bottom' || arrowEnd === 'bottom center' || arrowEnd === 'top corner' ){
+			colorArray[0] = this.borderColor;
+			colorArray[2] =  'transparent';
+		}
+	
+		if( arrowStart === 'right' || arrowEnd === 'left corner' || arrowEnd === 'right center' ){
+			colorArray[1] = 'transparent';
+			colorArray[3] =  this.borderColor;
+		}else if( arrowStart === 'left' || arrowEnd === 'left center' || arrowEnd === 'right corner' ){
+			colorArray[1] =  this.borderColor;
+			colorArray[3] = 'transparent';
+		}
 
-	if( arrowStart === 'right' || arrowEnd === 'left corner' || arrowEnd === 'right center' ){
-		colorArray[1] = 'transparent';
-		colorArray[3] =  this.borderColor;
-	}else if( arrowStart === 'left' || arrowEnd === 'left center' || arrowEnd === 'right corner' ){
-		colorArray[1] =  this.borderColor;
-		colorArray[3] = 'transparent';
+		this.beforeBorderColor = colorArray.toString().replace( /\),/gi, ") " ).replace( /,transparent/gi, " transparent" ).replace( /transparent,/gi, "transparent " );
+		this.afterBorderColor = this.beforeBorderColor.replace( this.borderColor, "#fff", "g" );
+		console.log( this.beforeBorderColor );
+		console.log( this.afterBorderColor );
 	}
+		
 
-	this.beforeBorderColor = colorArray.toString().replace( /\),/gi, ") " ).replace( /,transparent/gi, " transparent" );
-	this.afterBorderColor = this.beforeBorderColor.replace( this.borderColor, "#fff", "g" );
-	console.log( this.beforeBorderColor );
-	console.log( this.afterBorderColor );
+
 	/*	
 	 right *, * right center, * left corner - colorArray[1] = 'transparent', colorArray[3] = this.borderColor
 	 left *, * right corner, * left center - colorArray[1] = this.borderColor, colorArray[3] = 'transparent'
@@ -277,7 +287,8 @@ Bubble.prototype.calculateArrowStyle = function(){
 	 	
 	 */
 	
-	// working and re-factored
+	// switch-based decision tree - working and re-factored
+	
 	/*	switch( this.arrowPosition + " " + this.arrowDirection ){
 		case "right top center":
 		case "right bottom corner":
