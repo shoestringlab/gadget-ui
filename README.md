@@ -321,20 +321,20 @@ HTML:
     <input name="firstname"/>
        
 JS:
-		var message = "Please indicate your first name.";
-		new gadgetui.display.Bubble( $( "input[name='firstname']" ),
-			message,
-			{
-				arrowPosition : "left bottom",
-				position : "top right",
-				arrowDirection : "middle",
-				borderWidth : 10,
-				height: 100,
-				padding: 15,
-				arrowSize: 30,
-				borderRadius: 15,
-				autoClose : true
-			});
+    var message = "Please indicate your first name.";
+    new gadgetui.display.Bubble( $( "input[name='firstname']" ),
+        message,
+        {
+            arrowPosition : "left bottom",
+            position : "top right",
+            arrowDirection : "middle",
+            borderWidth : 10,
+            height: 100,
+            padding: 15,
+            arrowSize: 30,
+            borderRadius: 15,
+            autoClose : true
+            });
 			
 In this example, we add a Bubble to the input named "firstname", with a message instructing the user how to fill in the input. The bubble is set to close automatically after 5 seconds.
 
