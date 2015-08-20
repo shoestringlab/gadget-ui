@@ -3,7 +3,7 @@ gadget-ui
 
 JavaScript UI and data binding library
 
-Version 1.4.0
+Version 1.4.1
 
 
 **Usage**
@@ -351,4 +351,4 @@ Unit testing is a work in progress. Work is being done to integrate Syn event si
 
 ***License*** 
 
-gadget-ui s released under the MIT license.
+gadget-ui is released under the Mozilla Public License 2.0.
