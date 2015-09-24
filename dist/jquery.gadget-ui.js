@@ -1122,10 +1122,11 @@ function TextInput( args ){
 		o = args.object;
 	}
 
-	if( args.config !== undefined ){
-		self.config( args.config );
+	if( args.config === undefined ){
+		args.config = {};
 	}
-
+	self.config( args.config );
+	
 	$.each( self.el,  function( index, input ){
 		// bind to the model if binding is specified
 		_bindToModel( input, self.model );
@@ -1251,7 +1252,7 @@ TextInput.prototype.addBindings = function( input, object ){
 			oVar.isDirty = true;
 			label.val( value );
 			});	
-}
+};
 
 TextInput.prototype.addClass = function( input ){
 	$( input )

@@ -1,6 +1,11 @@
 		
 ***Release Notes***
 
+1.4.3
+======
+
+- Fixed bug with missing config for TextInput.
+
 1.4.2 
 ======
 
