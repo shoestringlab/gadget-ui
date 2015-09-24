@@ -123,6 +123,7 @@ $(document)
 
 		function logChanges(obj) {
 			console.log(obj);
+			showModel();
 		}
 
 		$("input[name='resetLookupList']").on("click", function() {

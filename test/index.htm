@@ -32,6 +32,12 @@
 
 		<script>
 			function showModel( ) {
+				$( "span[name='firstname']" ).text( gadgetui.model.get( 'user.firstname' ) );
+				$( "span[name='lastname']" ).text( gadgetui.model.get( 'user.lastname' ) );
+				$( "span[name='tagline']" ).text( gadgetui.model.get( 'user.tagline' ) );
+				$( "span[name='role']" ).text( gadgetui.model.get( 'user.role' ) );
+				$( "span[name='friends']" ).text( gadgetui.model.get( 'user.friends' ) );
+				
 				/*	$( '#modelDiv' ).html( 'firstname: ' + gadgetui.model.get( 'user.firstname' ) 
 				+ '<br/><br/>lastname: ' + gadgetui.model.get( 'user.lastname' ) 
 				+ '<br/><br/>tag line: ' + gadgetui.model.get( 'user.tagline' ) 
