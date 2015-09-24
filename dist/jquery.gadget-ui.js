@@ -1287,6 +1287,9 @@ TextInput.prototype.setLineHeight = function( input ){
 	if( lineHeight > 20 ){
 		$( input ).parent()
 			.css( "min-height", lineHeight );
+		// add min height to label div as well so label/input isn't offset vertically
+		$( "div[class='gadgetui-inputlabel']", $( input ).parent() )
+			.css( "min-height", lineHeight );
 	}
 };
 

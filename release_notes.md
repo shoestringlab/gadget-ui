@@ -1,6 +1,12 @@
 		
 ***Release Notes***
 
+1.4.4
+======
+
+- Fixed bug, min height not set for label div in TextInput.
+
+
 1.4.3
 ======
 
