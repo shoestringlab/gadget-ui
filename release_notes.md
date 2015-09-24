@@ -1,6 +1,12 @@
 		
 ***Release Notes***
 
+1.4.2 
+======
+
+- Fixed bugs related to mouseover/mouseout of TextInput
+- re-factored TextInput for better readability
+
 1.4.0
 ======
 
