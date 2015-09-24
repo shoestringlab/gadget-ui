@@ -1,3 +1,7 @@
 node_modules
 bower_components
 WEB-INF
+.project
+.settings
+.DS_Store
+
