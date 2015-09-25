@@ -218,11 +218,12 @@ TextInput.prototype.addCSS = function( input, lineHeight ){
 
 	$( "div[class='gadgetui-inputlabel']", $( input ).parent() )
 		.css( "height", lineHeight )
-		//.css( "padding-left", "2px" )
+		.css( "padding-left", "2px" )
 		.css( "font-size", $( input ).css( "font-size" ) )
 		.css( "display", "block" );	
 	
 	$( input )
+		.css( "padding-left", "2px" )
 		.css( "border", "1px solid " + this.borderColor );
 };
 
