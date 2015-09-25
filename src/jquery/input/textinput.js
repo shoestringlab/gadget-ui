@@ -189,6 +189,10 @@ TextInput.prototype.setWidth = function( input, val ){
 		width = $.gadgetui.textWidth( $( input ).val(), font ) + 10,
 		maxWidth = parentStyle.width; parseInt( parentStyle.width.substring( 0, parentStyle.width.length - 2 ), 10 );
 	
+	if( this.borderColor === undefined ){
+		this.borderColor = style.borderBottomColor;
+	}
+		
 	if( maxWidth > 10 && this.enforceMaxWidth === true ){
 		$( "input", $( input ).parent() )
 			.css( "max-width", maxWidth );
@@ -210,7 +214,7 @@ TextInput.prototype.addCSS = function( input, lineHeight ){
 	
 	$( "input[class='gadgetui-inputlabelinput']", $( input ).parent()  )
 		.css( "font-size", window.getComputedStyle( $( input )[0] ).fontSize )
-		.css( "border", "3px solid transparent" );
+		.css( "border", "1px solid transparent" );
 
 	$( "div[class='gadgetui-inputlabel']", $( input ).parent() )
 		.css( "height", lineHeight )
@@ -219,7 +223,7 @@ TextInput.prototype.addCSS = function( input, lineHeight ){
 		.css( "display", "block" );	
 	
 	$( input )
-		.css( "border-width", "3px" );
+		.css( "border", "1px solid " + this.borderColor );
 };
 
 TextInput.prototype.setElements = function( el ){
@@ -232,6 +236,7 @@ TextInput.prototype.setElements = function( el ){
 
 TextInput.prototype.config = function( args ){
 	var self = this;
+	self.borderColor =  (( args.borderColor === undefined) ? self.borderColor : args.borderColor );
 	self.model =  (( args.model === undefined) ? self.model : args.model );
 	self.func = (( args.func === undefined) ? undefined : args.func );
 	self.emitEvents = (( args.emitEvents === undefined) ? true : args.emitEvents );
