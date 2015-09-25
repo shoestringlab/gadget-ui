@@ -823,7 +823,7 @@ function LookupListInput( args ){
 	this.menuItemRenderer = _renderLabel;
 	this.lookupList;
 	this.emitEvents = true;
-	this.model;
+	this.model = gadgetui.model;
 
 	if( args.el === undefined ){
 		this.el = $( "input[gadgetui-lookuplist-input='true']", document );
@@ -982,7 +982,7 @@ LookupListInput.prototype.config = function( args ){
 function SelectInput( args ){
 	var self = this, val, ph, o;
 	self.emitEvents = true;
-	self.model;
+	self.model = gadgetui.model;
 	self.func;
 
 	if( args.el === undefined ){
