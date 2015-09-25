@@ -1,6 +1,11 @@
 		
 ***Release Notes***
 
+1.5.0
+======
+
+- Made gadgetui model the default model for binding.
+
 1.4.5
 ======
 

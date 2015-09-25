@@ -2,7 +2,7 @@
 function SelectInput( args ){
 	var self = this, val, ph, o;
 	self.emitEvents = true;
-	self.model;
+	self.model = gadgetui.model;
 	self.func;
 
 	if( args.el === undefined ){

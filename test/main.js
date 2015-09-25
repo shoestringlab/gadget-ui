@@ -41,7 +41,6 @@ $(document)
 			config : {
 				emitEvents : false,
 				func : logChanges,
-				model : gadgetui.model,
 				enforceMaxWidth: true,
 				activate : "mouseover"
 			}

@@ -2,7 +2,7 @@
 function TextInput( args ){
 	var self = this, val, o, lineHeight;
 	self.emitEvents = true;
-	self.model;
+	self.model = gadgetui.model;
 	self.func;
 
 	self.setElements( args.el );

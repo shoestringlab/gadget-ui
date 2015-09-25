@@ -10,7 +10,7 @@ function LookupListInput( args ){
 	this.menuItemRenderer = _renderLabel;
 	this.lookupList;
 	this.emitEvents = true;
-	this.model;
+	this.model = gadgetui.model;
 
 	if( args.el === undefined ){
 		this.el = $( "input[gadgetui-lookuplist-input='true']", document );
