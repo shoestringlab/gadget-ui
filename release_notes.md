@@ -1,6 +1,12 @@
 		
 ***Release Notes***
 
+1.4.5
+======
+
+- Fixed formatting for label/input positioning in TextInput.
+
+
 1.4.4
 ======
 

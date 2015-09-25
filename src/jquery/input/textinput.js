@@ -210,13 +210,16 @@ TextInput.prototype.addCSS = function( input, lineHeight ){
 	
 	$( "input[class='gadgetui-inputlabelinput']", $( input ).parent()  )
 		.css( "font-size", window.getComputedStyle( $( input )[0] ).fontSize )
-		.css( "border", "1px solid transparent" );
+		.css( "border", "3px solid transparent" );
 
 	$( "div[class='gadgetui-inputlabel']", $( input ).parent() )
 		.css( "height", lineHeight )
-		.css( "padding-left", "2px" )
+		//.css( "padding-left", "2px" )
 		.css( "font-size", $( input ).css( "font-size" ) )
 		.css( "display", "block" );	
+	
+	$( input )
+		.css( "border-width", "3px" );
 };
 
 TextInput.prototype.setElements = function( el ){
