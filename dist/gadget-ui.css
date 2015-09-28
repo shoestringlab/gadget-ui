@@ -93,3 +93,7 @@ div.gadgetui-lookuplistinput-div > .gadgetui-lookuplist-input-item-wrapper{
 	margin:3px;
 	display:inline-block;
 }
+
+div.gadgetui-selectinput-label{
+	display:inline-block;
+}

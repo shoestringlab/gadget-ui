@@ -1,6 +1,14 @@
 		
 ***Release Notes***
 
+1.5.1
+======
+
+- Fixed issues with selectinput positioning/size of label v. select box
+- re-factored selectinput code for better readability
+- Fixed issue with selectinput not reverting to label until mouseover/out while not selected
+	- added document listener mouseup to check whether control has focus and hide select box if it does not
+
 1.5.0
 ======
 

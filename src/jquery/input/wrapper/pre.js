@@ -6,6 +6,8 @@ gadgetui.input = (function($) {
 		if( bindVar !== undefined && model !== undefined ){
 			model.bind( bindVar, $( obj ) );
 		}
-	};
+	},
 
-	
+	_getNumericValue = function( pixelValue ){
+		return Number( pixelValue.substring( 0, pixelValue.length - 2 ) );
+	};
