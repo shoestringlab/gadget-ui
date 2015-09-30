@@ -355,10 +355,6 @@ Bubble.prototype.setBeforeRules = function(){
 		borderColor: this.beforeBorderColor
 	};
 
-	//gadgetui.util.addCSSRule( this.sheet, "p[name='" + this.name + "']:before", rules, 0 );	
-	//console.log( this.sheet );
-	
-	//addRule( "p[name='" + this.name + "']:before", rules, 0 );	
 	$( "p[name='" + this.name + "']:before" ).addRule( rules, 0 );
 };
 
@@ -375,10 +371,6 @@ Bubble.prototype.setAfterRules = function(){
 		borderColor: this.afterBorderColor
 	};
 
-	//gadgetui.util.addCSSRule( this.sheet, "p[name='" + this.name + "']:after", rules, 0 );
-	//console.log( this.sheet );
-	
-	//addRule( "p[name='" + this.name + "']:after", rules, 0 );
 	$( "p[name='" + this.name + "']:after" ).addRule( rules, 0 );	
 };
 
@@ -609,8 +601,6 @@ Bubble.prototype.config = function( options ){
 	this.autoClose = ( options.autoClose === undefined ? false : options.autoClose );
 	this.autoCloseDelay = ( options.autoCloseDelay === undefined ? 5000 : options.autoCloseDelay );
 	
-	// style sheet
-	this.sheet = gadgetui.util.styleSheet();
 };
 
 	function CollapsiblePane( args ){
@@ -1450,36 +1440,6 @@ gadgetui.util = ( function(){
 		},
 		getNumberValue: function( pixelValue ){
 			return Number( pixelValue.substring( 0, pixelValue.length - 2 ) );
-		},
-		
-		addCSSRule: function(sheet, selector, rules ) {
-			if("insertRule" in sheet) {
-				sheet.insertRule(selector + "{" + rules + "}", sheet.cssRules.length);
-			}
-			else if("addRule" in sheet) {
-				sheet.addRule(selector, rules, sheet.cssRules.length);
-			}
-			console.log( sheet );
-		},
-		// adapted from David Walsh, http://davidwalsh.name/add-rules-stylesheets
-		styleSheet: function() {
-			// Create the <style> tag
-			var style = document.createElement("style");
-
-			// Add a media (and/or media query) here if you'd like!
-			// style.setAttribute("media", "screen")
-			// style.setAttribute("media", "only screen and (max-width : 1024px)")
-
-			// WebKit hack :(
-			style.appendChild(document.createTextNode(""));
-
-			// Add the <style> element to the page
-			document.head.appendChild(style);
-			// Add the <style> element to the page
-			document.head.appendChild( style );
-			//gadgetui.util.addCSSRule( document.styleSheets[0], "p", "font: Arial 10px" );
-			document.styleSheets[0].insertRule( "p { font: Arial 12px; }", document.styleSheets[0].cssRules.length );
-			return style.sheet;
 		}
 	};
 } ());	

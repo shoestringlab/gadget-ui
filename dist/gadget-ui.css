@@ -40,7 +40,7 @@ div.gadget-ui-collapsiblePane-header div, div.gadget-ui-floatingPane-header div{
 p.gadgetui_bubble_speech
 {
 	display:none;
-	
+	box-sizing: content-box;	
 }
 
 div .gadget-ui-input-div{

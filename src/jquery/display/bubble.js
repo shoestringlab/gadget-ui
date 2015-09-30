@@ -87,10 +87,6 @@ Bubble.prototype.setBeforeRules = function(){
 		borderColor: this.beforeBorderColor
 	};
 
-	//gadgetui.util.addCSSRule( this.sheet, "p[name='" + this.name + "']:before", rules, 0 );	
-	//console.log( this.sheet );
-	
-	//addRule( "p[name='" + this.name + "']:before", rules, 0 );	
 	$( "p[name='" + this.name + "']:before" ).addRule( rules, 0 );
 };
 
@@ -107,10 +103,6 @@ Bubble.prototype.setAfterRules = function(){
 		borderColor: this.afterBorderColor
 	};
 
-	//gadgetui.util.addCSSRule( this.sheet, "p[name='" + this.name + "']:after", rules, 0 );
-	//console.log( this.sheet );
-	
-	//addRule( "p[name='" + this.name + "']:after", rules, 0 );
 	$( "p[name='" + this.name + "']:after" ).addRule( rules, 0 );	
 };
 
@@ -341,6 +333,4 @@ Bubble.prototype.config = function( options ){
 	this.autoClose = ( options.autoClose === undefined ? false : options.autoClose );
 	this.autoCloseDelay = ( options.autoCloseDelay === undefined ? 5000 : options.autoCloseDelay );
 	
-	// style sheet
-	this.sheet = gadgetui.util.styleSheet();
 };
