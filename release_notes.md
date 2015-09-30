@@ -1,6 +1,15 @@
 		
 ***Release Notes***
 
+1.6.2
+======
+
+- changed Bubble base element from p to div
+- added significant debugging to Bubble to learn why position is not always correct
+	- note that position is affected by position: relative ancestor elements and
+	  they must be accounted for
+- fixed issue with FloatingPane height not being exactly correct on restoration from being minimized
+
 1.6.1
 ======
 
