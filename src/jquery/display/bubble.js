@@ -9,14 +9,14 @@ function Bubble( selector, message, options ){
 }
 
 Bubble.prototype.render = function(){
-	var str =  '<p class="gadgetui_bubble_' + this.bubbleType + '" name="' + this.name + '">' + this.message;
+	var str =  '<div class="gadgetui_bubble_' + this.bubbleType + '" name="' + this.name + '">' + this.message;
 	if( this.closable ){
 		str = str + '<span class="ui-icon ui-icon-close"></span>';
 	}
-	str = str + '</p>';
+	str = str + '</div>';
 
 	this.selector
-		.before( str );
+		.after( str );
 };
 
 Bubble.prototype.show = function(){
@@ -24,19 +24,25 @@ Bubble.prototype.show = function(){
 };
 
 Bubble.prototype.setStyles = function(){
-
+	console.log( "top: " + this.top + ", left: " + this.left );
 	this.setBubbleStyles();
-	
+	console.log( "this.setBubbleStyles();" );
+	console.log( "top: " + this.top + ", left: " + this.left );
 	this.calculateArrowPosition();
-
+	console.log( "this.calculateArrowPosition();" );
+	console.log( "top: " + this.top + ", left: " + this.left );
 	this.calculateArrowStyle();
-
+	console.log( "this.calculateArrowStyle();" );
+	console.log( "top: " + this.top + ", left: " + this.left );
 	this.setBeforeRules();
-	
+	console.log( "this.setBeforeRules();" );
+	console.log( "top: " + this.top + ", left: " + this.left );
 	this.setAfterRules();
-	
+	console.log( "this.setAfterRules();" );
+	console.log( "top: " + this.top + ", left: " + this.left );
 	this.calculatePosition();
-	
+	console.log( "this.calculatePosition();" );
+	console.log( "top: " + this.top + ", left: " + this.left );
 	this.bubbleSelector
 		.css( "top", this.top )
 		.css( "left", this.left );
@@ -49,7 +55,7 @@ Bubble.prototype.setStyles = function(){
 };
 
 Bubble.prototype.setBubbleStyles = function(){
-	this.bubbleSelector = $( "p[name='" + this.name + "']", this.selector.parent() );
+	this.bubbleSelector = $( "div[name='" + this.name + "']", this.selector.parent() );
 
 	this.bubbleSelector
 		.css( "margin", 0 )
@@ -87,7 +93,7 @@ Bubble.prototype.setBeforeRules = function(){
 		borderColor: this.beforeBorderColor
 	};
 
-	$( "p[name='" + this.name + "']:before" ).addRule( rules, 0 );
+	$( "div[name='" + this.name + "']:before" ).addRule( rules, 0 );
 };
 
 Bubble.prototype.setAfterRules = function(){
@@ -103,7 +109,7 @@ Bubble.prototype.setAfterRules = function(){
 		borderColor: this.afterBorderColor
 	};
 
-	$( "p[name='" + this.name + "']:after" ).addRule( rules, 0 );	
+	$( "div[name='" + this.name + "']:after" ).addRule( rules, 0 );	
 };
 
 Bubble.prototype.calculatePosition = function(){
@@ -116,18 +122,25 @@ Bubble.prototype.calculatePosition = function(){
 				break;
 			case "bottom":
 				self.top =  self.top + self.selector.outerHeight();
+				console.log( "self.top + self.selector.outerHeight() " + self.selector.outerHeight() );
 				break;
 			case "left":
 
 				break;
 			case "right":
 				self.left = self.left + self.selector.outerWidth();
+				console.log( "self.left + self.selector.outerWidth() " + self.selector.outerWidth() );
 				break;
 			case "center":
 				self.left = self.left + self.selector.outerWidth() / 2;
+				console.log( "self.left + self.selector.outerWidth() / 2  " + self.selector.outerWidth() / 2);
 				break;
 			}
 	});
+	
+	// Here we must walk up the DOM to the ancestors of the selector to see whether they are set to position: relative. If that is the case,
+	// we must add the offset values of the ancestor to the position values for the control or it will not be correctly placed.
+	
 };
 
 Bubble.prototype.calculateArrowPosition = function(){
@@ -144,22 +157,26 @@ Bubble.prototype.calculateArrowPosition = function(){
 			this.beforeArrowLeft = -doubleArrow;
 			this.afterArrowLeft = -this.afterArrowSize * 2;
 			this.left = this.left + this.arrowSize - this.borderWidth;
+			console.log( "this.left + this.arrowSize - this.borderWidth" );
 			break;
 		case "right":
 			this.beforeArrowLeft = this.width + doublePadding;
 			this.afterArrowLeft = this.beforeArrowLeft;
 			this.left = this.left - this.bubbleWidth - this.arrowSize + this.borderWidth;
+			console.log( "this.left - this.bubbleWidth - this.arrowSize + this.borderWidth" );
 			break;
 		case "top":
 			this.arrowTop = -( doubleArrow );
 			this.afterArrowTop = -( this.afterArrowSize * 2 );			
 			this.top = this.top + this.arrowSize - this.borderWidth;
+			console.log( "this.top + this.arrowSize - this.borderWidth" );
 			break;
 		case "bottom":
 
 			this.arrowTop = this.height + doublePadding;
 			this.afterArrowTop = this.arrowTop;
 			this.top = this.top - this.bubbleHeight - this.arrowSize + this.borderWidth;
+			console.log( "this.top - this.bubbleHeight - this.arrowSize + this.borderWidth" );
 			break;
 	}
 
@@ -168,22 +185,26 @@ Bubble.prototype.calculateArrowPosition = function(){
 			this.arrowTop = this.borderRadius;
 			this.afterArrowTop = this.arrowTop + afterArrowCenter;
 			this.top = this.top - arrowOffset;
+			console.log( "this.top - arrowOffset" );
 			break;
 		case "bottom":
 
 			this.arrowTop = this.bubbleHeight - this.borderWidth * 2 - doubleArrow - this.borderRadius;
 			this.afterArrowTop = this.arrowTop + afterArrowCenter;
 			this.top = this.top - this.bubbleHeight + arrowOffset;
+			console.log( "this.top - this.bubbleHeight + arrowOffset" );
 			break;
 		case "right":
 			this.beforeArrowLeft = this.bubbleWidth - this.borderWidth * 2 - doubleArrow - this.borderRadius;
 			this.afterArrowLeft = this.beforeArrowLeft + afterArrowOffset;
 			this.left = this.left - this.bubbleWidth + arrowOffset;
+			console.log( "this.left - this.bubbleWidth + arrowOffset" );
 			break;
 		case "left":
 			this.beforeArrowLeft = this.borderRadius;
 			this.afterArrowLeft = this.beforeArrowLeft + afterArrowOffset;
 			this.left = this.left - arrowOffset;
+			console.log( "this.left - arrowOffset" );
 			break;
 	}
 
@@ -308,8 +329,9 @@ Bubble.prototype.config = function( options ){
 	this.opacity = ( options.opacity === undefined ? 1 : options.opacity ); // interior padding of bubble
 	// baseline position
 	this.top = this.selector.offset().top;
+	console.log( "initial top: " + this.top );
 	this.left = this.selector.offset().left;
-
+	console.log( "initial left: " + this.left );
 	this.shadowColor = ( options.shadowColor === undefined ? baseUIColor : options.shadowColor );
 	this.shadowSize = 2; // shadow 
 	this.borderColor = ( options.borderColor === undefined ? baseUIColor : options.borderColor );

@@ -21,6 +21,9 @@
 		self.wrapper.prepend( '<div class="ui-widget-header ui-corner-all gadget-ui-floatingPane-header">' + self.title + '<div class="ui-icon ui-icon-arrow-4"></div></div>');
 		header = $( "div.gadget-ui-floatingPane-header", self.wrapper );
 
+		// now set height to computed height of control that has been created
+		self.height = window.getComputedStyle( $( this.selector ).parent()[0] ).height;
+
 		// jquery-ui draggable
 		self.wrapper.draggable( {addClasses: false } );
 
@@ -43,13 +46,13 @@
 		this.title = ( args.title === undefined ? "": args.title );
 		this.path = ( args.path === undefined ? "/bower_components/gadget-ui/dist/": args.path );
 		this.position = ( args.position === undefined ? { my: "right top", at: "right top", of: window } : args.position );
-		this.padding = ( args.padding === undefined ? ".5em": args.padding );
+		this.padding = ( args.padding === undefined ? "15px": args.padding );
 		this.paddingTop = ( args.paddingTop === undefined ? ".3em": args.paddingTop );
 		this.width = ( args.width === undefined ? $( this.selector ).css( "width" ) : args.width );
 		this.minWidth = ( this.title.length > 0 ? Math.max( 100, this.title.length * 10 ) : 100 );
 
-		this.height = ( args.height === undefined ? $( this.selector ).css( "height" ) : args.height );
-		this.interiorWidth = ( args.interiorWidth === undefined ? "100%": args.interiorWidth );
+		this.height = ( args.height === undefined ? gadgetui.util.getNumberValue( window.getComputedStyle( $( this.selector )[0] ).height ) + ( gadgetui.util.getNumberValue( this.padding ) * 2 ) : args.height );
+		this.interiorWidth = ( args.interiorWidth === undefined ? "": args.interiorWidth );
 		this.opacity = ( ( args.opacity === undefined ? 1 : args.opacity ) );
 		this.zIndex = ( ( args.zIndex === undefined ? 100000 : args.zIndex ) );
 		this.minimized = false;
@@ -113,16 +116,3 @@
 		this.minimized = true;
 
 	};
-	
-	/*	FloatingPane.prototype.toggle = function( img ){
-		var self = this, icon = ( ( self.selector.css( "display" ) === "none" ) ? "collapse" : "expand" );
-		self.eventName = ( ( self.eventName === undefined || self.eventName === "collapse" ) ? "expand" : "collapse" );
-		self.selector
-			.css( "padding", self.padding )
-			.css( "padding-top", self.paddingTop )
-			.toggle( 'blind', {}, 200, function(  ) {
-				$( img ).attr( "src", self.path + "img/" + icon + ".png");
-				$( this ).css( "padding", self.padding );
-				self.selector.trigger( self.eventName );
-			});
-	};	*/
