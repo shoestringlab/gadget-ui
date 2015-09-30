@@ -6,6 +6,9 @@ gadgetui.util = ( function(){
 		},
 		extractLast: function( term ) {
 			return this.split( term ).pop();
+		},
+		getNumberValue: function( pixelValue ){
+			return Number( pixelValue.substring( 0, pixelValue.length - 2 ) );
 		}
 	};
 } ());	

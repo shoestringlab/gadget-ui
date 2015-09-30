@@ -97,3 +97,10 @@ div.gadgetui-lookuplistinput-div > .gadgetui-lookuplist-input-item-wrapper{
 div.gadgetui-selectinput-label{
 	display:inline-block;
 }
+
+select.gadgetui-selectinput{
+	/* hack to allow font-size changes in Safari/Chrome */
+	border-image:0;
+	-webkit-box-shadow: 0 0 0 transparent; 
+	box-shadow: 0 0 0 transparent;
+}

@@ -1,6 +1,6 @@
 {
   "name": "gadget-ui",
-  "version": "1.5.1",
+  "version": "1.6.1",
   "authors": [
     "Robert Munn <robert.d.munn@gmail.com>"
   ],
@@ -23,6 +23,7 @@
   ],
   "dependencies": {
     "jquery": "*",
-    "jquery-ui": "*"
+    "jquery-ui": "*",
+    "jquery.addrule": "*"
   }
 }

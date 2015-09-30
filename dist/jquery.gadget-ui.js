@@ -276,43 +276,6 @@ function Bubble( selector, message, options ){
 	this.show();
 }
 
-Bubble.prototype.config = function( options ){
-	var baseUIColor = getStyleRuleValue( "color", ".ui-state-active" );
-	this.bubbleType = ( options.bubbleType === undefined ? "speech" : options.bubbleType );
-	this.name = ( options.name === undefined ? "bubble" : options.name );
-	this.height = ( options.height === undefined ? 100 : options.height );
-	this.position = ( options.position === undefined ? "top right" : options.position ); // position of arrow tip on selector - top right | bottom right | top center | bottom center | top left | bottom left
-	this.width = ( options.width === undefined ? 200 : options.width ); // width of bubble
-	this.padding = ( options.padding === undefined ? 20 : options.padding ); // interior padding of bubble
-	this.opacity = ( options.opacity === undefined ? 1 : options.opacity ); // interior padding of bubble
-	// baseline position
-	this.top = this.selector.offset().top;
-	this.left = this.selector.offset().left;
-
-	this.shadowColor = ( options.shadowColor === undefined ? baseUIColor : options.shadowColor );
-	this.shadowSize = 2; // shadow 
-	this.borderColor = ( options.borderColor === undefined ? baseUIColor : options.borderColor );
-	this.borderWidth = ( options.borderWidth === undefined ? 8 : options.borderWidth ); //	border: 8px solid #CC4B4B; // width of bubble border
-	this.arrowPosition = ( options.arrowPosition === undefined ? "bottom left" : options.arrowPosition ); // location of arrow on bubble - top left | top right | top center | right top | right center | right bottom | bottom right | bottom center | bottom right | left bottom | left center | left top 
-	this.arrowDirection =  ( options.arrowDirection === undefined ? "middle" : options.arrowDirection ); // direction arrow points - center | corner | middle
-	this.arrowPositionArray = this.arrowPosition.split( " " );
-	this.bubbleWidth = this.width + (this.padding * 2) + (this.borderWidth * 2); // full width of visible bubble
-	this.bubbleHeight = this.height + (this.padding * 2) + (this.borderWidth * 2); // full height of visible bubble
-	//this.setArrowDirection();
-
-	this.closeIconSize = 16; // ui-icon css
-	this.arrowSize = ( options.arrowSize === undefined ? 25 : options.arrowSize ); // half size of arrow 
-	this.backgroundColor = ( options.backgroundColor === undefined ? "#FFFFFF" : options.backgroundColor );
-	this.lineHeight = ( options.lineHeight === undefined ? 20 : options.lineHeight ); // line height of text in bubble
-	this.borderRadius = ( options.borderRadius === undefined ? 30 : options.borderRadius );	//border-radius
-	this.boxShadowColor = ( options.boxShadowColor === undefined ? baseUIColor : options.boxShadowColor );
-	this.font = ( options.font === undefined ? "Arial sans" : options.font );
-	this.zIndex = ( options.zIndex === undefined ? 100 : options.zIndex );
-	this.closable = ( options.closable === undefined ? false : options.closable );
-	this.autoClose = ( options.autoClose === undefined ? false : options.autoClose );
-	this.autoCloseDelay = ( options.autoCloseDelay === undefined ? 5000 : options.autoCloseDelay );
-};
-
 Bubble.prototype.render = function(){
 	var str =  '<p class="gadgetui_bubble_' + this.bubbleType + '" name="' + this.name + '">' + this.message;
 	if( this.closable ){
@@ -392,7 +355,11 @@ Bubble.prototype.setBeforeRules = function(){
 		borderColor: this.beforeBorderColor
 	};
 
-	addRule( "p[name='" + this.name + "']:before", rules );	
+	//gadgetui.util.addCSSRule( this.sheet, "p[name='" + this.name + "']:before", rules, 0 );	
+	//console.log( this.sheet );
+	
+	//addRule( "p[name='" + this.name + "']:before", rules, 0 );	
+	$( "p[name='" + this.name + "']:before" ).addRule( rules, 0 );
 };
 
 Bubble.prototype.setAfterRules = function(){
@@ -408,8 +375,11 @@ Bubble.prototype.setAfterRules = function(){
 		borderColor: this.afterBorderColor
 	};
 
-	addRule( "p[name='" + this.name + "']:after", rules );
-
+	//gadgetui.util.addCSSRule( this.sheet, "p[name='" + this.name + "']:after", rules, 0 );
+	//console.log( this.sheet );
+	
+	//addRule( "p[name='" + this.name + "']:after", rules, 0 );
+	$( "p[name='" + this.name + "']:after" ).addRule( rules, 0 );	
 };
 
 Bubble.prototype.calculatePosition = function(){
@@ -603,6 +573,45 @@ Bubble.prototype.setBehaviors = function(){
 	}
 };
 
+Bubble.prototype.config = function( options ){
+	var baseUIColor = getStyleRuleValue( "color", ".ui-state-active" );
+	this.bubbleType = ( options.bubbleType === undefined ? "speech" : options.bubbleType );
+	this.name = ( options.name === undefined ? "bubble" : options.name );
+	this.height = ( options.height === undefined ? 100 : options.height );
+	this.position = ( options.position === undefined ? "top right" : options.position ); // position of arrow tip on selector - top right | bottom right | top center | bottom center | top left | bottom left
+	this.width = ( options.width === undefined ? 200 : options.width ); // width of bubble
+	this.padding = ( options.padding === undefined ? 20 : options.padding ); // interior padding of bubble
+	this.opacity = ( options.opacity === undefined ? 1 : options.opacity ); // interior padding of bubble
+	// baseline position
+	this.top = this.selector.offset().top;
+	this.left = this.selector.offset().left;
+
+	this.shadowColor = ( options.shadowColor === undefined ? baseUIColor : options.shadowColor );
+	this.shadowSize = 2; // shadow 
+	this.borderColor = ( options.borderColor === undefined ? baseUIColor : options.borderColor );
+	this.borderWidth = ( options.borderWidth === undefined ? 8 : options.borderWidth ); //	border: 8px solid #CC4B4B; // width of bubble border
+	this.arrowPosition = ( options.arrowPosition === undefined ? "bottom left" : options.arrowPosition ); // location of arrow on bubble - top left | top right | top center | right top | right center | right bottom | bottom right | bottom center | bottom right | left bottom | left center | left top 
+	this.arrowDirection =  ( options.arrowDirection === undefined ? "middle" : options.arrowDirection ); // direction arrow points - center | corner | middle
+	this.arrowPositionArray = this.arrowPosition.split( " " );
+	this.bubbleWidth = this.width + (this.padding * 2) + (this.borderWidth * 2); // full width of visible bubble
+	this.bubbleHeight = this.height + (this.padding * 2) + (this.borderWidth * 2); // full height of visible bubble
+	//this.setArrowDirection();
+
+	this.closeIconSize = 16; // ui-icon css
+	this.arrowSize = ( options.arrowSize === undefined ? 25 : options.arrowSize ); // half size of arrow 
+	this.backgroundColor = ( options.backgroundColor === undefined ? "#FFFFFF" : options.backgroundColor );
+	this.lineHeight = ( options.lineHeight === undefined ? "1.2em" : options.lineHeight ); // line height of text in bubble
+	this.borderRadius = ( options.borderRadius === undefined ? 30 : options.borderRadius );	//border-radius
+	this.boxShadowColor = ( options.boxShadowColor === undefined ? baseUIColor : options.boxShadowColor );
+	this.font = ( options.font === undefined ? "Arial sans 1em" : options.font );
+	this.zIndex = ( options.zIndex === undefined ? 100 : options.zIndex );
+	this.closable = ( options.closable === undefined ? false : options.closable );
+	this.autoClose = ( options.autoClose === undefined ? false : options.autoClose );
+	this.autoCloseDelay = ( options.autoCloseDelay === undefined ? 5000 : options.autoCloseDelay );
+	
+	// style sheet
+	this.sheet = gadgetui.util.styleSheet();
+};
 
 	function CollapsiblePane( args ){
 		var self = this, wrapper, header;
@@ -1042,21 +1051,22 @@ SelectInput.prototype.addControl = function( selector, val ){
 
 SelectInput.prototype.addCSS = function( selector ){
 	var height, 
-		style,
+		parentstyle,
 		span = $( "div[class='gadgetui-selectinput-label']", $( selector ).parent() );
 
 	$( selector )
+		.css( "border", "0px 2px" )
 		.css( "min-width", "10em" )
 		.css( "font-size", "1em" );
 
-	style = window.getComputedStyle( $( selector )[0] );
-	
-	height = _getNumericValue( style.lineHeight ) + _getNumericValue( style.borderBottomWidth ) + _getNumericValue( style.borderTopWidth );
-	
+	//style = window.getComputedStyle( $( selector )[0] );
+	parentstyle = window.getComputedStyle( $( selector ).parent()[0] );
+	//height = _getNumericValue( style.lineHeight ) + _getNumericValue( style.borderBottomWidth ) + _getNumericValue( style.borderTopWidth );
+	height = gadgetui.util.getNumberValue( parentstyle.height ) - 2;
 	span
+		.css( "padding-top", "2px" )
 		.css( "height", height )
-		.css( "margin-left", "9px")
-		.css( "margin-top", "2px");
+		.css( "margin-left", "9px");
 
 };
 
@@ -1437,6 +1447,39 @@ gadgetui.util = ( function(){
 		},
 		extractLast: function( term ) {
 			return this.split( term ).pop();
+		},
+		getNumberValue: function( pixelValue ){
+			return Number( pixelValue.substring( 0, pixelValue.length - 2 ) );
+		},
+		
+		addCSSRule: function(sheet, selector, rules ) {
+			if("insertRule" in sheet) {
+				sheet.insertRule(selector + "{" + rules + "}", sheet.cssRules.length);
+			}
+			else if("addRule" in sheet) {
+				sheet.addRule(selector, rules, sheet.cssRules.length);
+			}
+			console.log( sheet );
+		},
+		// adapted from David Walsh, http://davidwalsh.name/add-rules-stylesheets
+		styleSheet: function() {
+			// Create the <style> tag
+			var style = document.createElement("style");
+
+			// Add a media (and/or media query) here if you'd like!
+			// style.setAttribute("media", "screen")
+			// style.setAttribute("media", "only screen and (max-width : 1024px)")
+
+			// WebKit hack :(
+			style.appendChild(document.createTextNode(""));
+
+			// Add the <style> element to the page
+			document.head.appendChild(style);
+			// Add the <style> element to the page
+			document.head.appendChild( style );
+			//gadgetui.util.addCSSRule( document.styleSheets[0], "p", "font: Arial 10px" );
+			document.styleSheets[0].insertRule( "p { font: Arial 12px; }", document.styleSheets[0].cssRules.length );
+			return style.sheet;
 		}
 	};
 } ());	

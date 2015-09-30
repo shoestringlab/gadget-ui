@@ -1,6 +1,13 @@
 		
 ***Release Notes***
 
+1.6.1
+======
+
+- Added dependency for jquery.addRule so it will be installed via Bower ( for Bubble support ).
+- Added getNumberValue to util package
+- Modified SelectInput styling - working on positioning of label/select box
+
 1.5.1
 ======
 

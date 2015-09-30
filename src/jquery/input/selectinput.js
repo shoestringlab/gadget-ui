@@ -60,21 +60,22 @@ SelectInput.prototype.addControl = function( selector, val ){
 
 SelectInput.prototype.addCSS = function( selector ){
 	var height, 
-		style,
+		parentstyle,
 		span = $( "div[class='gadgetui-selectinput-label']", $( selector ).parent() );
 
 	$( selector )
+		.css( "border", "0px 2px" )
 		.css( "min-width", "10em" )
 		.css( "font-size", "1em" );
 
-	style = window.getComputedStyle( $( selector )[0] );
-	
-	height = _getNumericValue( style.lineHeight ) + _getNumericValue( style.borderBottomWidth ) + _getNumericValue( style.borderTopWidth );
-	
+	//style = window.getComputedStyle( $( selector )[0] );
+	parentstyle = window.getComputedStyle( $( selector ).parent()[0] );
+	//height = _getNumericValue( style.lineHeight ) + _getNumericValue( style.borderBottomWidth ) + _getNumericValue( style.borderTopWidth );
+	height = gadgetui.util.getNumberValue( parentstyle.height ) - 2;
 	span
+		.css( "padding-top", "2px" )
 		.css( "height", height )
-		.css( "margin-left", "9px")
-		.css( "margin-top", "2px");
+		.css( "margin-left", "9px");
 
 };
 

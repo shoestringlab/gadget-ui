@@ -99,7 +99,7 @@ $(document)
 
 		new gadgetui.display.Bubble($(
 			"input[name='friends']").parent().parent(),
-			"bubble",
+			"This is a text bubble",
 			{
 				arrowPosition : "left bottom",
 				position : "top right",

@@ -416,6 +416,39 @@ gadgetui.util = ( function(){
 		},
 		extractLast: function( term ) {
 			return this.split( term ).pop();
+		},
+		getNumberValue: function( pixelValue ){
+			return Number( pixelValue.substring( 0, pixelValue.length - 2 ) );
+		},
+		
+		addCSSRule: function(sheet, selector, rules ) {
+			if("insertRule" in sheet) {
+				sheet.insertRule(selector + "{" + rules + "}", sheet.cssRules.length);
+			}
+			else if("addRule" in sheet) {
+				sheet.addRule(selector, rules, sheet.cssRules.length);
+			}
+			console.log( sheet );
+		},
+		// adapted from David Walsh, http://davidwalsh.name/add-rules-stylesheets
+		styleSheet: function() {
+			// Create the <style> tag
+			var style = document.createElement("style");
+
+			// Add a media (and/or media query) here if you'd like!
+			// style.setAttribute("media", "screen")
+			// style.setAttribute("media", "only screen and (max-width : 1024px)")
+
+			// WebKit hack :(
+			style.appendChild(document.createTextNode(""));
+
+			// Add the <style> element to the page
+			document.head.appendChild(style);
+			// Add the <style> element to the page
+			document.head.appendChild( style );
+			//gadgetui.util.addCSSRule( document.styleSheets[0], "p", "font: Arial 10px" );
+			document.styleSheets[0].insertRule( "p { font: Arial 12px; }", document.styleSheets[0].cssRules.length );
+			return style.sheet;
 		}
 	};
 } ());	
