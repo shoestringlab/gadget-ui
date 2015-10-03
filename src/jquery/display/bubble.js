@@ -9,7 +9,7 @@ function Bubble( selector, message, options ){
 }
 
 Bubble.prototype.render = function(){
-	var str =  '<div class="gadgetui_bubble_' + this.bubbleType + '" name="' + this.name + '">' + this.message;
+	var str =  '<div class="gadgetui_bubble_' + this.bubbleType + '" id="' + this.id + '">' + this.message;
 	if( this.closable ){
 		str = str + '<span class="ui-icon ui-icon-close"></span>';
 	}
@@ -24,25 +24,25 @@ Bubble.prototype.show = function(){
 };
 
 Bubble.prototype.setStyles = function(){
-	console.log( "top: " + this.top + ", left: " + this.left );
+	//console.log( "top: " + this.top + ", left: " + this.left );
 	this.setBubbleStyles();
-	console.log( "this.setBubbleStyles();" );
-	console.log( "top: " + this.top + ", left: " + this.left );
+	//console.log( "this.setBubbleStyles();" );
+	//console.log( "top: " + this.top + ", left: " + this.left );
 	this.calculateArrowPosition();
-	console.log( "this.calculateArrowPosition();" );
-	console.log( "top: " + this.top + ", left: " + this.left );
+	//console.log( "this.calculateArrowPosition();" );
+	//console.log( "top: " + this.top + ", left: " + this.left );
 	this.calculateArrowStyle();
-	console.log( "this.calculateArrowStyle();" );
-	console.log( "top: " + this.top + ", left: " + this.left );
+	//console.log( "this.calculateArrowStyle();" );
+	//console.log( "top: " + this.top + ", left: " + this.left );
 	this.setBeforeRules();
-	console.log( "this.setBeforeRules();" );
-	console.log( "top: " + this.top + ", left: " + this.left );
+	//console.log( "this.setBeforeRules();" );
+	//console.log( "top: " + this.top + ", left: " + this.left );
 	this.setAfterRules();
-	console.log( "this.setAfterRules();" );
-	console.log( "top: " + this.top + ", left: " + this.left );
+	//console.log( "this.setAfterRules();" );
+	//console.log( "top: " + this.top + ", left: " + this.left );
 	this.calculatePosition();
-	console.log( "this.calculatePosition();" );
-	console.log( "top: " + this.top + ", left: " + this.left );
+	//console.log( "this.calculatePosition();" );
+	//console.log( "top: " + this.top + ", left: " + this.left );
 	this.bubbleSelector
 		.css( "top", this.top )
 		.css( "left", this.left );
@@ -55,7 +55,7 @@ Bubble.prototype.setStyles = function(){
 };
 
 Bubble.prototype.setBubbleStyles = function(){
-	this.bubbleSelector = $( "div[name='" + this.name + "']", this.selector.parent() );
+	this.bubbleSelector = $( "#" + this.id );
 
 	this.bubbleSelector
 		.css( "margin", 0 )
@@ -93,7 +93,7 @@ Bubble.prototype.setBeforeRules = function(){
 		borderColor: this.beforeBorderColor
 	};
 
-	$( "div[name='" + this.name + "']:before" ).addRule( rules, 0 );
+	$( "#" + this.id + ":before" ).addRule( rules, 0 );
 };
 
 Bubble.prototype.setAfterRules = function(){
@@ -109,38 +109,37 @@ Bubble.prototype.setAfterRules = function(){
 		borderColor: this.afterBorderColor
 	};
 
-	$( "div[name='" + this.name + "']:after" ).addRule( rules, 0 );	
+	$( "#" + this.id + ":after" ).addRule( rules, 0 );	
 };
 
 Bubble.prototype.calculatePosition = function(){
 	var self = this;
+	// Here we must walk up the DOM to the ancestors of the selector to see whether they are set to position: relative. If that is the case,
+	// we must add the offset values of the ancestor to the position values for the control or it will not be correctly placed.
+	this.relativeOffset = gadgetui.util.getRelativeParentOffset( this.selector );
 
 	$.each(  this.position.split( " " ), function( ix, ele ){
 			switch( ele ){
 			case "top":
-				//self.top =  self.top - self.selector.outerHeight();
+				self.top =  self.top - self.relativeOffset.top;
 				break;
 			case "bottom":
-				self.top =  self.top + self.selector.outerHeight();
-				console.log( "self.top + self.selector.outerHeight() " + self.selector.outerHeight() );
+				self.top =  self.top + self.selector.outerHeight() - self.relativeOffset.top;
+				//console.log( "self.top + self.selector.outerHeight() " + self.selector.outerHeight() );
 				break;
 			case "left":
 
 				break;
 			case "right":
-				self.left = self.left + self.selector.outerWidth();
-				console.log( "self.left + self.selector.outerWidth() " + self.selector.outerWidth() );
+				self.left = self.left + self.selector.outerWidth() - self.relativeOffset.left;
+				//console.log( "self.left + self.selector.outerWidth() - self.relativeOffset.left " + self.selector.outerWidth() );
 				break;
 			case "center":
-				self.left = self.left + self.selector.outerWidth() / 2;
-				console.log( "self.left + self.selector.outerWidth() / 2  " + self.selector.outerWidth() / 2);
+				self.left = self.left + self.selector.outerWidth() / 2  - self.relativeOffset.left;
+				//console.log( "self.left + self.selector.outerWidth() / 2 - self.relativeOffset.left  " + self.selector.outerWidth() / 2);
 				break;
 			}
-	});
-	
-	// Here we must walk up the DOM to the ancestors of the selector to see whether they are set to position: relative. If that is the case,
-	// we must add the offset values of the ancestor to the position values for the control or it will not be correctly placed.
-	
+	});	
 };
 
 Bubble.prototype.calculateArrowPosition = function(){
@@ -157,26 +156,26 @@ Bubble.prototype.calculateArrowPosition = function(){
 			this.beforeArrowLeft = -doubleArrow;
 			this.afterArrowLeft = -this.afterArrowSize * 2;
 			this.left = this.left + this.arrowSize - this.borderWidth;
-			console.log( "this.left + this.arrowSize - this.borderWidth" );
+			//console.log( "this.left + this.arrowSize - this.borderWidth" );
 			break;
 		case "right":
 			this.beforeArrowLeft = this.width + doublePadding;
 			this.afterArrowLeft = this.beforeArrowLeft;
 			this.left = this.left - this.bubbleWidth - this.arrowSize + this.borderWidth;
-			console.log( "this.left - this.bubbleWidth - this.arrowSize + this.borderWidth" );
+			//console.log( "this.left - this.bubbleWidth - this.arrowSize + this.borderWidth" );
 			break;
 		case "top":
 			this.arrowTop = -( doubleArrow );
 			this.afterArrowTop = -( this.afterArrowSize * 2 );			
 			this.top = this.top + this.arrowSize - this.borderWidth;
-			console.log( "this.top + this.arrowSize - this.borderWidth" );
+			//console.log( "this.top + this.arrowSize - this.borderWidth" );
 			break;
 		case "bottom":
 
 			this.arrowTop = this.height + doublePadding;
 			this.afterArrowTop = this.arrowTop;
 			this.top = this.top - this.bubbleHeight - this.arrowSize + this.borderWidth;
-			console.log( "this.top - this.bubbleHeight - this.arrowSize + this.borderWidth" );
+			//console.log( "this.top - this.bubbleHeight - this.arrowSize + this.borderWidth" );
 			break;
 	}
 
@@ -185,26 +184,26 @@ Bubble.prototype.calculateArrowPosition = function(){
 			this.arrowTop = this.borderRadius;
 			this.afterArrowTop = this.arrowTop + afterArrowCenter;
 			this.top = this.top - arrowOffset;
-			console.log( "this.top - arrowOffset" );
+			//console.log( "this.top - arrowOffset" );
 			break;
 		case "bottom":
 
 			this.arrowTop = this.bubbleHeight - this.borderWidth * 2 - doubleArrow - this.borderRadius;
 			this.afterArrowTop = this.arrowTop + afterArrowCenter;
 			this.top = this.top - this.bubbleHeight + arrowOffset;
-			console.log( "this.top - this.bubbleHeight + arrowOffset" );
+			//console.log( "this.top - this.bubbleHeight + arrowOffset" );
 			break;
 		case "right":
 			this.beforeArrowLeft = this.bubbleWidth - this.borderWidth * 2 - doubleArrow - this.borderRadius;
 			this.afterArrowLeft = this.beforeArrowLeft + afterArrowOffset;
 			this.left = this.left - this.bubbleWidth + arrowOffset;
-			console.log( "this.left - this.bubbleWidth + arrowOffset" );
+			//console.log( "this.left - this.bubbleWidth + arrowOffset" );
 			break;
 		case "left":
 			this.beforeArrowLeft = this.borderRadius;
 			this.afterArrowLeft = this.beforeArrowLeft + afterArrowOffset;
 			this.left = this.left - arrowOffset;
-			console.log( "this.left - arrowOffset" );
+			//console.log( "this.left - arrowOffset" );
 			break;
 	}
 
@@ -252,8 +251,8 @@ Bubble.prototype.calculateArrowStyle = function(){
 
 		this.beforeBorderColor = colorArray.toString().replace( /\),/gi, ") " ).replace( /,transparent/gi, " transparent" ).replace( /transparent,/gi, "transparent " );
 		this.afterBorderColor = this.beforeBorderColor.replace( this.borderColor, "#fff", "g" );
-		console.log( this.beforeBorderColor );
-		console.log( this.afterBorderColor );
+		//console.log( this.beforeBorderColor );
+		//console.log( this.afterBorderColor );
 	}
 		
 
@@ -321,7 +320,7 @@ Bubble.prototype.setBehaviors = function(){
 Bubble.prototype.config = function( options ){
 	var baseUIColor = getStyleRuleValue( "color", ".ui-state-active" );
 	this.bubbleType = ( options.bubbleType === undefined ? "speech" : options.bubbleType );
-	this.name = ( options.name === undefined ? "bubble" : options.name );
+	this.id = "gadgetui_bubble_" + gadgetui.util.Id();
 	this.height = ( options.height === undefined ? 100 : options.height );
 	this.position = ( options.position === undefined ? "top right" : options.position ); // position of arrow tip on selector - top right | bottom right | top center | bottom center | top left | bottom left
 	this.width = ( options.width === undefined ? 200 : options.width ); // width of bubble
@@ -329,9 +328,9 @@ Bubble.prototype.config = function( options ){
 	this.opacity = ( options.opacity === undefined ? 1 : options.opacity ); // interior padding of bubble
 	// baseline position
 	this.top = this.selector.offset().top;
-	console.log( "initial top: " + this.top );
+	//console.log( "initial top: " + this.top );
 	this.left = this.selector.offset().left;
-	console.log( "initial left: " + this.left );
+	//console.log( "initial left: " + this.left );
 	this.shadowColor = ( options.shadowColor === undefined ? baseUIColor : options.shadowColor );
 	this.shadowSize = 2; // shadow 
 	this.borderColor = ( options.borderColor === undefined ? baseUIColor : options.borderColor );
@@ -349,10 +348,10 @@ Bubble.prototype.config = function( options ){
 	this.lineHeight = ( options.lineHeight === undefined ? "1.2em" : options.lineHeight ); // line height of text in bubble
 	this.borderRadius = ( options.borderRadius === undefined ? 30 : options.borderRadius );	//border-radius
 	this.boxShadowColor = ( options.boxShadowColor === undefined ? baseUIColor : options.boxShadowColor );
-	this.font = ( options.font === undefined ? "Arial sans 1em" : options.font );
+	this.font = ( options.font === undefined ? "1em Arial sans" : options.font );
 	this.zIndex = ( options.zIndex === undefined ? 100 : options.zIndex );
 	this.closable = ( options.closable === undefined ? false : options.closable );
 	this.autoClose = ( options.autoClose === undefined ? false : options.autoClose );
 	this.autoCloseDelay = ( options.autoCloseDelay === undefined ? 5000 : options.autoCloseDelay );
-	
+	this.relativeOffset = { left: 0, top: 0 };
 };

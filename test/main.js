@@ -15,6 +15,16 @@ $(document)
 			value : "123",
 			title : "Abby abby@abby"
 		}, {
+			label : "Andy",
+			email : "andy@andy",
+			value : "123",
+			title : "Andy andy@andy"
+		}, {
+			label : "Anne",
+			email : "anne@anne",
+			value : "123",
+			title : "Anne anne@anne"
+		},{
 			label : "Bobby",
 			email : "bobby@bobby",
 			value : "456"
@@ -52,10 +62,13 @@ $(document)
 				model : gadgetui.model
 			}
 		});
-		var ll = new gadgetui.input.LookupListInput({
+		var ll = new gadgetui.input.LookupListInput(
+			$( "input[name='friends']" ),
+			{
+			
 			config : {
 				emitEvents : false,
-				lookupList : lookuplist,
+				datasource : lookuplist,
 				model : gadgetui.model,
 				menuItemRenderer : renderLabel
 			}
@@ -99,11 +112,12 @@ $(document)
 
 		new gadgetui.display.Bubble($(
 			"input[name='friends']").parent(),
-			"This is a text bubble",
+			"Start typing to add friends - Abby, Andy, Anne, Bobby, Cara, Dan are the names in the list.",
 			{
 				arrowPosition : "left bottom",
 				position : "top right",
 				arrowDirection : "middle",
+				font: ".7em 'Arial'",
 				borderWidth : 10,
 				height: 150,
 				padding: 15,

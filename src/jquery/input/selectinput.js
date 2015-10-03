@@ -19,7 +19,7 @@ function SelectInput( args ){
 		val = self.setInitialValue( selector );
 
 		// bind to the model if binding is specified
-		_bindToModel( selector, self.model );
+		gadgetui.util.bind( selector, self.model );
 
 		self.addControl( selector, val );
 		self.addCSS( selector );
@@ -70,7 +70,6 @@ SelectInput.prototype.addCSS = function( selector ){
 
 	//style = window.getComputedStyle( $( selector )[0] );
 	parentstyle = window.getComputedStyle( $( selector ).parent()[0] );
-	//height = _getNumericValue( style.lineHeight ) + _getNumericValue( style.borderBottomWidth ) + _getNumericValue( style.borderTopWidth );
 	height = gadgetui.util.getNumberValue( parentstyle.height ) - 2;
 	span
 		.css( "padding-top", "2px" )

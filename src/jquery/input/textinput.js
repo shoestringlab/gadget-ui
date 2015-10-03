@@ -18,7 +18,7 @@ function TextInput( args ){
 	
 	$.each( self.el,  function( index, input ){
 		// bind to the model if binding is specified
-		_bindToModel( input, self.model );
+		gadgetui.util.bind( input, self.model );
 
 		val = self.setInitialValue( input );
 		self.addClass( input );

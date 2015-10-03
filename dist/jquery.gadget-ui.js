@@ -277,7 +277,7 @@ function Bubble( selector, message, options ){
 }
 
 Bubble.prototype.render = function(){
-	var str =  '<div class="gadgetui_bubble_' + this.bubbleType + '" name="' + this.name + '">' + this.message;
+	var str =  '<div class="gadgetui_bubble_' + this.bubbleType + '" id="' + this.id + '">' + this.message;
 	if( this.closable ){
 		str = str + '<span class="ui-icon ui-icon-close"></span>';
 	}
@@ -292,25 +292,25 @@ Bubble.prototype.show = function(){
 };
 
 Bubble.prototype.setStyles = function(){
-	console.log( "top: " + this.top + ", left: " + this.left );
+	//console.log( "top: " + this.top + ", left: " + this.left );
 	this.setBubbleStyles();
-	console.log( "this.setBubbleStyles();" );
-	console.log( "top: " + this.top + ", left: " + this.left );
+	//console.log( "this.setBubbleStyles();" );
+	//console.log( "top: " + this.top + ", left: " + this.left );
 	this.calculateArrowPosition();
-	console.log( "this.calculateArrowPosition();" );
-	console.log( "top: " + this.top + ", left: " + this.left );
+	//console.log( "this.calculateArrowPosition();" );
+	//console.log( "top: " + this.top + ", left: " + this.left );
 	this.calculateArrowStyle();
-	console.log( "this.calculateArrowStyle();" );
-	console.log( "top: " + this.top + ", left: " + this.left );
+	//console.log( "this.calculateArrowStyle();" );
+	//console.log( "top: " + this.top + ", left: " + this.left );
 	this.setBeforeRules();
-	console.log( "this.setBeforeRules();" );
-	console.log( "top: " + this.top + ", left: " + this.left );
+	//console.log( "this.setBeforeRules();" );
+	//console.log( "top: " + this.top + ", left: " + this.left );
 	this.setAfterRules();
-	console.log( "this.setAfterRules();" );
-	console.log( "top: " + this.top + ", left: " + this.left );
+	//console.log( "this.setAfterRules();" );
+	//console.log( "top: " + this.top + ", left: " + this.left );
 	this.calculatePosition();
-	console.log( "this.calculatePosition();" );
-	console.log( "top: " + this.top + ", left: " + this.left );
+	//console.log( "this.calculatePosition();" );
+	//console.log( "top: " + this.top + ", left: " + this.left );
 	this.bubbleSelector
 		.css( "top", this.top )
 		.css( "left", this.left );
@@ -323,7 +323,7 @@ Bubble.prototype.setStyles = function(){
 };
 
 Bubble.prototype.setBubbleStyles = function(){
-	this.bubbleSelector = $( "div[name='" + this.name + "']", this.selector.parent() );
+	this.bubbleSelector = $( "#" + this.id );
 
 	this.bubbleSelector
 		.css( "margin", 0 )
@@ -361,7 +361,7 @@ Bubble.prototype.setBeforeRules = function(){
 		borderColor: this.beforeBorderColor
 	};
 
-	$( "div[name='" + this.name + "']:before" ).addRule( rules, 0 );
+	$( "#" + this.id + ":before" ).addRule( rules, 0 );
 };
 
 Bubble.prototype.setAfterRules = function(){
@@ -377,38 +377,37 @@ Bubble.prototype.setAfterRules = function(){
 		borderColor: this.afterBorderColor
 	};
 
-	$( "div[name='" + this.name + "']:after" ).addRule( rules, 0 );	
+	$( "#" + this.id + ":after" ).addRule( rules, 0 );	
 };
 
 Bubble.prototype.calculatePosition = function(){
 	var self = this;
+	// Here we must walk up the DOM to the ancestors of the selector to see whether they are set to position: relative. If that is the case,
+	// we must add the offset values of the ancestor to the position values for the control or it will not be correctly placed.
+	this.relativeOffset = gadgetui.util.getRelativeParentOffset( this.selector );
 
 	$.each(  this.position.split( " " ), function( ix, ele ){
 			switch( ele ){
 			case "top":
-				//self.top =  self.top - self.selector.outerHeight();
+				self.top =  self.top - self.relativeOffset.top;
 				break;
 			case "bottom":
-				self.top =  self.top + self.selector.outerHeight();
-				console.log( "self.top + self.selector.outerHeight() " + self.selector.outerHeight() );
+				self.top =  self.top + self.selector.outerHeight() - self.relativeOffset.top;
+				//console.log( "self.top + self.selector.outerHeight() " + self.selector.outerHeight() );
 				break;
 			case "left":
 
 				break;
 			case "right":
-				self.left = self.left + self.selector.outerWidth();
-				console.log( "self.left + self.selector.outerWidth() " + self.selector.outerWidth() );
+				self.left = self.left + self.selector.outerWidth() - self.relativeOffset.left;
+				//console.log( "self.left + self.selector.outerWidth() - self.relativeOffset.left " + self.selector.outerWidth() );
 				break;
 			case "center":
-				self.left = self.left + self.selector.outerWidth() / 2;
-				console.log( "self.left + self.selector.outerWidth() / 2  " + self.selector.outerWidth() / 2);
+				self.left = self.left + self.selector.outerWidth() / 2  - self.relativeOffset.left;
+				//console.log( "self.left + self.selector.outerWidth() / 2 - self.relativeOffset.left  " + self.selector.outerWidth() / 2);
 				break;
 			}
-	});
-	
-	// Here we must walk up the DOM to the ancestors of the selector to see whether they are set to position: relative. If that is the case,
-	// we must add the offset values of the ancestor to the position values for the control or it will not be correctly placed.
-	
+	});	
 };
 
 Bubble.prototype.calculateArrowPosition = function(){
@@ -425,26 +424,26 @@ Bubble.prototype.calculateArrowPosition = function(){
 			this.beforeArrowLeft = -doubleArrow;
 			this.afterArrowLeft = -this.afterArrowSize * 2;
 			this.left = this.left + this.arrowSize - this.borderWidth;
-			console.log( "this.left + this.arrowSize - this.borderWidth" );
+			//console.log( "this.left + this.arrowSize - this.borderWidth" );
 			break;
 		case "right":
 			this.beforeArrowLeft = this.width + doublePadding;
 			this.afterArrowLeft = this.beforeArrowLeft;
 			this.left = this.left - this.bubbleWidth - this.arrowSize + this.borderWidth;
-			console.log( "this.left - this.bubbleWidth - this.arrowSize + this.borderWidth" );
+			//console.log( "this.left - this.bubbleWidth - this.arrowSize + this.borderWidth" );
 			break;
 		case "top":
 			this.arrowTop = -( doubleArrow );
 			this.afterArrowTop = -( this.afterArrowSize * 2 );			
 			this.top = this.top + this.arrowSize - this.borderWidth;
-			console.log( "this.top + this.arrowSize - this.borderWidth" );
+			//console.log( "this.top + this.arrowSize - this.borderWidth" );
 			break;
 		case "bottom":
 
 			this.arrowTop = this.height + doublePadding;
 			this.afterArrowTop = this.arrowTop;
 			this.top = this.top - this.bubbleHeight - this.arrowSize + this.borderWidth;
-			console.log( "this.top - this.bubbleHeight - this.arrowSize + this.borderWidth" );
+			//console.log( "this.top - this.bubbleHeight - this.arrowSize + this.borderWidth" );
 			break;
 	}
 
@@ -453,26 +452,26 @@ Bubble.prototype.calculateArrowPosition = function(){
 			this.arrowTop = this.borderRadius;
 			this.afterArrowTop = this.arrowTop + afterArrowCenter;
 			this.top = this.top - arrowOffset;
-			console.log( "this.top - arrowOffset" );
+			//console.log( "this.top - arrowOffset" );
 			break;
 		case "bottom":
 
 			this.arrowTop = this.bubbleHeight - this.borderWidth * 2 - doubleArrow - this.borderRadius;
 			this.afterArrowTop = this.arrowTop + afterArrowCenter;
 			this.top = this.top - this.bubbleHeight + arrowOffset;
-			console.log( "this.top - this.bubbleHeight + arrowOffset" );
+			//console.log( "this.top - this.bubbleHeight + arrowOffset" );
 			break;
 		case "right":
 			this.beforeArrowLeft = this.bubbleWidth - this.borderWidth * 2 - doubleArrow - this.borderRadius;
 			this.afterArrowLeft = this.beforeArrowLeft + afterArrowOffset;
 			this.left = this.left - this.bubbleWidth + arrowOffset;
-			console.log( "this.left - this.bubbleWidth + arrowOffset" );
+			//console.log( "this.left - this.bubbleWidth + arrowOffset" );
 			break;
 		case "left":
 			this.beforeArrowLeft = this.borderRadius;
 			this.afterArrowLeft = this.beforeArrowLeft + afterArrowOffset;
 			this.left = this.left - arrowOffset;
-			console.log( "this.left - arrowOffset" );
+			//console.log( "this.left - arrowOffset" );
 			break;
 	}
 
@@ -520,8 +519,8 @@ Bubble.prototype.calculateArrowStyle = function(){
 
 		this.beforeBorderColor = colorArray.toString().replace( /\),/gi, ") " ).replace( /,transparent/gi, " transparent" ).replace( /transparent,/gi, "transparent " );
 		this.afterBorderColor = this.beforeBorderColor.replace( this.borderColor, "#fff", "g" );
-		console.log( this.beforeBorderColor );
-		console.log( this.afterBorderColor );
+		//console.log( this.beforeBorderColor );
+		//console.log( this.afterBorderColor );
 	}
 		
 
@@ -589,7 +588,7 @@ Bubble.prototype.setBehaviors = function(){
 Bubble.prototype.config = function( options ){
 	var baseUIColor = getStyleRuleValue( "color", ".ui-state-active" );
 	this.bubbleType = ( options.bubbleType === undefined ? "speech" : options.bubbleType );
-	this.name = ( options.name === undefined ? "bubble" : options.name );
+	this.id = "gadgetui_bubble_" + gadgetui.util.Id();
 	this.height = ( options.height === undefined ? 100 : options.height );
 	this.position = ( options.position === undefined ? "top right" : options.position ); // position of arrow tip on selector - top right | bottom right | top center | bottom center | top left | bottom left
 	this.width = ( options.width === undefined ? 200 : options.width ); // width of bubble
@@ -597,9 +596,9 @@ Bubble.prototype.config = function( options ){
 	this.opacity = ( options.opacity === undefined ? 1 : options.opacity ); // interior padding of bubble
 	// baseline position
 	this.top = this.selector.offset().top;
-	console.log( "initial top: " + this.top );
+	//console.log( "initial top: " + this.top );
 	this.left = this.selector.offset().left;
-	console.log( "initial left: " + this.left );
+	//console.log( "initial left: " + this.left );
 	this.shadowColor = ( options.shadowColor === undefined ? baseUIColor : options.shadowColor );
 	this.shadowSize = 2; // shadow 
 	this.borderColor = ( options.borderColor === undefined ? baseUIColor : options.borderColor );
@@ -617,12 +616,12 @@ Bubble.prototype.config = function( options ){
 	this.lineHeight = ( options.lineHeight === undefined ? "1.2em" : options.lineHeight ); // line height of text in bubble
 	this.borderRadius = ( options.borderRadius === undefined ? 30 : options.borderRadius );	//border-radius
 	this.boxShadowColor = ( options.boxShadowColor === undefined ? baseUIColor : options.boxShadowColor );
-	this.font = ( options.font === undefined ? "Arial sans 1em" : options.font );
+	this.font = ( options.font === undefined ? "1em Arial sans" : options.font );
 	this.zIndex = ( options.zIndex === undefined ? 100 : options.zIndex );
 	this.closable = ( options.closable === undefined ? false : options.closable );
 	this.autoClose = ( options.autoClose === undefined ? false : options.autoClose );
 	this.autoCloseDelay = ( options.autoCloseDelay === undefined ? 5000 : options.autoCloseDelay );
-	
+	this.relativeOffset = { left: 0, top: 0 };
 };
 
 	function CollapsiblePane( args ){
@@ -684,124 +683,152 @@ Bubble.prototype.config = function( options ){
 			});
 	};
 
-	function FloatingPane( args ){
-		var self = this, header;
-		self.selector = args.selector;
-		if( args.config !== undefined ){
-			self.config( args.config );
-		}
-		
-		$( self.selector ).wrap( '<div class="gadget-ui-floatingPane ui-corner-all ui-widget-content"></div>');
-		self.wrapper = $( self.selector ).parent();
-		//copy width from selector
-		self.wrapper.css( "width", self.width )
-				.css( "minWidth", self.minWidth )
-				.css( "opacity", self.opacity )
-				.css( "z-index", self.zIndex );
+function FloatingPane( args ){
 
-		//now make the width of the selector to fill the wrapper
-		$( self.selector )
-			.css( "width", self.interiorWidth )
-			.css( "padding", self.padding );
-
-		self.wrapper.prepend( '<div class="ui-widget-header ui-corner-all gadget-ui-floatingPane-header">' + self.title + '<div class="ui-icon ui-icon-arrow-4"></div></div>');
-		header = $( "div.gadget-ui-floatingPane-header", self.wrapper );
-
-		// now set height to computed height of control that has been created
-		self.height = window.getComputedStyle( $( this.selector ).parent()[0] ).height;
-
-		// jquery-ui draggable
-		self.wrapper.draggable( {addClasses: false } );
-
-		self.maxmin = $( "div div[class~='ui-icon']", self.wrapper );
-		
-		self.maxmin.on("click", function(){
-			if( self.minimized ){
-				self.expand();
-			}else{
-				self.minimize();
-			}
-		});
-		
-		self.maxmin
-			.css( "float", "right" )
-			.css( "display", "inline" );	
+	this.selector = args.selector;
+	if( args.config !== undefined ){
+		this.config( args.config );
 	}
-
-	FloatingPane.prototype.config = function( args ){
-		this.title = ( args.title === undefined ? "": args.title );
-		this.path = ( args.path === undefined ? "/bower_components/gadget-ui/dist/": args.path );
-		this.position = ( args.position === undefined ? { my: "right top", at: "right top", of: window } : args.position );
-		this.padding = ( args.padding === undefined ? "15px": args.padding );
-		this.paddingTop = ( args.paddingTop === undefined ? ".3em": args.paddingTop );
-		this.width = ( args.width === undefined ? $( this.selector ).css( "width" ) : args.width );
-		this.minWidth = ( this.title.length > 0 ? Math.max( 100, this.title.length * 10 ) : 100 );
-
-		this.height = ( args.height === undefined ? gadgetui.util.getNumberValue( window.getComputedStyle( $( this.selector )[0] ).height ) + ( gadgetui.util.getNumberValue( this.padding ) * 2 ) : args.height );
-		this.interiorWidth = ( args.interiorWidth === undefined ? "": args.interiorWidth );
-		this.opacity = ( ( args.opacity === undefined ? 1 : args.opacity ) );
-		this.zIndex = ( ( args.zIndex === undefined ? 100000 : args.zIndex ) );
-		this.minimized = false;
-	};
 	
-	FloatingPane.prototype.expand = function(){
-		var self = this, offset = $( this.wrapper).offset();
-		var l =  parseInt( new Number( offset.left ), 10 );
-		var width = parseInt( this.width.substr( 0,this.width.length - 2), 10 );
-		
-		this.wrapper.animate({
-			left: l - width + self.minWidth,
-		},{queue: false, duration: 500}, function() {
-			// Animation complete.
-		});
+	this.addControl();
+	this.wrapper = $( this.selector ).parent();
 
-		this.wrapper.animate({
-			width: this.width,
-		},{queue: false, duration: 500}, function() {
-			// Animation complete.
-		});
+	this.addHeader();
+	this.maxmin = $( "div div[class~='ui-icon']", this.wrapper );
+	
+	this.addCSS();
 
-		this.wrapper.animate({
-			height: this.height,
-		},{queue: false, duration: 500, complete: function() {
-			self.maxmin
-			.removeClass( "ui-icon-arrow-4-diag" )
-			.addClass( "ui-icon-arrow-4" );
+	// now set height to computed height of control that has been created
+	this.height = window.getComputedStyle( $( this.selector ).parent()[0] ).height;
+
+	this.relativeOffsetLeft = gadgetui.util.getRelativeParentOffset( this.selector ).left;
+	this.addBindings();
+}
+
+FloatingPane.prototype.addBindings = function(){
+	var self = this;
+	// jquery-ui draggable
+	this.wrapper.draggable( {addClasses: false } );
+	
+	this.maxmin.on( "click", function(){
+		if( self.minimized ){
+			self.expand();
+		}else{
+			self.minimize();
 		}
-		});
+	});
+};
 
-		this.minimized = false;
-	};
+FloatingPane.prototype.addHeader = function(){
+	this.wrapper.prepend( '<div class="ui-widget-header ui-corner-all gadget-ui-floatingPane-header">' + this.title + '<div class="ui-icon ui-icon-arrow-4"></div></div>');
+};
 
-	FloatingPane.prototype.minimize = function(){
-		var self = this, offset = $( this.wrapper).offset();
-		var l =  parseInt( new Number( offset.left ), 10 );
-		var width = parseInt( this.width.substr( 0,this.width.length - 2), 10 );
 
-		this.wrapper.animate({
-			left: l + width - self.minWidth,
-		},{queue: false, duration: 500}, function() {
+FloatingPane.prototype.addCSS = function(){
+	//copy width from selector
+	this.wrapper.css( "width", this.width )
+			.css( "minWidth", this.minWidth )
+			.css( "opacity", this.opacity )
+			.css( "z-index", this.zIndex );
 
-		});
+	//now make the width of the selector to fill the wrapper
+	$( this.selector )
+		.css( "width", this.interiorWidth )
+		.css( "padding", this.padding );
+	
+	this.maxmin
+		.css( "float", "right" )
+		.css( "display", "inline" );
+};
 
-		this.wrapper.animate({
-			width: self.minWidth,
-		},{queue: false, duration: 500, complete: function() {
-			self.maxmin
-			.removeClass( "ui-icon-arrow-4" )
-			.addClass( "ui-icon-arrow-4-diag" );
-			}
-		});
+FloatingPane.prototype.addControl = function(){
+	$( this.selector ).wrap( '<div class="gadget-ui-floatingPane ui-corner-all ui-widget-content"></div>');
+};
 
-		this.wrapper.animate({
-			height: "50px",
-		},{queue: false, duration: 500}, function() {
-			// Animation complete.
-		});
+FloatingPane.prototype.config = function( args ){
+	this.title = ( args.title === undefined ? "": args.title );
+	this.path = ( args.path === undefined ? "/bower_components/gadget-ui/dist/": args.path );
+	this.position = ( args.position === undefined ? { my: "right top", at: "right top", of: window } : args.position );
+	this.padding = ( args.padding === undefined ? "15px": args.padding );
+	this.paddingTop = ( args.paddingTop === undefined ? ".3em": args.paddingTop );
+	this.width = ( args.width === undefined ? $( this.selector ).css( "width" ) : args.width );
+	this.minWidth = ( this.title.length > 0 ? Math.max( 100, this.title.length * 10 ) : 100 );
 
-		this.minimized = true;
+	this.height = ( args.height === undefined ? gadgetui.util.getNumberValue( window.getComputedStyle( $( this.selector )[0] ).height ) + ( gadgetui.util.getNumberValue( this.padding ) * 2 ) : args.height );
+	this.interiorWidth = ( args.interiorWidth === undefined ? "": args.interiorWidth );
+	this.opacity = ( ( args.opacity === undefined ? 1 : args.opacity ) );
+	this.zIndex = ( ( args.zIndex === undefined ? 100000 : args.zIndex ) );
+	this.minimized = false;
+	this.relativeOffsetLeft = 0;
+};
 
-	};
+FloatingPane.prototype.expand = function(){
+	// when minimizing and expanding, we must look up the ancestor chain to see if there are position: relative elements.
+	// if so, we must subtract the offset left of the ancestor to get the pane back to its original position
+	
+	var self = this, 
+		offset = $( this.wrapper).offset(),
+		l =  parseInt( new Number( offset.left ), 10 ) - this.relativeOffsetLeft,
+		width = parseInt( this.width.substr( 0,this.width.length - 2), 10 );
+	
+	
+	
+	this.wrapper.animate({
+		left: l - width + self.minWidth,
+	},{queue: false, duration: 500}, function() {
+		// Animation complete.
+	});
+
+	this.wrapper.animate({
+		width: this.width,
+	},{queue: false, duration: 500}, function() {
+		// Animation complete.
+	});
+
+	this.wrapper.animate({
+		height: this.height,
+	},{queue: false, duration: 500, complete: function() {
+		self.maxmin
+		.removeClass( "ui-icon-arrow-4-diag" )
+		.addClass( "ui-icon-arrow-4" );
+	}
+	});
+
+	this.minimized = false;
+};
+
+FloatingPane.prototype.minimize = function(){
+	// when minimizing and maximizing, we must look up the ancestor chain to see if there are position: relative elements.
+	// if so, we must subtract the offset left of the ancestor to get the pane back to its original position
+	
+	var self = this, offset = $( this.wrapper).offset(),
+		l =  parseInt( new Number( offset.left ), 10 ) - this.relativeOffsetLeft,
+		width = parseInt( this.width.substr( 0,this.width.length - 2), 10 );
+
+	this.wrapper.animate({
+		left: l + width - self.minWidth,
+	},{queue: false, duration: 500}, function() {
+
+	});
+
+	this.wrapper.animate({
+		width: self.minWidth,
+	},{queue: false, duration: 500, complete: function() {
+		self.maxmin
+		.removeClass( "ui-icon-arrow-4" )
+		.addClass( "ui-icon-arrow-4-diag" );
+		}
+	});
+
+	this.wrapper.animate({
+		height: "50px",
+	},{queue: false, duration: 500}, function() {
+		// Animation complete.
+	});
+
+	this.minimized = true;
+
+};
 
 
 	return{
@@ -812,117 +839,92 @@ Bubble.prototype.config = function( options ){
 }(jQuery));
 gadgetui.input = (function($) {
 	
-	var _bindToModel = function( obj, model ){
-		var bindVar = $( obj ).attr( "gadgetui-bind" );
-		// if binding was specified, make it so
-		if( bindVar !== undefined && model !== undefined ){
-			model.bind( bindVar, $( obj ) );
-		}
-	},
+	
 
-	_getNumericValue = function( pixelValue ){
-		return Number( pixelValue.substring( 0, pixelValue.length - 2 ) );
-	};
-
-function LookupListInput( args ){
-	var self = this, index, obj;
-
-	_renderLabel = function( item ){
+function LookupListInput( selector, args ){
+	function _renderLabel( item ){
 		return item.label;
 	};
-
 	this.itemRenderer = _renderLabel;
 	this.menuItemRenderer = _renderLabel;
-	this.lookupList;
 	this.emitEvents = true;
-	this.model = gadgetui.model;
-
-	if( args.el === undefined ){
-		this.el = $( "input[gadgetui-lookuplist-input='true']", document );
-	}else{
-		this.el = args.el;
-	}
+	
+	this.selector = selector;
+	
 	if( args.config !== undefined ){
-		self.config( args.config );
+		this.config( args.config );
 	}
-	$.each( this.el,  function( index, obj ){
-		val = $( obj ).val();
-		// bind to the model if binding is specified
-		_bindToModel( obj, self.model );
-
-		$( obj ).wrap( '<div class="gadgetui-lookuplistinput-div ui-widget-content ui-corner-all"></div>');
-
-		_bind( obj, self );
-
-	});
-
-	function _bind( obj, component ){
-		var self = component;
-		
-		$( obj ).parent()
-			.on( "click", function(){
-				$( obj ).focus();
-			})
-			.on( "click", "div[class~='gadgetui-lookuplist-input-cancel']", function(e){
-				self.remove( obj, $( e.target ).attr( "gadgetui-lookuplist-input-value" ) );
-			});
-		
-		$( obj )
-			.autocomplete( {
-				minLength : self.minLength,
-				source : function( request, response ) {
-					response( $.ui.autocomplete.filter( self.lookupList, gadgetui.util.extractLast( request.term ) ) );
-				},
 	
-				focus : function( ) {
-					// prevent value inserted on
-					// focus
-					return false;
-				},
-				select : function( event, ui ) {
-					var terms = gadgetui.util.split( this.value );
-					// remove the current input
-					terms.pop( );
-	
-					self.add( this, ui.item );
-					this.value = '';
-					this.focus( );
-					return false;
-				}
-			} ).on( "keydown", function( event ) {
-				$( this )
-					.css( "width", Math.round( ( $( this ).val( ).length * 0.66 ) + 3 ) + "em" );
-		
-				if ( event.keyCode === $.ui.keyCode.TAB && $( this ).data( "ui-autocomplete" ).menu.active ) {
-					event.preventDefault( );
-				}
-				if ( event.keyCode === $.ui.keyCode.BACKSPACE && $( this ).val( ).length === 0 ) {
-					event.preventDefault();
-					var elem = $( this ).prev( "div[class~='gadgetui-lookuplist-input-item-wrapper']" );
-	
-					elem.remove( );
-				}
-			});
-		
-		$.ui.autocomplete.prototype._renderItem = function( ul, item){
-			if( typeof self.menuItemRenderer === "function"){
-				return $( "<li>" )
-				.attr( "data-value", item.value )
-				.append( $( "<a>" ).text( self.menuItemRenderer( item ) ) )
-				.appendTo( ul );
-			}else{
-				//default jquery-ui implementation
-				return $( "<li>" )
-				.append( $( "<a>" ).text( item.label ) )
-				.appendTo( ul );
-			}
-		};	
-	};
+	gadgetui.util.bind( this.selector, this.model );
+	$( this.selector ).wrap( '<div class="gadgetui-lookuplistinput-div ui-widget-content ui-corner-all"></div>' );
+	this.addBindings();
 }
 
+LookupListInput.prototype.addBindings = function(){
+	var self = this;
+	
+	$( this.selector ).parent()
+		.on( "click", function(){
+			$( self ).focus();
+		})
+		.on( "click", "div[class~='gadgetui-lookuplist-input-cancel']", function(e){
+			self.remove( self.selector, $( e.target ).attr( "gadgetui-lookuplist-input-value" ) );
+		});
+	
+	$( this.selector )
+		.autocomplete( {
+			minLength : self.minLength,
+			source : function( request, response ) {
+				response( $.ui.autocomplete.filter( self.datasource, gadgetui.util.extractLast( request.term ) ) );
+			},
+
+			focus : function( ) {
+				// prevent value inserted on
+				// focus
+				return false;
+			},
+			select : function( event, ui ) {
+				var terms = gadgetui.util.split( this.value );
+				// remove the current input
+				terms.pop( );
+
+				self.add( self.selector, ui.item );
+				this.value = '';
+				this.focus( );
+				return false;
+			}
+		} ).on( "keydown", function( event ) {
+			$( this )
+				.css( "width", Math.round( ( $( this ).val( ).length * 0.66 ) + 3 ) + "em" );
+	
+			if ( event.keyCode === $.ui.keyCode.TAB && $( this ).data( "ui-autocomplete" ).menu.active ) {
+				event.preventDefault( );
+			}
+			if ( event.keyCode === $.ui.keyCode.BACKSPACE && $( this ).val( ).length === 0 ) {
+				event.preventDefault();
+				var elem = $( this ).prev( "div[class~='gadgetui-lookuplist-input-item-wrapper']" );
+
+				elem.remove( );
+			}
+		});
+	
+	$.ui.autocomplete.prototype._renderItem = function( ul, item){
+		if( typeof self.menuItemRenderer === "function"){
+			return $( "<li>" )
+			.attr( "data-value", item.value )
+			.append( $( "<a>" ).text( self.menuItemRenderer( item ) ) )
+			.appendTo( ul );
+		}else{
+			//default jquery-ui implementation
+			return $( "<li>" )
+			.append( $( "<a>" ).text( item.label ) )
+			.appendTo( ul );
+		}
+	};	
+};
+
 LookupListInput.prototype.add = function( el, item ){
-	var prop, list, title;
-	title =  item.title || "" ;
+	var prop, list;
 	$( "<div class='gadgetui-lookuplist-input-item-wrapper'><div class='gadgetui-lookuplist-input-cancel ui-corner-all ui-widget-content' gadgetui-lookuplist-input-value='" + item.value + "'><div class='gadgetui-lookuplist-input-item'>" + this.itemRenderer( item ) + "</div></div></div>" )
 		.insertBefore( el );
 	$( el ).val('');
@@ -947,7 +949,7 @@ LookupListInput.prototype.add = function( el, item ){
 LookupListInput.prototype.remove = function( el, value ){
 	$( "div[gadgetui-lookuplist-input-value='" + value + "']", $( el ).parent() ).parent().remove();
 
-	var self = this, i, obj, prop, list;
+	var self = this, prop, list;
 
 	if( this.model !== undefined ){
 		prop = $( el ).attr( "gadgetui-bind" );
@@ -979,16 +981,18 @@ LookupListInput.prototype.reset = function(){
 };
 
 LookupListInput.prototype.config = function( args ){
-	var self = this;
-	self.model =  (( args.model === undefined) ? self.model : args.model );
-	self.func = (( args.func === undefined) ? undefined : args.func );
-	self.itemRenderer = (( args.itemRenderer === undefined) ? self.itemRenderer : args.itemRenderer );
-	self.menuItemRenderer = (( args.menuItemRenderer === undefined) ? self.menuItemRenderer : args.menuItemRenderer );
-	self.emitEvents = (( args.emitEvents === undefined) ? true : args.emitEvents );
-	self.lookupList = (( args.lookupList === undefined) ? true : args.lookupList );
-	self.minLength = (( args.minLength === undefined) ? 0 : args.minLength );
-	return self;
-};
+	// if binding but no model was specified, use gadgetui model
+	if( $( this.selector ).attr( "gadgetui-bind" ) !== undefined ){
+		this.model = (( args.model === undefined) ? gadgetui.model : args.model );
+	}
+	this.func = (( args.func === undefined) ? undefined : args.func );
+	this.itemRenderer = (( args.itemRenderer === undefined) ? this.itemRenderer : args.itemRenderer );
+	this.menuItemRenderer = (( args.menuItemRenderer === undefined) ? this.menuItemRenderer : args.menuItemRenderer );
+	this.emitEvents = (( args.emitEvents === undefined) ? true : args.emitEvents );
+	this.datasource = (( args.datasource === undefined) ? (( args.lookupList !== undefined ) ? args.lookupList : true ) : args.datasource );
+	this.minLength = (( args.minLength === undefined) ? 0 : args.minLength );
+	return this;
+};	
 
 
 function SelectInput( args ){
@@ -1011,7 +1015,7 @@ function SelectInput( args ){
 		val = self.setInitialValue( selector );
 
 		// bind to the model if binding is specified
-		_bindToModel( selector, self.model );
+		gadgetui.util.bind( selector, self.model );
 
 		self.addControl( selector, val );
 		self.addCSS( selector );
@@ -1062,7 +1066,6 @@ SelectInput.prototype.addCSS = function( selector ){
 
 	//style = window.getComputedStyle( $( selector )[0] );
 	parentstyle = window.getComputedStyle( $( selector ).parent()[0] );
-	//height = _getNumericValue( style.lineHeight ) + _getNumericValue( style.borderBottomWidth ) + _getNumericValue( style.borderTopWidth );
 	height = gadgetui.util.getNumberValue( parentstyle.height ) - 2;
 	span
 		.css( "padding-top", "2px" )
@@ -1206,7 +1209,7 @@ function TextInput( args ){
 	
 	$.each( self.el,  function( index, input ){
 		// bind to the model if binding is specified
-		_bindToModel( input, self.model );
+		gadgetui.util.bind( input, self.model );
 
 		val = self.setInitialValue( input );
 		self.addClass( input );
@@ -1451,6 +1454,38 @@ gadgetui.util = ( function(){
 		},
 		getNumberValue: function( pixelValue ){
 			return Number( pixelValue.substring( 0, pixelValue.length - 2 ) );
+		},
+
+		getRelativeParentOffset: function( selector ){
+			var i,
+				parents = selector.parentsUntil( "body" ),
+				relativeOffsetLeft = 0,
+				relativeOffsetTop = 0;
+
+			for( i = 0; i < parents.length; i++ ){
+				if( $( parents[ i ] ).css( "position" ) === "relative" ){
+					// set the largest offset values of the ancestors
+					if( $( parents[ i ] ).offset().left > relativeOffsetLeft ){
+						relativeOffsetLeft = $( parents[ i ] ).offset().left;
+					}
+					
+					if( $( parents[ i ] ).offset().top > relativeOffsetTop ){
+						relativeOffsetTop = $( parents[ i ] ).offset().top;
+					}
+				}
+			}
+			return { left: relativeOffsetLeft, top: relativeOffsetTop };
+		},
+		Id: function(){
+			return ( (Math.random() * 100).toString() ).replace(  /\./g, "" );
+		},
+		bind : function( selector, model ){
+			var bindVar = $( selector ).attr( "gadgetui-bind" );
+			// if binding was specified, make it so
+			if( bindVar !== undefined && model !== undefined ){
+				model.bind( bindVar, $( selector ) );
+			}
 		}
+		
 	};
 } ());	
