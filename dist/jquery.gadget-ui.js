@@ -1151,10 +1151,10 @@ SelectInput.prototype.addBindings = function() {
 	control
 		.off( "mouseleave" )
 		.on( "mouseleave", function( ) {
-			if ( $( this ).is( ":focus" ) === false ) {
+			if ( $( self.selector ).is( ":focus" ) === false ) {
 				label
 					.css( "display", "inline-block" );
-				$( this )
+				$( self.selector )
 					.hide( );
 			}
 		});
