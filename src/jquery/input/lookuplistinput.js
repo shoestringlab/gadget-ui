@@ -1,5 +1,5 @@
 
-function LookupListInput( selector, args ){
+function LookupListInput( selector, options ){
 	function _renderLabel( item ){
 		return item.label;
 	};
@@ -9,8 +9,8 @@ function LookupListInput( selector, args ){
 	
 	this.selector = selector;
 	
-	if( args.config !== undefined ){
-		this.config( args.config );
+	if( options !== undefined ){
+		this.config( options );
 	}
 	
 	gadgetui.util.bind( this.selector, this.model );

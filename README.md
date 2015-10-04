@@ -3,7 +3,7 @@ gadget-ui
 
 JavaScript UI and data binding library
 
-Version 1.6.2
+Version 2.0.0
 
 
 **Usage**
@@ -15,7 +15,10 @@ Creating values:
     // Note: set can be used in place of create in most cases. set will throw an error if you try 
              to set() a new value with an explicit property, e.g. set( "user.firstname", "Robert" );
     var user = { firstname: "Rob", middlename: "", lastname: "Munn" };
-    gadgetui.model.create( "user", user);	
+    // either
+    gadgetui.model.create( "user", user);
+    // or
+    gadgetui.model.set( "user", user);	
 
 Setting values:
 
@@ -58,7 +61,26 @@ Removing values:
 
 Creating new text input fields:
 
-	new gadgetui.input.TextInput(  args );
+2.x
+
+	new gadgetui.input.TextInput( selector, options );
+
+1.x
+
+	new gadgetui.input.TextInput( args );
+
+Options
+
+2.x
+
+
+selector : jQuery selector upon which the control will be applied.
+
+options : Replaces config in 1.x. 
+
+options.object : object to map to seletor. Optional, will be used to pass changed value to options.func.
+
+1.x
 
 args.el : array of jquery elements, optional
 
@@ -86,39 +108,6 @@ If you are binding to an object, e.g. user {firstname: "", lastname: "" }, prope
 
 "element" is the element that will be bound to the model. In the jQuery package, it is a jQuery selector. 
 							
-
-Auto-generating gadgetui.input objects and auto-binding to the model:
-
-HTML:
-
-    <div>
-    First Name	<input name="firstname" 
-                  class="gadget-ui-input" 
-                  gadgetui-input="true" 
-                  gadgetui-bind="user.firstname" 
-                  placeholder="first name" value=""/>
-    </div>
-    <div>
-    Last Name <input name="lastname" 
-                  class="gadget-ui-input" 
-                  gadgetui-input="true" 
-                  gadgetui-bind="user.lastname" 
-                  placeholder="last name" value=""/>	
-    </div>
-
-JS:
-
-    var user = {firstname: "", lastname: ""};
-    gadgetui.model.set( "user", user );
-    new gadgetui.input.TextInput( { config : { emitEvents: false, 
-                                func : logChanges,
-                                model : gadgetui.model  } } );
-
-In this example, the controls are automatically turned into gadgetui.input controls by specifying the gadgetui-input directive in the control as true. Also,
-the controls are automatically bound to the user object in the model, each to a specific property based on the gadgetui-bind directive in the control.
-
-
-
 Manual binding:
 
 HTML:
@@ -151,7 +140,23 @@ with the new value from the control, and to the "gadget-ui-input-change" event i
 
 Creating new select input fields:
 
+2.x
+   	new gadgetui.input.SelectInput(  selector, options );
+
+1.x
 	new gadgetui.input.SelectInput(  args );
+
+Options
+
+2.x
+
+selector : jQuery selector to bind the control to.
+
+options : Replaces args.config in 1.x. 
+
+options.object : Replaces arsg.object in 1.x.
+
+1.x
 
 args.el : array of jquery elements, optional. If not specified, the component will bind to any text input with the attribute  "gadgetui-selectinput='true'".
 
@@ -181,15 +186,30 @@ JS:
 
     var user = {firstname: "", lastname: "", role: ""};
     gadgetui.model.set( "user", user );
-	new gadgetui.input.SelectInput( { config: { emitEvents: false, func : logChanges, model: gadgetui.model} } );
+	new gadgetui.input.SelectInput( $( "input[name='firstname']" ), { emitEvents: false, func : logChanges, model: gadgetui.model}  );
 
 ***jquery.gadgetui.input.LookupListInput***
 
 Creating a new LookupListInput field.
 
-	new gadgetui.input.LookupListInput(  args );
+2.x
+
+    new gadgetui.input.LookupListInput( selector, options );
+
+selector : jQuery selector, required. 
+
+options : Replaces args.config in 1.x.
+
+options.datasource : array of items to use as the source for the autocomplete function of the input, required.
+
+
+1.x
+
+    new gadgetui.input.LookupListInput( args );
 
 args.el : array of jquery elements, optional. If not specified, the component will bind to any text input with the attribute "gadgetui-lookuplist-input='true'". 
+
+args.lookupList : array of items to use as the source for the autocomplete function of the input, required.
 
 args.config.func : custom function to execute when the element changes, optional. Will pass the selected item from lookupList and either "add" or "remove" as arguments, func( obj, "add|remove" ).
 
@@ -200,8 +220,6 @@ args.config.itemRenderer : custom function that renders elements for the selecte
 args.config.menuItemRenderer : custom function that renders elements for the menu of items, optional. 
 
 args.config.model : model for data binding. 
-
-args.lookupList : array of items to use as the source for the autocomplete function of the input, required.
 
 args.minLength : minimum length of input value to trigger autocomplete, optional, default 0.
 

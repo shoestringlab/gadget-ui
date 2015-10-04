@@ -1,47 +1,30 @@
 
-function SelectInput( args ){
-	var self = this, val, o;
-	self.emitEvents = true;
-	self.model = gadgetui.model;
-	self.func;
+function SelectInput( selector, options ){
+	this.emitEvents = true;
+	this.model = gadgetui.model;
+	this.func;
 
-	el = this.setElements( args.el );
+	this.selector = selector;
 
-	if( el.length === 1 && args.object !== undefined ){
-		o = args.object;
+	if( options !== undefined ){
+		this.config( options );
 	}
 
-	if( args.config !== undefined ){
-		self.config( args.config );
-	}
+	this.setInitialValue();
 
-	$.each( el,  function( index, selector ){
-		val = self.setInitialValue( selector );
+	// bind to the model if binding is specified
+	gadgetui.util.bind( this.selector, this.model );
 
-		// bind to the model if binding is specified
-		gadgetui.util.bind( selector, self.model );
-
-		self.addControl( selector, val );
-		self.addCSS( selector );
-		$( selector ).hide();
-		
-		self.addBindings( $( selector ).parent(), o  );
-	});
-
-	return this;
+	this.addControl();
+	this.addCSS();
+	$( this.selector ).hide();
+	
+	this.addBindings();
 }
 
-SelectInput.prototype.setElements = function( el ){
-	if( el === undefined ){
-		el = $( "select[gadgetui-selectinput='true']", document );
-	}
-	return el;
-};
-
-
-SelectInput.prototype.setInitialValue = function( selector ){
-	var val = $( selector ).val(),
-		ph = $( selector ).attr( "placeholder" );
+SelectInput.prototype.setInitialValue = function(){
+	var val = $( this.selector ).val(),
+		ph = $( this.selector ).attr( "placeholder" );
 
 	if( val.length === 0 ){
 		if( ph !== undefined && ph.length > 0 ){
@@ -50,50 +33,51 @@ SelectInput.prototype.setInitialValue = function( selector ){
 			val = " ... ";
 		}
 	}
-	return val;
+	this.value = val;
 };
 
-SelectInput.prototype.addControl = function( selector, val ){
-	$( selector ).wrap( "<div class='gadgetui-selectinput-div'></div>");
-	$( selector ).parent().prepend( "<div class='gadgetui-selectinput-label'>" + val + "</div>");
+SelectInput.prototype.addControl = function(){
+	$( this.selector ).wrap( "<div class='gadgetui-selectinput-div'></div>");
+	$( this.selector ).parent().prepend( "<div class='gadgetui-selectinput-label'>" + this.value + "</div>");
 };
 
-SelectInput.prototype.addCSS = function( selector ){
+SelectInput.prototype.addCSS = function(){
 	var height, 
 		parentstyle,
-		span = $( "div[class='gadgetui-selectinput-label']", $( selector ).parent() );
+		label = $( "div[class='gadgetui-selectinput-label']", $( this.selector ).parent() );
 
-	$( selector )
+	$( this.selector )
 		.css( "border", "0px 2px" )
 		.css( "min-width", "10em" )
 		.css( "font-size", "1em" );
 
 	//style = window.getComputedStyle( $( selector )[0] );
-	parentstyle = window.getComputedStyle( $( selector ).parent()[0] );
+	parentstyle = window.getComputedStyle( $( this.selector ).parent()[0] );
 	height = gadgetui.util.getNumberValue( parentstyle.height ) - 2;
-	span
+	label
 		.css( "padding-top", "2px" )
 		.css( "height", height )
 		.css( "margin-left", "9px");
 
 };
 
-SelectInput.prototype.addBindings = function( selector, object ) {
-	var self = this, oVar,
-		span = $( "div[class='gadgetui-selectinput-label']", $( selector ) ),
-		select = $( "select", selector );
+SelectInput.prototype.addBindings = function() {
+	var self = this, 
+		oVar,
+		control = $( this.selector ).parent(),
+		label = $( "div[class='gadgetui-selectinput-label']", control );
 
-	oVar = ( (object === undefined) ? {} : object );
+	oVar = ( (this.o === undefined) ? {} : this.o );
 
-	span
+	label
 		.off( this.activate )
 		.on( this.activate, function( ) {
 			$( this ).hide();
 			
-			select.css( "display", "inline-block" );
+			$( self.selector ).css( "display", "inline-block" );
 		});
 
-	$( selector )
+	control
 		.off( "change" )
 		.on( "change", function( e ) {
 			var value = e.target.value;
@@ -101,11 +85,11 @@ SelectInput.prototype.addBindings = function( selector, object ) {
 				value = " ... ";
 			}
 			oVar.isDirty = true;
-			span
+			label
 				.text( value );
 		});
 
-	select
+	$( this.selector )
 		.off( "blur" )
 		//.css( "min-width", "10em" )
 		.on( "blur", function( ) {
@@ -118,7 +102,7 @@ SelectInput.prototype.addBindings = function( selector, object ) {
 					}
 					oVar[ this.name ] = $( this ).val( );
 
-					span
+					label
 						.text( newVal );
 					if( self.model !== undefined && $( this ).attr( "gadgetui-bind" ) === undefined ){	
 						// if we have specified a model but no data binding, change the model value
@@ -134,7 +118,7 @@ SelectInput.prototype.addBindings = function( selector, object ) {
 						self.func( oVar );
 					}
 				}
-				span
+				label
 					.css( "display", "inline-block" );
 				$( this ).hide( );
 			}, 100 );
@@ -146,26 +130,16 @@ SelectInput.prototype.addBindings = function( selector, object ) {
 			}
 		});
 
-	selector
+	control
 		.off( "mouseleave" )
 		.on( "mouseleave", function( ) {
-			if ( select.is( ":focus" ) === false ) {
-				span
+			if ( $( this ).is( ":focus" ) === false ) {
+				label
 					.css( "display", "inline-block" );
-				select
+				$( this )
 					.hide( );
 			}
 		});
-	
-/*		function detectLeftButton(event) {
-	    if ('buttons' in event) {
-	        return event.buttons === 1;
-	    } else if ('which' in event) {
-	        return event.which === 1;
-	    } else {
-	        return event.button === 1;
-	    }
-	}	*/
 
 	function detectLeftButton(evt) {
 	    evt = evt || window.event;
@@ -176,10 +150,10 @@ SelectInput.prototype.addBindings = function( selector, object ) {
 	document.onmouseup = function( event ){
 		var isLeftClick = detectLeftButton( event );
 		if( isLeftClick === true ){
-			if ( select.is( ":focus" ) === false ) {
-				span
+			if ( $( self.selector ).is( ":focus" ) === false ) {
+				label
 					.css( "display", "inline-block" );
-				select
+				$( self.selector )
 					.hide( );
 			}			
 		}
@@ -191,5 +165,9 @@ SelectInput.prototype.config = function( options ){
 	this.func = (( options.func === undefined) ? undefined : options.func );
 	this.emitEvents = (( options.emitEvents === undefined) ? true : options.emitEvents );
 	this.activate = (( options.activate === undefined) ? "mouseenter" : options.activate );
+
+	if( options.object !== undefined ){
+		this.o = options.object;
+	}
 };
 	

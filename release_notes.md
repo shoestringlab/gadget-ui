@@ -1,6 +1,19 @@
 		
 ***Release Notes***
 
+2.0.0
+======
+
+- moved bindTolModel to util module
+- re-factored LookupListInput for readability
+- re-factored FloatingPane for readability
+- fixed layout issues related to position: relative ancestors for Bubble and FloatingPane
+- made selector a required argument for LookupListInput
+- Re-factored TextInput and SelectInput 
+  - only accept a single selector, required
+   - function signatures changed   
+
+
 1.6.2
 ======
 

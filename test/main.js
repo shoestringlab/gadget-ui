@@ -47,58 +47,61 @@ $(document)
 
 		//showModel();
 
-		new gadgetui.input.TextInput({
-			config : {
-				emitEvents : false,
-				func : logChanges,
-				enforceMaxWidth: true,
-				activate : "mouseover"
-			}
+		var textinputs = $( "input[gadgetui-textinput='true']" );
+		$.each( textinputs, function( ix, input ){
+			new gadgetui.input.TextInput(
+				$( input ),
+				{
+					emitEvents : false,
+					func : logChanges,
+					enforceMaxWidth: true,
+					activate : "mouseover"
+				}
+			);			
 		});
-		new gadgetui.input.SelectInput({
-			config : {
+		
+		new gadgetui.input.SelectInput(
+			 $( "select[name='role']" ),
+			 {
 				emitEvents : false,
 				func : logChanges,
 				model : gadgetui.model
 			}
-		});
+		);
 		var ll = new gadgetui.input.LookupListInput(
 			$( "input[name='friends']" ),
 			{
-			
-			config : {
 				emitEvents : false,
 				datasource : lookuplist,
 				model : gadgetui.model,
 				menuItemRenderer : renderLabel
 			}
-		});
+		);
 
-		new gadgetui.display.CollapsiblePane({
-			selector : $("#InputsDiv"),
-			config : {
-				title : "Inputs",
-				path : "/dist/"
-			}
-		});
-		new gadgetui.display.CollapsiblePane({
-			selector : $("#NarrowDiv"),
-			config : {
+		new gadgetui.display.CollapsiblePane(
+				$("#InputsDiv"),
+				{
+					title : "Inputs",
+					path : "/dist/"
+				});
+		new gadgetui.display.CollapsiblePane(
+			$("#NarrowDiv"),
+			{
 				title : "Nickname",
 				path : "/dist/"
 			}
-		});
-		new gadgetui.display.CollapsiblePane({
-			selector : $("#modelDiv"),
-			config : {
+		);
+		new gadgetui.display.CollapsiblePane(
+			$("#modelDiv"),
+			{
 				title : "Model",
 				path : "/dist/",
 				collapse : true
 			}
-		});
-		var fp = new gadgetui.display.FloatingPane({
-			selector : $("#debugDiv"),
-			config : {
+		);
+		var fp = new gadgetui.display.FloatingPane(
+			$("#debugDiv"),
+			{
 				title : "A",
 				path : "/dist/",
 				opacity : .5,
@@ -108,10 +111,9 @@ $(document)
 					of : window
 				}
 			}
-		});
+		);
 
-		new gadgetui.display.Bubble($(
-			"input[name='friends']").parent(),
+		new gadgetui.display.Bubble( $( "input[name='friends']" ).parent(),
 			"Start typing to add friends - Abby, Andy, Anne, Bobby, Cara, Dan are the names in the list.",
 			{
 				arrowPosition : "left bottom",

@@ -1,8 +1,8 @@
-function FloatingPane( args ){
+function FloatingPane( selector, options ){
 
-	this.selector = args.selector;
-	if( args.config !== undefined ){
-		this.config( args.config );
+	this.selector = selector;
+	if( options !== undefined ){
+		this.config( options );
 	}
 	
 	this.addControl();
