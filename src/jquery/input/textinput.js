@@ -17,6 +17,8 @@ function TextInput( selector, options ){
 	this.addClass();
 	this.addControl();
 	this.setLineHeight();
+	this.setFont();
+	this.setMaxWidth();
 	this.setWidth();
 	this.addCSS();
 
@@ -173,32 +175,30 @@ TextInput.prototype.setLineHeight = function(){
 	this.lineHeight = lineHeight;
 };
 
-TextInput.prototype.setWidth = function(){
+TextInput.prototype.setFont = function(){
 	var style = window.getComputedStyle( $( this.selector )[0] ),
-		parentStyle = window.getComputedStyle( $( this.selector ).parent().parent()[0] ),
-		font = style.fontFamily + " " + style.fontSize + " " + style.fontWeight + " " + style.fontVariant,
-		width = $.gadgetui.textWidth( $( this.selector ).val(), font ) + 10,
-		maxWidth = gadgetui.util.getNumberValue( parentStyle.width ); parseInt( parentStyle.width.substring( 0, parentStyle.width.length - 2 ), 10 );
+		font = style.fontFamily + " " + style.fontSize + " " + style.fontWeight + " " + style.fontVariant;
+		this.font = font;
+};
+
+TextInput.prototype.setWidth = function(){
+	this.width = $.gadgetui.textWidth( $( this.selector ).val(), this.font ) + 10;
+	if( this.width === 10 ){
+		this.width = this.maxWidth;
+	}
+};
+
+TextInput.prototype.setMaxWidth = function(){
+	var parentStyle = window.getComputedStyle( $( this.selector ).parent().parent()[0] );
+	this.maxWidth = gadgetui.util.getNumberValue( parentStyle.width );
+};
+
+TextInput.prototype.setBorderColor = function(){
+	this.borderColor = window.getComputedStyle( $( this.selector )[0] ).borderBottomColor;
 	
-	if( this.borderColor === undefined ){
+	/*	if( this.borderColor === undefined ){
 		this.borderColor = style.borderBottomColor;
-	}
-		
-	if( maxWidth > 10 && this.enforceMaxWidth === true ){
-		$( "input", $( this.selector ).parent() )
-			.css( "max-width", maxWidth );
-		this.maxWidth = maxWidth;
-		if( width === 10 ){
-			width = maxWidth;
-		}
-		if( maxWidth < width ){
-			$( "input[class='gadgetui-inputlabelinput']", $( this.selector ).parent() )
-				.val( $.gadgetui.fitText( this.value ), font, maxWidth );
-		}
-	}
-	if( maxWidth > width ){
-		width = maxWidth;
-	}	
+	}	*/
 };
 
 TextInput.prototype.addCSS = function(){
@@ -206,7 +206,8 @@ TextInput.prototype.addCSS = function(){
 	$( "input[class='gadgetui-inputlabelinput']", $( this.selector ).parent()  )
 		.css( "font-size", window.getComputedStyle( $( this.selector )[0] ).fontSize )
 		.css( "padding-left", "4px" )
-		.css( "border", "1px solid transparent" );
+		.css( "border", "1px solid transparent" )
+		.css( "width", this.width );
 
 	$( "div[class='gadgetui-inputlabel']", $( this.selector ).parent() )
 		.css( "height", this.lineHeight )
@@ -217,10 +218,20 @@ TextInput.prototype.addCSS = function(){
 	$( this.selector )
 		.css( "padding-left", "4px" )
 		.css( "border", "1px solid " + this.borderColor );
+
+	if( this.maxWidth > 10 && this.enforceMaxWidth === true ){
+		$( "input", $( this.selector ).parent() )
+			.css( "max-width", this.maxWidth );
+
+		if( this.maxWidth < this.width ){
+			$( "input[class='gadgetui-inputlabelinput']", $( this.selector ).parent() )
+				.val( $.gadgetui.fitText( this.value ), font, this.maxWidth );
+		}
+	}
 };
 
 TextInput.prototype.config = function( args ){
-	this.borderColor =  (( args.borderColor === undefined) ? this.borderColor : args.borderColor );
+	this.borderColor =  (( args.borderColor === undefined) ? this.setBorderColor() : args.borderColor );
 	this.model =  (( args.model === undefined) ? this.model : args.model );
 	this.object = (( args.object === undefined) ? undefined : args.object );
 	this.func = (( args.func === undefined) ? undefined : args.func );

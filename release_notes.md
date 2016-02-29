@@ -1,6 +1,12 @@
 		
 ***Release Notes***
 
+2.0.2
+======
+
+- Additional bug fix for TextInput initial width
+- Re-factoring of TextInput methods
+
 2.0.1
 ======
 
