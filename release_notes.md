@@ -1,6 +1,11 @@
 		
 ***Release Notes***
 
+2.0.1
+======
+
+- Bug fix in TextInput where width is not properly set on TextInput labels
+
 2.0.0
 ======
 
