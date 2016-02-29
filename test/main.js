@@ -3,7 +3,7 @@ $(document)
 		var user = {
 			firstname : "Robert",
 			lastname : "",
-			nickname : "Fitzy",
+			nickname : "Fitzgerald Monster",
 			tagline : "",
 			role : "",
 			friends : []

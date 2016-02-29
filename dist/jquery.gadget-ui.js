@@ -1369,7 +1369,7 @@ TextInput.prototype.setWidth = function(){
 		parentStyle = window.getComputedStyle( $( this.selector ).parent().parent()[0] ),
 		font = style.fontFamily + " " + style.fontSize + " " + style.fontWeight + " " + style.fontVariant,
 		width = $.gadgetui.textWidth( $( this.selector ).val(), font ) + 10,
-		maxWidth = parentStyle.width; parseInt( parentStyle.width.substring( 0, parentStyle.width.length - 2 ), 10 );
+		maxWidth = gadgetui.util.getNumberValue( parentStyle.width ); parseInt( parentStyle.width.substring( 0, parentStyle.width.length - 2 ), 10 );
 	
 	if( this.borderColor === undefined ){
 		this.borderColor = style.borderBottomColor;
