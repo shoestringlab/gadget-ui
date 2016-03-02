@@ -1,6 +1,11 @@
 		
 ***Release Notes***
 
+2.0.3
+======
+
+- Fix for font variable rename to this.font in TextInput addCSS()
+
 2.0.2
 ======
 
