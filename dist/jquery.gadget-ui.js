@@ -1416,7 +1416,7 @@ TextInput.prototype.addCSS = function(){
 
 		if( this.maxWidth < this.width ){
 			$( "input[class='gadgetui-inputlabelinput']", $( this.selector ).parent() )
-				.val( $.gadgetui.fitText( this.value ), font, this.maxWidth );
+				.val( $.gadgetui.fitText( this.value ), this.font, this.maxWidth );
 		}
 	}
 };
