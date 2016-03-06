@@ -1217,7 +1217,6 @@ function TextInput( selector, options ){
 }
 
 TextInput.prototype.addBindings = function(){
-
 	var self = this, oVar, 
 		obj = $( this.selector ).parent(),
 		labeldiv = $( "div[class='gadgetui-inputlabel']", obj ),
@@ -1239,22 +1238,27 @@ TextInput.prototype.addBindings = function(){
 	label
 		.off( self.activate )
 		.on( self.activate, function( ) {
+			setTimeout( 
+				function(){
+				console.log(label.is( ":hover" ));
+				if( label.is( ":hover" ) === true ) {
+					// both input and label
+					labeldiv.hide();
+					
+					$( "input", obj )
+						.css( "max-width",  "" )
+						.css( "min-width", "10em" )
+						.css( "width", $.gadgetui.textWidth( $( self.selector ).val(), font ) + 10 );
+		
+					//just input
+					$( self.selector ).css( "display", "block" );
+						
+					// if we are only showing the input on click, focus on the element immediately
+					if( self.activate === "click" ){
+						$( self.selector ).focus();
+					}
+				}}, this.delay );
 			
-			// both input and label
-			labeldiv.hide();
-			
-			$( "input", obj )
-				.css( "max-width",  "" )
-				.css( "min-width", "10em" )
-				.css( "width", $.gadgetui.textWidth( $( self.selector ).val(), font ) + 10 );
-
-			//just input
-			$( self.selector ).css( "display", "block" );
-				
-			// if we are only showing the input on click, focus on the element immediately
-			if( self.activate === "click" ){
-				$( self.selector ).focus();
-			}
 		});
 	$( this.selector )
 		.off( "focus" )
@@ -1332,8 +1336,7 @@ TextInput.prototype.addClass = function(){
 };
 
 TextInput.prototype.setInitialValue = function(){
-
-	var val = $( this.selector ).val(),	
+	var val = $( this.selector ).val(),
 		ph = $( this.selector ).attr( "placeholder" );
 
 	if( val.length === 0 ){
@@ -1393,7 +1396,6 @@ TextInput.prototype.setBorderColor = function(){
 };
 
 TextInput.prototype.addCSS = function(){
-	
 	$( "input[class='gadgetui-inputlabelinput']", $( this.selector ).parent()  )
 		.css( "font-size", window.getComputedStyle( $( this.selector )[0] ).fontSize )
 		.css( "padding-left", "4px" )
@@ -1428,6 +1430,7 @@ TextInput.prototype.config = function( args ){
 	this.func = (( args.func === undefined) ? undefined : args.func );
 	this.emitEvents = (( args.emitEvents === undefined) ? true : args.emitEvents );
 	this.activate = (( args.activate === undefined) ? "mouseenter" : args.activate );
+	this.delay = (( args.delay === undefined) ? 10 : args.delay );
 	this.enforceMaxWidth = ( args.enforceMaxWidth === undefined ? false : args.enforceMaxWidth );
 };
 

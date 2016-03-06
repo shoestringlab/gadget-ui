@@ -1,6 +1,11 @@
 		
 ***Release Notes***
 
+2.0.4
+======
+
+- Added activate delay (in milliseconds) to TextInput
+
 2.0.3
 ======
 
