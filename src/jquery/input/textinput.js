@@ -66,7 +66,7 @@ TextInput.prototype.addBindings = function(){
 					if( self.activate === "click" ){
 						$( self.selector ).focus();
 					}
-				}}, this.delay );
+				}}, self.delay );
 			
 		});
 	$( this.selector )
