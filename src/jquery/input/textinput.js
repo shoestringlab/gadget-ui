@@ -47,27 +47,33 @@ TextInput.prototype.addBindings = function(){
 	label
 		.off( self.activate )
 		.on( self.activate, function( ) {
-			setTimeout( 
-				function(){
-				console.log(label.is( ":hover" ));
-				if( label.is( ":hover" ) === true ) {
-					// both input and label
-					labeldiv.hide();
-					
-					$( "input", obj )
-						.css( "max-width",  "" )
-						.css( "min-width", "10em" )
-						.css( "width", $.gadgetui.textWidth( $( self.selector ).val(), font ) + 10 );
-		
-					//just input
-					$( self.selector ).css( "display", "block" );
-						
-					// if we are only showing the input on click, focus on the element immediately
-					if( self.activate === "click" ){
-						$( self.selector ).focus();
-					}
-				}}, self.delay );
+			if( self.useActive && ( label.attr( "data-active" ) === "false" || label.attr( "data-active" ) === undefined ) ){
+				label.attr( "data-active", "true" );
+			}else{
+				setTimeout( 
+					function(){
+					if( label.is( ":hover" ) === true ) {
+						// both input and label
+						labeldiv.hide();
+	
+						$( "input", obj )
+							.css( "max-width",  "" )
+							.css( "min-width", "10em" )
+							.css( "width", $.gadgetui.textWidth( $( self.selector ).val(), font ) + 10 );
 			
+						//just input
+						$( self.selector ).css( "display", "block" );
+							
+						// if we are only showing the input on click, focus on the element immediately
+						if( self.activate === "click" ){
+							$( self.selector ).focus();
+						}
+						if( self.emitEvents === true ){
+							// raise an event that the input is active
+							$( self.selector ).trigger( "gadgetui-input-show", self.selector );
+						}
+					}}, self.delay );
+			}
 		});
 	$( this.selector )
 		.off( "focus" )
@@ -106,16 +112,19 @@ TextInput.prototype.addBindings = function(){
 						self.func( oVar );
 					}
 				}
-
+				$( it ).hide( );
 				label.css( "display", "block" );
 				labeldiv.css( "display", "block" );
+				label.attr( "data-active", "false" );
 				//$( "img", $( self ).parent( ) ).hide( );
 
 				$( "input", $( obj ).parent() )
 					.css( "max-width",  self.maxWidth );
 				
-				$( it ).hide( );
-	
+				
+				if( self.emitEvents === true ){
+					$( it ).trigger( "gadgetui-input-hide", it );
+				}	
 			}, 200 );
 		});
 	$( this.selector )
@@ -136,7 +145,7 @@ TextInput.prototype.addBindings = function(){
 			}
 			oVar.isDirty = true;
 			label.val( value );
-			});	
+			});
 };
 
 TextInput.prototype.addClass = function(){
@@ -161,7 +170,7 @@ TextInput.prototype.setInitialValue = function(){
 
 TextInput.prototype.addControl = function(){
 	$( this.selector ).wrap( "<div class='gadgetui-textinput-div'></div>");
-	$( this.selector ).parent().prepend( "<div class='gadgetui-inputlabel'><input type='text' class='gadgetui-inputlabelinput' readonly='true' style='border:0;background:none;' value='" + this.value + "'></div>");
+	$( this.selector ).parent().prepend( "<div class='gadgetui-inputlabel'><input type='text' data-active='false' class='gadgetui-inputlabelinput' readonly='true' style='border:0;background:none;' value='" + this.value + "'></div>");
 	$( this.selector ).hide();	
 };
 
@@ -234,6 +243,7 @@ TextInput.prototype.addCSS = function(){
 
 TextInput.prototype.config = function( args ){
 	this.borderColor =  (( args.borderColor === undefined) ? this.setBorderColor() : args.borderColor );
+	this.useActive =  (( args.useActive === undefined) ? false : args.useActive );
 	this.model =  (( args.model === undefined) ? this.model : args.model );
 	this.object = (( args.object === undefined) ? undefined : args.object );
 	this.func = (( args.func === undefined) ? undefined : args.func );

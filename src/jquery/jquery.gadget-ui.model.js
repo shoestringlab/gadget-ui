@@ -10,22 +10,32 @@ gadgetui.model = ( function( $ ) {
 		}
 	}
 
-	BindableObject.prototype.handleEvent = function( e ) {
-		var that = this;
-		switch (e.type) {
+	BindableObject.prototype.handleEvent = function( ev ) {
+		var ix, obj;
+		switch ( ev.type ) {
 			case "change":
-				$.each( this.elements, function( i, value ) {
-					if( e.target.name === value.prop ){
-						that.change( e.target.value, value.prop );
+				for( ix = 0; ix < this.elements.length; ix++ ){
+					obj = this.elements[ ix ];
+					if( ev.target.name === obj.prop ){
+						//select box binding
+						if( ev.target.type.match( /select/ ) ){
+							this.change( { 	value : $( ev.target ).val(), 
+									key : $( ev.target ).find('option:selected').text() 
+								}, ev, obj.prop );
+						}
+						else{
+						// text input binding
+						this.change( ev.target.value, ev, value.prop );
+						}
 					}
-				} );
-				break;
+				}
+				
 		}
 	};
 
 	// for each bound control, update the value
-	BindableObject.prototype.change = function( value, property ) {
-		var that = this, n;
+	BindableObject.prototype.change = function( value, event, property ) {
+		var ix, obj;
 
 		// this code changes the value of the BinableObject to the incoming value
 		if ( property === undefined ) {
@@ -53,42 +63,49 @@ gadgetui.model = ( function( $ ) {
 			throw "Attempt to treat a simple value as an object with properties. Change fails.";
 		}
 
-		// this code changes the value of the DOM element to the incoming value
-		$.each( this.elements, function( i, obj ) {
-			if ( obj.prop.length === 0 && typeof value !== 'object' ) {
-				// BindableObject holds a simple value
-				// make sure the incoming value is a simple value
-				// set the DOM element value to the incoming value
-				obj.elem.val( value );
+		// check if there are other dom elements linked to the property
+		for( ix = 0; ix < this.elements.length; ix++ ){
+			obj = this.elements[ ix ];
+			if( ( property === undefined || property === obj.prop ) && obj.elem[0] != event.target ){
+				this.updateDomElement( obj.elem, value );
 			}
-			else if ( property !== undefined && typeof value === 'object' && obj.prop === property ) {
-				// incoming value is an object
+		}
+	};
+	
+	BindableObject.prototype.updateDom = function( value, property ){
+		var ix, obj;
+		// this code changes the value of the DOM element to the incoming value
+		for( ix = 0; ix < this.elements.length; ix++ ){
+			obj = this.elements[ ix ];
+
+			if ( property === undefined  || ( property !== undefined && obj.prop === property ) ){
+
 				// this code sets the value of each control bound to the BindableObject
 				// to the correspondingly bound property of the incoming value
-				obj.elem.val( value[ property.prop ] );
+				this.updateDomElement( obj.elem, value );
+				//break;
 			}
-			else if ( property !== undefined && typeof value !== 'object' ) {
-				// this is an update coming from the control to the BindableObject
-				// no need to update the control, it already holds the correct value
-				return true;
+		}
+	};
+	
+	BindableObject.prototype.updateDomElement = function( selector, value ){
+		if( typeof value === 'object' ){
+			// select box objects are populated with { key: key, value: value } 
+			if( selector.is( "div" ) === true ){
+				selector.text( value.key );
+			}else{
+				selector.val( value.value );
 			}
-			else if ( typeof value === 'object' && obj.prop === property ) {
-				// property is not defined, meaning an object that has
-				// properties bound to controls has been replaced
-				// this code assumes that the object in 'value' has a property
-				// associated with the property being changed
-				// i.e. that value[ obj.prop ] is a valid property of
-				// value, because if it isn't, this call will error
-				obj.elem.val( value[ obj.prop ] );
+			
+		}else{
+			if( selector.is( "div" ) === true ){
+				selector.text( value );
+			}else{
+				selector.val( value );
 			}
-			else {
-				console.log( "No change conditions met for " + obj + " to change." );
-				// skip the rest of this iteration of the loop
-				return true;
-			}
-			//var event = new Event('change');
-			obj.elem.trigger("change");
-		} );
+		}
+		console.log( "updated Dom element: " + selector );
+		selector.trigger( "change" );
 	};
 
 	// bind an object to an HTML element
@@ -192,11 +209,14 @@ gadgetui.model = ( function( $ ) {
 			else {
 				if ( n.length === 1 ) {
 					_model[ name ].change( value );
+					_model[ name ].updateDom( value );
 				}
 				else {
 					_model[ n[ 0 ] ].change( value, n[1] );
+					_model[ n[ 0 ] ].updateDom( value, n[1] );	
 				}
 			}
+			console.log( "model value set: name: " + name + ", value: " + value );
 		}
 	};
 

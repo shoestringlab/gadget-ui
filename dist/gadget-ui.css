@@ -37,10 +37,10 @@ div.gadget-ui-collapsiblePane-header div, div.gadget-ui-floatingPane-header div{
 	margin-top: 0.1em;	
 }
 
-div.gadgetui_bubble_speech
+p.gadgetui_bubble_speech
 {
 	display:none;
-	box-sizing: content-box;	
+	
 }
 
 div .gadget-ui-input-div{
@@ -103,4 +103,8 @@ select.gadgetui-selectinput{
 	border-image:0;
 	-webkit-box-shadow: 0 0 0 transparent; 
 	box-shadow: 0 0 0 transparent;
+}
+
+select.gadgetui-combobox-select option{
+	padding-left: 0px;
 }

@@ -146,7 +146,7 @@ Bubble.prototype.calculateArrowPosition = function(){
 	var doubleArrow = this.arrowSize * 2, 
 		afterArrowCenter,
 		doublePadding = this.padding * 2,
-		arrowOffset = this.borderWidth + this.borderRadius + this.arrowSize;
+		arrowOffset = this.borderWidth + this.borderRadius + this.arrowSize,
 		afterArrowOffset =  Math.floor( Math.sqrt( Math.pow( this.borderWidth, 2 ) + Math.pow( this.borderWidth, 2 ) ) ) - 1;
 		
 		this.afterArrowSize = this.arrowSize - afterArrowOffset;

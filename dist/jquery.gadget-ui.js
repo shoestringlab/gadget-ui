@@ -1,3 +1,17 @@
+"use strict";
+
+/*
+ * author: Robert Munn <robert.d.munn@gmail.com>
+ * 
+ * Copyright (C) 2016 Robert Munn
+ * 
+ * This is free software licensed under the Mozilla Public License 2.0
+ * 
+ * https://www.mozilla.org/en-US/MPL/2.0/
+ * 
+ * 
+ */
+
 var gadgetui = {};
 gadgetui.model = ( function( $ ) {
 	"use strict";
@@ -11,22 +25,32 @@ gadgetui.model = ( function( $ ) {
 		}
 	}
 
-	BindableObject.prototype.handleEvent = function( e ) {
-		var that = this;
-		switch (e.type) {
+	BindableObject.prototype.handleEvent = function( ev ) {
+		var ix, obj;
+		switch ( ev.type ) {
 			case "change":
-				$.each( this.elements, function( i, value ) {
-					if( e.target.name === value.prop ){
-						that.change( e.target.value, value.prop );
+				for( ix = 0; ix < this.elements.length; ix++ ){
+					obj = this.elements[ ix ];
+					if( ev.target.name === obj.prop ){
+						//select box binding
+						if( ev.target.type.match( /select/ ) ){
+							this.change( { 	value : $( ev.target ).val(), 
+									key : $( ev.target ).find('option:selected').text() 
+								}, ev, obj.prop );
+						}
+						else{
+						// text input binding
+						this.change( ev.target.value, ev, value.prop );
+						}
 					}
-				} );
-				break;
+				}
+				
 		}
 	};
 
 	// for each bound control, update the value
-	BindableObject.prototype.change = function( value, property ) {
-		var that = this, n;
+	BindableObject.prototype.change = function( value, event, property ) {
+		var ix, obj;
 
 		// this code changes the value of the BinableObject to the incoming value
 		if ( property === undefined ) {
@@ -54,42 +78,49 @@ gadgetui.model = ( function( $ ) {
 			throw "Attempt to treat a simple value as an object with properties. Change fails.";
 		}
 
-		// this code changes the value of the DOM element to the incoming value
-		$.each( this.elements, function( i, obj ) {
-			if ( obj.prop.length === 0 && typeof value !== 'object' ) {
-				// BindableObject holds a simple value
-				// make sure the incoming value is a simple value
-				// set the DOM element value to the incoming value
-				obj.elem.val( value );
+		// check if there are other dom elements linked to the property
+		for( ix = 0; ix < this.elements.length; ix++ ){
+			obj = this.elements[ ix ];
+			if( ( property === undefined || property === obj.prop ) && obj.elem[0] != event.target ){
+				this.updateDomElement( obj.elem, value );
 			}
-			else if ( property !== undefined && typeof value === 'object' && obj.prop === property ) {
-				// incoming value is an object
+		}
+	};
+	
+	BindableObject.prototype.updateDom = function( value, property ){
+		var ix, obj;
+		// this code changes the value of the DOM element to the incoming value
+		for( ix = 0; ix < this.elements.length; ix++ ){
+			obj = this.elements[ ix ];
+
+			if ( property === undefined  || ( property !== undefined && obj.prop === property ) ){
+
 				// this code sets the value of each control bound to the BindableObject
 				// to the correspondingly bound property of the incoming value
-				obj.elem.val( value[ property.prop ] );
+				this.updateDomElement( obj.elem, value );
+				//break;
 			}
-			else if ( property !== undefined && typeof value !== 'object' ) {
-				// this is an update coming from the control to the BindableObject
-				// no need to update the control, it already holds the correct value
-				return true;
+		}
+	};
+	
+	BindableObject.prototype.updateDomElement = function( selector, value ){
+		if( typeof value === 'object' ){
+			// select box objects are populated with { key: key, value: value } 
+			if( selector.is( "div" ) === true ){
+				selector.text( value.key );
+			}else{
+				selector.val( value.value );
 			}
-			else if ( typeof value === 'object' && obj.prop === property ) {
-				// property is not defined, meaning an object that has
-				// properties bound to controls has been replaced
-				// this code assumes that the object in 'value' has a property
-				// associated with the property being changed
-				// i.e. that value[ obj.prop ] is a valid property of
-				// value, because if it isn't, this call will error
-				obj.elem.val( value[ obj.prop ] );
+			
+		}else{
+			if( selector.is( "div" ) === true ){
+				selector.text( value );
+			}else{
+				selector.val( value );
 			}
-			else {
-				console.log( "No change conditions met for " + obj + " to change." );
-				// skip the rest of this iteration of the loop
-				return true;
-			}
-			//var event = new Event('change');
-			obj.elem.trigger("change");
-		} );
+		}
+		console.log( "updated Dom element: " + selector );
+		selector.trigger( "change" );
 	};
 
 	// bind an object to an HTML element
@@ -193,11 +224,14 @@ gadgetui.model = ( function( $ ) {
 			else {
 				if ( n.length === 1 ) {
 					_model[ name ].change( value );
+					_model[ name ].updateDom( value );
 				}
 				else {
 					_model[ n[ 0 ] ].change( value, n[1] );
+					_model[ n[ 0 ] ].updateDom( value, n[1] );	
 				}
 			}
+			console.log( "model value set: name: " + name + ", value: " + value );
 		}
 	};
 
@@ -414,7 +448,7 @@ Bubble.prototype.calculateArrowPosition = function(){
 	var doubleArrow = this.arrowSize * 2, 
 		afterArrowCenter,
 		doublePadding = this.padding * 2,
-		arrowOffset = this.borderWidth + this.borderRadius + this.arrowSize;
+		arrowOffset = this.borderWidth + this.borderRadius + this.arrowSize,
 		afterArrowOffset =  Math.floor( Math.sqrt( Math.pow( this.borderWidth, 2 ) + Math.pow( this.borderWidth, 2 ) ) ) - 1;
 		
 		this.afterArrowSize = this.arrowSize - afterArrowOffset;
@@ -863,6 +897,460 @@ gadgetui.input = (function($) {
 	
 	
 
+function ComboBox( selector, options ){
+
+	this.emitEvents = true;
+	this.model = gadgetui.model;
+	this.func;
+
+	this.selector = selector;
+
+	if( options !== undefined ){
+		this.config( options );
+	}
+
+	this.setSaveFunc();
+	this.setDataProviderRefresh();
+	// bind to the model if binding is specified
+	gadgetui.util.bind( this.selector, this.model );
+	this.addControl();
+	if( this.dataProvider.data === undefined ){
+		this.dataProvider.refresh();
+	}
+
+	var it = this,
+
+	promise = new Promise(
+		function( resolve, reject ){
+			it.getArrowWidth( resolve, reject );
+		});
+	promise
+		.then( function(){
+			it.addCSS();
+		})
+		.catch( function( message ){
+			// use width of default icon
+			it.arrowWidth = 22;
+			console.log( message );
+			it.addCSS();
+		});
+
+	this.addBehaviors();
+	this.setValue( this.value );
+}
+
+ComboBox.prototype.addControl = function(){
+	$( this.selector )
+		.wrap( "<div class='gadgetui-combobox'></div>")
+		.wrap( "<div class='gadgetui-combobox-selectwrapper'></div>")
+		.parent().parent()
+		.append( "<div class='gadgetui-combobox-inputwrapper'><input class='gadgetui-combobox-input' value='' name='custom' type='text' placeholder='" + this.newOption.key + "'/></div>" )
+		.prepend( "<div class='gadgetui-combobox-label' data-id='" + this.id +  "'>" + this.text + "</div>");
+
+	this.comboBox = $( this.selector ).parent().parent();
+	this.input = $( "input[class='gadgetui-combobox-input']", this.combobox );
+	this.label = $( "div[class='gadgetui-combobox-label']", this.comboBox );
+	this.inputWrapper = $( "div[class='gadgetui-combobox-inputwrapper']", this.comboBox );
+	this.selectWrapper = $( "div[class='gadgetui-combobox-selectwrapper']", this.comboBox );
+	this.comboBox.css( "opacity", ".0" );
+};
+
+ComboBox.prototype.getArrowWidth = function( resolve, reject ){
+	var self = this, 
+		img = new Image();
+		img.onload = function() {
+			self.arrowWidth = this.width;
+			resolve();
+		};
+		img.onerror = function(){
+			reject( "Icon was not loaded." );
+		};
+		img.src = this.arrowIcon;
+};
+
+ComboBox.prototype.addCSS = function(){
+
+	this.selector
+		.addClass( "gadgetui-combobox-select" )
+		.css( "width", this.width )
+		.css( "border-radius", this.borderRadius )
+		.css( "display", "inline" );
+	
+	this.comboBox
+		.css( "position", "relative" );
+	
+	var rules,
+		selectLeftPadding = 0,
+		widthOffset = this.borderWidth + this.borderRadius, 
+		leftOffset = this.borderWidth,
+		styles = window.getComputedStyle(this.selector[0] ),
+		wrapperStyles = window.getComputedStyle(this.selectWrapper[0] ),
+		inputLeftOffset = 0,
+		inputWidth = this.selector[0].clientWidth,
+		selectMarginTop = 0,
+		borderLeftWidth = Math.round( gadgetui.util.getNumberValue( wrapperStyles['border-left-width'] ) );
+		//borderTopWidth = Math.round( gadgetui.util.getNumberValue( wrapperStyles['border-top-width'] ) ),
+		//borderBottomWidth = Math.round( gadgetui.util.getNumberValue( wrapperStyles['border-bottom-width'] ) );
+
+	console.log( "icon width: " + this.arrowWidth );
+	widthOffset = leftOffset + this.arrowWidth;
+
+	if( navigator.userAgent.match( /Chrome/ ) ){
+		selectLeftPadding = this.borderRadius - this.borderWidth;
+		leftOffset = this.borderRadius;
+		widthOffset = this.borderRadius + this.arrowWidth;
+		inputWidth = inputWidth + borderLeftWidth - widthOffset;
+		selectMarginTop =  this.borderWidth;
+	}else if( navigator.userAgent.match( /Firefox/) ){
+		inputLeftOffset = this.borderRadius - this.borderWidth;
+		inputWidth = inputWidth - widthOffset - inputLeftOffset;
+	}
+
+	this.comboBox
+		.css( "font-size", styles.fontSize );
+	//inputHeight = Math.floor( this.selector[0].clientHeight - borderTopWidth - borderBottomWidth ) - this.borderWidth;
+	this.selector
+		.css( "margin-top", selectMarginTop )
+		.css( "border", 0 )
+		//.css( "background-color", "none transparent" )
+		.css( "margin-left", selectLeftPadding );
+	
+	this.selectWrapper
+		.css( "background-color", this.backgroundColor )
+		.css( "border", this.border )
+		.css( "position", "absolute" )
+		.css( "padding-bottom", "1px" )
+		.css( "display", "inline" );
+
+	this.inputWrapper
+		.css( "position", "absolute" )
+		.css( "top", this.borderWidth )
+		.css( "left", leftOffset );	
+
+	this.input
+		.css( "display", "inline" )
+		.css( "padding-left", inputLeftOffset )
+		.css( "border", "0" )
+		.css( "font-size", styles.fontSize )
+		.css( "background-color", this.inputBackground )
+		.css( "width", inputWidth );
+		//.css( "height",  inputHeight );
+
+	this.label
+		.css( "position", "absolute" )
+		.css( "left", this.borderRadius )
+		.css( "top", this.borderWidth + this.borderWidth )
+		.css( "font-family", styles.fontFamily )
+		.css( "font-size", styles.fontSize )
+		.css( "font-weight", styles.fontWeight );
+
+	// add rules for arrow Icon
+	//we're doing this programmatically so we can skin our arrow icon
+
+	
+	if( navigator.userAgent.match( /Firefox/) ){
+		rules = {
+				'background-image': 'url(' + this.arrowIcon + ')',
+				'background-repeat': 'no-repeat',
+				'background-position': 'right center'
+				};
+		
+		if( this.scaleIconeHeight === true ){
+			rules['background-size'] = this.arrowWidth + "px " + inputHeight + "px";
+		}
+		this.selectWrapper
+			.addRule( rules, 0 );
+	}
+
+	rules = {
+		'-webkit-appearance': 'none',
+		'-moz-appearance': 'window',
+		'background-image': 'url(' + this.arrowIcon + ')',
+		'background-repeat': 'no-repeat',
+		'background-position': 'right center'
+	};
+	
+	if( this.scaleIconeHeight === true ){
+		rules['background-size'] = this.arrowWidth + "px " + inputHeight + "px";
+	}
+	this.selector
+		.addRule( rules, 0 );
+	
+	this.inputWrapper.hide();
+	this.selectWrapper.hide();
+	this.comboBox.css( "opacity", "1" );
+};
+
+ComboBox.prototype.setSelectOptions = function(){
+	var self = this, key, value;
+
+	$( self.selector )
+		.empty();
+	console.log( "append new option" );
+	$( self.selector )
+		.append( "<option value='" + self.newOption.value + "'>" + self.newOption.key + "</option>" );
+
+	$.each( this.dataProvider.data, function( ix, obj ){
+		key = obj.key;
+		value = obj.value;
+		if( value === undefined ){ 
+			value = key; 
+		}
+		console.log( "append " + key );
+		$( self.selector )
+			.append( "<option value=" + value + ">" + key );
+	});
+};
+
+ComboBox.prototype.find = function( text ){
+	var ix;
+	for( ix = 0; ix < this.dataProvider.data.length; ix++ ){
+		if( this.dataProvider.data[ix].key === text ){
+			return this.dataProvider.data[ix].value;
+		}
+	}
+	return;
+};
+
+ComboBox.prototype.getText = function( value ){
+	var ix, 
+		compValue = parseInt( value, 10 );
+	if( isNaN( compValue ) === true ){
+		compValue = value;
+	}
+	for( ix = 0; ix < this.dataProvider.data.length; ix++ ){
+		if( this.dataProvider.data[ix].value === compValue ){
+			return this.dataProvider.data[ix].key;
+		}
+	}
+	return;
+};
+ComboBox.prototype.showLabel = function(){
+	this.label.css( "display", "inline-block" );
+	this.selectWrapper.hide();
+	this.inputWrapper.hide();
+};
+
+ComboBox.prototype.addBehaviors = function( obj ) {
+	var self = this;
+	// setup mousePosition
+	if( gadgetui.mousePosition === undefined ){
+		$( document )
+			.on( "mousemove", function(ev){ 
+				ev = ev || window.event; 
+				gadgetui.mousePosition = gadgetui.util.mouseCoords(ev); 
+			});
+	}
+	//if binding is enabled, bind the label to the model
+	/*	if(  this.selector.attr( "gadgetui-bind" ) !== undefined ){
+		gadgetui.model.bind( this.selector.attr( "gadgetui-bind" ), this.label );
+	}	*/
+
+	$( this.comboBox )
+		.on( this.activate, function( ) {
+			setTimeout( function( ) {
+				if( self.label.css( "display" ) != "none" ){
+					console.log( "combo mouseenter ");
+					self.label.hide();
+					self.selectWrapper.css( "display", "inline" );
+		
+					if( self.selector.prop('selectedIndex') <= 0 ) {
+						self.inputWrapper.css( "display", "inline" );
+					}
+					self.selector
+						.css( "display", "inline" );
+				}
+			}, self.delay );
+		})
+		.on( "mouseleave", function( ) {
+			console.log( "combo mouseleave ");
+			if ( self.selector.is( ":focus" ) === false && self.input.is( ":focus" ) === false ) {
+				self.showLabel();
+			}
+		});
+
+	self.input
+		.on( "click", function( e ){
+			console.log( "input click ");
+		})
+		.on( "keyup", function( event ) {
+			console.log( "input keyup");
+			if ( event.keyCode === 13 ) {
+				var inputText =  gadgetui.util.encode( self.input.val() );
+				self.handleInput( inputText );
+			}
+		})
+		.on( "blur", function( ) {
+			console.log( "input blur" );
+
+			if( gadgetui.util.mouseWithin( self.selector, gadgetui.mousePosition ) === true ){
+				self.inputWrapper.hide();
+				self.selector.focus();
+			}else{
+				self.showLabel();
+			}
+		});
+
+	this.selector
+		.on( "mouseenter", function( ev ){
+			self.selector.css( "display", "inline" );
+		})
+		.on( "click", function( ev ){
+			console.log( "select click");
+			ev.stopPropagation();
+		})
+		.on( "change", function( event ) {
+			console.log( "select change");
+
+			if( event.target.selectedIndex > 0 ){
+				self.inputWrapper.hide();
+				self.setValue( event.target[ event.target.selectedIndex ].value );
+				/*	self.text = event.target[ event.target.selectedIndex ].label;
+				self.value = event.target[ event.target.selectedIndex ].value;
+				self.label.text( self.text );	*/
+			}else{
+				//var inputText =  gadgetui.util.encode( self.input.val() );
+				self.inputWrapper.show();
+				self.setValue( self.newOption.value );
+				self.input.focus();
+
+				/*	var text = inputText.length === 0 ? "..." : inputText;
+				self.text = inputText;
+				self.value = self.newOption.value;
+				self.label.text( text  );	*/
+				
+			}
+			
+			console.log( "label:" + self.label.text() );
+		})
+
+		.on( "blur", function( event ) {
+			console.log( "select blur ");
+			event.stopPropagation();
+			setTimeout( function( ) {
+				if( self.input.is( ":focus" ) === false ){
+					self.showLabel();
+				}
+			}, 200 );
+
+		} );
+	
+	$( "option", this.selector )
+		.on( "mouseenter", function( ev ){
+			console.log( "option mouseenter" );
+			if( self.selector.css( "display" ) !== "inline" ){
+				self.selector.css( "display", "inline" );
+			}
+		});
+};
+
+ComboBox.prototype.handleInput = function( inputText ){
+	var value = this.find( inputText );
+	if( value !== undefined ){
+		this.selector.val( value );
+		this.label.text( inputText );
+		this.selector.focus();
+		this.input.val('');
+		this.inputWrapper.hide();
+	}
+	else if ( value === undefined && inputText.length > 0 ) {
+		this.save( inputText );
+	}
+};
+
+ComboBox.prototype.setSaveFunc = function(){
+	var self = this;
+
+	if( $.isFunction( this.save ) === true ){
+		var save = this.save;
+		this.save = function( text ) {
+			var that = this,
+				func,  
+				promise, 
+				args = [ text ],
+				value = this.find( text );
+			if( value === undefined ){	
+				console.log( "save: " + text );
+				// trigger save event if we're triggering events 
+				if( this.emitEvents === true ){
+					this.selector.trigger( "save", text );
+				}
+				promise = new Promise(
+						function( resolve, reject ){
+							args.push( resolve );
+							args.push( reject );
+							func = save.apply(that, args);
+							console.log( func );
+						});
+				promise.then(
+						function( value ){
+							var ev = new Event( "change", {
+							    view: window,
+							    bubbles: true,
+							    cancelable: true
+							  });
+							self.input.val( "" );
+							self.inputWrapper.hide();
+							self.dataProvider.refresh();
+							self.setValue( value );	
+							self.selector[0].dispatchEvent( ev );
+						});
+			}
+		    return func;
+		};
+	}
+};
+
+ComboBox.prototype.setValue = function( value ){
+	var text = this.getText( value );
+	console.log( "text:" + text );
+	// value and text can only be set to current values in this.dataProvider.data, or to "New" value
+	this.value = ( text === undefined ? this.newOption.value : value );
+	text = ( text === undefined ? this.newOption.key : text );
+
+	this.text = text;
+	this.label.text( this.text );
+	this.selector.val( this.value );
+};
+
+ComboBox.prototype.setDataProviderRefresh = function(){
+	var self = this,
+		refresh = this.dataProvider.refresh;
+	this.dataProvider.refresh = function(){
+		if( $.isFunction( refresh ) === true ){
+			refresh.apply( this );
+		}
+		self.setSelectOptions();
+	};
+};
+
+ComboBox.prototype.config = function( args ){
+	this.model =  (( args.model === undefined) ? this.model : args.model );
+	this.emitEvents = (( args.emitEvents === undefined) ? true : args.emitEvents );
+	this.data = (( args.data === undefined) ? [] : args.data );
+	this.dataProvider = (( args.dataProvider === undefined) ? undefined : args.dataProvider );
+	this.save = (( args.save === undefined) ? undefined : args.save );
+	this.activate = (( args.activate === undefined) ? "mouseenter" : args.activate );
+	this.delay = (( args.delay === undefined) ? 10 : args.delay );
+	this.id = (( args.id === undefined) ? gadgetui.util.Id() : args.id );
+	this.inputBackground = (( args.inputBackground === undefined) ? "#ffffff" : args.inputBackground );
+	//this.arrowWidth = (( args.arrowWidth === undefined) ? 22 : args.arrowWidth );
+	this.borderWidth = (( args.borderWidth === undefined) ? 1 : args.borderWidth );
+	this.borderColor = (( args.borderColor === undefined) ? "silver" : args.borderColor );
+	this.borderStyle = (( args.borderStyle === undefined) ? "solid" : args.borderStyle );
+	this.borderRadius = (( args.borderRadius === undefined) ? 5 : args.borderRadius );
+	this.border = this.borderWidth + "px " + this.borderStyle + " " + this.borderColor;
+	this.width = (( args.width === undefined) ? 150 : args.width );
+	this.newOption = (( args.newOption === undefined) ? { key: "...", value: 0 } : args.newOption );
+	this.value = (( args.value === undefined) ? this.newOption.value : args.value );
+	this.arrowIcon = (( args.arrowIcon === undefined) ? "/bower_components/gadget-ui/dist/img/icon_arrow.png" : args.arrowIcon );
+	this.scaleIconeHeight = (( args.scaleIconeHeight === undefined) ? false : args.scaleIconeHeight );
+	
+};
+
+
+
+
 function LookupListInput( selector, options ){
 	function _renderLabel( item ){
 		return item.label;
@@ -1238,27 +1726,33 @@ TextInput.prototype.addBindings = function(){
 	label
 		.off( self.activate )
 		.on( self.activate, function( ) {
-			setTimeout( 
-				function(){
-				console.log(label.is( ":hover" ));
-				if( label.is( ":hover" ) === true ) {
-					// both input and label
-					labeldiv.hide();
-					
-					$( "input", obj )
-						.css( "max-width",  "" )
-						.css( "min-width", "10em" )
-						.css( "width", $.gadgetui.textWidth( $( self.selector ).val(), font ) + 10 );
-		
-					//just input
-					$( self.selector ).css( "display", "block" );
-						
-					// if we are only showing the input on click, focus on the element immediately
-					if( self.activate === "click" ){
-						$( self.selector ).focus();
-					}
-				}}, self.delay );
+			if( self.useActive && ( label.attr( "data-active" ) === "false" || label.attr( "data-active" ) === undefined ) ){
+				label.attr( "data-active", "true" );
+			}else{
+				setTimeout( 
+					function(){
+					if( label.is( ":hover" ) === true ) {
+						// both input and label
+						labeldiv.hide();
+	
+						$( "input", obj )
+							.css( "max-width",  "" )
+							.css( "min-width", "10em" )
+							.css( "width", $.gadgetui.textWidth( $( self.selector ).val(), font ) + 10 );
 			
+						//just input
+						$( self.selector ).css( "display", "block" );
+							
+						// if we are only showing the input on click, focus on the element immediately
+						if( self.activate === "click" ){
+							$( self.selector ).focus();
+						}
+						if( self.emitEvents === true ){
+							// raise an event that the input is active
+							$( self.selector ).trigger( "gadgetui-input-show", self.selector );
+						}
+					}}, self.delay );
+			}
 		});
 	$( this.selector )
 		.off( "focus" )
@@ -1297,16 +1791,19 @@ TextInput.prototype.addBindings = function(){
 						self.func( oVar );
 					}
 				}
-
+				$( it ).hide( );
 				label.css( "display", "block" );
 				labeldiv.css( "display", "block" );
+				label.attr( "data-active", "false" );
 				//$( "img", $( self ).parent( ) ).hide( );
 
 				$( "input", $( obj ).parent() )
 					.css( "max-width",  self.maxWidth );
 				
-				$( it ).hide( );
-	
+				
+				if( self.emitEvents === true ){
+					$( it ).trigger( "gadgetui-input-hide", it );
+				}	
 			}, 200 );
 		});
 	$( this.selector )
@@ -1327,7 +1824,7 @@ TextInput.prototype.addBindings = function(){
 			}
 			oVar.isDirty = true;
 			label.val( value );
-			});	
+			});
 };
 
 TextInput.prototype.addClass = function(){
@@ -1352,7 +1849,7 @@ TextInput.prototype.setInitialValue = function(){
 
 TextInput.prototype.addControl = function(){
 	$( this.selector ).wrap( "<div class='gadgetui-textinput-div'></div>");
-	$( this.selector ).parent().prepend( "<div class='gadgetui-inputlabel'><input type='text' class='gadgetui-inputlabelinput' readonly='true' style='border:0;background:none;' value='" + this.value + "'></div>");
+	$( this.selector ).parent().prepend( "<div class='gadgetui-inputlabel'><input type='text' data-active='false' class='gadgetui-inputlabelinput' readonly='true' style='border:0;background:none;' value='" + this.value + "'></div>");
 	$( this.selector ).hide();	
 };
 
@@ -1425,6 +1922,7 @@ TextInput.prototype.addCSS = function(){
 
 TextInput.prototype.config = function( args ){
 	this.borderColor =  (( args.borderColor === undefined) ? this.setBorderColor() : args.borderColor );
+	this.useActive =  (( args.useActive === undefined) ? false : args.useActive );
 	this.model =  (( args.model === undefined) ? this.model : args.model );
 	this.object = (( args.object === undefined) ? undefined : args.object );
 	this.func = (( args.func === undefined) ? undefined : args.func );
@@ -1435,6 +1933,7 @@ TextInput.prototype.config = function( args ){
 };
 
 	return{
+		ComboBox: ComboBox,
 		TextInput: TextInput,
 		SelectInput: SelectInput,
 		LookupListInput: LookupListInput
@@ -1482,6 +1981,53 @@ gadgetui.util = ( function(){
 			if( bindVar !== undefined && model !== undefined ){
 				model.bind( bindVar, $( selector ) );
 			}
+		},
+		encode : function( input, options ){
+			var result, canon = true, encode = true, encodeType = 'html';
+			if( options !== undefined ){
+				canon = ( options.canon === undefined ? true : options.canon );
+				encode = ( options.encode === undefined ? true : options.encode );
+				//enum (html|css|attr|js|url)
+				encodeType = ( options.encodeType === undefined ? "html" : options.encodeType );
+			}
+			if( canon ){
+				result = $.encoder.canonicalize( input );
+			}
+			if( encode ){
+				switch( encodeType ){
+					case "html":
+						result = $.encoder.encodeForHTML( result );
+						break;
+					case "css":
+						result = $.encoder.encodeForCSS( result );
+						break;
+					case "attr":
+						result = $.encoder.encodeForHTMLAttribute( result );
+						break;
+					case "js":
+						result = $.encoder.encodeForJavascript( result );
+						break;
+					case "url":
+						result = $.encoder.encodeForURL( result );
+						break;				
+				}
+				
+			}
+			return result;
+		},
+		mouseCoords : function(ev){
+			// from http://www.webreference.com/programming/javascript/mk/column2/
+			if(ev.pageX || ev.pageY){
+				return {x:ev.pageX, y:ev.pageY};
+			}
+			return {
+				x:ev.clientX + document.body.scrollLeft - document.body.clientLeft,
+				y:ev.clientY + document.body.scrollTop  - document.body.clientTop
+			};
+		},
+		mouseWithin : function( selector, coords ){
+			var rect = selector[0].getBoundingClientRect();
+			return ( coords.x >= rect.left && coords.x <= rect.right && coords.y >= rect.top && coords.y <= rect.bottom ) ? true : false;
 		}
 		
 	};

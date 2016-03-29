@@ -94,6 +94,7 @@ args.config.model : model for data binding.
 
 args.config.activate : event used to activate the select input, optional. defaults to "mouseenter".
 
+args.config.delay : time in milliseconds to wait before activating the control. 
 
 gadget-ui.input expects a model with a set( name, value ) function that sets the new value. 
 

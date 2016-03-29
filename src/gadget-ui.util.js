@@ -40,6 +40,53 @@ gadgetui.util = ( function(){
 			if( bindVar !== undefined && model !== undefined ){
 				model.bind( bindVar, $( selector ) );
 			}
+		},
+		encode : function( input, options ){
+			var result, canon = true, encode = true, encodeType = 'html';
+			if( options !== undefined ){
+				canon = ( options.canon === undefined ? true : options.canon );
+				encode = ( options.encode === undefined ? true : options.encode );
+				//enum (html|css|attr|js|url)
+				encodeType = ( options.encodeType === undefined ? "html" : options.encodeType );
+			}
+			if( canon ){
+				result = $.encoder.canonicalize( input );
+			}
+			if( encode ){
+				switch( encodeType ){
+					case "html":
+						result = $.encoder.encodeForHTML( result );
+						break;
+					case "css":
+						result = $.encoder.encodeForCSS( result );
+						break;
+					case "attr":
+						result = $.encoder.encodeForHTMLAttribute( result );
+						break;
+					case "js":
+						result = $.encoder.encodeForJavascript( result );
+						break;
+					case "url":
+						result = $.encoder.encodeForURL( result );
+						break;				
+				}
+				
+			}
+			return result;
+		},
+		mouseCoords : function(ev){
+			// from http://www.webreference.com/programming/javascript/mk/column2/
+			if(ev.pageX || ev.pageY){
+				return {x:ev.pageX, y:ev.pageY};
+			}
+			return {
+				x:ev.clientX + document.body.scrollLeft - document.body.clientLeft,
+				y:ev.clientY + document.body.scrollTop  - document.body.clientTop
+			};
+		},
+		mouseWithin : function( selector, coords ){
+			var rect = selector[0].getBoundingClientRect();
+			return ( coords.x >= rect.left && coords.x <= rect.right && coords.y >= rect.top && coords.y <= rect.bottom ) ? true : false;
 		}
 		
 	};

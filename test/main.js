@@ -1,12 +1,13 @@
 $(document)
 	.ready( function() {
 		var user = {
-			firstname : "Robert",
+			firstname : "",
 			lastname : "",
-			nickname : "Fitzgerald Monster",
+			nickname : "",
 			tagline : "",
 			role : "",
-			friends : []
+			friends : [],
+			food: {}
 		};
 
 		var lookuplist = [ {
@@ -37,6 +38,11 @@ $(document)
 			email : "dan@dan",
 			value : "102"
 		} ];
+		
+		var foods = [ { key: "cereal", value : 1 },
+		               { key: "eggs", value : 2 },
+		               { key: "danish", value : 3 }
+		              ];
 
 		function renderLabel(item) {
 			return item.label + "(" + item.email + ")";
@@ -57,8 +63,28 @@ $(document)
 					enforceMaxWidth: true,
 					activate : "mouseover"
 				}
-			);			
+			);
 		});
+
+		new gadgetui.input.ComboBox(  $( "select[name='food']" ),
+			 {
+				value: 2,
+				arrowIcon: '/dist/img/arrow.png',
+				save : function( text, resolve, reject ){
+					console.log( "saving new value" );
+					var newValue = foods.length + 1;
+					foods.push( { key : text, value : newValue } );
+					resolve( newValue );
+				},
+				dataProvider : {
+					// you can pre-populate 'data' or the refresh() function will be called when you instantiate the ComboBox
+					//data : undefined,
+					refresh : function(){
+						this.data = foods;
+					}
+				}
+			}
+		);
 		
 		new gadgetui.input.SelectInput(
 			 $( "select[name='role']" ),

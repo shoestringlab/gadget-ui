@@ -4,7 +4,7 @@
 		<title>gadget-ui Tests</title>
 		 <script src='../bower_components/lazyloader/dist/lazy.1.0.0.min.js'></script>
 		 <script>
-		 	lazy.load(['main.js < ../bower_components/jquery.addrule/jquery.addrule.js < ../bower_components/jquery-ui/jquery-ui.min.js < ../dist/jquery.gadget-ui.js < ../bower_components/jquery/dist/jquery.min.js', '../dist/gadget-ui.css', '../bower_components/jquery-ui/themes/humanity/jquery-ui.min.css'], function(){
+		 	lazy.load(['main.js < ../bower_components/jquery.addrule/jquery.addrule.js < ../bower_components/jquery-ui/jquery-ui.min.js  < ../bower_components/jquery-encoder/dist/jquery.jquery-encoder.min.js < ../bower_components/jquery-encoder/libs/class.min.js < ../dist/jquery.gadget-ui.js < ../bower_components/jquery/dist/jquery.min.js', '../dist/gadget-ui.css', '../bower_components/jquery-ui/themes/humanity/jquery-ui.min.css'], function(){
   				console.log('All files have been loaded');
 }			);
 		 </script>
@@ -12,19 +12,23 @@
 		 	body, div, span, select, input{
 		 		font-family:Arial, Helvetica, sans-serif;
 		 	}
-
+/*
 			body{
 				font-size:2em;
 			}
 
-			input {
+				input {
 				height:1.5em;
 				font-size:1em;
 			  -webkit-box-sizing: border-box;
 			  -moz-box-sizing: border-box;
 			  box-sizing: border-box;
 			}
-			
+				
+			#InputDiv > div{
+				margin-top: 2em;
+			}
+			*/
 			
 		 </style>
 
@@ -33,9 +37,11 @@
 				$( "span[name='firstname']" ).text( gadgetui.model.get( 'user.firstname' ) );
 				$( "span[name='lastname']" ).text( gadgetui.model.get( 'user.lastname' ) );
 				$( "span[name='tagline']" ).text( gadgetui.model.get( 'user.tagline' ) );
-				$( "span[name='role']" ).text( gadgetui.model.get( 'user.role' ) );
+				var role = gadgetui.model.get( 'user.role' );
+				$( "span[name='role']" ).text( "key : " + role.key + ", value : " + role.value );
 				$( "span[name='friends']" ).text( gadgetui.model.get( 'user.friends' ) );
-				
+				var food = gadgetui.model.get( 'user.food' );
+				$( "span[name='food']" ).text(  "key : " + food.key + ", value : " + food.value  );
 				/*	$( '#modelDiv' ).html( 'firstname: ' + gadgetui.model.get( 'user.firstname' ) 
 				+ '<br/><br/>lastname: ' + gadgetui.model.get( 'user.lastname' ) 
 				+ '<br/><br/>tag line: ' + gadgetui.model.get( 'user.tagline' ) 
@@ -96,6 +102,16 @@
 				<div>
 					<input name="friends" type="text" gadgetui-bind="user.friends" placeholder="Friends"/>
 				</div>
+		
+				
+				<div>
+					Favorite breakfast food:<br>
+					<select name="food" gadgetui-bind="user.food">
+						<option value=""></option>
+					</select>
+					<br><br>
+				</div>
+				
 			</form>
 		</div>
 
@@ -128,6 +144,7 @@
 			<div>role: <span name="role"></span></div>
 			<div>friends: <span name="friends"></span></div>
 			<div>nickname: <span name="nickname"></span></div>
+			<div>favorite food: <span name="food"></span></div>
 		</div>
 		
 		<div id="debugDiv" style="width: 50%; height:300px;">
