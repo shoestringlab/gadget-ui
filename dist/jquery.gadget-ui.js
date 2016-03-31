@@ -1046,7 +1046,7 @@ ComboBox.prototype.addCSS = function(){
 				'background-position': 'right center'
 				};
 		
-		if( this.scaleIconeHeight === true ){
+		if( this.scaleIconHeight === true ){
 			rules['background-size'] = this.arrowWidth + "px " + inputHeight + "px";
 		}
 		this.selectWrapper
@@ -1061,7 +1061,7 @@ ComboBox.prototype.addCSS = function(){
 		'background-position': 'right center'
 	};
 	
-	if( this.scaleIconeHeight === true ){
+	if( this.scaleIconHeight === true ){
 		rules['background-size'] = this.arrowWidth + "px " + inputHeight + "px";
 	}
 	this.selector
@@ -1355,8 +1355,8 @@ ComboBox.prototype.config = function( args ){
 		this.width = (( args.width === undefined) ? 150 : args.width );
 		this.newOption = (( args.newOption === undefined) ? { text: "...", id: 0 } : args.newOption );
 		this.id = (( args.id === undefined) ? this.newOption.id : args.id );
-		this.arrowIcon = (( args.arrowIcon === undefined) ? "/bower_components/gadget-ui/dist/img/icon_arrow.png" : args.arrowIcon );
-		this.scaleIconeHeight = (( args.scaleIconeHeight === undefined) ? false : args.scaleIconeHeight );
+		this.arrowIcon = (( args.arrowIcon === undefined) ? "/bower_components/gadget-ui/dist/img/arrow.png" : args.arrowIcon );
+		this.scaleIconHeight = (( args.scaleIconHeight === undefined) ? false : args.scaleIconHeight );
 		this.animate = (( args.animate === undefined) ? true : args.animate );
 		this.glowColor = (( args.glowColor === undefined ) ? 'rgb(82, 168, 236)' : args.glowColor );
 		this.animateDelay = (( args.animateDelay === undefined ) ? 500 : args.animateDelay );
