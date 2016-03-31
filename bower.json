@@ -25,6 +25,7 @@
     "jquery": "*",
     "jquery-encoder": "*",
     "jquery-ui": "*",
-    "jquery.addrule": "*"
+    "jquery.addrule": "*",
+    "jquery-shadow-animation", "*"
   }
 }
