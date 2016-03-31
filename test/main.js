@@ -39,9 +39,9 @@ $(document)
 			value : "102"
 		} ];
 		
-		var foods = [ { key: "cereal", value : 1 },
-		               { key: "eggs", value : 2 },
-		               { key: "danish", value : 3 }
+		var foods = [ { text: "cereal", id : 1 },
+		               { text: "eggs", id : 2 },
+		               { text: "danish", id : 3 }
 		              ];
 
 		function renderLabel(item) {
@@ -68,13 +68,13 @@ $(document)
 
 		new gadgetui.input.ComboBox(  $( "select[name='food']" ),
 			 {
-				value: 2,
+				id: 2,
 				arrowIcon: '/dist/img/arrow.png',
 				save : function( text, resolve, reject ){
 					console.log( "saving new value" );
-					var newValue = foods.length + 1;
-					foods.push( { key : text, value : newValue } );
-					resolve( newValue );
+					var newId = foods.length + 1;
+					foods.push( { text : text, id : newId } );
+					resolve( newId );
 				},
 				dataProvider : {
 					// you can pre-populate 'data' or the refresh() function will be called when you instantiate the ComboBox

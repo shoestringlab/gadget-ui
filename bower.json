@@ -23,6 +23,7 @@
   ],
   "dependencies": {
     "jquery": "*",
+    "jquery-encoder": "*",
     "jquery-ui": "*",
     "jquery.addrule": "*"
   }

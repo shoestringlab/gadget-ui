@@ -2,14 +2,10 @@ $(document)
 	.ready( function() {
 
 		var user = { food : "" };
-		var foods = [ { key: "cereal", value : 1 },
-		               { key: "eggs", value : 2 },
-		               { key: "danish", value : 3 }
+		var foods = [ { text: "cereal", id : 1 },
+		               { text: "eggs", id : 2 },
+		               { text: "danish", id : 3 }
 		              ];
-
-		function renderLabel(item) {
-			return item.label + "(" + item.email + ")";
-		}
 
 		// set the model first if we're using auto data-binding
 		gadgetui.model.set("user", user);
@@ -19,15 +15,16 @@ $(document)
 				arrowIcon: '/dist/img/arrow.png',
 				save : function( text, resolve, reject ){
 						console.log( "saving new value" );
-						var newValue = foods.length + 1;
-						foods.push( { key : text, value : newValue } );
-						resolve( newValue );
+						var newId = foods.length + 1;
+						foods.push( { text : text, id : newId } );
+						resolve( newId );
 				},
 				dataProvider : {
 					// you can pre-populate 'data' or the refresh() function will be called when you instantiate the ComboBox
 					//data : undefined,
-					refresh : function(){
-						this.data = foods;
+					refresh : function( scope, resolve, reject ){
+						scope.data = foods;
+						resolve();
 					}
 				}
 			}

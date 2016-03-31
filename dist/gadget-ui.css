@@ -108,3 +108,7 @@ select.gadgetui-selectinput{
 select.gadgetui-combobox-select option{
 	padding-left: 0px;
 }
+
+div.gadgetui-combobox-selectwrapper{
+	box-shadow: 0px 0px 0px;
+}

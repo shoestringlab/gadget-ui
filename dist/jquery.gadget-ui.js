@@ -40,7 +40,7 @@ gadgetui.model = ( function( $ ) {
 						}
 						else{
 						// text input binding
-						this.change( ev.target.value, ev, value.prop );
+						this.change( ev.target.value, ev, obj.prop );
 						}
 					}
 				}
@@ -81,7 +81,7 @@ gadgetui.model = ( function( $ ) {
 		// check if there are other dom elements linked to the property
 		for( ix = 0; ix < this.elements.length; ix++ ){
 			obj = this.elements[ ix ];
-			if( ( property === undefined || property === obj.prop ) && obj.elem[0] != event.target ){
+			if( ( property === undefined || property === obj.prop ) && ( event.target !== undefined && obj.elem[0] != event.target ) ){
 				this.updateDomElement( obj.elem, value );
 			}
 		}
@@ -107,11 +107,10 @@ gadgetui.model = ( function( $ ) {
 		if( typeof value === 'object' ){
 			// select box objects are populated with { key: key, value: value } 
 			if( selector.is( "div" ) === true ){
-				selector.text( value.key );
+				selector.text( value.text );
 			}else{
-				selector.val( value.value );
+				selector.val( value.id );
 			}
-			
 		}else{
 			if( selector.is( "div" ) === true ){
 				selector.text( value );
@@ -211,7 +210,7 @@ gadgetui.model = ( function( $ ) {
 		// setter - if the name of the object to set has a period, we are
 		// setting a property of the object, e.g. user.firstname
 		set : function( name, value ) {
-			var n = name.split( "." );
+			var n = name.split( "." ), fevent = {};
 			if ( this.exists( n[ 0 ] ) === false ) {
 				if ( n.length === 1 ) {
 					this.create( name, value );
@@ -223,11 +222,11 @@ gadgetui.model = ( function( $ ) {
 			}
 			else {
 				if ( n.length === 1 ) {
-					_model[ name ].change( value );
+					_model[ name ].change( value, fevent );
 					_model[ name ].updateDom( value );
 				}
 				else {
-					_model[ n[ 0 ] ].change( value, n[1] );
+					_model[ n[ 0 ] ].change( value, fevent, n[1] );
 					_model[ n[ 0 ] ].updateDom( value, n[1] );	
 				}
 			}
@@ -904,39 +903,18 @@ function ComboBox( selector, options ){
 	this.func;
 
 	this.selector = selector;
-
-	if( options !== undefined ){
-		this.config( options );
-	}
+	this.config( options );
 
 	this.setSaveFunc();
 	this.setDataProviderRefresh();
 	// bind to the model if binding is specified
 	gadgetui.util.bind( this.selector, this.model );
 	this.addControl();
-	if( this.dataProvider.data === undefined ){
-		this.dataProvider.refresh();
-	}
 
-	var it = this,
-
-	promise = new Promise(
-		function( resolve, reject ){
-			it.getArrowWidth( resolve, reject );
-		});
-	promise
-		.then( function(){
-			it.addCSS();
-		})
-		.catch( function( message ){
-			// use width of default icon
-			it.arrowWidth = 22;
-			console.log( message );
-			it.addCSS();
-		});
-
+	this.setCSS();
 	this.addBehaviors();
-	this.setValue( this.value );
+	
+	this.setStartingValues();
 }
 
 ComboBox.prototype.addControl = function(){
@@ -944,7 +922,7 @@ ComboBox.prototype.addControl = function(){
 		.wrap( "<div class='gadgetui-combobox'></div>")
 		.wrap( "<div class='gadgetui-combobox-selectwrapper'></div>")
 		.parent().parent()
-		.append( "<div class='gadgetui-combobox-inputwrapper'><input class='gadgetui-combobox-input' value='' name='custom' type='text' placeholder='" + this.newOption.key + "'/></div>" )
+		.append( "<div class='gadgetui-combobox-inputwrapper'><input class='gadgetui-combobox-input' value='' name='custom' type='text' placeholder='" + this.newOption.text + "'/></div>" )
 		.prepend( "<div class='gadgetui-combobox-label' data-id='" + this.id +  "'>" + this.text + "</div>");
 
 	this.comboBox = $( this.selector ).parent().parent();
@@ -953,6 +931,25 @@ ComboBox.prototype.addControl = function(){
 	this.inputWrapper = $( "div[class='gadgetui-combobox-inputwrapper']", this.comboBox );
 	this.selectWrapper = $( "div[class='gadgetui-combobox-selectwrapper']", this.comboBox );
 	this.comboBox.css( "opacity", ".0" );
+};
+
+ComboBox.prototype.setCSS = function(){
+	var self = this,
+
+	promise = new Promise(
+		function( resolve, reject ){
+			self.getArrowWidth( resolve, reject );
+		});
+	promise
+		.then( function(){
+			self.addCSS();
+		})
+		.catch( function( message ){
+			// use width of default icon
+			self.arrowWidth = 22;
+			console.log( message );
+			self.addCSS();
+		});
 };
 
 ComboBox.prototype.getArrowWidth = function( resolve, reject ){
@@ -973,7 +970,7 @@ ComboBox.prototype.addCSS = function(){
 	this.selector
 		.addClass( "gadgetui-combobox-select" )
 		.css( "width", this.width )
-		.css( "border-radius", this.borderRadius )
+		/*	.css( "border-radius", this.borderRadius )	*/
 		.css( "display", "inline" );
 	
 	this.comboBox
@@ -989,8 +986,6 @@ ComboBox.prototype.addCSS = function(){
 		inputWidth = this.selector[0].clientWidth,
 		selectMarginTop = 0,
 		borderLeftWidth = Math.round( gadgetui.util.getNumberValue( wrapperStyles['border-left-width'] ) );
-		//borderTopWidth = Math.round( gadgetui.util.getNumberValue( wrapperStyles['border-top-width'] ) ),
-		//borderBottomWidth = Math.round( gadgetui.util.getNumberValue( wrapperStyles['border-bottom-width'] ) );
 
 	console.log( "icon width: " + this.arrowWidth );
 	widthOffset = leftOffset + this.arrowWidth;
@@ -1008,16 +1003,15 @@ ComboBox.prototype.addCSS = function(){
 
 	this.comboBox
 		.css( "font-size", styles.fontSize );
-	//inputHeight = Math.floor( this.selector[0].clientHeight - borderTopWidth - borderBottomWidth ) - this.borderWidth;
 	this.selector
 		.css( "margin-top", selectMarginTop )
 		.css( "border", 0 )
-		//.css( "background-color", "none transparent" )
 		.css( "margin-left", selectLeftPadding );
 	
 	this.selectWrapper
 		.css( "background-color", this.backgroundColor )
 		.css( "border", this.border )
+		.css( "border-radius", this.borderRadius )
 		.css( "position", "absolute" )
 		.css( "padding-bottom", "1px" )
 		.css( "display", "inline" );
@@ -1034,7 +1028,6 @@ ComboBox.prototype.addCSS = function(){
 		.css( "font-size", styles.fontSize )
 		.css( "background-color", this.inputBackground )
 		.css( "width", inputWidth );
-		//.css( "height",  inputHeight );
 
 	this.label
 		.css( "position", "absolute" )
@@ -1046,8 +1039,6 @@ ComboBox.prototype.addCSS = function(){
 
 	// add rules for arrow Icon
 	//we're doing this programmatically so we can skin our arrow icon
-
-	
 	if( navigator.userAgent.match( /Firefox/) ){
 		rules = {
 				'background-image': 'url(' + this.arrowIcon + ')',
@@ -1082,45 +1073,45 @@ ComboBox.prototype.addCSS = function(){
 };
 
 ComboBox.prototype.setSelectOptions = function(){
-	var self = this, key, value;
+	var self = this, id, text;
 
 	$( self.selector )
 		.empty();
 	console.log( "append new option" );
 	$( self.selector )
-		.append( "<option value='" + self.newOption.value + "'>" + self.newOption.key + "</option>" );
+		.append( "<option value='" + self.newOption.id + "'>" + self.newOption.text + "</option>" );
 
 	$.each( this.dataProvider.data, function( ix, obj ){
-		key = obj.key;
-		value = obj.value;
-		if( value === undefined ){ 
-			value = key; 
+		id = obj.id;
+		text = obj.text;
+		if( text === undefined ){ 
+			text = id; 
 		}
-		console.log( "append " + key );
+		console.log( "append " + text );
 		$( self.selector )
-			.append( "<option value=" + value + ">" + key );
+			.append( "<option value=" + id + ">" + text );
 	});
 };
 
 ComboBox.prototype.find = function( text ){
 	var ix;
 	for( ix = 0; ix < this.dataProvider.data.length; ix++ ){
-		if( this.dataProvider.data[ix].key === text ){
-			return this.dataProvider.data[ix].value;
+		if( this.dataProvider.data[ix].text === text ){
+			return this.dataProvider.data[ix].id;
 		}
 	}
 	return;
 };
 
-ComboBox.prototype.getText = function( value ){
+ComboBox.prototype.getText = function( id ){
 	var ix, 
-		compValue = parseInt( value, 10 );
-	if( isNaN( compValue ) === true ){
-		compValue = value;
+		compId = parseInt( id, 10 );
+	if( isNaN( compId ) === true ){
+		compId = id;
 	}
 	for( ix = 0; ix < this.dataProvider.data.length; ix++ ){
-		if( this.dataProvider.data[ix].value === compValue ){
-			return this.dataProvider.data[ix].key;
+		if( this.dataProvider.data[ix].id === compId ){
+			return this.dataProvider.data[ix].text;
 		}
 	}
 	return;
@@ -1141,10 +1132,6 @@ ComboBox.prototype.addBehaviors = function( obj ) {
 				gadgetui.mousePosition = gadgetui.util.mouseCoords(ev); 
 			});
 	}
-	//if binding is enabled, bind the label to the model
-	/*	if(  this.selector.attr( "gadgetui-bind" ) !== undefined ){
-		gadgetui.model.bind( this.selector.attr( "gadgetui-bind" ), this.label );
-	}	*/
 
 	$( this.comboBox )
 		.on( this.activate, function( ) {
@@ -1205,22 +1192,11 @@ ComboBox.prototype.addBehaviors = function( obj ) {
 			if( event.target.selectedIndex > 0 ){
 				self.inputWrapper.hide();
 				self.setValue( event.target[ event.target.selectedIndex ].value );
-				/*	self.text = event.target[ event.target.selectedIndex ].label;
-				self.value = event.target[ event.target.selectedIndex ].value;
-				self.label.text( self.text );	*/
 			}else{
-				//var inputText =  gadgetui.util.encode( self.input.val() );
 				self.inputWrapper.show();
 				self.setValue( self.newOption.value );
 				self.input.focus();
-
-				/*	var text = inputText.length === 0 ? "..." : inputText;
-				self.text = inputText;
-				self.value = self.newOption.value;
-				self.label.text( text  );	*/
-				
 			}
-			
 			console.log( "label:" + self.label.text() );
 		})
 
@@ -1245,17 +1221,26 @@ ComboBox.prototype.addBehaviors = function( obj ) {
 };
 
 ComboBox.prototype.handleInput = function( inputText ){
-	var value = this.find( inputText );
-	if( value !== undefined ){
-		this.selector.val( value );
+	var id = this.find( inputText );
+	if( id !== undefined ){
+		this.selector.val( id );
 		this.label.text( inputText );
 		this.selector.focus();
 		this.input.val('');
 		this.inputWrapper.hide();
 	}
-	else if ( value === undefined && inputText.length > 0 ) {
+	else if ( id === undefined && inputText.length > 0 ) {
 		this.save( inputText );
 	}
+};
+
+ComboBox.prototype.triggerSelectChange = function(){
+	var ev = new Event( "change", {
+	    view: window,
+	    bubbles: true,
+	    cancelable: true
+	  });
+	this.selector[0].dispatchEvent( ev );
 };
 
 ComboBox.prototype.setSaveFunc = function(){
@@ -1284,16 +1269,24 @@ ComboBox.prototype.setSaveFunc = function(){
 						});
 				promise.then(
 						function( value ){
-							var ev = new Event( "change", {
-							    view: window,
-							    bubbles: true,
-							    cancelable: true
-							  });
-							self.input.val( "" );
-							self.inputWrapper.hide();
-							self.dataProvider.refresh();
-							self.setValue( value );	
-							self.selector[0].dispatchEvent( ev );
+							function callback(){
+								self.input.val( "" );
+								self.inputWrapper.hide();
+								self.id = value;
+								self.dataProvider.refresh();
+							}
+							if( self.animate === true ){
+								self.selectWrapper.animate({
+									boxShadow: '0 0 5px ' + self.glowColor,
+									borderColor: self.glowColor
+								  }, self.animateDelay / 2 );							
+								self.selectWrapper.animate({
+									boxShadow: 0,
+									borderColor: self.borderColor
+								  }, self.animateDelay / 2, callback );
+							}else{
+								callback();
+							}
 						});
 			}
 		    return func;
@@ -1301,51 +1294,73 @@ ComboBox.prototype.setSaveFunc = function(){
 	}
 };
 
-ComboBox.prototype.setValue = function( value ){
-	var text = this.getText( value );
+ComboBox.prototype.setStartingValues = function(){
+	( this.dataProvider.data === undefined ) ? this.dataProvider.refresh() : this.setControls();
+};
+
+ComboBox.prototype.setControls = function(){
+	this.setSelectOptions();
+	this.setValue( this.id );	
+	this.triggerSelectChange();
+};
+
+ComboBox.prototype.setValue = function( id ){
+	var text = this.getText( id );
 	console.log( "text:" + text );
 	// value and text can only be set to current values in this.dataProvider.data, or to "New" value
-	this.value = ( text === undefined ? this.newOption.value : value );
-	text = ( text === undefined ? this.newOption.key : text );
+	this.id = ( text === undefined ? this.newOption.id : id );
+	text = ( text === undefined ? this.newOption.text : text );
 
 	this.text = text;
 	this.label.text( this.text );
-	this.selector.val( this.value );
+	this.selector.val( this.id );
 };
 
 ComboBox.prototype.setDataProviderRefresh = function(){
 	var self = this,
-		refresh = this.dataProvider.refresh;
+		promise,
+		refresh = this.dataProvider.refresh,
+		func;
 	this.dataProvider.refresh = function(){
+		var scope = this;
 		if( $.isFunction( refresh ) === true ){
-			refresh.apply( this );
+			promise = new Promise(
+					function( resolve, reject ){
+						var args = [ scope, resolve, reject ];
+						func = refresh.apply( this, args );
+					});
+			promise
+				.then( function(){
+					self.setControls();
+				});
 		}
-		self.setSelectOptions();
+		return func;
 	};
 };
 
 ComboBox.prototype.config = function( args ){
-	this.model =  (( args.model === undefined) ? this.model : args.model );
-	this.emitEvents = (( args.emitEvents === undefined) ? true : args.emitEvents );
-	this.data = (( args.data === undefined) ? [] : args.data );
-	this.dataProvider = (( args.dataProvider === undefined) ? undefined : args.dataProvider );
-	this.save = (( args.save === undefined) ? undefined : args.save );
-	this.activate = (( args.activate === undefined) ? "mouseenter" : args.activate );
-	this.delay = (( args.delay === undefined) ? 10 : args.delay );
-	this.id = (( args.id === undefined) ? gadgetui.util.Id() : args.id );
-	this.inputBackground = (( args.inputBackground === undefined) ? "#ffffff" : args.inputBackground );
-	//this.arrowWidth = (( args.arrowWidth === undefined) ? 22 : args.arrowWidth );
-	this.borderWidth = (( args.borderWidth === undefined) ? 1 : args.borderWidth );
-	this.borderColor = (( args.borderColor === undefined) ? "silver" : args.borderColor );
-	this.borderStyle = (( args.borderStyle === undefined) ? "solid" : args.borderStyle );
-	this.borderRadius = (( args.borderRadius === undefined) ? 5 : args.borderRadius );
-	this.border = this.borderWidth + "px " + this.borderStyle + " " + this.borderColor;
-	this.width = (( args.width === undefined) ? 150 : args.width );
-	this.newOption = (( args.newOption === undefined) ? { key: "...", value: 0 } : args.newOption );
-	this.value = (( args.value === undefined) ? this.newOption.value : args.value );
-	this.arrowIcon = (( args.arrowIcon === undefined) ? "/bower_components/gadget-ui/dist/img/icon_arrow.png" : args.arrowIcon );
-	this.scaleIconeHeight = (( args.scaleIconeHeight === undefined) ? false : args.scaleIconeHeight );
-	
+	if( args !== undefined ){
+		this.model =  (( args.model === undefined) ? this.model : args.model );
+		this.emitEvents = (( args.emitEvents === undefined) ? true : args.emitEvents );
+		this.dataProvider = (( args.dataProvider === undefined) ? undefined : args.dataProvider );
+		this.save = (( args.save === undefined) ? undefined : args.save );
+		this.activate = (( args.activate === undefined) ? "mouseenter" : args.activate );
+		this.delay = (( args.delay === undefined) ? 10 : args.delay );
+		this.inputBackground = (( args.inputBackground === undefined) ? "#ffffff" : args.inputBackground );
+		this.borderWidth = (( args.borderWidth === undefined) ? 1 : args.borderWidth );
+		this.borderColor = (( args.borderColor === undefined) ? "silver" : args.borderColor );
+		this.borderStyle = (( args.borderStyle === undefined) ? "solid" : args.borderStyle );
+		this.borderRadius = (( args.borderRadius === undefined) ? 5 : args.borderRadius );
+		this.border = this.borderWidth + "px " + this.borderStyle + " " + this.borderColor;
+		this.width = (( args.width === undefined) ? 150 : args.width );
+		this.newOption = (( args.newOption === undefined) ? { text: "...", id: 0 } : args.newOption );
+		this.id = (( args.id === undefined) ? this.newOption.id : args.id );
+		this.arrowIcon = (( args.arrowIcon === undefined) ? "/bower_components/gadget-ui/dist/img/icon_arrow.png" : args.arrowIcon );
+		this.scaleIconeHeight = (( args.scaleIconeHeight === undefined) ? false : args.scaleIconeHeight );
+		this.animate = (( args.animate === undefined) ? true : args.animate );
+		this.glowColor = (( args.glowColor === undefined ) ? 'rgb(82, 168, 236)' : args.glowColor );
+		this.animateDelay = (( args.animateDelay === undefined ) ? 500 : args.animateDelay );
+	}
 };
 
 

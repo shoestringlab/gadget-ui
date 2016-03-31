@@ -1,6 +1,23 @@
 		
 ***Release Notes***
 
+2.1.0
+======
+
+- Added ComboBox control to input package
+- Fixed bug in Bubble 
+- added useActive flag to TextInput to control whether the check for active flag true before activating control 
+  - This feature enables click on then second click to activate functionality so you can give the control focus without automatically activating it.
+- Made significant changes to the model 
+  - Split updating model value and Dom elements into separate methods
+  - Enabled updating a DOM element and having it change the model and then update corresponding bound DOM elements
+  - Passing an object to a div or select box to update the value expects { text: textvalue, id: idvalue }
+- Enabled binding to a DIV element to update text() value.
+- Added dependence on jquery-encode from OWASP to protect inputs from code injection
+- Added encode() util method
+- Added mouseWithin() and mouseCoords() methods to check programmatically whether the mouse is over a control and therefore the control should have focus.
+
+
 2.0.4
 ======
 

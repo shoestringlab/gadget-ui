@@ -25,7 +25,7 @@ gadgetui.model = ( function( $ ) {
 						}
 						else{
 						// text input binding
-						this.change( ev.target.value, ev, value.prop );
+						this.change( ev.target.value, ev, obj.prop );
 						}
 					}
 				}
@@ -66,7 +66,7 @@ gadgetui.model = ( function( $ ) {
 		// check if there are other dom elements linked to the property
 		for( ix = 0; ix < this.elements.length; ix++ ){
 			obj = this.elements[ ix ];
-			if( ( property === undefined || property === obj.prop ) && obj.elem[0] != event.target ){
+			if( ( property === undefined || property === obj.prop ) && ( event.target !== undefined && obj.elem[0] != event.target ) ){
 				this.updateDomElement( obj.elem, value );
 			}
 		}
@@ -92,11 +92,10 @@ gadgetui.model = ( function( $ ) {
 		if( typeof value === 'object' ){
 			// select box objects are populated with { key: key, value: value } 
 			if( selector.is( "div" ) === true ){
-				selector.text( value.key );
+				selector.text( value.text );
 			}else{
-				selector.val( value.value );
+				selector.val( value.id );
 			}
-			
 		}else{
 			if( selector.is( "div" ) === true ){
 				selector.text( value );
@@ -196,7 +195,7 @@ gadgetui.model = ( function( $ ) {
 		// setter - if the name of the object to set has a period, we are
 		// setting a property of the object, e.g. user.firstname
 		set : function( name, value ) {
-			var n = name.split( "." );
+			var n = name.split( "." ), fevent = {};
 			if ( this.exists( n[ 0 ] ) === false ) {
 				if ( n.length === 1 ) {
 					this.create( name, value );
@@ -208,11 +207,11 @@ gadgetui.model = ( function( $ ) {
 			}
 			else {
 				if ( n.length === 1 ) {
-					_model[ name ].change( value );
+					_model[ name ].change( value, fevent );
 					_model[ name ].updateDom( value );
 				}
 				else {
-					_model[ n[ 0 ] ].change( value, n[1] );
+					_model[ n[ 0 ] ].change( value, fevent, n[1] );
 					_model[ n[ 0 ] ].updateDom( value, n[1] );	
 				}
 			}
