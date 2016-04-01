@@ -1,6 +1,6 @@
 {
   "name": "gadget-ui",
-  "version": "2.0.2",
+  "version": "2.2.0",
   "authors": [
     "Robert Munn <robert.d.munn@gmail.com>"
   ],
@@ -12,7 +12,7 @@
     "UI",
     "data binding"
   ],
-  "license": "MIT",
+  "license": "Mozilla Public License 2.0",
   "ignore": [
     "**/.*",
     "node_modules",

@@ -1,6 +1,11 @@
 		
 ***Release Notes***
 
+2.2.0
+======
+
+- Positioning fixes for ComboBox related to borderWidth and borderRadius
+
 2.1.0
 ======
 

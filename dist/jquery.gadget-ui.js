@@ -970,73 +970,89 @@ ComboBox.prototype.addCSS = function(){
 	this.selector
 		.addClass( "gadgetui-combobox-select" )
 		.css( "width", this.width )
-		/*	.css( "border-radius", this.borderRadius )	*/
+		.css( "border", 0 )
 		.css( "display", "inline" );
-	
+
 	this.comboBox
 		.css( "position", "relative" );
-	
+
 	var rules,
-		selectLeftPadding = 0,
-		widthOffset = this.borderWidth + this.borderRadius, 
-		leftOffset = this.borderWidth,
-		styles = window.getComputedStyle(this.selector[0] ),
-		wrapperStyles = window.getComputedStyle(this.selectWrapper[0] ),
-		inputLeftOffset = 0,
+		styles = window.getComputedStyle( this.selector[0] ),
+		wrapperStyles = window.getComputedStyle( this.selectWrapper[0] ),
 		inputWidth = this.selector[0].clientWidth,
+		inputWidthAdjusted,
+		inputLeftOffset = 0,
 		selectMarginTop = 0,
-		borderLeftWidth = Math.round( gadgetui.util.getNumberValue( wrapperStyles['border-left-width'] ) );
+		selectLeftPadding = 0,
+		leftOffset = 0,
+		inputWrapperTop = this.borderWidth,
+		leftPosition;
 
-	console.log( "icon width: " + this.arrowWidth );
-	widthOffset = leftOffset + this.arrowWidth;
+	leftPosition = this.borderWidth + 4;
 
-	if( navigator.userAgent.match( /Chrome/ ) ){
-		selectLeftPadding = this.borderRadius - this.borderWidth;
-		leftOffset = this.borderRadius;
-		widthOffset = this.borderRadius + this.arrowWidth;
-		inputWidth = inputWidth + borderLeftWidth - widthOffset;
-		selectMarginTop =  this.borderWidth;
-	}else if( navigator.userAgent.match( /Firefox/) ){
-		inputLeftOffset = this.borderRadius - this.borderWidth;
-		inputWidth = inputWidth - widthOffset - inputLeftOffset;
+	if( this.borderRadius > 5 ){
+		selectLeftPadding = this.borderRadius - 5;
+		leftPosition = leftPosition + selectLeftPadding;
+	}
+	
+	inputWidthAdjusted = inputWidth - this.arrowWidth - this.borderRadius - 4;
+
+	if( navigator.userAgent.match( /(Safari)/ ) && !navigator.userAgent.match( /(Chrome)/ )){
+		inputWrapperTop = this.borderWidth - 2;
+		selectLeftPadding = (selectLeftPadding < 4 ) ? 4 : this.borderRadius - 1;
+		selectMarginTop = 1;
+	}else if( navigator.userAgent.match( /Chrome/ ) ){
+		selectLeftPadding = (selectLeftPadding < 4 ) ? 4 : this.borderRadius - 1;
+		selectMarginTop = 1;
 	}
 
-	this.comboBox
-		.css( "font-size", styles.fontSize );
+
+	// positioning 
 	this.selector
 		.css( "margin-top", selectMarginTop )
-		.css( "border", 0 )
-		.css( "margin-left", selectLeftPadding );
-	
-	this.selectWrapper
-		.css( "background-color", this.backgroundColor )
-		.css( "border", this.border )
-		.css( "border-radius", this.borderRadius )
-		.css( "position", "absolute" )
-		.css( "padding-bottom", "1px" )
-		.css( "display", "inline" );
+		.css( "padding-left", selectLeftPadding );
 
 	this.inputWrapper
 		.css( "position", "absolute" )
-		.css( "top", this.borderWidth )
+		.css( "top", inputWrapperTop )
 		.css( "left", leftOffset );	
 
 	this.input
 		.css( "display", "inline" )
 		.css( "padding-left", inputLeftOffset )
-		.css( "border", "0" )
-		.css( "font-size", styles.fontSize )
-		.css( "background-color", this.inputBackground )
-		.css( "width", inputWidth );
+		.css( "margin-left",  leftPosition )
+		.css( "width", inputWidthAdjusted );
 
 	this.label
 		.css( "position", "absolute" )
-		.css( "left", this.borderRadius )
-		.css( "top", this.borderWidth + this.borderWidth )
+		.css( "left", leftPosition )
+		.css( "top", this.borderWidth + 1 )
+		.css( "margin-left", 0 );
+
+	this.selectWrapper
+		.css( "display", "inline" )
+		.css( "position", "absolute" )
+		.css( "padding-bottom", "1px" );
+
+	//appearance 
+	this.comboBox
+		.css( "font-size", styles.fontSize );	
+
+	this.selectWrapper
+		.css( "background-color", this.backgroundColor )
+		.css( "border", this.border )
+		.css( "border-radius", this.borderRadius );
+
+	this.input
+		.css( "border", 0 )
+		.css( "font-size", styles.fontSize )
+		.css( "background-color", this.inputBackground );
+
+	this.label
 		.css( "font-family", styles.fontFamily )
 		.css( "font-size", styles.fontSize )
 		.css( "font-weight", styles.fontWeight );
-
+		
 	// add rules for arrow Icon
 	//we're doing this programmatically so we can skin our arrow icon
 	if( navigator.userAgent.match( /Firefox/) ){

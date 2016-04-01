@@ -105,6 +105,10 @@ select.gadgetui-selectinput{
 	box-shadow: 0 0 0 transparent;
 }
 
+input.gadgetui-combobox-input, select.gadgetui-combobox-select{
+	outline: none;
+}
+
 select.gadgetui-combobox-select option{
 	padding-left: 0px;
 }

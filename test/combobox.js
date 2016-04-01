@@ -12,6 +12,8 @@ $(document)
 
 		new gadgetui.input.ComboBox(  $( "select[name='foods']" ),
 			 {
+				borderWidth: 1,
+				borderRadius: 5,
 				arrowIcon: '/dist/img/arrow.png',
 				save : function( text, resolve, reject ){
 						console.log( "saving new value" );

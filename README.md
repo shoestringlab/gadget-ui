@@ -3,9 +3,20 @@ gadget-ui
 
 JavaScript UI and data binding library
 
-Version 2.1.0
+Version 2.2.0
 
 For a quickstart guide and working examples, see http://www.bonnydoonmedia.com/index.cfm/projects/gadget-ui/.
+
+**Dependencies**
+
+This project has dependencies on:
+ - jQuery
+ - jQuery UI
+ - jQuery addRule
+ - jQuery Encoder ( OWASP )
+ - jQuery Shadow Animation
+ 
+See bower.json mainfest for details.
 
 
 **Usage**
