@@ -1,6 +1,11 @@
 		
 ***Release Notes***
 
+2.2.5
+======
+
+- CSS fix for Bubble to make sure box-sizing is unset in the control
+
 2.2.2
 ======
 
