@@ -205,14 +205,6 @@ TextInput.prototype.setMaxWidth = function(){
 	this.maxWidth = gadgetui.util.getNumberValue( parentStyle.width );
 };
 
-TextInput.prototype.setBorderColor = function(){
-	this.borderColor = window.getComputedStyle( $( this.selector )[0] ).borderBottomColor;
-	
-	/*	if( this.borderColor === undefined ){
-		this.borderColor = style.borderBottomColor;
-	}	*/
-};
-
 TextInput.prototype.addCSS = function(){
 	$( "input[class='gadgetui-inputlabelinput']", $( this.selector ).parent()  )
 		.css( "font-size", window.getComputedStyle( $( this.selector )[0] ).fontSize )
@@ -242,7 +234,7 @@ TextInput.prototype.addCSS = function(){
 };
 
 TextInput.prototype.config = function( args ){
-	this.borderColor =  (( args.borderColor === undefined) ? this.setBorderColor() : args.borderColor );
+	this.borderColor =  (( args.borderColor === undefined) ? "#d0d0d0" : args.borderColor );
 	this.useActive =  (( args.useActive === undefined) ? false : args.useActive );
 	this.model =  (( args.model === undefined) ? this.model : args.model );
 	this.object = (( args.object === undefined) ? undefined : args.object );

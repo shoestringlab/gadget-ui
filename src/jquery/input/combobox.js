@@ -467,7 +467,7 @@ ComboBox.prototype.config = function( args ){
 		this.delay = (( args.delay === undefined) ? 10 : args.delay );
 		this.inputBackground = (( args.inputBackground === undefined) ? "#ffffff" : args.inputBackground );
 		this.borderWidth = (( args.borderWidth === undefined) ? 1 : args.borderWidth );
-		this.borderColor = (( args.borderColor === undefined) ? "silver" : args.borderColor );
+		this.borderColor = (( args.borderColor === undefined) ? "#d0d0d0" : args.borderColor );
 		this.borderStyle = (( args.borderStyle === undefined) ? "solid" : args.borderStyle );
 		this.borderRadius = (( args.borderRadius === undefined) ? 5 : args.borderRadius );
 		this.border = this.borderWidth + "px " + this.borderStyle + " " + this.borderColor;

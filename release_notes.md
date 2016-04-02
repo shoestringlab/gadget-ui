@@ -1,6 +1,12 @@
 		
 ***Release Notes***
 
+2.2.2
+======
+
+- CSS positioning fixes for ComboBox, SelectInput, and TextInput
+- Change default border color for ComboBox and TextInput
+
 2.2.0
 ======
 

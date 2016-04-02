@@ -53,6 +53,10 @@ div.gadgetui-selectinput-label{
 	display:inline-block;
 }
 
+div.gadgetui-selectinput-div{
+	line-height:normal;
+}
+
 select.gadgetui-selectinput{
 	/* hack to allow font-size changes in Safari/Chrome */
 	border-image:0;
@@ -64,6 +68,9 @@ input.gadgetui-combobox-input, select.gadgetui-combobox-select{
 	outline: none;
 }
 
+div.gadgetui-combobox{
+	line-height:normal;
+}
 select.gadgetui-combobox-select option{
 	padding-left: 0px;
 }

@@ -24,8 +24,8 @@ $(document)
 				dataProvider : {
 					// you can pre-populate 'data' or the refresh() function will be called when you instantiate the ComboBox
 					//data : undefined,
-					refresh : function( scope, resolve, reject ){
-						scope.data = foods;
+					refresh : function( dataProvider, resolve, reject ){
+						dataProvider.data = foods;
 						resolve();
 					}
 				}
