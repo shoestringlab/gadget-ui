@@ -37,10 +37,16 @@ div.gadget-ui-collapsiblePane-header div, div.gadget-ui-floatingPane-header div{
 	margin-top: 0.1em;	
 }
 
-p.gadgetui_bubble_speech
+p.gadgetui-bubble-speech
 {
 	display:none;
 	
+}
+
+div[class~='gadgetui-bubble']{
+	-webkit-box-sizing: unset;
+	-moz-box-sizing: unset;
+	box-sizing: unset;
 }
 
 div .gadget-ui-input-div{

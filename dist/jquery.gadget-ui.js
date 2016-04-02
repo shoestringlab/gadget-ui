@@ -310,7 +310,7 @@ function Bubble( selector, message, options ){
 }
 
 Bubble.prototype.render = function(){
-	var str =  '<div class="gadgetui_bubble_' + this.bubbleType + '" id="' + this.id + '">' + this.message;
+	var str =  '<div class="gadgetui-bubble gadgetui-bubble-' + this.bubbleType + '" id="' + this.id + '">' + this.message;
 	if( this.closable ){
 		str = str + '<span class="ui-icon ui-icon-close"></span>';
 	}
@@ -621,7 +621,7 @@ Bubble.prototype.setBehaviors = function(){
 Bubble.prototype.config = function( options ){
 	var baseUIColor = getStyleRuleValue( "color", ".ui-state-active" );
 	this.bubbleType = ( options.bubbleType === undefined ? "speech" : options.bubbleType );
-	this.id = "gadgetui_bubble_" + gadgetui.util.Id();
+	this.id = "gadgetui-bubble-" + gadgetui.util.Id();
 	this.height = ( options.height === undefined ? 100 : options.height );
 	this.position = ( options.position === undefined ? "top right" : options.position ); // position of arrow tip on selector - top right | bottom right | top center | bottom center | top left | bottom left
 	this.width = ( options.width === undefined ? 200 : options.width ); // width of bubble
