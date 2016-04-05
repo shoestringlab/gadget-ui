@@ -109,7 +109,7 @@ gadgetui.model = ( function( $ ) {
 
 	// bind an object to an HTML element
 	BindableObject.prototype.bind = function( element, property ) {
-		var e;
+		var e, self = this;
 
 		if ( property === undefined ) {
 			// BindableObject holds a simple value
@@ -132,7 +132,20 @@ gadgetui.model = ( function( $ ) {
 		}
 		//add an event listener so we get notified when the value of the DOM element
 		// changes
-		element[ 0 ].addEventListener( "change", this, false );
+		//element[ 0 ].addEventListener( "change", this, false );
+		//IE 8 support
+		if (element[ 0 ].addEventListener) {
+			element[ 0 ].addEventListener("change", this, false);
+		}
+		else {
+			// IE8
+			element[ 0 ].attachEvent("onpropertychange", function( ev ){
+				if( ev.propertyName === 'value'){
+					var el = ev.srcElement, val = ( el.nodeName === 'SELECT' ) ? { value: el.value, key: el.options[el.selectedIndex].innerHTML } : el.value;
+					self.change( val, { target: el }, el.name );
+				}
+			});
+		}
 		this.elements.push( e );
 	};
 

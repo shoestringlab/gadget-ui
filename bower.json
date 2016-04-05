@@ -1,6 +1,6 @@
 {
   "name": "gadget-ui",
-  "version": "2.2.5",
+  "version": "2.2.7",
   "authors": [
     "Robert Munn <robert.d.munn@gmail.com>"
   ],
@@ -22,7 +22,8 @@
     "WEB-INF"
   ],
   "dependencies": {
-    "jquery": "*",
+    "jquery": "jquery#2",
+	"jquery-legacy": "jquery#1.10",
     "jquery-encoder": "*",
     "jquery-ui": "*",
     "jquery.addrule": "*",

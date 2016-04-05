@@ -7,8 +7,14 @@ $.gadgetui.textWidth = function(text, font) {
     if (!$.gadgetui.textWidth.fakeEl) $.gadgetui.textWidth.fakeEl = $('<span id="gadgetui-textWidth">').appendTo(document.body);
     
     var width, htmlText = text || $.fn.val() || $.fn.text();
-    htmlText = $.gadgetui.textWidth.fakeEl.text(htmlText).html(); //encode to Html
-    htmlText = htmlText.replace(/\s/g, "&nbsp;"); //replace trailing and leading spaces
+    if( htmlText.length > 0 ){
+    	htmlText = $.gadgetui.textWidth.fakeEl.text(htmlText).html(); //encode to Html
+    	if( htmlText === undefined ){
+    		htmlText = "";
+    	}else{
+    		htmlText = htmlText.replace(/\s/g, "&nbsp;"); //replace trailing and leading spaces
+    	}
+    }
     $.gadgetui.textWidth.fakeEl.html(htmlText).css('font', font || $.fn.css('font'));
     $.gadgetui.textWidth.fakeEl.css( "display", "inline" );
     width = $.gadgetui.textWidth.fakeEl.width();

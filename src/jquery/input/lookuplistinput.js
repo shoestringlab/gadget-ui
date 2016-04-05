@@ -13,7 +13,7 @@ function LookupListInput( selector, options ){
 		this.config( options );
 	}
 	
-	gadgetui.util.bind( this.selector, this.model );
+	//gadgetui.util.bind( this.selector, this.model );
 	$( this.selector ).wrap( '<div class="gadgetui-lookuplistinput-div ui-widget-content ui-corner-all"></div>' );
 	this.addBindings();
 }
@@ -99,6 +99,9 @@ LookupListInput.prototype.add = function( el, item ){
 		//update the model 
 		prop = $( el ).attr( "gadgetui-bind" );
 		list = this.model.get( prop );
+		if( $.isArray( list ) === false ){
+			list = [];
+		}
 		list.push( item );
 		this.model.set( prop, list );
 	}

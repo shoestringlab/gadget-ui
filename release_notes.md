@@ -1,6 +1,19 @@
 		
 ***Release Notes***
 
+2.2.7
+======
+
+- CSS and compatibility fixes for MS Edge and IE 7+
+- Verified compatibility with a larger set of browsers- Safari, IE 7+, Firefox, Chrome, Opera, Brave
+- addition of Promise polyfill for older browsers
+- addition of jQuery 1.x as a dependency for older browser support ( IE < 9.0 )
+- Created additional test files for individual components
+- Switched primary test page to use jQuery 1.10.x for older browser support.
+- Added utility method for getComputedStyle shimming
+- Fixed syntax errors that were problematic for older IE support
+
+
 2.2.5
 ======
 

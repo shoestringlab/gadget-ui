@@ -95,7 +95,8 @@ $(document)
 				model : gadgetui.model
 			}
 		);
-		var ll = new gadgetui.input.LookupListInput(
+		var ll;
+		/*	var ll = new gadgetui.input.LookupListInput(
 			$( "input[name='friends']" ),
 			{
 				emitEvents : false,
@@ -103,7 +104,7 @@ $(document)
 				model : gadgetui.model,
 				menuItemRenderer : renderLabel
 			}
-		);
+		);	*/
 
 		new gadgetui.display.CollapsiblePane(
 				$("#InputsDiv"),

@@ -46,28 +46,40 @@ SelectInput.prototype.addCSS = function(){
 		parentstyle,
 		label = $( "div[class='gadgetui-selectinput-label']", $( this.selector ).parent() );
 
+	/*	$( this.selector )
+		.css( "border", "1px solid silver" );	*/
+
 	$( this.selector )
-		.css( "border", "0px 2px" )
-		.css( "min-width", "10em" )
+		.css( "min-width", "10em" );
+	$( this.selector )
 		.css( "font-size", "1em" );
 
-	//style = window.getComputedStyle( $( selector )[0] );
-	parentstyle = window.getComputedStyle( $( this.selector ).parent()[0] );
+	parentstyle = gadgetui.util.getStyle( $( this.selector ).parent()[0] );
 	height = gadgetui.util.getNumberValue( parentstyle.height ) - 2;
 	label
 		.css( "padding-top", "2px" )
 		.css( "height", height )
 		.css( "margin-left", "9px");
 
+	if( navigator.userAgent.match( /Edge/ ) ){
+		this.selector
+			.css( "margin-left", "5px" );
+	}else if( navigator.userAgent.match( /MSIE/ ) ){
+		this.selector
+		.css( "margin-top", "0px")
+		.css( "margin-left", "5px" );
+/*				.css( "margin-top", "1px")
+			.css( "margin-left", "6px" );	*/
+	}
 };
 
 SelectInput.prototype.addBindings = function() {
 	var self = this, 
 		oVar,
-		control = $( this.selector ).parent(),
+		control = $( self.selector ).parent(),
 		label = $( "div[class='gadgetui-selectinput-label']", control );
 
-	oVar = ( (this.o === undefined) ? {} : this.o );
+	oVar = ( (self.o === undefined) ? {} : self.o );
 
 	label
 		.off( this.activate )
@@ -79,8 +91,8 @@ SelectInput.prototype.addBindings = function() {
 
 	control
 		.off( "change" )
-		.on( "change", function( e ) {
-			var value = e.target.value;
+		.on( "change", function( ev ) {
+			var value = ev.target.value;
 			if( value.trim().length === 0 ){
 				value = " ... ";
 			}
@@ -89,29 +101,29 @@ SelectInput.prototype.addBindings = function() {
 				.text( value );
 		});
 
-	$( this.selector )
+	$( self.selector )
 		.off( "blur" )
 		//.css( "min-width", "10em" )
-		.on( "blur", function( ) {
+		.on( "blur", function( ev ) {
 			var newVal;
 			setTimeout( function() {
-				newVal = $( this ).val( );
+				newVal = $( self.selector ).val();
 				if ( oVar.isDirty === true ) {
 					if( newVal.trim().length === 0 ){
 						newVal = " ... ";
 					}
-					oVar[ this.name ] = $( this ).val( );
+					oVar[ this.name ] = $( self.selector ).val();
 
 					label
 						.text( newVal );
-					if( self.model !== undefined && $( this ).attr( "gadgetui-bind" ) === undefined ){	
+					if( self.model !== undefined && $( self.selector ).attr( "gadgetui-bind" ) === undefined ){	
 						// if we have specified a model but no data binding, change the model value
 						self.model.set( this.name, oVar[ this.name ] );
 					}
 
 					oVar.isDirty = false;
 					if( self.emitEvents === true ){
-						$( this )
+						$( self.selector )
 							.trigger( "gadgetui-input-change", [ oVar ] );
 					}
 					if( self.func !== undefined ){
@@ -120,13 +132,13 @@ SelectInput.prototype.addBindings = function() {
 				}
 				label
 					.css( "display", "inline-block" );
-				$( this ).hide( );
+				$( self.selector ).hide( );
 			}, 100 );
 		})
 		.off( "keyup" )
 		.on( "keyup", function( event ) {
-			if ( parseInt( event.keyCode, 10 ) === 13 ) {
-				$( this ).blur( );
+			if ( parseInt( event.which, 10 ) === 13 ) {
+				$( self.selector ).blur();
 			}
 		});
 

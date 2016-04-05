@@ -87,6 +87,21 @@ gadgetui.util = ( function(){
 		mouseWithin : function( selector, coords ){
 			var rect = selector[0].getBoundingClientRect();
 			return ( coords.x >= rect.left && coords.x <= rect.right && coords.y >= rect.top && coords.y <= rect.bottom ) ? true : false;
+		},
+		getStyle : function (el, prop) {
+		    if ( window.getComputedStyle !== undefined ) {
+		    	if( prop !== undefined ){
+		    		return getComputedStyle(el, null).getPropertyValue(prop);
+		    	}else{
+		    		return getComputedStyle(el, null);
+		    	}
+		    } else {
+		    	if( prop !== undefined ){
+		    		return el.currentStyle[prop];
+		    	}else{
+		    		return el.currentStyle;
+		    	}
+		    }
 		}
 		
 	};

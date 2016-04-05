@@ -29,6 +29,7 @@ gadgetui.model = ( function( $ ) {
 		var ix, obj;
 		switch ( ev.type ) {
 			case "change":
+			case "propertychange":
 				for( ix = 0; ix < this.elements.length; ix++ ){
 					obj = this.elements[ ix ];
 					if( ev.target.name === obj.prop ){
@@ -124,7 +125,7 @@ gadgetui.model = ( function( $ ) {
 
 	// bind an object to an HTML element
 	BindableObject.prototype.bind = function( element, property ) {
-		var e;
+		var e, self = this;
 
 		if ( property === undefined ) {
 			// BindableObject holds a simple value
@@ -147,7 +148,20 @@ gadgetui.model = ( function( $ ) {
 		}
 		//add an event listener so we get notified when the value of the DOM element
 		// changes
-		element[ 0 ].addEventListener( "change", this, false );
+		//element[ 0 ].addEventListener( "change", this, false );
+		//IE 8 support
+		if (element[ 0 ].addEventListener) {
+			element[ 0 ].addEventListener("change", this, false);
+		}
+		else {
+			// IE8
+			element[ 0 ].attachEvent("onpropertychange", function( ev ){
+				if( ev.propertyName === 'value'){
+					var el = ev.srcElement, val = ( el.nodeName === 'SELECT' ) ? { value: el.value, key: el.options[el.selectedIndex].innerHTML } : el.value;
+					self.change( val, { target: el }, el.name );
+				}
+			});
+		}
 		this.elements.push( e );
 	};
 
@@ -245,8 +259,14 @@ $.gadgetui.textWidth = function(text, font) {
     if (!$.gadgetui.textWidth.fakeEl) $.gadgetui.textWidth.fakeEl = $('<span id="gadgetui-textWidth">').appendTo(document.body);
     
     var width, htmlText = text || $.fn.val() || $.fn.text();
-    htmlText = $.gadgetui.textWidth.fakeEl.text(htmlText).html(); //encode to Html
-    htmlText = htmlText.replace(/\s/g, "&nbsp;"); //replace trailing and leading spaces
+    if( htmlText.length > 0 ){
+    	htmlText = $.gadgetui.textWidth.fakeEl.text(htmlText).html(); //encode to Html
+    	if( htmlText === undefined ){
+    		htmlText = "";
+    	}else{
+    		htmlText = htmlText.replace(/\s/g, "&nbsp;"); //replace trailing and leading spaces
+    	}
+    }
     $.gadgetui.textWidth.fakeEl.html(htmlText).css('font', font || $.fn.css('font'));
     $.gadgetui.textWidth.fakeEl.css( "display", "inline" );
     width = $.gadgetui.textWidth.fakeEl.width();
@@ -283,6 +303,11 @@ $.gadgetui.fitText = function( text, font, width ){
 		return text;
 	}
 };
+if (!String.prototype.trim) {
+  String.prototype.trim = function () {
+    return this.replace(/^[\s\uFEFF\xA0]+|[\s\uFEFF\xA0]+$/g, '');
+  };
+}
 gadgetui.display = (function($) {
 	
 	function getStyleRuleValue(style, selector, sheet) {
@@ -754,7 +779,7 @@ function FloatingPane( selector, options ){
 	this.addCSS();
 
 	// now set height to computed height of control that has been created
-	this.height = window.getComputedStyle( $( this.selector ).parent()[0] ).height;
+	this.height = gadgetui.util.getStyle( $( this.selector ).parent()[0], "height" );
 
 	this.relativeOffsetLeft = gadgetui.util.getRelativeParentOffset( this.selector ).left;
 	this.addBindings();
@@ -809,7 +834,7 @@ FloatingPane.prototype.config = function( args ){
 	this.width = ( args.width === undefined ? $( this.selector ).css( "width" ) : args.width );
 	this.minWidth = ( this.title.length > 0 ? Math.max( 100, this.title.length * 10 ) : 100 );
 
-	this.height = ( args.height === undefined ? gadgetui.util.getNumberValue( window.getComputedStyle( $( this.selector )[0] ).height ) + ( gadgetui.util.getNumberValue( this.padding ) * 2 ) : args.height );
+	this.height = ( args.height === undefined ? gadgetui.util.getNumberValue( gadgetui.util.getStyle( $( this.selector )[0], "height" ) ) + ( gadgetui.util.getNumberValue( this.padding ) * 2 ) : args.height );
 	this.interiorWidth = ( args.interiorWidth === undefined ? "": args.interiorWidth );
 	this.opacity = ( ( args.opacity === undefined ? 1 : args.opacity ) );
 	this.zIndex = ( ( args.zIndex === undefined ? 100000 : args.zIndex ) );
@@ -829,19 +854,19 @@ FloatingPane.prototype.expand = function(){
 	
 	
 	this.wrapper.animate({
-		left: l - width + self.minWidth,
+		left: l - width + self.minWidth
 	},{queue: false, duration: 500}, function() {
 		// Animation complete.
 	});
 
 	this.wrapper.animate({
-		width: this.width,
+		width: this.width
 	},{queue: false, duration: 500}, function() {
 		// Animation complete.
 	});
 
 	this.wrapper.animate({
-		height: this.height,
+		height: this.height
 	},{queue: false, duration: 500, complete: function() {
 		self.maxmin
 		.removeClass( "ui-icon-arrow-4-diag" )
@@ -861,13 +886,13 @@ FloatingPane.prototype.minimize = function(){
 		width = parseInt( this.width.substr( 0,this.width.length - 2), 10 );
 
 	this.wrapper.animate({
-		left: l + width - self.minWidth,
+		left: l + width - self.minWidth
 	},{queue: false, duration: 500}, function() {
 
 	});
 
 	this.wrapper.animate({
-		width: self.minWidth,
+		width: self.minWidth
 	},{queue: false, duration: 500, complete: function() {
 		self.maxmin
 		.removeClass( "ui-icon-arrow-4" )
@@ -876,7 +901,7 @@ FloatingPane.prototype.minimize = function(){
 	});
 
 	this.wrapper.animate({
-		height: "50px",
+		height: "50px"
 	},{queue: false, duration: 500}, function() {
 		// Animation complete.
 	});
@@ -925,12 +950,18 @@ ComboBox.prototype.addControl = function(){
 		.append( "<div class='gadgetui-combobox-inputwrapper'><input class='gadgetui-combobox-input' value='' name='custom' type='text' placeholder='" + this.newOption.text + "'/></div>" )
 		.prepend( "<div class='gadgetui-combobox-label' data-id='" + this.id +  "'>" + this.text + "</div>");
 
+
+	
 	this.comboBox = $( this.selector ).parent().parent();
 	this.input = $( "input[class='gadgetui-combobox-input']", this.combobox );
 	this.label = $( "div[class='gadgetui-combobox-label']", this.comboBox );
 	this.inputWrapper = $( "div[class='gadgetui-combobox-inputwrapper']", this.comboBox );
 	this.selectWrapper = $( "div[class='gadgetui-combobox-selectwrapper']", this.comboBox );
 	this.comboBox.css( "opacity", ".0" );
+	// set placeholder shim
+	if( $.isFunction( this.input.placeholder) ){
+		 this.input.placeholder();
+	}
 };
 
 ComboBox.prototype.setCSS = function(){
@@ -943,8 +974,8 @@ ComboBox.prototype.setCSS = function(){
 	promise
 		.then( function(){
 			self.addCSS();
-		})
-		.catch( function( message ){
+		});
+	promise['catch']( function( message ){
 			// use width of default icon
 			self.arrowWidth = 22;
 			console.log( message );
@@ -977,8 +1008,8 @@ ComboBox.prototype.addCSS = function(){
 		.css( "position", "relative" );
 
 	var rules,
-		styles = window.getComputedStyle( this.selector[0] ),
-		wrapperStyles = window.getComputedStyle( this.selectWrapper[0] ),
+		styles = gadgetui.util.getStyle( this.selector[0] ),
+		wrapperStyles = gadgetui.util.getStyle( this.selectWrapper[0] ),
 		inputWidth = this.selector[0].clientWidth,
 		inputWidthAdjusted,
 		inputLeftOffset = 0,
@@ -986,6 +1017,7 @@ ComboBox.prototype.addCSS = function(){
 		selectLeftPadding = 0,
 		leftOffset = 0,
 		inputWrapperTop = this.borderWidth,
+		inputLeftMargin,
 		leftPosition;
 
 	leftPosition = this.borderWidth + 4;
@@ -994,13 +1026,20 @@ ComboBox.prototype.addCSS = function(){
 		selectLeftPadding = this.borderRadius - 5;
 		leftPosition = leftPosition + selectLeftPadding;
 	}
-	
+	inputLeftMargin = leftPosition;
 	inputWidthAdjusted = inputWidth - this.arrowWidth - this.borderRadius - 4;
-
+	console.log( navigator.userAgent );
 	if( navigator.userAgent.match( /(Safari)/ ) && !navigator.userAgent.match( /(Chrome)/ )){
 		inputWrapperTop = this.borderWidth - 2;
 		selectLeftPadding = (selectLeftPadding < 4 ) ? 4 : this.borderRadius - 1;
 		selectMarginTop = 1;
+	}else if( navigator.userAgent.match( /Edge/ ) ){
+		selectLeftPadding = (selectLeftPadding < 1 ) ? 1 : this.borderRadius - 4;
+		inputLeftMargin--;
+	}else if( navigator.userAgent.match( /MSIE/) ){
+		selectLeftPadding = (selectLeftPadding < 1 ) ? 1 : this.borderRadius - 4;
+	}else if( navigator.userAgent.match( /Trident/ ) ){
+		selectLeftPadding = (selectLeftPadding < 2 ) ? 2 : this.borderRadius - 3;
 	}else if( navigator.userAgent.match( /Chrome/ ) ){
 		selectLeftPadding = (selectLeftPadding < 4 ) ? 4 : this.borderRadius - 1;
 		selectMarginTop = 1;
@@ -1020,7 +1059,7 @@ ComboBox.prototype.addCSS = function(){
 	this.input
 		.css( "display", "inline" )
 		.css( "padding-left", inputLeftOffset )
-		.css( "margin-left",  leftPosition )
+		.css( "margin-left",  inputLeftMargin )
 		.css( "width", inputWidthAdjusted );
 
 	this.label
@@ -1052,7 +1091,6 @@ ComboBox.prototype.addCSS = function(){
 		.css( "font-family", styles.fontFamily )
 		.css( "font-size", styles.fontSize )
 		.css( "font-weight", styles.fontWeight );
-		
 	// add rules for arrow Icon
 	//we're doing this programmatically so we can skin our arrow icon
 	if( navigator.userAgent.match( /Firefox/) ){
@@ -1076,13 +1114,13 @@ ComboBox.prototype.addCSS = function(){
 		'background-repeat': 'no-repeat',
 		'background-position': 'right center'
 	};
-	
+
 	if( this.scaleIconHeight === true ){
 		rules['background-size'] = this.arrowWidth + "px " + inputHeight + "px";
 	}
 	this.selector
 		.addRule( rules, 0 );
-	
+
 	this.inputWrapper.hide();
 	this.selectWrapper.hide();
 	this.comboBox.css( "opacity", "1" );
@@ -1178,7 +1216,7 @@ ComboBox.prototype.addBehaviors = function( obj ) {
 		})
 		.on( "keyup", function( event ) {
 			console.log( "input keyup");
-			if ( event.keyCode === 13 ) {
+			if ( event.which === 13 ) {
 				var inputText =  gadgetui.util.encode( self.input.val() );
 				self.handleInput( inputText );
 			}
@@ -1251,6 +1289,7 @@ ComboBox.prototype.handleInput = function( inputText ){
 };
 
 ComboBox.prototype.triggerSelectChange = function(){
+	console.log("select change");
 	var ev = new Event( "change", {
 	    view: window,
 	    bubbles: true,
@@ -1304,6 +1343,13 @@ ComboBox.prototype.setSaveFunc = function(){
 								callback();
 							}
 						});
+				promise['catch']( function( message ){
+					self.input.val( "" );
+					self.inputWrapper.hide();
+					console.log( message );
+					self.dataProvider.refresh();
+
+				});
 			}
 		    return func;
 		};
@@ -1315,6 +1361,7 @@ ComboBox.prototype.setStartingValues = function(){
 };
 
 ComboBox.prototype.setControls = function(){
+	console.log("setControls");
 	this.setSelectOptions();
 	this.setValue( this.id );	
 	this.triggerSelectChange();
@@ -1347,6 +1394,10 @@ ComboBox.prototype.setDataProviderRefresh = function(){
 					});
 			promise
 				.then( function(){
+					self.setControls();
+				});
+			promise['catch']( function( message ){
+					console.log( "message" );
 					self.setControls();
 				});
 		}
@@ -1396,7 +1447,7 @@ function LookupListInput( selector, options ){
 		this.config( options );
 	}
 	
-	gadgetui.util.bind( this.selector, this.model );
+	//gadgetui.util.bind( this.selector, this.model );
 	$( this.selector ).wrap( '<div class="gadgetui-lookuplistinput-div ui-widget-content ui-corner-all"></div>' );
 	this.addBindings();
 }
@@ -1482,6 +1533,9 @@ LookupListInput.prototype.add = function( el, item ){
 		//update the model 
 		prop = $( el ).attr( "gadgetui-bind" );
 		list = this.model.get( prop );
+		if( $.isArray( list ) === false ){
+			list = [];
+		}
 		list.push( item );
 		this.model.set( prop, list );
 	}
@@ -1583,28 +1637,40 @@ SelectInput.prototype.addCSS = function(){
 		parentstyle,
 		label = $( "div[class='gadgetui-selectinput-label']", $( this.selector ).parent() );
 
+	/*	$( this.selector )
+		.css( "border", "1px solid silver" );	*/
+
 	$( this.selector )
-		.css( "border", "0px 2px" )
-		.css( "min-width", "10em" )
+		.css( "min-width", "10em" );
+	$( this.selector )
 		.css( "font-size", "1em" );
 
-	//style = window.getComputedStyle( $( selector )[0] );
-	parentstyle = window.getComputedStyle( $( this.selector ).parent()[0] );
+	parentstyle = gadgetui.util.getStyle( $( this.selector ).parent()[0] );
 	height = gadgetui.util.getNumberValue( parentstyle.height ) - 2;
 	label
 		.css( "padding-top", "2px" )
 		.css( "height", height )
 		.css( "margin-left", "9px");
 
+	if( navigator.userAgent.match( /Edge/ ) ){
+		this.selector
+			.css( "margin-left", "5px" );
+	}else if( navigator.userAgent.match( /MSIE/ ) ){
+		this.selector
+		.css( "margin-top", "0px")
+		.css( "margin-left", "5px" );
+/*				.css( "margin-top", "1px")
+			.css( "margin-left", "6px" );	*/
+	}
 };
 
 SelectInput.prototype.addBindings = function() {
 	var self = this, 
 		oVar,
-		control = $( this.selector ).parent(),
+		control = $( self.selector ).parent(),
 		label = $( "div[class='gadgetui-selectinput-label']", control );
 
-	oVar = ( (this.o === undefined) ? {} : this.o );
+	oVar = ( (self.o === undefined) ? {} : self.o );
 
 	label
 		.off( this.activate )
@@ -1616,8 +1682,8 @@ SelectInput.prototype.addBindings = function() {
 
 	control
 		.off( "change" )
-		.on( "change", function( e ) {
-			var value = e.target.value;
+		.on( "change", function( ev ) {
+			var value = ev.target.value;
 			if( value.trim().length === 0 ){
 				value = " ... ";
 			}
@@ -1626,29 +1692,29 @@ SelectInput.prototype.addBindings = function() {
 				.text( value );
 		});
 
-	$( this.selector )
+	$( self.selector )
 		.off( "blur" )
 		//.css( "min-width", "10em" )
-		.on( "blur", function( ) {
+		.on( "blur", function( ev ) {
 			var newVal;
 			setTimeout( function() {
-				newVal = $( this ).val( );
+				newVal = $( self.selector ).val();
 				if ( oVar.isDirty === true ) {
 					if( newVal.trim().length === 0 ){
 						newVal = " ... ";
 					}
-					oVar[ this.name ] = $( this ).val( );
+					oVar[ this.name ] = $( self.selector ).val();
 
 					label
 						.text( newVal );
-					if( self.model !== undefined && $( this ).attr( "gadgetui-bind" ) === undefined ){	
+					if( self.model !== undefined && $( self.selector ).attr( "gadgetui-bind" ) === undefined ){	
 						// if we have specified a model but no data binding, change the model value
 						self.model.set( this.name, oVar[ this.name ] );
 					}
 
 					oVar.isDirty = false;
 					if( self.emitEvents === true ){
-						$( this )
+						$( self.selector )
 							.trigger( "gadgetui-input-change", [ oVar ] );
 					}
 					if( self.func !== undefined ){
@@ -1657,13 +1723,13 @@ SelectInput.prototype.addBindings = function() {
 				}
 				label
 					.css( "display", "inline-block" );
-				$( this ).hide( );
+				$( self.selector ).hide( );
 			}, 100 );
 		})
 		.off( "keyup" )
 		.on( "keyup", function( event ) {
-			if ( parseInt( event.keyCode, 10 ) === 13 ) {
-				$( this ).blur( );
+			if ( parseInt( event.which, 10 ) === 13 ) {
+				$( self.selector ).blur();
 			}
 		});
 
@@ -1743,6 +1809,15 @@ TextInput.prototype.addBindings = function(){
 		font = obj.css( "font-size" ) + " " + obj.css( "font-family" );
 	oVar = ( (this.object === undefined) ? {} : this.object );
 
+	// setup mousePosition
+	if( gadgetui.mousePosition === undefined ){
+		$( document )
+			.on( "mousemove", function(ev){ 
+				ev = ev || window.event; 
+				gadgetui.mousePosition = gadgetui.util.mouseCoords(ev); 
+			});
+	}
+	
 	$( this.selector )
 		.off( "mouseleave" )
 		.on( "mouseleave", function( ) {
@@ -1762,7 +1837,7 @@ TextInput.prototype.addBindings = function(){
 			}else{
 				setTimeout( 
 					function(){
-					if( label.is( ":hover" ) === true ) {
+					if( gadgetui.util.mouseWithin( label, gadgetui.mousePosition ) === true ){
 						// both input and label
 						labeldiv.hide();
 	
@@ -1898,7 +1973,7 @@ TextInput.prototype.setLineHeight = function(){
 };
 
 TextInput.prototype.setFont = function(){
-	var style = window.getComputedStyle( $( this.selector )[0] ),
+	var style = gadgetui.util.getStyle( $( this.selector )[0] ),
 		font = style.fontFamily + " " + style.fontSize + " " + style.fontWeight + " " + style.fontVariant;
 		this.font = font;
 };
@@ -1911,13 +1986,13 @@ TextInput.prototype.setWidth = function(){
 };
 
 TextInput.prototype.setMaxWidth = function(){
-	var parentStyle = window.getComputedStyle( $( this.selector ).parent().parent()[0] );
+	var parentStyle = gadgetui.util.getStyle( $( this.selector ).parent().parent()[0] );
 	this.maxWidth = gadgetui.util.getNumberValue( parentStyle.width );
 };
 
 TextInput.prototype.addCSS = function(){
 	$( "input[class='gadgetui-inputlabelinput']", $( this.selector ).parent()  )
-		.css( "font-size", window.getComputedStyle( $( this.selector )[0] ).fontSize )
+		.css( "font-size", gadgetui.util.getStyle( $( this.selector )[0] ).fontSize )
 		.css( "padding-left", "4px" )
 		.css( "border", "1px solid transparent" )
 		.css( "width", this.width );
@@ -2051,6 +2126,21 @@ gadgetui.util = ( function(){
 		mouseWithin : function( selector, coords ){
 			var rect = selector[0].getBoundingClientRect();
 			return ( coords.x >= rect.left && coords.x <= rect.right && coords.y >= rect.top && coords.y <= rect.bottom ) ? true : false;
+		},
+		getStyle : function (el, prop) {
+		    if ( window.getComputedStyle !== undefined ) {
+		    	if( prop !== undefined ){
+		    		return getComputedStyle(el, null).getPropertyValue(prop);
+		    	}else{
+		    		return getComputedStyle(el, null);
+		    	}
+		    } else {
+		    	if( prop !== undefined ){
+		    		return el.currentStyle[prop];
+		    	}else{
+		    		return el.currentStyle;
+		    	}
+		    }
 		}
 		
 	};

@@ -55,6 +55,9 @@ div.gadgetui-selectinput-label{
 
 div.gadgetui-selectinput-div{
 	line-height:normal;
+	box-sizing: initial;
+	-webkit-box-sizing: initial;
+	-moz-box-sizing: initial;
 }
 
 select.gadgetui-selectinput{
@@ -68,8 +71,15 @@ input.gadgetui-combobox-input, select.gadgetui-combobox-select{
 	outline: none;
 }
 
+select.gadgetui-combobox-select::-ms-expand {
+    display: none;
+}
+
 div.gadgetui-combobox{
 	line-height:normal;
+	box-sizing: initial;
+	-webkit-box-sizing: initial;
+	-moz-box-sizing: initial;
 }
 select.gadgetui-combobox-select option{
 	padding-left: 0px;

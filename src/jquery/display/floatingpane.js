@@ -14,7 +14,7 @@ function FloatingPane( selector, options ){
 	this.addCSS();
 
 	// now set height to computed height of control that has been created
-	this.height = window.getComputedStyle( $( this.selector ).parent()[0] ).height;
+	this.height = gadgetui.util.getStyle( $( this.selector ).parent()[0], "height" );
 
 	this.relativeOffsetLeft = gadgetui.util.getRelativeParentOffset( this.selector ).left;
 	this.addBindings();
@@ -69,7 +69,7 @@ FloatingPane.prototype.config = function( args ){
 	this.width = ( args.width === undefined ? $( this.selector ).css( "width" ) : args.width );
 	this.minWidth = ( this.title.length > 0 ? Math.max( 100, this.title.length * 10 ) : 100 );
 
-	this.height = ( args.height === undefined ? gadgetui.util.getNumberValue( window.getComputedStyle( $( this.selector )[0] ).height ) + ( gadgetui.util.getNumberValue( this.padding ) * 2 ) : args.height );
+	this.height = ( args.height === undefined ? gadgetui.util.getNumberValue( gadgetui.util.getStyle( $( this.selector )[0], "height" ) ) + ( gadgetui.util.getNumberValue( this.padding ) * 2 ) : args.height );
 	this.interiorWidth = ( args.interiorWidth === undefined ? "": args.interiorWidth );
 	this.opacity = ( ( args.opacity === undefined ? 1 : args.opacity ) );
 	this.zIndex = ( ( args.zIndex === undefined ? 100000 : args.zIndex ) );
@@ -89,19 +89,19 @@ FloatingPane.prototype.expand = function(){
 	
 	
 	this.wrapper.animate({
-		left: l - width + self.minWidth,
+		left: l - width + self.minWidth
 	},{queue: false, duration: 500}, function() {
 		// Animation complete.
 	});
 
 	this.wrapper.animate({
-		width: this.width,
+		width: this.width
 	},{queue: false, duration: 500}, function() {
 		// Animation complete.
 	});
 
 	this.wrapper.animate({
-		height: this.height,
+		height: this.height
 	},{queue: false, duration: 500, complete: function() {
 		self.maxmin
 		.removeClass( "ui-icon-arrow-4-diag" )
@@ -121,13 +121,13 @@ FloatingPane.prototype.minimize = function(){
 		width = parseInt( this.width.substr( 0,this.width.length - 2), 10 );
 
 	this.wrapper.animate({
-		left: l + width - self.minWidth,
+		left: l + width - self.minWidth
 	},{queue: false, duration: 500}, function() {
 
 	});
 
 	this.wrapper.animate({
-		width: self.minWidth,
+		width: self.minWidth
 	},{queue: false, duration: 500, complete: function() {
 		self.maxmin
 		.removeClass( "ui-icon-arrow-4" )
@@ -136,7 +136,7 @@ FloatingPane.prototype.minimize = function(){
 	});
 
 	this.wrapper.animate({
-		height: "50px",
+		height: "50px"
 	},{queue: false, duration: 500}, function() {
 		// Animation complete.
 	});

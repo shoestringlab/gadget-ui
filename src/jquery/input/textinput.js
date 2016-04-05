@@ -33,6 +33,15 @@ TextInput.prototype.addBindings = function(){
 		font = obj.css( "font-size" ) + " " + obj.css( "font-family" );
 	oVar = ( (this.object === undefined) ? {} : this.object );
 
+	// setup mousePosition
+	if( gadgetui.mousePosition === undefined ){
+		$( document )
+			.on( "mousemove", function(ev){ 
+				ev = ev || window.event; 
+				gadgetui.mousePosition = gadgetui.util.mouseCoords(ev); 
+			});
+	}
+	
 	$( this.selector )
 		.off( "mouseleave" )
 		.on( "mouseleave", function( ) {
@@ -52,7 +61,7 @@ TextInput.prototype.addBindings = function(){
 			}else{
 				setTimeout( 
 					function(){
-					if( label.is( ":hover" ) === true ) {
+					if( gadgetui.util.mouseWithin( label, gadgetui.mousePosition ) === true ){
 						// both input and label
 						labeldiv.hide();
 	
@@ -188,7 +197,7 @@ TextInput.prototype.setLineHeight = function(){
 };
 
 TextInput.prototype.setFont = function(){
-	var style = window.getComputedStyle( $( this.selector )[0] ),
+	var style = gadgetui.util.getStyle( $( this.selector )[0] ),
 		font = style.fontFamily + " " + style.fontSize + " " + style.fontWeight + " " + style.fontVariant;
 		this.font = font;
 };
@@ -201,13 +210,13 @@ TextInput.prototype.setWidth = function(){
 };
 
 TextInput.prototype.setMaxWidth = function(){
-	var parentStyle = window.getComputedStyle( $( this.selector ).parent().parent()[0] );
+	var parentStyle = gadgetui.util.getStyle( $( this.selector ).parent().parent()[0] );
 	this.maxWidth = gadgetui.util.getNumberValue( parentStyle.width );
 };
 
 TextInput.prototype.addCSS = function(){
 	$( "input[class='gadgetui-inputlabelinput']", $( this.selector ).parent()  )
-		.css( "font-size", window.getComputedStyle( $( this.selector )[0] ).fontSize )
+		.css( "font-size", gadgetui.util.getStyle( $( this.selector )[0] ).fontSize )
 		.css( "padding-left", "4px" )
 		.css( "border", "1px solid transparent" )
 		.css( "width", this.width );

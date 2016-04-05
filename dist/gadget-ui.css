@@ -44,9 +44,9 @@ p.gadgetui-bubble-speech
 }
 
 div[class~='gadgetui-bubble']{
-	-webkit-box-sizing: unset;
-	-moz-box-sizing: unset;
-	box-sizing: unset;
+	-webkit-box-sizing: initial;
+	-moz-box-sizing: initial;
+	box-sizing: initial;
 }
 
 div .gadget-ui-input-div{
@@ -106,6 +106,9 @@ div.gadgetui-selectinput-label{
 
 div.gadgetui-selectinput-div{
 	line-height:normal;
+	box-sizing: initial;
+	-webkit-box-sizing: initial;
+	-moz-box-sizing: initial;
 }
 
 select.gadgetui-selectinput{
@@ -119,8 +122,15 @@ input.gadgetui-combobox-input, select.gadgetui-combobox-select{
 	outline: none;
 }
 
+select.gadgetui-combobox-select::-ms-expand {
+    display: none;
+}
+
 div.gadgetui-combobox{
 	line-height:normal;
+	box-sizing: initial;
+	-webkit-box-sizing: initial;
+	-moz-box-sizing: initial;
 }
 select.gadgetui-combobox-select option{
 	padding-left: 0px;

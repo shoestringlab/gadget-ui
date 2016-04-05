@@ -3,7 +3,7 @@ gadget-ui
 
 JavaScript UI and data binding library
 
-Version 2.2.5
+Version 2.2.7
 
 For a quickstart guide and working examples, see http://www.bonnydoonmedia.com/index.cfm/projects/gadget-ui/.
 
@@ -14,10 +14,61 @@ This project has dependencies on:
  - jQuery UI
  - jQuery addRule
  - jQuery Encoder ( OWASP )
+ - jQuery Placeholder
  - jQuery Shadow Animation
- 
+ - Promise polyfill
+
+Support for older browsers ( esp IE 7, IE 8 ) has been enabled by including a dependency on jQuery 1.10, which will support these older browsers. 
+If you need to support older browsers, you need to use jQuery 1.10, otherwise you can use jQuery 2.x. 
+
+The display components require jQuery UI support, specifically these jQuery UI components:
+- UI Core
+- Widget
+- Position
+- Autcomplete
+- Menu
+- Effects Core
+- Blind effect
+
+A custom jQuery UI build of these components currently results in 48 KB .js and 15 KB .css minified files. While these dependencies may change, if you wish to minimize bandwidth
+usage, you can forego the 240 KB + 30 KB download of a full jQuery UI install.
+
+
 See bower.json mainfest for details.
 
+**Browser Compatibility**
+
+gadget-ui has been tested working with the following browsers:
+
+- Chrome 49
+- Brave 0.8.3
+- Safari 9
+- Firefox 45
+- Microsoft Edge
+- Opera 36
+- Internet Explorer 7-11*
+
+* IE 7, 8 have been tested using IE 9 testing mode for IE 7 and IE 8
+
+Compatibility issues:
+
+- Internet Explorer 7-9
+	
+	- ComboBox
+		- Custom select arrow is not supported
+		
+	- TextInput
+		- Mouseover target on label may be shifted at higher font sizes
+
+- Internet Explorer 8
+
+	- Bubble 
+		- arrow is squaared
+		- border color is incorrectly displayed
+
+- Internet Explorer 7
+	
+	- Bubble is not currently supported
 
 **Usage**
 

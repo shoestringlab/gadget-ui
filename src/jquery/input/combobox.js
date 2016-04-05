@@ -28,12 +28,18 @@ ComboBox.prototype.addControl = function(){
 		.append( "<div class='gadgetui-combobox-inputwrapper'><input class='gadgetui-combobox-input' value='' name='custom' type='text' placeholder='" + this.newOption.text + "'/></div>" )
 		.prepend( "<div class='gadgetui-combobox-label' data-id='" + this.id +  "'>" + this.text + "</div>");
 
+
+	
 	this.comboBox = $( this.selector ).parent().parent();
 	this.input = $( "input[class='gadgetui-combobox-input']", this.combobox );
 	this.label = $( "div[class='gadgetui-combobox-label']", this.comboBox );
 	this.inputWrapper = $( "div[class='gadgetui-combobox-inputwrapper']", this.comboBox );
 	this.selectWrapper = $( "div[class='gadgetui-combobox-selectwrapper']", this.comboBox );
 	this.comboBox.css( "opacity", ".0" );
+	// set placeholder shim
+	if( $.isFunction( this.input.placeholder) ){
+		 this.input.placeholder();
+	}
 };
 
 ComboBox.prototype.setCSS = function(){
@@ -46,8 +52,8 @@ ComboBox.prototype.setCSS = function(){
 	promise
 		.then( function(){
 			self.addCSS();
-		})
-		.catch( function( message ){
+		});
+	promise['catch']( function( message ){
 			// use width of default icon
 			self.arrowWidth = 22;
 			console.log( message );
@@ -80,8 +86,8 @@ ComboBox.prototype.addCSS = function(){
 		.css( "position", "relative" );
 
 	var rules,
-		styles = window.getComputedStyle( this.selector[0] ),
-		wrapperStyles = window.getComputedStyle( this.selectWrapper[0] ),
+		styles = gadgetui.util.getStyle( this.selector[0] ),
+		wrapperStyles = gadgetui.util.getStyle( this.selectWrapper[0] ),
 		inputWidth = this.selector[0].clientWidth,
 		inputWidthAdjusted,
 		inputLeftOffset = 0,
@@ -89,6 +95,7 @@ ComboBox.prototype.addCSS = function(){
 		selectLeftPadding = 0,
 		leftOffset = 0,
 		inputWrapperTop = this.borderWidth,
+		inputLeftMargin,
 		leftPosition;
 
 	leftPosition = this.borderWidth + 4;
@@ -97,13 +104,20 @@ ComboBox.prototype.addCSS = function(){
 		selectLeftPadding = this.borderRadius - 5;
 		leftPosition = leftPosition + selectLeftPadding;
 	}
-	
+	inputLeftMargin = leftPosition;
 	inputWidthAdjusted = inputWidth - this.arrowWidth - this.borderRadius - 4;
-
+	console.log( navigator.userAgent );
 	if( navigator.userAgent.match( /(Safari)/ ) && !navigator.userAgent.match( /(Chrome)/ )){
 		inputWrapperTop = this.borderWidth - 2;
 		selectLeftPadding = (selectLeftPadding < 4 ) ? 4 : this.borderRadius - 1;
 		selectMarginTop = 1;
+	}else if( navigator.userAgent.match( /Edge/ ) ){
+		selectLeftPadding = (selectLeftPadding < 1 ) ? 1 : this.borderRadius - 4;
+		inputLeftMargin--;
+	}else if( navigator.userAgent.match( /MSIE/) ){
+		selectLeftPadding = (selectLeftPadding < 1 ) ? 1 : this.borderRadius - 4;
+	}else if( navigator.userAgent.match( /Trident/ ) ){
+		selectLeftPadding = (selectLeftPadding < 2 ) ? 2 : this.borderRadius - 3;
 	}else if( navigator.userAgent.match( /Chrome/ ) ){
 		selectLeftPadding = (selectLeftPadding < 4 ) ? 4 : this.borderRadius - 1;
 		selectMarginTop = 1;
@@ -123,7 +137,7 @@ ComboBox.prototype.addCSS = function(){
 	this.input
 		.css( "display", "inline" )
 		.css( "padding-left", inputLeftOffset )
-		.css( "margin-left",  leftPosition )
+		.css( "margin-left",  inputLeftMargin )
 		.css( "width", inputWidthAdjusted );
 
 	this.label
@@ -155,7 +169,6 @@ ComboBox.prototype.addCSS = function(){
 		.css( "font-family", styles.fontFamily )
 		.css( "font-size", styles.fontSize )
 		.css( "font-weight", styles.fontWeight );
-		
 	// add rules for arrow Icon
 	//we're doing this programmatically so we can skin our arrow icon
 	if( navigator.userAgent.match( /Firefox/) ){
@@ -179,13 +192,13 @@ ComboBox.prototype.addCSS = function(){
 		'background-repeat': 'no-repeat',
 		'background-position': 'right center'
 	};
-	
+
 	if( this.scaleIconHeight === true ){
 		rules['background-size'] = this.arrowWidth + "px " + inputHeight + "px";
 	}
 	this.selector
 		.addRule( rules, 0 );
-	
+
 	this.inputWrapper.hide();
 	this.selectWrapper.hide();
 	this.comboBox.css( "opacity", "1" );
@@ -281,7 +294,7 @@ ComboBox.prototype.addBehaviors = function( obj ) {
 		})
 		.on( "keyup", function( event ) {
 			console.log( "input keyup");
-			if ( event.keyCode === 13 ) {
+			if ( event.which === 13 ) {
 				var inputText =  gadgetui.util.encode( self.input.val() );
 				self.handleInput( inputText );
 			}
@@ -354,6 +367,7 @@ ComboBox.prototype.handleInput = function( inputText ){
 };
 
 ComboBox.prototype.triggerSelectChange = function(){
+	console.log("select change");
 	var ev = new Event( "change", {
 	    view: window,
 	    bubbles: true,
@@ -407,6 +421,13 @@ ComboBox.prototype.setSaveFunc = function(){
 								callback();
 							}
 						});
+				promise['catch']( function( message ){
+					self.input.val( "" );
+					self.inputWrapper.hide();
+					console.log( message );
+					self.dataProvider.refresh();
+
+				});
 			}
 		    return func;
 		};
@@ -418,6 +439,7 @@ ComboBox.prototype.setStartingValues = function(){
 };
 
 ComboBox.prototype.setControls = function(){
+	console.log("setControls");
 	this.setSelectOptions();
 	this.setValue( this.id );	
 	this.triggerSelectChange();
@@ -450,6 +472,10 @@ ComboBox.prototype.setDataProviderRefresh = function(){
 					});
 			promise
 				.then( function(){
+					self.setControls();
+				});
+			promise['catch']( function( message ){
+					console.log( "message" );
 					self.setControls();
 				});
 		}

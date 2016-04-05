@@ -9,24 +9,32 @@ $(document)
 
 		// set the model first if we're using auto data-binding
 		gadgetui.model.set("user", user);
-
-		new gadgetui.input.ComboBox(  $( "select[name='foods']" ),
+		
+		new gadgetui.input.ComboBox(  $( "select[name='food']" ),
 			 {
-				borderWidth: 1,
-				borderRadius: 5,
+				borderWidth: 3,
+				borderRadius: 10,
 				arrowIcon: '/dist/img/arrow.png',
 				save : function( text, resolve, reject ){
 						console.log( "saving new value" );
-						var newId = foods.length + 1;
-						foods.push( { text : text, id : newId } );
-						resolve( newId );
+						if( $.isArray(foods) ){
+							var newId = foods.length + 1;
+							foods.push( { text : text, id : newId } );
+							resolve( newId );
+						}else{
+							reject( "Value was not saved." );
+						}
 				},
 				dataProvider : {
 					// you can pre-populate 'data' or the refresh() function will be called when you instantiate the ComboBox
 					//data : undefined,
 					refresh : function( dataProvider, resolve, reject ){
-						dataProvider.data = foods;
-						resolve();
+						if( $.isArray(foods) ){
+							dataProvider.data = foods;
+							resolve();
+						}else{
+							reject( "Data set is not an array." );
+						}
 					}
 				}
 			}
