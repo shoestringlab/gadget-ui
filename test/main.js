@@ -95,8 +95,7 @@ $(document)
 				model : gadgetui.model
 			}
 		);
-		var ll;
-		/*	var ll = new gadgetui.input.LookupListInput(
+		var ll = new gadgetui.input.LookupListInput(
 			$( "input[name='friends']" ),
 			{
 				emitEvents : false,
@@ -104,7 +103,7 @@ $(document)
 				model : gadgetui.model,
 				menuItemRenderer : renderLabel
 			}
-		);	*/
+		);
 
 		new gadgetui.display.CollapsiblePane(
 				$("#InputsDiv"),
@@ -140,22 +139,23 @@ $(document)
 				}
 			}
 		);
-
-		new gadgetui.display.Bubble( $( "input[name='friends']" ).parent(),
-			"Start typing to add friends - Abby, Andy, Anne, Bobby, Cara, Dan are the names in the list.",
-			{
-				arrowPosition : "left bottom",
-				position : "top right",
-				arrowDirection : "middle",
-				font: ".7em 'Arial'",
-				borderWidth : 10,
-				height: 150,
-				padding: 15,
-				arrowSize: 30,
-				borderRadius: 15,
-				closable : true
-			});
-
+		// no IE 7 support
+		if( navigator.userAgent.match( /MSIE 7/ ) === false ){
+			new gadgetui.display.Bubble( $( "input[name='friends']" ).parent(),
+				"Start typing to add friends - Abby, Andy, Anne, Bobby, Cara, Dan are the names in the list.",
+				{
+					arrowPosition : "left bottom",
+					position : "top right",
+					arrowDirection : "middle",
+					font: ".7em 'Arial'",
+					borderWidth : 10,
+					height: 150,
+					padding: 15,
+					arrowSize: 30,
+					borderRadius: 15,
+					closable : true
+				});
+		}
 		
 		gadgetui.model.bind( "user.firstname", $( "span[name='firstname']" ) );
 		

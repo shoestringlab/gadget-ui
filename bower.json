@@ -27,6 +27,8 @@
     "jquery-encoder": "*",
     "jquery-ui": "*",
     "jquery.addrule": "*",
-    "jquery-shadow-animation": "*"
+    "jquery-shadow-animation": "*",
+    "jquery-placeholder" : "*",
+    "promise-polyfill" : "*"
   }
 }
