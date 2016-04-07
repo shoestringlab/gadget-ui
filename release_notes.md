@@ -1,6 +1,15 @@
 		
 ***Release Notes***
 
+2.2.8
+======
+
+- Remove dependency on jquery.addrule
+- Removed use of :before and :after pseudo-selectors
+- Added gadgetui-combobox-change event to ComboBox
+- Removed hiding text input in ComboBox when showing select since it causes weird layout issues in certain situations
+
+
 2.2.7
 ======
 

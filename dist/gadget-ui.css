@@ -43,10 +43,10 @@ p.gadgetui-bubble-speech
 	
 }
 
-div[class~='gadgetui-bubble']{
-	-webkit-box-sizing: initial;
-	-moz-box-sizing: initial;
-	box-sizing: initial;
+div.gadgetui-bubble{
+	-webkit-box-sizing: initial !important;
+	-moz-box-sizing: initial !important;
+	box-sizing: initial !important;
 }
 
 div .gadget-ui-input-div{
@@ -54,12 +54,14 @@ div .gadget-ui-input-div{
 	font-size: 1.1em;
 	font-family: inherit;
 }
+
 div .gadget-ui-input-div span{
 	padding-left: 4px;
 	font-size: .8em;
 	letter-spacing: 1px;
 	font-family: inherit;
 }
+
 div .gadget-ui-input-div input{
 	line-height: 0.8em;
 	font-size: 0.8em;
@@ -106,9 +108,9 @@ div.gadgetui-selectinput-label{
 
 div.gadgetui-selectinput-div{
 	line-height:normal;
-	box-sizing: initial;
-	-webkit-box-sizing: initial;
-	-moz-box-sizing: initial;
+	box-sizing: initial !important;
+	-webkit-box-sizing: initial !important;
+	-moz-box-sizing: initial !important;
 }
 
 select.gadgetui-selectinput{
@@ -128,9 +130,9 @@ select.gadgetui-combobox-select::-ms-expand {
 
 div.gadgetui-combobox{
 	line-height:normal;
-	box-sizing: initial;
-	-webkit-box-sizing: initial;
-	-moz-box-sizing: initial;
+	box-sizing: initial !important;
+	-webkit-box-sizing: initial !important;
+	-moz-box-sizing: initial !important;
 }
 select.gadgetui-combobox-select option{
 	padding-left: 0px;

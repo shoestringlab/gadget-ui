@@ -172,32 +172,29 @@ ComboBox.prototype.addCSS = function(){
 	// add rules for arrow Icon
 	//we're doing this programmatically so we can skin our arrow icon
 	if( navigator.userAgent.match( /Firefox/) ){
-		rules = {
-				'background-image': 'url(' + this.arrowIcon + ')',
-				'background-repeat': 'no-repeat',
-				'background-position': 'right center'
-				};
 		
-		if( this.scaleIconHeight === true ){
-			rules['background-size'] = this.arrowWidth + "px " + inputHeight + "px";
-		}
 		this.selectWrapper
-			.addRule( rules, 0 );
-	}
+			.css( 'background-image', 'url(' + this.arrowIcon + ')')
+			.css('background-repeat', 'no-repeat' )
+			.css('background-position', 'right center' );
 
-	rules = {
-		'-webkit-appearance': 'none',
-		'-moz-appearance': 'window',
-		'background-image': 'url(' + this.arrowIcon + ')',
-		'background-repeat': 'no-repeat',
-		'background-position': 'right center'
-	};
-
-	if( this.scaleIconHeight === true ){
-		rules['background-size'] = this.arrowWidth + "px " + inputHeight + "px";
+		if( this.scaleIconHeight === true ){
+			this.selectWrapper
+				.css( "background-size", this.arrowWidth + "px " + inputHeight + "px" );
+		}
 	}
 	this.selector
-		.addRule( rules, 0 );
+		.css( '-webkit-appearance', 'none' )
+		.css( '-moz-appearance', 'window')
+		.css( "background-image", "url('" + this.arrowIcon + "')" )
+		.css( 'background-repeat', 'no-repeat' )
+		.css( 'background-position', 'right center' );
+
+
+	if( this.scaleIconHeight === true ){
+		this.selectWrapper
+			.css( "background-size", this.arrowWidth + "px " + inputHeight + "px" );
+	}
 
 	this.inputWrapper.hide();
 	this.selectWrapper.hide();
@@ -249,7 +246,7 @@ ComboBox.prototype.getText = function( id ){
 	return;
 };
 ComboBox.prototype.showLabel = function(){
-	this.label.css( "display", "inline-block" );
+	//this.label.css( "display", "inline-block" );
 	this.selectWrapper.hide();
 	this.inputWrapper.hide();
 };
@@ -270,7 +267,7 @@ ComboBox.prototype.addBehaviors = function( obj ) {
 			setTimeout( function( ) {
 				if( self.label.css( "display" ) != "none" ){
 					console.log( "combo mouseenter ");
-					self.label.hide();
+
 					self.selectWrapper.css( "display", "inline" );
 		
 					if( self.selector.prop('selectedIndex') <= 0 ) {
@@ -329,6 +326,9 @@ ComboBox.prototype.addBehaviors = function( obj ) {
 				self.setValue( self.newOption.value );
 				self.input.focus();
 			}
+			$( self.selector )
+				.trigger( "gadgetui-combobox-change", [ { id: event.target[ event.target.selectedIndex ].value, text: event.target[ event.target.selectedIndex ].innerHTML } ] );
+
 			console.log( "label:" + self.label.text() );
 		})
 
@@ -336,11 +336,12 @@ ComboBox.prototype.addBehaviors = function( obj ) {
 			console.log( "select blur ");
 			event.stopPropagation();
 			setTimeout( function( ) {
+				//if( self.emitEvents === true ){
+
 				if( self.input.is( ":focus" ) === false ){
 					self.showLabel();
 				}
 			}, 200 );
-
 		} );
 	
 	$( "option", this.selector )
@@ -389,10 +390,7 @@ ComboBox.prototype.setSaveFunc = function(){
 				value = this.find( text );
 			if( value === undefined ){	
 				console.log( "save: " + text );
-				// trigger save event if we're triggering events 
-				if( this.emitEvents === true ){
-					this.selector.trigger( "save", text );
-				}
+
 				promise = new Promise(
 						function( resolve, reject ){
 							args.push( resolve );
@@ -403,6 +401,10 @@ ComboBox.prototype.setSaveFunc = function(){
 				promise.then(
 						function( value ){
 							function callback(){
+								// trigger save event if we're triggering events 
+								//if( self.emitEvents === true ){
+									self.selector.trigger( "gadgetui-combobox-save", { id: value, text: text } );
+								//}
 								self.input.val( "" );
 								self.inputWrapper.hide();
 								self.id = value;

@@ -302,44 +302,6 @@ $.gadgetui.fitText = function( text, font, width ){
 		return text;
 	}
 };
-
-(function($){
-
-	var patterns = {
-		text: /^['"]?(.+?)["']?$/,
-		url: /^url\(["']?(.+?)['"]?\)$/
-	};
-
-	function clean(content) {
-		if(content && content.length) {
-			var text = content.match(patterns.text)[1],
-				url = text.match(patterns.url);
-			return url ? '<img src="' + url[1] + '" />': text;
-		}
-	}
-
-	function inject(prop, elem, content) {
-		if(prop != 'after') prop = 'before';
-		if(content = clean(elem.currentStyle[prop])) {
-			$(elem)[prop == 'before' ? 'prepend' : 'append'](
-				$(document.createElement('span')).addClass(prop).html(content)
-			);
-		}
-	}
-
-	$.pseudo = function(elem) {
-		inject('before', elem);
-		inject('after', elem);
-		elem.runtimeStyle.behavior = null;
-	};
-	
-	if(document.createStyleSheet) {
-		var o = document.createStyleSheet(null, 0);
-		o.addRule('.dummy','display: static;');
-		o.cssText = 'html, head, head *, body, *.before, *.after, *.before *, *.after * { behavior: none; } * { behavior: expression($.pseudo(this)); }';
-	}
-
-})(jQuery);
 if (!String.prototype.trim) {
   String.prototype.trim = function () {
     return this.replace(/^[\s\uFEFF\xA0]+|[\s\uFEFF\xA0]+$/g, '');
@@ -376,7 +338,7 @@ Bubble.prototype.render = function(){
 	if( this.closable ){
 		str = str + '<span class="ui-icon ui-icon-close"></span>';
 	}
-	str = str + '</div>';
+	str = str + '<div class="gadgetui-bubble-arrow-outside"></div><div class="gadgetui-bubble-arrow-inside"></div></div>';
 
 	this.selector
 		.after( str );
@@ -455,8 +417,7 @@ Bubble.prototype.setBeforeRules = function(){
 		border: this.arrowSize + "px solid",
 		borderColor: this.beforeBorderColor
 	};
-
-	$( "#" + this.id + ":before" ).addRule( rules, 0 );
+	$( "div[class='gadgetui-bubble-arrow-outside']", $( "#" + this.id ) ).addRule( rules, 0 );
 };
 
 Bubble.prototype.setAfterRules = function(){
@@ -471,8 +432,8 @@ Bubble.prototype.setAfterRules = function(){
 		border: this.afterArrowSize + "px solid",
 		borderColor: this.afterBorderColor
 	};
-
-	$( "#" + this.id + ":after" ).addRule( rules, 0 );	
+	
+	$( "div[class='gadgetui-bubble-arrow-inside']", $( "#" + this.id ) ).addRule( rules, 0 );
 };
 
 Bubble.prototype.calculatePosition = function(){
@@ -1131,32 +1092,29 @@ ComboBox.prototype.addCSS = function(){
 	// add rules for arrow Icon
 	//we're doing this programmatically so we can skin our arrow icon
 	if( navigator.userAgent.match( /Firefox/) ){
-		rules = {
-				'background-image': 'url(' + this.arrowIcon + ')',
-				'background-repeat': 'no-repeat',
-				'background-position': 'right center'
-				};
 		
-		if( this.scaleIconHeight === true ){
-			rules['background-size'] = this.arrowWidth + "px " + inputHeight + "px";
-		}
 		this.selectWrapper
-			.addRule( rules, 0 );
-	}
+			.css( 'background-image', 'url(' + this.arrowIcon + ')')
+			.css('background-repeat', 'no-repeat' )
+			.css('background-position', 'right center' );
 
-	rules = {
-		'-webkit-appearance': 'none',
-		'-moz-appearance': 'window',
-		'background-image': 'url(' + this.arrowIcon + ')',
-		'background-repeat': 'no-repeat',
-		'background-position': 'right center'
-	};
-
-	if( this.scaleIconHeight === true ){
-		rules['background-size'] = this.arrowWidth + "px " + inputHeight + "px";
+		if( this.scaleIconHeight === true ){
+			this.selectWrapper
+				.css( "background-size", this.arrowWidth + "px " + inputHeight + "px" );
+		}
 	}
 	this.selector
-		.addRule( rules, 0 );
+		.css( '-webkit-appearance', 'none' )
+		.css( '-moz-appearance', 'window')
+		.css( "background-image", "url('" + this.arrowIcon + "')" )
+		.css( 'background-repeat', 'no-repeat' )
+		.css( 'background-position', 'right center' );
+
+
+	if( this.scaleIconHeight === true ){
+		this.selectWrapper
+			.css( "background-size", this.arrowWidth + "px " + inputHeight + "px" );
+	}
 
 	this.inputWrapper.hide();
 	this.selectWrapper.hide();
@@ -1208,7 +1166,7 @@ ComboBox.prototype.getText = function( id ){
 	return;
 };
 ComboBox.prototype.showLabel = function(){
-	this.label.css( "display", "inline-block" );
+	//this.label.css( "display", "inline-block" );
 	this.selectWrapper.hide();
 	this.inputWrapper.hide();
 };
@@ -1229,7 +1187,7 @@ ComboBox.prototype.addBehaviors = function( obj ) {
 			setTimeout( function( ) {
 				if( self.label.css( "display" ) != "none" ){
 					console.log( "combo mouseenter ");
-					self.label.hide();
+
 					self.selectWrapper.css( "display", "inline" );
 		
 					if( self.selector.prop('selectedIndex') <= 0 ) {
@@ -1288,6 +1246,9 @@ ComboBox.prototype.addBehaviors = function( obj ) {
 				self.setValue( self.newOption.value );
 				self.input.focus();
 			}
+			$( self.selector )
+				.trigger( "gadgetui-combobox-change", [ { id: event.target[ event.target.selectedIndex ].value, text: event.target[ event.target.selectedIndex ].innerHTML } ] );
+
 			console.log( "label:" + self.label.text() );
 		})
 
@@ -1295,11 +1256,12 @@ ComboBox.prototype.addBehaviors = function( obj ) {
 			console.log( "select blur ");
 			event.stopPropagation();
 			setTimeout( function( ) {
+				//if( self.emitEvents === true ){
+
 				if( self.input.is( ":focus" ) === false ){
 					self.showLabel();
 				}
 			}, 200 );
-
 		} );
 	
 	$( "option", this.selector )
@@ -1348,10 +1310,7 @@ ComboBox.prototype.setSaveFunc = function(){
 				value = this.find( text );
 			if( value === undefined ){	
 				console.log( "save: " + text );
-				// trigger save event if we're triggering events 
-				if( this.emitEvents === true ){
-					this.selector.trigger( "save", text );
-				}
+
 				promise = new Promise(
 						function( resolve, reject ){
 							args.push( resolve );
@@ -1362,6 +1321,10 @@ ComboBox.prototype.setSaveFunc = function(){
 				promise.then(
 						function( value ){
 							function callback(){
+								// trigger save event if we're triggering events 
+								//if( self.emitEvents === true ){
+									self.selector.trigger( "gadgetui-combobox-save", { id: value, text: text } );
+								//}
 								self.input.val( "" );
 								self.inputWrapper.hide();
 								self.id = value;
@@ -2167,9 +2130,9 @@ gadgetui.util = ( function(){
 		getStyle : function (el, prop) {
 		    if ( window.getComputedStyle !== undefined ) {
 		    	if( prop !== undefined ){
-		    		return getComputedStyle(el, null).getPropertyValue(prop);
+		    		return window.getComputedStyle(el, null).getPropertyValue(prop);
 		    	}else{
-		    		return getComputedStyle(el, null);
+		    		return window.getComputedStyle(el, null);
 		    	}
 		    } else {
 		    	if( prop !== undefined ){

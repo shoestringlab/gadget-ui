@@ -9,7 +9,7 @@ $(document)
 
 		// set the model first if we're using auto data-binding
 		gadgetui.model.set("user", user);
-		
+
 		new gadgetui.input.ComboBox(  $( "select[name='food']" ),
 			 {
 				borderWidth: 3,
@@ -40,4 +40,8 @@ $(document)
 			}
 		);
 		
+		 $( "select[name='food']" )
+		 	.on( "gadgetui-combobox-change", function( event, o ){
+		 		console.log( o );
+		 	});
 	});

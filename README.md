@@ -3,7 +3,7 @@ gadget-ui
 
 JavaScript UI and data binding library
 
-Version 2.2.7
+Version 2.2.8
 
 For a quickstart guide and working examples, see http://www.bonnydoonmedia.com/index.cfm/projects/gadget-ui/.
 
@@ -339,6 +339,13 @@ options.animate : Boolean, whether to display a short animation glow after save(
 options.glowColor : CSS property, color of the glow around the combo box. Defaults to 'rgb(82, 168, 236)'.
 
 options.animateDelay : Time in milliseconds for the animation to run. Defaults to 500.
+
+Events
+======
+
+gadgetui-combobox-save [ event, obj ] - fired after successful save of the new item. Passes event object and { id: id, text: text } object with new item values.
+
+gadgetui-combobox-change [ event, obj ] - fired on change of the select box selectedIndex. Passes event object and { id: id, text: text } object with selectedIndex values.
 
 HTML:
 

@@ -13,7 +13,7 @@ Bubble.prototype.render = function(){
 	if( this.closable ){
 		str = str + '<span class="ui-icon ui-icon-close"></span>';
 	}
-	str = str + '</div>';
+	str = str + '<div class="gadgetui-bubble-arrow-outside"></div><div class="gadgetui-bubble-arrow-inside"></div></div>';
 
 	this.selector
 		.after( str );
@@ -92,8 +92,7 @@ Bubble.prototype.setBeforeRules = function(){
 		border: this.arrowSize + "px solid",
 		borderColor: this.beforeBorderColor
 	};
-
-	$( "#" + this.id + ":before" ).addRule( rules, 0 );
+	$( "div[class='gadgetui-bubble-arrow-outside']", $( "#" + this.id ) ).addRule( rules, 0 );
 };
 
 Bubble.prototype.setAfterRules = function(){
@@ -108,8 +107,8 @@ Bubble.prototype.setAfterRules = function(){
 		border: this.afterArrowSize + "px solid",
 		borderColor: this.afterBorderColor
 	};
-
-	$( "#" + this.id + ":after" ).addRule( rules, 0 );	
+	
+	$( "div[class='gadgetui-bubble-arrow-inside']", $( "#" + this.id ) ).addRule( rules, 0 );
 };
 
 Bubble.prototype.calculatePosition = function(){

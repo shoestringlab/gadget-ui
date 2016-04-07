@@ -91,9 +91,9 @@ gadgetui.util = ( function(){
 		getStyle : function (el, prop) {
 		    if ( window.getComputedStyle !== undefined ) {
 		    	if( prop !== undefined ){
-		    		return getComputedStyle(el, null).getPropertyValue(prop);
+		    		return window.getComputedStyle(el, null).getPropertyValue(prop);
 		    	}else{
-		    		return getComputedStyle(el, null);
+		    		return window.getComputedStyle(el, null);
 		    	}
 		    } else {
 		    	if( prop !== undefined ){

@@ -69,6 +69,7 @@ $(document)
 		new gadgetui.input.ComboBox(  $( "select[name='food']" ),
 			 {
 				id: 2,
+				emitEvents: true,
 				arrowIcon: '/dist/img/arrow.png',
 				save : function( text, resolve, reject ){
 					console.log( "saving new value" );
@@ -86,6 +87,14 @@ $(document)
 				}
 			}
 		);
+		
+		 $( "select[name='food']" )
+		 	.on( "gadgetui-combobox-save", function( event, o ){
+		 		console.log( "save: " + o );
+		 	} )
+		 	.on( "gadgetui-combobox-change", function( event, o ){
+		 		console.log( "change:" + o );
+		 	} );
 		
 		new gadgetui.input.SelectInput(
 			 $( "select[name='role']" ),
@@ -140,7 +149,7 @@ $(document)
 			}
 		);
 		// no IE 7 support
-		if( navigator.userAgent.match( /MSIE 7/ ) === false ){
+		if( !navigator.userAgent.match( /(MSIE 7)/ ) ){
 			new gadgetui.display.Bubble( $( "input[name='friends']" ).parent(),
 				"Start typing to add friends - Abby, Andy, Anne, Bobby, Cara, Dan are the names in the list.",
 				{
@@ -163,6 +172,8 @@ $(document)
 			console.log(evt);
 			console.log(obj);
 		});
+		
+		
 
 		function logChanges(obj) {
 			console.log(obj);
