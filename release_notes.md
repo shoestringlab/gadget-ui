@@ -1,6 +1,12 @@
 		
 ***Release Notes***
 
+2.2.9
+======
+
+- fixed selector problem with ComboBox.
+- Fixed position bug with ComboBox in some layouts
+
 2.2.8
 ======
 

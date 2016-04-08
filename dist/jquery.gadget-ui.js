@@ -948,13 +948,11 @@ ComboBox.prototype.addControl = function(){
 		.append( "<div class='gadgetui-combobox-inputwrapper'><input class='gadgetui-combobox-input' value='' name='custom' type='text' placeholder='" + this.newOption.text + "'/></div>" )
 		.prepend( "<div class='gadgetui-combobox-label' data-id='" + this.id +  "'>" + this.text + "</div>");
 
-
-	
 	this.comboBox = $( this.selector ).parent().parent();
-	this.input = $( "input[class='gadgetui-combobox-input']", this.combobox );
-	this.label = $( "div[class='gadgetui-combobox-label']", this.comboBox );
-	this.inputWrapper = $( "div[class='gadgetui-combobox-inputwrapper']", this.comboBox );
-	this.selectWrapper = $( "div[class='gadgetui-combobox-selectwrapper']", this.comboBox );
+	this.input = $( "input[class='gadgetui-combobox-input']", $( this.selector ).parent().parent() );
+	this.label = $( "div[class='gadgetui-combobox-label']", $( this.selector ).parent().parent() );
+	this.inputWrapper = $( "div[class='gadgetui-combobox-inputwrapper']", $( this.selector ).parent().parent() );
+	this.selectWrapper = $( "div[class='gadgetui-combobox-selectwrapper']", $( this.selector ).parent().parent() );
 	this.comboBox.css( "opacity", ".0" );
 	// set placeholder shim
 	if( $.isFunction( this.input.placeholder) ){
@@ -1063,6 +1061,7 @@ ComboBox.prototype.addCSS = function(){
 	this.label
 		.css( "position", "absolute" )
 		.css( "left", leftPosition )
+		.css( "left", 0 )
 		.css( "top", this.borderWidth + 1 )
 		.css( "margin-left", 0 );
 
@@ -1166,7 +1165,7 @@ ComboBox.prototype.getText = function( id ){
 	return;
 };
 ComboBox.prototype.showLabel = function(){
-	//this.label.css( "display", "inline-block" );
+	this.label.css( "display", "inline-block" );
 	this.selectWrapper.hide();
 	this.inputWrapper.hide();
 };
@@ -1187,14 +1186,14 @@ ComboBox.prototype.addBehaviors = function( obj ) {
 			setTimeout( function( ) {
 				if( self.label.css( "display" ) != "none" ){
 					console.log( "combo mouseenter ");
-
+					this.label.css( "display", "none" );
 					self.selectWrapper.css( "display", "inline" );
 		
 					if( self.selector.prop('selectedIndex') <= 0 ) {
 						self.inputWrapper.css( "display", "inline" );
 					}
-					self.selector
-						.css( "display", "inline" );
+				//	self.selector
+				//		.css( "display", "inline" );
 				}
 			}, self.delay );
 		})
