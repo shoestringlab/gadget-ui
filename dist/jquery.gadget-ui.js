@@ -1186,7 +1186,7 @@ ComboBox.prototype.addBehaviors = function( obj ) {
 			setTimeout( function( ) {
 				if( self.label.css( "display" ) != "none" ){
 					console.log( "combo mouseenter ");
-					this.label.css( "display", "none" );
+					self.label.css( "display", "none" );
 					self.selectWrapper.css( "display", "inline" );
 		
 					if( self.selector.prop('selectedIndex') <= 0 ) {
