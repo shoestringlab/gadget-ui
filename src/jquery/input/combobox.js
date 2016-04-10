@@ -141,14 +141,14 @@ ComboBox.prototype.addCSS = function(){
 	this.label
 		.css( "position", "absolute" )
 		.css( "left", leftPosition )
-		.css( "left", 0 )
 		.css( "top", this.borderWidth + 1 )
 		.css( "margin-left", 0 );
-
+	
 	this.selectWrapper
 		.css( "display", "inline" )
 		.css( "position", "absolute" )
-		.css( "padding-bottom", "1px" );
+		.css( "padding-bottom", "1px" )
+		.css( "left", 0 );
 
 	//appearance 
 	this.comboBox
@@ -315,20 +315,21 @@ ComboBox.prototype.addBehaviors = function( obj ) {
 			ev.stopPropagation();
 		})
 		.on( "change", function( event ) {
-			console.log( "select change");
-
-			if( event.target.selectedIndex > 0 ){
-				self.inputWrapper.hide();
-				self.setValue( event.target[ event.target.selectedIndex ].value );
-			}else{
-				self.inputWrapper.show();
-				self.setValue( self.newOption.value );
-				self.input.focus();
+			if( parseInt( event.target[ event.target.selectedIndex ].value, 10 ) !== parseInt(self.id, 10 ) ){
+				console.log( "select change");
+				if( event.target.selectedIndex > 0 ){
+					self.inputWrapper.hide();
+					self.setValue( event.target[ event.target.selectedIndex ].value );
+				}else{
+					self.inputWrapper.show();
+					self.setValue( self.newOption.value );
+					self.input.focus();
+				}
+				$( self.selector )
+					.trigger( "gadgetui-combobox-change", [ { id: event.target[ event.target.selectedIndex ].value, text: event.target[ event.target.selectedIndex ].innerHTML } ] );
+	
+				console.log( "label:" + self.label.text() );
 			}
-			$( self.selector )
-				.trigger( "gadgetui-combobox-change", [ { id: event.target[ event.target.selectedIndex ].value, text: event.target[ event.target.selectedIndex ].innerHTML } ] );
-
-			console.log( "label:" + self.label.text() );
 		})
 
 		.on( "blur", function( event ) {
@@ -473,6 +474,7 @@ ComboBox.prototype.setDataProviderRefresh = function(){
 					});
 			promise
 				.then( function(){
+					self.selector.trigger( "gadgetui-combobox-datarefresh" );
 					self.setControls();
 				});
 			promise['catch']( function( message ){

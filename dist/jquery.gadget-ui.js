@@ -1061,14 +1061,14 @@ ComboBox.prototype.addCSS = function(){
 	this.label
 		.css( "position", "absolute" )
 		.css( "left", leftPosition )
-		.css( "left", 0 )
 		.css( "top", this.borderWidth + 1 )
 		.css( "margin-left", 0 );
-
+	
 	this.selectWrapper
 		.css( "display", "inline" )
 		.css( "position", "absolute" )
-		.css( "padding-bottom", "1px" );
+		.css( "padding-bottom", "1px" )
+		.css( "left", 0 );
 
 	//appearance 
 	this.comboBox
