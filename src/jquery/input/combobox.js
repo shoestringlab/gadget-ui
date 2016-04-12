@@ -1,4 +1,3 @@
-
 function ComboBox( selector, options ){
 
 	this.emitEvents = true;
@@ -7,17 +6,20 @@ function ComboBox( selector, options ){
 
 	this.selector = selector;
 	this.config( options );
-
+	console.log( "1:" + this.id );
 	this.setSaveFunc();
+	console.log( "2:" + this.id );
 	this.setDataProviderRefresh();
+	console.log( "3:" + this.id );
 	// bind to the model if binding is specified
 	gadgetui.util.bind( this.selector, this.model );
 	this.addControl();
-
+	console.log( "4:" + this.id );
 	this.setCSS();
 	this.addBehaviors();
-	
+	console.log( "5:" + this.id );
 	this.setStartingValues();
+	console.log( "6:" + this.id );
 }
 
 ComboBox.prototype.addControl = function(){
@@ -143,7 +145,7 @@ ComboBox.prototype.addCSS = function(){
 		.css( "left", leftPosition )
 		.css( "top", this.borderWidth + 1 )
 		.css( "margin-left", 0 );
-	
+
 	this.selectWrapper
 		.css( "display", "inline" )
 		.css( "position", "absolute" )
@@ -205,7 +207,7 @@ ComboBox.prototype.setSelectOptions = function(){
 
 	$( self.selector )
 		.empty();
-	console.log( "append new option" );
+	//console.log( "append new option" );
 	$( self.selector )
 		.append( "<option value='" + self.newOption.id + "'>" + self.newOption.text + "</option>" );
 
@@ -215,7 +217,7 @@ ComboBox.prototype.setSelectOptions = function(){
 		if( text === undefined ){ 
 			text = id; 
 		}
-		console.log( "append " + text );
+		//console.log( "append " + text );
 		$( self.selector )
 			.append( "<option value=" + id + ">" + text );
 	});
@@ -266,9 +268,9 @@ ComboBox.prototype.addBehaviors = function( obj ) {
 			setTimeout( function( ) {
 				if( self.label.css( "display" ) != "none" ){
 					console.log( "combo mouseenter ");
-					self.label.css( "display", "none" );
+					//self.label.css( "display", "none" );
 					self.selectWrapper.css( "display", "inline" );
-		
+					self.label.css( "display", "none" );
 					if( self.selector.prop('selectedIndex') <= 0 ) {
 						self.inputWrapper.css( "display", "inline" );
 					}
@@ -441,7 +443,7 @@ ComboBox.prototype.setStartingValues = function(){
 };
 
 ComboBox.prototype.setControls = function(){
-	console.log("setControls");
+	console.log( this );
 	this.setSelectOptions();
 	this.setValue( this.id );	
 	this.triggerSelectChange();
@@ -449,7 +451,7 @@ ComboBox.prototype.setControls = function(){
 
 ComboBox.prototype.setValue = function( id ){
 	var text = this.getText( id );
-	console.log( "text:" + text );
+	console.log( "setting id:" + id );
 	// value and text can only be set to current values in this.dataProvider.data, or to "New" value
 	this.id = ( text === undefined ? this.newOption.id : id );
 	text = ( text === undefined ? this.newOption.text : text );
@@ -474,7 +476,7 @@ ComboBox.prototype.setDataProviderRefresh = function(){
 					});
 			promise
 				.then( function(){
-					self.selector.trigger( "gadgetui-combobox-datarefresh" );
+					self.selector.trigger( "gadgetui-combobox-refresh" );
 					self.setControls();
 				});
 			promise['catch']( function( message ){
@@ -510,5 +512,3 @@ ComboBox.prototype.config = function( args ){
 		this.animateDelay = (( args.animateDelay === undefined ) ? 500 : args.animateDelay );
 	}
 };
-
-
