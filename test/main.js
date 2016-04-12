@@ -138,7 +138,7 @@ $(document)
 		var fp = new gadgetui.display.FloatingPane(
 			$("#debugDiv"),
 			{
-				title : "A",
+				title : "Floating debug pane",
 				path : "/dist/",
 				opacity : .5,
 				position : {
