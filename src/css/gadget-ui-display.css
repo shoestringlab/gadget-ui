@@ -1,16 +1,18 @@
+div.gadgetui-bubble span{
+	font-size:13px;	
+}
 
 div.gadget-ui-collapsiblePane, div.gadget-ui-floatingPane{
 	padding: 0px;
-	
 }
 
  div.gadget-ui-floatingPane{
 	position: absolute;
+	overflow: hidden;
 }
 
 div.gadget-ui-collapsiblePane > div:nth-child(2), div.gadget-ui-floatingPane > div:nth-child(2){
 	padding: .5em;
-	
 }
 
 div.gadget-ui-floatingPane > div:nth-child(2){
@@ -20,14 +22,6 @@ div.gadget-ui-floatingPane > div:nth-child(2){
 div.gadget-ui-collapsiblePane-header, div.gadget-ui-floatingPane-header{
 	padding: 2px 0px 2px .5em;
 	text-align:left;
-}
-
-div.gadget-ui-collapsiblePane-header span, div.gadget-ui-floatingPane-header span{
-	float: right;
-
-}
-div.gadget-ui-floatingPane-header img{
-	margin: -1px -2px;
 }
 
 div.gadget-ui-collapsiblePane-header div, div.gadget-ui-floatingPane-header div{
@@ -40,10 +34,9 @@ div.gadget-ui-collapsiblePane-header div, div.gadget-ui-floatingPane-header div{
 p.gadgetui-bubble-speech
 {
 	display:none;
-	
 }
 
-div[class~='gadgetui-bubble']{
+div.gadgetui-bubble{
 	-webkit-box-sizing: initial;
 	-moz-box-sizing: initial;
 	box-sizing: initial;
