@@ -307,6 +307,37 @@ if (!String.prototype.trim) {
     return this.replace(/^[\s\uFEFF\xA0]+|[\s\uFEFF\xA0]+$/g, '');
   };
 }
+
+if (!Array.prototype.forEach) {
+    Array.prototype.forEach = function (callbackfn, thisArg) {
+        var O = Object(this),
+            lenValue = O.length,
+            len = lenValue >>> 0,
+            T,
+            k,
+            Pk,
+            kPresent,
+            kValue;
+ 
+        if (typeof callbackfn !== 'function') {
+            throw new TypeError();
+        }
+ 
+        T = thisArg ? thisArg : undefined;
+ 
+        k = 0;
+        while (k < len) {
+            Pk = k.toString();
+            kPresent = O.hasOwnProperty(Pk);
+            if (kPresent) {
+                kValue = O[Pk];
+                callbackfn.call(T, kValue, k, O);
+            }
+            k += 1;
+        }
+        return undefined;
+    };
+}
 gadgetui.display = (function($) {
 	
 	function getStyleRuleValue(style, selector, sheet) {
@@ -630,14 +661,14 @@ Bubble.prototype.setBehaviors = function(){
 	var self = this;
 	$( "span", this.bubbleSelector )
 		.on( "click", function(){
-			self.bubbleSelector.hide( "fade", 500 ).remove();
+			self.bubbleSelector.hide( "fade" ).remove();
 		});
 
 	if( this.autoClose ){
 		closeBubble = function(){
-			self.bubbleSelector.hide( 'fade', 500 ).remove();
+			self.bubbleSelector.hide( "fade" ).remove();
 		};
-		setTimeout( "closeBubble()", this.autoCloseDelay );
+		setTimeout( closeBubble, this.autoCloseDelay );
 	}
 };
 
@@ -918,7 +949,6 @@ FloatingPane.prototype.minimize = function(){
 gadgetui.input = (function($) {
 	
 	
-
 function ComboBox( selector, options ){
 
 	this.emitEvents = true;
@@ -927,17 +957,20 @@ function ComboBox( selector, options ){
 
 	this.selector = selector;
 	this.config( options );
-
+	console.log( "1:" + this.id );
 	this.setSaveFunc();
+	console.log( "2:" + this.id );
 	this.setDataProviderRefresh();
+	console.log( "3:" + this.id );
 	// bind to the model if binding is specified
 	gadgetui.util.bind( this.selector, this.model );
 	this.addControl();
-
+	console.log( "4:" + this.id );
 	this.setCSS();
 	this.addBehaviors();
-	
+	console.log( "5:" + this.id );
 	this.setStartingValues();
+	console.log( "6:" + this.id );
 }
 
 ComboBox.prototype.addControl = function(){
@@ -1063,7 +1096,7 @@ ComboBox.prototype.addCSS = function(){
 		.css( "left", leftPosition )
 		.css( "top", this.borderWidth + 1 )
 		.css( "margin-left", 0 );
-	
+
 	this.selectWrapper
 		.css( "display", "inline" )
 		.css( "position", "absolute" )
@@ -1125,7 +1158,7 @@ ComboBox.prototype.setSelectOptions = function(){
 
 	$( self.selector )
 		.empty();
-	console.log( "append new option" );
+	//console.log( "append new option" );
 	$( self.selector )
 		.append( "<option value='" + self.newOption.id + "'>" + self.newOption.text + "</option>" );
 
@@ -1135,7 +1168,7 @@ ComboBox.prototype.setSelectOptions = function(){
 		if( text === undefined ){ 
 			text = id; 
 		}
-		console.log( "append " + text );
+		//console.log( "append " + text );
 		$( self.selector )
 			.append( "<option value=" + id + ">" + text );
 	});
@@ -1186,9 +1219,9 @@ ComboBox.prototype.addBehaviors = function( obj ) {
 			setTimeout( function( ) {
 				if( self.label.css( "display" ) != "none" ){
 					console.log( "combo mouseenter ");
-					self.label.css( "display", "none" );
+					//self.label.css( "display", "none" );
 					self.selectWrapper.css( "display", "inline" );
-		
+					self.label.css( "display", "none" );
 					if( self.selector.prop('selectedIndex') <= 0 ) {
 						self.inputWrapper.css( "display", "inline" );
 					}
@@ -1235,20 +1268,21 @@ ComboBox.prototype.addBehaviors = function( obj ) {
 			ev.stopPropagation();
 		})
 		.on( "change", function( event ) {
-			console.log( "select change");
-
-			if( event.target.selectedIndex > 0 ){
-				self.inputWrapper.hide();
-				self.setValue( event.target[ event.target.selectedIndex ].value );
-			}else{
-				self.inputWrapper.show();
-				self.setValue( self.newOption.value );
-				self.input.focus();
+			if( parseInt( event.target[ event.target.selectedIndex ].value, 10 ) !== parseInt(self.id, 10 ) ){
+				console.log( "select change");
+				if( event.target.selectedIndex > 0 ){
+					self.inputWrapper.hide();
+					self.setValue( event.target[ event.target.selectedIndex ].value );
+				}else{
+					self.inputWrapper.show();
+					self.setValue( self.newOption.value );
+					self.input.focus();
+				}
+				$( self.selector )
+					.trigger( "gadgetui-combobox-change", [ { id: event.target[ event.target.selectedIndex ].value, text: event.target[ event.target.selectedIndex ].innerHTML } ] );
+	
+				console.log( "label:" + self.label.text() );
 			}
-			$( self.selector )
-				.trigger( "gadgetui-combobox-change", [ { id: event.target[ event.target.selectedIndex ].value, text: event.target[ event.target.selectedIndex ].innerHTML } ] );
-
-			console.log( "label:" + self.label.text() );
 		})
 
 		.on( "blur", function( event ) {
@@ -1360,7 +1394,7 @@ ComboBox.prototype.setStartingValues = function(){
 };
 
 ComboBox.prototype.setControls = function(){
-	console.log("setControls");
+	console.log( this );
 	this.setSelectOptions();
 	this.setValue( this.id );	
 	this.triggerSelectChange();
@@ -1368,7 +1402,7 @@ ComboBox.prototype.setControls = function(){
 
 ComboBox.prototype.setValue = function( id ){
 	var text = this.getText( id );
-	console.log( "text:" + text );
+	console.log( "setting id:" + id );
 	// value and text can only be set to current values in this.dataProvider.data, or to "New" value
 	this.id = ( text === undefined ? this.newOption.id : id );
 	text = ( text === undefined ? this.newOption.text : text );
@@ -1393,6 +1427,7 @@ ComboBox.prototype.setDataProviderRefresh = function(){
 					});
 			promise
 				.then( function(){
+					self.selector.trigger( "gadgetui-combobox-refresh" );
 					self.setControls();
 				});
 			promise['catch']( function( message ){
@@ -1428,9 +1463,6 @@ ComboBox.prototype.config = function( args ){
 		this.animateDelay = (( args.animateDelay === undefined ) ? 500 : args.animateDelay );
 	}
 };
-
-
-
 
 function LookupListInput( selector, options ){
 	function _renderLabel( item ){
@@ -2049,6 +2081,23 @@ gadgetui.util = ( function(){
 			return Number( pixelValue.substring( 0, pixelValue.length - 2 ) );
 		},
 
+		addClass: function( sel, className ){
+			if (sel.classList){
+				sel.classList.add(className);
+			}else{
+				sel.className += ' ' + className;
+			}
+		},
+		
+		getOffset: function( selector ){
+			var rect =  selector.getBoundingClientRect();
+
+			return {
+			  top: rect.top + document.body.scrollTop,
+			  left: rect.left + document.body.scrollLeft
+			};
+		},
+		
 		getRelativeParentOffset: function( selector ){
 			var i,
 				parents = selector.parentsUntil( "body" ),
@@ -2056,14 +2105,15 @@ gadgetui.util = ( function(){
 				relativeOffsetTop = 0;
 
 			for( i = 0; i < parents.length; i++ ){
-				if( $( parents[ i ] ).css( "position" ) === "relative" ){
+				if( parents[ i ].style.position === "relative" ){
+					var offset = gadgetui.util.getOffset( parents[ i ] );
 					// set the largest offset values of the ancestors
-					if( $( parents[ i ] ).offset().left > relativeOffsetLeft ){
-						relativeOffsetLeft = $( parents[ i ] ).offset().left;
+					if( offset.left > relativeOffsetLeft ){
+						relativeOffsetLeft = offset.left;
 					}
 					
-					if( $( parents[ i ] ).offset().top > relativeOffsetTop ){
-						relativeOffsetTop = $( parents[ i ] ).offset().top;
+					if( offset.top > relativeOffsetTop ){
+						relativeOffsetTop = offset.top;
 					}
 				}
 			}
@@ -2073,13 +2123,15 @@ gadgetui.util = ( function(){
 			return ( (Math.random() * 100).toString() ).replace(  /\./g, "" );
 		},
 		bind : function( selector, model ){
-			var bindVar = $( selector ).attr( "gadgetui-bind" );
+
+			var bindVar = selector[0].getAttribute( "gadgetui-bind" );
+
 			// if binding was specified, make it so
 			if( bindVar !== undefined && model !== undefined ){
-				model.bind( bindVar, $( selector ) );
+				model.bind( bindVar, selector );
 			}
 		},
-		encode : function( input, options ){
+		/*	encode : function( input, options ){
 			var result, canon = true, encode = true, encodeType = 'html';
 			if( options !== undefined ){
 				canon = ( options.canon === undefined ? true : options.canon );
@@ -2111,7 +2163,7 @@ gadgetui.util = ( function(){
 				
 			}
 			return result;
-		},
+		},	*/
 		mouseCoords : function(ev){
 			// from http://www.webreference.com/programming/javascript/mk/column2/
 			if(ev.pageX || ev.pageY){
