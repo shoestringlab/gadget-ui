@@ -305,14 +305,14 @@ Bubble.prototype.setBehaviors = function(){
 	var self = this;
 	$( "span", this.bubbleSelector )
 		.on( "click", function(){
-			self.bubbleSelector.hide( "fade", 500 ).remove();
+			self.bubbleSelector.hide( "fade" ).remove();
 		});
 
 	if( this.autoClose ){
 		closeBubble = function(){
-			self.bubbleSelector.hide( 'fade', 500 ).remove();
+			self.bubbleSelector.hide( "fade" ).remove();
 		};
-		setTimeout( "closeBubble()", this.autoCloseDelay );
+		setTimeout( closeBubble, this.autoCloseDelay );
 	}
 };
 
