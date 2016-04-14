@@ -1,10 +1,4 @@
-/*
- * file: gadget-ui.model.js
- * author: Robert Munn 
- * 
- */
-
-gadgetui.model = ( function( ) {
+gadgetui.model = ( function() {
 	"use strict";
 
 	var _model = {};
@@ -16,52 +10,116 @@ gadgetui.model = ( function( ) {
 		}
 	}
 
-/*		BindableObject.prototype.handleEvent = function( event ) {
-		var i, that = this;
-		switch (event.type) {
+	BindableObject.prototype.handleEvent = function( ev ) {
+		var ix, obj;
+		switch ( ev.type ) {
 			case "change":
-				for ( i = 0; i < this.elements.length; i++ ) {
-					that.change( this.elements[i].elem[ 0 ].value );
+				for( ix = 0; ix < this.elements.length; ix++ ){
+					obj = this.elements[ ix ];
+					if( ev.target.name === obj.prop && ev.originalSource !== 'updateDomElement' ){
+						//select box binding
+						if( ev.target.type.match( /select/ ) ){
+							this.change( { 	value : ev.target.value, 
+									key : ev.target.options[ev.target.selectedIndex].innerHTML 
+								}, ev, obj.prop );
+						}
+						else{
+						// text input binding
+						this.change( ev.target.value, ev, obj.prop );
+						}
+					}
 				}
-				break;
+				
 		}
 	};
-	*/
+
 	// for each bound control, update the value
-	BindableObject.prototype.change = function( value, property ) {
-		var obj, i;
+	BindableObject.prototype.change = function( value, event, property ) {
+		var ix, obj;
+
+		// this code changes the value of the BinableObject to the incoming value
 		if ( property === undefined ) {
+			// Directive is to replace the entire value stored in the BindableObject
+			// update the BindableObject value with the incoming value
+			// value could be anything, simple value or object, does not matter
 			this.data = value;
 		}
+		else if ( typeof this.data === 'object' ) {
+			//Directive is to replace a property of the value stored in the BindableObject
+			// verifies that "data" is an object and not a simple value
+			// update the BindableObject's specified property with the incoming value
+			// value could be anything, simple value or object, does not matter
+			
+			if( this.data[ property ] === undefined ){
+				throw( "Property '" + property + "' of object is undefined." );
+			}
+			else{
+				this.data[ property ] = value;
+			}			
+			// check if we are updating only a single property or the entire object
+		
+		}
 		else {
-			this.data[ property ] = value;
+			throw "Attempt to treat a simple value as an object with properties. Change fails.";
 		}
 
-		for ( i = 0; i < this.elements.length; i++ ) {
-			obj = this.elements[ i ];
-			if ( obj.prop.length === 0 ) {
-				obj.elem.value = value;
+		// check if there are other dom elements linked to the property
+		for( ix = 0; ix < this.elements.length; ix++ ){
+			obj = this.elements[ ix ];
+			if( ( property === undefined || property === obj.prop ) && ( event.target !== undefined && obj.elem[0] != event.target ) ){
+				this.updateDomElement( event,  obj.elem, value );
 			}
-			else if ( property !== undefined ) {
-				obj.elem.value = value[ property.prop ];
+		}
+	};
+	
+	BindableObject.prototype.updateDom = function( event, value, property ){
+		var ix, obj;
+		// this code changes the value of the DOM element to the incoming value
+		for( ix = 0; ix < this.elements.length; ix++ ){
+			obj = this.elements[ ix ];
+
+			if ( property === undefined  || ( property !== undefined && obj.prop === property ) ){
+
+				// this code sets the value of each control bound to the BindableObject
+				// to the correspondingly bound property of the incoming value
+
+				this.updateDomElement( event, obj.elem, value );
+				//break;
 			}
-			else {
-				// property is not defined, meaning an object that has
-				// properties bound to controls has been replaced
-				// this code assumes that the object in 'value' has a property
-				// associated with the property being changed
-				// i.e. that value[ obj.elem.prop ] is a valid property of
-				// value, because if it isn't, this call will error
-				obj.elem.value = value[ obj.elem.prop ];
+		}
+	};
+	
+	BindableObject.prototype.updateDomElement = function( event, selector, value ){
+		if( typeof value === 'object' ){
+			// select box objects are populated with { key: key, value: value } 
+			if( selector.tagName === "DIV" ){
+				selector.innerText = value.text;
+			}else{
+				selector.value = value.id;
 			}
-			i++;
+		}else{
+			if( selector.tagName === "DIV" ){
+				selector.innerText = value;
+			}else{
+				selector.value = value;
+			}
+		}
+		console.log( "updated Dom element: " + selector );
+		// don't generate a change event on the selector if the change came from model.set method
+		if( event.originalSource !== 'model.set' ){
+			var ev = new Event( "change" );
+			ev.originalSource = 'updateDomElement';
+			selector.dispatchEvent( ev );
 		}
 	};
 
 	// bind an object to an HTML element
 	BindableObject.prototype.bind = function( element, property ) {
-		var e;
+		var e, self = this;
+
 		if ( property === undefined ) {
+			// BindableObject holds a simple value
+			// set the DOM element value to the value of the Bindable object
 			element.value = this.data;
 			e = {
 				elem : element,
@@ -69,13 +127,31 @@ gadgetui.model = ( function( ) {
 			};
 		}
 		else {
+			// Bindable object holds an object with properties
+			// set the DOM element value to the value of the specified property in the
+			// Bindable object
 			element.value = this.data[ property ];
 			e = {
 				elem : element,
 				prop : property
 			};
 		}
-		element[ 0 ].addEventListener( "change", this, false );
+		//add an event listener so we get notified when the value of the DOM element
+		// changes
+		//element[ 0 ].addEventListener( "change", this, false );
+		//IE 8 support
+		if (element.addEventListener) {
+			element.addEventListener( "change", this, false);
+		}
+		else {
+			// IE8
+			element.attachEvent("onpropertychange", function( ev ){
+				if( ev.propertyName === 'value'){
+					var el = ev.srcElement, val = ( el.nodeName === 'SELECT' ) ? { value: el.value, key: el.options[el.selectedIndex].innerHTML } : el.value;
+					self.change( val, { target: el }, el.name );
+				}
+			});
+		}
 		this.elements.push( e );
 	};
 
@@ -109,6 +185,7 @@ gadgetui.model = ( function( ) {
 			if ( _model.hasOwnProperty( name ) ) {
 				return true;
 			}
+
 			return false;
 		},
 		// getter - if the name of the object to get has a period, we are
@@ -127,16 +204,17 @@ gadgetui.model = ( function( ) {
 					throw "Key '" + n[0] + "' does not exist in the model.";
 				}
 				return _model[n[0]].data[ n[ 1 ] ];
-				
+
 			}catch( e ){
 				console.log( e );
 				return undefined;
 			}
 		},
+
 		// setter - if the name of the object to set has a period, we are
 		// setting a property of the object, e.g. user.firstname
 		set : function( name, value ) {
-			var n = name.split( "." );
+			var n = name.split( "." ), event = { originalSource : 'model.set'};
 			if ( this.exists( n[ 0 ] ) === false ) {
 				if ( n.length === 1 ) {
 					this.create( name, value );
@@ -144,19 +222,20 @@ gadgetui.model = ( function( ) {
 				else {
 					// don't create complex objects, only simple values
 					throw "Object " + n[ 0 ] + "is not yet initialized.";
-					/*	var mykey = n[1];
-					 this.create( n[0], { mykey : value } );	*/
 				}
 			}
 			else {
 				if ( n.length === 1 ) {
-					_model[ name ].change( value );
+					_model[ name ].change( value, event );
+					_model[ name ].updateDom( event, value );
 				}
 				else {
-					_model[ n[ 0 ] ].change( value, n[ 1 ] );
+					_model[ n[ 0 ] ].change( value, event, n[1] );
+					_model[ n[ 0 ] ].updateDom( event, value, n[1] );	
 				}
 			}
+			console.log( "model value set: name: " + name + ", value: " + value );
 		}
 	};
 
-	}( ) );
+}() );

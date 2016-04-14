@@ -117,13 +117,14 @@ gadgetui.util = ( function(){
 		},
 		getRelativeParentOffset: function( selector ){
 			var i,
+				offset,
 				parents = gadgetui.util.getParentsUntil( selector, "body" ),
 				relativeOffsetLeft = 0,
 				relativeOffsetTop = 0;
 
 			for( i = 0; i < parents.length; i++ ){
 				if( parents[ i ].style.position === "relative" ){
-					var offset = gadgetui.util.getOffset( parents[ i ] );
+					offset = gadgetui.util.getOffset( parents[ i ] );
 					// set the largest offset values of the ancestors
 					if( offset.left > relativeOffsetLeft ){
 						relativeOffsetLeft = offset.left;
@@ -191,7 +192,7 @@ gadgetui.util = ( function(){
 			};
 		},
 		mouseWithin : function( selector, coords ){
-			var rect = selector[0].getBoundingClientRect();
+			var rect = selector.getBoundingClientRect();
 			return ( coords.x >= rect.left && coords.x <= rect.right && coords.y >= rect.top && coords.y <= rect.bottom ) ? true : false;
 		},
 		getStyle : function (el, prop) {
@@ -249,6 +250,73 @@ gadgetui.util = ( function(){
 	
 			document.onmousemove = _move_elem;
 			document.onmouseup = _destroy;			
+		},
+
+		textWidth : function( text, style ) {
+			// http://stackoverflow.com/questions/1582534/calculating-text-width-with-jquery
+			// based on edsioufi's solution
+			if( !gadgetui.util.textWidthEl ){
+				gadgetui.util.textWidthEl = document.createElement( "div" );
+				gadgetui.util.textWidthEl.setAttribute( "id", "gadgetui-textWidth" );
+				gadgetui.util.textWidthEl.setAttribute( "style", "display: none;" );
+				document.body.appendChild( gadgetui.util.textWidthEl );
+			}
+				//gadgetui.util.fakeEl = $('<span id="gadgetui-textWidth">').appendTo(document.body);
+		    
+		    //var width, htmlText = text || selector.value || selector.innerHTML;
+			var width, htmlText = text;
+		    if( htmlText.length > 0 ){
+		    	//htmlText =  gadgetui.util.TextWidth.fakeEl.text(htmlText).html(); //encode to Html
+		    	gadgetui.util.textWidthEl.innerText = htmlText;
+		    	if( htmlText === undefined ){
+		    		htmlText = "";
+		    	}else{
+		    		htmlText = htmlText.replace(/\s/g, "&nbsp;"); //replace trailing and leading spaces
+		    	}
+		    }
+		    gadgetui.util.textWidthEl.innertText=htmlText;
+		    //gadgetui.util.textWidthEl.style.font = font;
+		   // gadgetui.util.textWidthEl.html( htmlText ).style.font = font;
+		   // gadgetui.util.textWidthEl.html(htmlText).css('font', font || $.fn.css('font'));
+		    gadgetui.util.textWidthEl.style.fontFamily = style.fontFamily;
+		    gadgetui.util.textWidthEl.style.fontSize = style.fontSize;
+		    gadgetui.util.textWidthEl.style.fontWeight = style.fontWeight;
+		    gadgetui.util.textWidthEl.style.fontVariant = style.fontVariant;
+		    gadgetui.util.textWidthEl.style.display = "inline";
+		    
+		    width = gadgetui.util.textWidthEl.offsetWidth;
+		    gadgetui.util.textWidthEl.style.display = "none";
+		    return width;
+		},
+
+		fitText :function( text, style, width ){
+			var midpoint, txtWidth = gadgetui.util.TextWidth( text, style ), ellipsisWidth = gadgetui.util.TextWidth( "...", style );
+			if( txtWidth < width ){
+				return text;
+			}else{
+				midpoint = Math.floor( text.length / 2 ) - 1;
+				while( txtWidth + ellipsisWidth >= width ){
+					text = text.slice( 0, midpoint ) + text.slice( midpoint + 1, text.length );
+			
+					midpoint = Math.floor( text.length / 2 ) - 1;
+					txtWidth = gadgetui.util.TextWidth( text, font );
+
+				}
+				midpoint = Math.floor( text.length / 2 ) - 1;
+				text = text.slice( 0, midpoint ) + "..." + text.slice( midpoint, text.length );
+				
+				//remove spaces around the ellipsis
+				while( text.substring( midpoint - 1, midpoint ) === " " ){
+					text = text.slice( 0, midpoint - 1 ) + text.slice( midpoint, text.length );
+					midpoint = midpoint - 1;
+				}
+				
+				while( text.substring( midpoint + 3, midpoint + 4 ) === " " ){
+					text = text.slice( 0, midpoint + 3 ) + text.slice( midpoint + 4, text.length );
+					midpoint = midpoint - 1;
+				}		
+				return text;
+			}
 		}
 		
 	};

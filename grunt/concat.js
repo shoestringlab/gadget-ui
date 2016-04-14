@@ -3,7 +3,7 @@ module.exports = {
 	javascript : {
 		src : [ 'src/gadget-ui.js','src/javascript/gadget-ui.model.js','src/polyfill.js',
 		        'src/javascript/display/wrapper/pre.js', 'src/javascript/display/*.js', 'src/javascript/display/wrapper/post.js',
-			   /*	 'src/javascript/input/wrapper/pre.js', 'src/javascript/input/*.js', 'src/javascript/input/wrapper/post.js',	*/
+			   	'src/javascript/input/wrapper/pre.js', 'src/javascript/input/*.js', 'src/javascript/input/wrapper/post.js',
 		        'src/javascript/gadget-ui.util.js' ],
 		dest : 'dist/<%= pkg.name %>.js'
 	},
