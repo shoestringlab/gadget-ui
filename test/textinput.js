@@ -1,5 +1,4 @@
-$(document)
-	.ready( function() {
+
 
 		var user = { firstname : "", lastname: "" };
 
@@ -7,11 +6,19 @@ $(document)
 		gadgetui.model.set("user", user);
 
 		new gadgetui.input.TextInput(
-				$( "input" ),
+				document.querySelector( "input[name='firstname']" ),
 				{
 					emitEvents : false,
 					enforceMaxWidth: true,
 					activate : "mouseover"
 				}
 			);
-	});
+
+		new gadgetui.input.TextInput(
+				document.querySelector( "input[name='lastname']" ),
+				{
+					emitEvents : false,
+					enforceMaxWidth: true,
+					activate : "mouseover"
+				}
+			);
