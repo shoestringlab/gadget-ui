@@ -29,6 +29,9 @@
     "jquery.addrule": "*",
     "jquery-shadow-animation": "*",
     "jquery-placeholder" : "*",
-    "promise-polyfill" : "*"
+    "promise-polyfill" : "*",
+    "open-iconic" : "*",
+    "velocity": "*"
+    
   }
 }
