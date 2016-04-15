@@ -66,7 +66,7 @@ gadgetui.model = ( function() {
 		// check if there are other dom elements linked to the property
 		for( ix = 0; ix < this.elements.length; ix++ ){
 			obj = this.elements[ ix ];
-			if( ( property === undefined || property === obj.prop ) && ( event.target !== undefined && obj.elem[0] != event.target ) ){
+			if( ( property === undefined || property === obj.prop ) && ( event.target !== undefined && obj.elem != event.target ) ){
 				this.updateDomElement( event,  obj.elem, value );
 			}
 		}
