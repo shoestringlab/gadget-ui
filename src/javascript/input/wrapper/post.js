@@ -1,9 +1,10 @@
 
 	return{
-		TextInput: TextInput
+		TextInput: TextInput,
+		SelectInput: SelectInput
 		/*	ComboBox: ComboBox,
 		
-		SelectInput: SelectInput,
+		
 		LookupListInput: LookupListInput	*/
 	};
 }());

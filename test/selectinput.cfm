@@ -4,7 +4,7 @@
 		<title>gadget-ui SelectInput Test</title>
 		 <script src='../bower_components/lazyloader/dist/lazy.1.0.0.min.js'></script>
 		 <script>
-		 	lazy.load(['selectinput.js < ../bower_components/jquery-shadow-animation/jquery.animate-shadow-min.js < ../bower_components/jquery.addrule/jquery.addrule.js < ../bower_components/jquery-encoder/dist/jquery.jquery-encoder.min.js < ../bower_components/jquery-encoder/libs/class.min.js < ../dist/jquery.gadget-ui.js < ../bower_components/jquery-placeholder/jquery.placeholder.js < ../bower_components/promise-polyfill/promise.js < ../bower_components/jquery-legacy/jquery.js', '../dist/gadget-ui.css', '../bower_components/jquery-ui/themes/humanity/jquery-ui.min.css'], function(){
+		 	lazy.load(['selectinput.js < ../dist/gadget-ui.js' ,'../dist/gadget-ui.css'], function(){
   				console.log('All files have been loaded');
 			});
 		 </script>
@@ -22,18 +22,18 @@
 	</head>
 
 	<body>
-		<p>Test the SelectInputs control.</p>
+		<p>Test the SelectInput control.</p>
 
 		<p>What is your current role:</p>
 	<div style="margin-left: 50px;">
 
-					<select name="role" class="gadgetui-selectinput" gadgetui-selectinput="true" gadgetui-bind="user.role">
-						<option value="">choose ...</option>
-						<option value="Friend">Friend</option>
-						<option value="Sibling">Sibling</option>
-						<option value="co-worker">co-worker</option>
-						<option value="President">President</option>
-					</select>
+	<select name="role" class="gadgetui-selectinput" gadgetui-bind="user.role">
+		<option value="0">choose ...</option>
+		<option value="1">Friend</option>
+		<option value="2">Sibling</option>
+		<option value="3">co-worker</option>
+		<option value="4">President</option>
+	</select>
 	</div>
 
 	</body>
