@@ -283,7 +283,7 @@ gadgetui.util = ( function(){
 		    gadgetui.util.textWidthEl.style.fontWeight = style.fontWeight;
 		    gadgetui.util.textWidthEl.style.fontVariant = style.fontVariant;
 		    gadgetui.util.textWidthEl.style.display = "inline";
-		    
+
 		    width = gadgetui.util.textWidthEl.offsetWidth;
 		    gadgetui.util.textWidthEl.style.display = "none";
 		    return width;

@@ -1,4 +1,3 @@
-	
 function TextInput( selector, options ){
 	this.emitEvents = true;
 	this.model = gadgetui.model;
