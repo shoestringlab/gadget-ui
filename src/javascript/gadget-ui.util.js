@@ -317,6 +317,42 @@ gadgetui.util = ( function(){
 				}		
 				return text;
 			}
+		},
+		
+		createElement : function( tagName ){
+			var el = document.createElement( tagName );
+			el.setAttribute( "style", "" );
+			return el;	
+		},
+		
+		addStyle : function( element, style ){
+			var estyles = element.getAttribute( "style" ),
+				currentStyles = ( estyles !== null ? estyles : "" );
+			element.setAttribute( "style", currentStyles + " " + style + ";" );
+		},
+		setStyle : function( element, style, value ){
+			var newStyles,
+				estyles = element.getAttribute( "style" ),
+				currentStyles = ( estyles !== null ? estyles : "" ),
+				str = '(' + style + ')+ *\\:[^\\;]*\\;',
+				re = new RegExp( str , "g" );
+			//find styles in the style string
+			//([\w\-]+)+ *\:[^\;]*\;
+			if( currentStyles.search( re ) >= 0 ){
+				newStyles = currentStyles.replace( re, style + ": " + value + ";" ); 
+			}else{
+				newStyles = currentStyles + " " + style + ": " + value + ";";
+			}
+			element.setAttribute( "style", newStyles );
+		},		
+		encode : function( str ){
+			return str;
+		},
+		
+		trigger : function( selector, eventType, data ){
+			
+			selector.dispatchEvent( new CustomEvent( eventType, { detail: data } ) );
+			
 		}
 		
 	};

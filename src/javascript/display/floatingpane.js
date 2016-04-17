@@ -76,27 +76,6 @@ FloatingPane.prototype.addControl = function(){
 	
 };
 
-FloatingPane.prototype.config = function( args ){
-	this.title = ( args.title === undefined ? "": args.title );
-	this.path = ( args.path === undefined ? "/bower_components/gadget-ui/dist/": args.path );
-	this.position = ( args.position === undefined ? { my: "right top", at: "right top", of: window } : args.position );
-	this.padding = ( args.padding === undefined ? "15px": args.padding );
-	this.paddingTop = ( args.paddingTop === undefined ? ".3em": args.paddingTop );
-	this.width = ( args.width === undefined ? gadgetui.util.getStyle( this.selector, "width" ) : args.width );
-	this.minWidth = ( this.title.length > 0 ? Math.max( 100, this.title.length * 10 ) + 20 : 100 );
-
-	this.height = ( args.height === undefined ? gadgetui.util.getNumberValue( gadgetui.util.getStyle( this.selector, "height" ) ) + ( gadgetui.util.getNumberValue( this.padding ) * 2 ) : args.height );
-	this.interiorWidth = ( args.interiorWidth === undefined ? "": args.interiorWidth );
-	this.opacity = ( ( args.opacity === undefined ? 1 : args.opacity ) );
-	this.zIndex = ( ( args.zIndex === undefined ? 100000 : args.zIndex ) );
-	this.minimized = false;
-	this.relativeOffsetLeft = 0;
-	this.borderColor = ( args.borderColor === undefined ? "silver": args.borderColor );
-	this.headerColor = ( args.headerColor === undefined ? "black": args.headerColor );
-	this.headerBackgroundColor = ( args.headerBackgroundColor === undefined ? "silver": args.headerBackgroundColor );
-	this.borderRadius = ( args.borderRadius === undefined ? 6 : args.borderRadius );	
-};
-
 FloatingPane.prototype.expand = function(){
 	// when minimizing and expanding, we must look up the ancestor chain to see if there are position: relative elements.
 	// if so, we must subtract the offset left of the ancestor to get the pane back to its original position
@@ -170,5 +149,26 @@ FloatingPane.prototype.minimize = function(){
 		this.icon.setAttribute( "data-glyph", "fullscreen-enter" );
 	}
 	this.minimized = true;
+};
 
+FloatingPane.prototype.config = function( options ){
+	options = ( options === undefined ? {} : options );
+	this.title = ( options.title === undefined ? "": options.title );
+	this.path = ( options.path === undefined ? "/bower_components/gadget-ui/dist/": options.path );
+	this.position = ( options.position === undefined ? { my: "right top", at: "right top", of: window } : options.position );
+	this.padding = ( options.padding === undefined ? "15px": options.padding );
+	this.paddingTop = ( options.paddingTop === undefined ? ".3em": options.paddingTop );
+	this.width = ( options.width === undefined ? gadgetui.util.getStyle( this.selector, "width" ) : options.width );
+	this.minWidth = ( this.title.length > 0 ? Math.max( 100, this.title.length * 10 ) + 20 : 100 );
+
+	this.height = ( options.height === undefined ? gadgetui.util.getNumberValue( gadgetui.util.getStyle( this.selector, "height" ) ) + ( gadgetui.util.getNumberValue( this.padding ) * 2 ) : options.height );
+	this.interiorWidth = ( options.interiorWidth === undefined ? "": options.interiorWidth );
+	this.opacity = ( ( options.opacity === undefined ? 1 : options.opacity ) );
+	this.zIndex = ( ( options.zIndex === undefined ? 100000 : options.zIndex ) );
+	this.minimized = false;
+	this.relativeOffsetLeft = 0;
+	this.borderColor = ( options.borderColor === undefined ? "silver": options.borderColor );
+	this.headerColor = ( options.headerColor === undefined ? "black": options.headerColor );
+	this.headerBackgroundColor = ( options.headerBackgroundColor === undefined ? "silver": options.headerBackgroundColor );
+	this.borderRadius = ( options.borderRadius === undefined ? 6 : options.borderRadius );	
 };

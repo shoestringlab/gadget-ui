@@ -36,90 +36,80 @@ SelectInput.prototype.addControl = function(){
 SelectInput.prototype.addCSS = function(){
 	var height, 
 		parentstyle,
+		css = gadgetui.util.setStyle,
 		style = gadgetui.util.getStyle( this.selector );
 
-	this.selector.style.minWidth = "100px";
-	this.selector.style.fontSize = style.fontSize;
+	css( this.selector, "min-width", "100px" );
+	css( this.selector, "font-size", style.fontSize );
 
 	parentstyle = gadgetui.util.getStyle( this.selector.parentNode );
 	height = gadgetui.util.getNumberValue( parentstyle.height ) - 2;
 	this.label.setAttribute( "style", "" );
-	this.label.style.paddingTop = "2px";
-	this.label.style.height = height + "px";
-	this.label.style.marginLeft = "9px";	
+	css( this.label, "padding-top", "2px" );
+	css( this.label, "height", height + "px" );
+	css( this.label, "margin-left", "9px" );	
 
 	if( navigator.userAgent.match( /Edge/ ) ){
-		this.selector.style.marginLeft = "5px";
+		css( this.selector, "margin-left", "5px" );
 	}else if( navigator.userAgent.match( /MSIE/ ) ){
-		this.selector.style.marginTop = "0px";
-		this.selector.style.marginLeft = "5px";
+		css( this.selector, "margin-top", "0px" );
+		css( this.selector, "margin-left", "5px" );
 	}
 };
 
 SelectInput.prototype.addBindings = function() {
-	var self = this;
+	var self = this,
+		css = gadgetui.util.setStyle;
 
 	this.label
 		.addEventListener( this.activate, function( event ) {
-			self.label.style.display = 'none';
-			self.selector.style.display = "inline-block";
+			css( self.label, "display", 'none' );
+			css( self.selector, "display", "inline-block" );
 			event.preventDefault();
 		});
 
 	this.selector
 		.addEventListener( "blur", function( ev ) {
-			var value, label;
+			//setTimeout( function() {
+				css( self.label, "display", "inline-block" );
+				css( self.selector, "display", 'none' );
+			//}, 100 );
+		});
+
+	this.selector
+		.addEventListener( "change", function( ev ) {
 			setTimeout( function() {
-				value = self.selector.value;
-				label = self.selector[ self.selector.selectedIndex ].innerHTML;
+				var value = ev.target.value,
+					label = ev.target[ ev.target.selectedIndex ].innerHTML;
 				
 				if( value.trim().length === 0 ){
-					value = " ... ";
+					value = 0;
 				}
-
+	
 				self.label.innerText = label;
 				if( self.model !== undefined && self.selector.getAttribute( "gadgetui-bind" ) === undefined ){	
 					// if we have specified a model but no data binding, change the model value
 					self.model.set( this.name, { id: value, text: label } );
 				}
-
+	
 				if( self.emitEvents === true ){
-					self.selector.dispatchEvent( new Event( "gadgetui-input-change" ), { id: value, text: label } );
+					gadgetui.util.trigger( self.selector, "gadgetui-input-change", { id: value, text: label } );
 				}
 				if( self.func !== undefined ){
 					self.func( { id: value, text: label } );
 				}
 				self.value = { id: value, text: label };
-				self.label.style.display = "inline-block";
-				self.selector.style.display = 'none';
-			}, 100 );
+			}, 200 );
 		});
-/*		this.selector
-		.addEventListener( "keyup", function( event ) {
-			if ( parseInt( event.which, 10 ) === 13 ) {
-				self.selector.blur();
-			}
-		});	*/
 
 	this.wrapper
 		.addEventListener( "mouseleave", function( ) {
 			if ( self.selector !== document.activeElement ) {
-				self.label.style.display = 'inline-block';
-				self.selector.style.display = 'none';
+				css( self.label, "display", 'inline-block' );
+				css( self.selector, "display", 'none' );
 			}
 		});
-
-	this.selector
-		.addEventListener( "change", function( ev ) {
-			var value = ev.target.value,
-				label = ev.target[ ev.target.selectedIndex ].innerHTML;
-			if( label.trim().length === 0 ){
-				label = " ... ";
-			}
-			self.label.innerText = label;
-			self.value = { id: value, text: label };
-			
-		});
+	
 
 /*		function detectLeftButton(evt) {
 	    evt = evt || window.event;
@@ -141,6 +131,7 @@ SelectInput.prototype.addBindings = function() {
 };
 
 SelectInput.prototype.config = function( options ){
+	options = ( options === undefined ? {} : options );
 	this.model =  (( options.model === undefined) ? undefined : options.model );
 	this.func = (( options.func === undefined) ? undefined : options.func );
 	this.emitEvents = (( options.emitEvents === undefined) ? true : options.emitEvents );

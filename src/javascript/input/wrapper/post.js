@@ -1,8 +1,9 @@
 
 	return{
 		TextInput: TextInput,
-		SelectInput: SelectInput
-		/*	ComboBox: ComboBox,
+		SelectInput: SelectInput,
+		ComboBox: ComboBox
+		/*	
 		
 		
 		LookupListInput: LookupListInput	*/

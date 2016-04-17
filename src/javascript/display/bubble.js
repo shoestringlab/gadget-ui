@@ -68,74 +68,66 @@ Bubble.prototype.setStyles = function(){
 	this.bubbleSelector.style.left = this.left + "px";
 
 	this.spanElement = this.bubbleSelector.getElementsByTagName( "span" );
-	var spanLeft = this.bubbleWidth - 6 - this.closeIconSize - this.borderWidth * 2;
-	this.spanElement[0].setAttribute( "style", "left: " + spanLeft + "px; position: absolute; cursor: pointer; top: 6px; color: " + this.borderColor + ";" );
-/*		this.spanElement[0].style.left = this.bubbleWidth - 6 - this.closeIconSize - this.borderWidth * 2;
-	this.spanElement[0].style.position = "absolute";
-	this.spanElement[0].style.cursor = "pointer" ;
-	this.spanElement[0].style.top = 6;	*/
+	var spanLeft = this.bubbleWidth - 6 - this.closeIconSize - this.borderWidth * 2,
+		css = gadgetui.util.setStyle;
+	css( this.spanElement[0], "left", spanLeft + "px" );
+	css( this.spanElement[0], "position", "absolute" );
+	css( this.spanElement[0], "cursor", "pointer"  );
+	css( this.spanElement[0], "top", 6 + "px" );
+	css( this.spanElement[0], "color", this.borderColor );
 };
 
 Bubble.prototype.setBubbleStyles = function(){
+	var css = gadgetui.util.setStyle;
+	css( this.bubbleSelector, "margin", 0 );
+	css( this.bubbleSelector, "padding", this.padding + "px" );
+	css( this.bubbleSelector, "width", this.width + "px" );
+	css( this.bubbleSelector, "height", this.height + "px" );
+	css( this.bubbleSelector, "line-height", this.lineHeight + "px" );
+	css( this.bubbleSelector, "border-radius", this.borderRadius + "px" );
 	
-	this.bubbleSelector.setAttribute( "style", "margin : 0; width:" + this.width + "px; height:" + this.height + "px; padding:" + this.padding + "px; line-height:" + this.lineHeight + "px; border-radius:" + this.borderRadius + "px; -moz-border-radius:" + this.borderRadius + "px; -webkit-border-radius:" + this.borderRadius + ";-webkit-box-shadow: " + this.shadowSize + "px " + this.shadowSize + "px 4px " + this.boxShadowColor + "; -moz-box-shadow: " + this.shadowSize + "px " + this.shadowSize + "px 4px " + this.boxShadowColor+ "; box-shadow:" + this.shadowSize + "px " + this.shadowSize + "px 4px " + this.boxShadowColor + "; border: " +  this.borderWidth + "px solid " + this.borderColor + "; background-color: " + this.backgroundColor + "; position: absolute; text-align: left; opacity:" + this.opacity + "; font: " + this.font + "; z-index: " + this.zIndex + ";" );
-	//this.bubbleSelector.style.margin = 0;
-	//this.bubbleSelector.style.padding = this.padding;
-	//this.bubbleSelector.style.width = this.width;
-	//this.bubbleSelector.style.height = this.height;
-	//this.bubbleSelector.style.lineHeight = this.lineHeight + "px";
-	//this.bubbleSelector.style.borderRadius = this.borderRadius;
-	
-	//this.bubbleSelector.style.-moz-border-radius = this.borderRadius;
-	//this.bubbleSelector.style.-webkit-border-radius = this.borderRadius;
+	css( this.bubbleSelector, "-moz-border-radius", this.borderRadius + "px" );
+	css( this.bubbleSelector, "-webkit-border-radius", this.borderRadius + "px" );
 
-	//this.bubbleSelector.style.-webkit-box-shadow = this.shadowSize + "px " + this.shadowSize + "px 4px " + this.boxShadowColor;
-	//this.bubbleSelector.style.-moz-box-shadow = this.shadowSize + "px " + this.shadowSize + "px 4px " + this.boxShadowColor;
-	//this.bubbleSelector.style.boxShadow = this.shadowSize + "px " + this.shadowSize + "px 4px " + this.boxShadowColor;
+	css( this.bubbleSelector, "-webkit-box-shadow", this.shadowSize + "px " + this.shadowSize + "px 4px " + this.boxShadowColor );
+	css( this.bubbleSelector, "-moz-box-shadow", this.shadowSize + "px " + this.shadowSize + "px 4px " + this.boxShadowColor );
+	css( this.bubbleSelector, "box-shadow", this.shadowSize + "px " + this.shadowSize + "px 4px " + this.boxShadowColor );
 
-	//this.bubbleSelector.style.border = this.borderWidth + "px solid " + this.borderColor;
-	/*	this.bubbleSelector.style.backgroundColor = this.backgroundColor;
-	this.bubbleSelector.style.position = "absolute";
-	this.bubbleSelector.style.textAlign = "left";
-	this.bubbleSelector.style.opacity = this.opacity;
-	this.bubbleSelector.style.font = this.font;
-	this.bubbleSelector.style.zIndex = this.zIndex;	*/
+	css( this.bubbleSelector, "border", this.borderWidth + "px solid " + this.borderColor );
+	css( this.bubbleSelector, "background-color", this.backgroundColor );
+	css( this.bubbleSelector, "position", "absolute" );
+	css( this.bubbleSelector, "text-align", "left" );
+	css( this.bubbleSelector, "opacity", this.opacity );
+	css( this.bubbleSelector, "font", this.font );
+	css( this.bubbleSelector, "z-index", this.zIndex );
 };
 
 Bubble.prototype.setBeforeRules = function(){
 	// set rules on paragraph :before pseudo-selector
-	//var rules = {
-	var outside = this.bubbleSelector.getElementsByClassName( "gadgetui-bubble-arrow-outside" );
-	outside[0].setAttribute( "style", "content: ''; position: absolute; width: 0; height: 0; left: " + this.beforeArrowLeft + "px; top : " + this.arrowTop + "px; border: " + this.arrowSize + "px solid; border-color :" + this.beforeBorderColor + ";" );
-/*		outside[0].style.content = " ";
-	outside[0].style.position = "absolute";
-	outside[0].style.width = 0;
-	outside[0].style.height = 0;
-	outside[0].style.left = this.beforeArrowLeft + "px";
-	outside[0].style.top = this.arrowTop + "px";
-	outside[0].style.border = this.arrowSize + "px solid";
-	outside[0].style.borderColor = this.beforeBorderColor;	*/
-	//}; 
-	
-	//outside.addRule( rules, 0 );
-
+	var css = gadgetui.util.setStyle,
+		outside = this.bubbleSelector.getElementsByClassName( "gadgetui-bubble-arrow-outside" );
+	css( outside[0], "content", " " );
+	css( outside[0], "position", "absolute" );
+	css( outside[0], "width", 0 );
+	css( outside[0], "height", 0 );
+	css( outside[0], "left", this.beforeArrowLeft + "px" );
+	css( outside[0], "top", this.arrowTop + "px" );
+	css( outside[0], "border", this.arrowSize + "px solid" );
+	css( outside[0], "border-color", this.beforeBorderColor );
 };
 
 Bubble.prototype.setAfterRules = function(){
-		var inside = this.bubbleSelector.getElementsByClassName( "gadgetui-bubble-arrow-inside" );
-	//var rules = {
-		inside[0].setAttribute( "style", "content: ''; position: absolute; width: 0; height: 0; left: " + this.afterArrowLeft + "px; top : " + this.afterArrowTop + "px; border: " + this.afterArrowSize + "px solid; border-color :" + this.afterBorderColor + ";" );
-/*			inside[0].style.content = " ";
-		inside[0].style.position = "absolute";
-		inside[0].style.width = 0;
-		inside[0].style.height = 0;
-		inside[0].style.left = this.afterArrowLeft + "px";
-		inside[0].style.top = this.afterArrowTop + "px";
-		inside[0].style.border = this.afterArrowSize + "px solid";
-		inside[0].style.borderColor = this.afterBorderColor;	*/
-	//},
-	
-	//inside.addRule( rules, 0 );
+		var css = gadgetui.util.setStyle,
+			inside = this.bubbleSelector.getElementsByClassName( "gadgetui-bubble-arrow-inside" );
+
+		css( inside[0], "content", " " );
+		css( inside[0], "position", "absolute" );
+		css( inside[0], "width", 0 );
+		css( inside[0], "height", 0 );
+		css( inside[0], "left", this.afterArrowLeft + "px" );
+		css( inside[0], "top", this.afterArrowTop + "px" );
+		css( inside[0], "border", this.afterArrowSize + "px solid" );
+		css( inside[0], "border-color", this.afterBorderColor );
 };
 
 Bubble.prototype.calculatePosition = function(){
@@ -285,17 +277,18 @@ Bubble.prototype.calculateArrowStyle = function(){
 };
 
 Bubble.prototype.setBehaviors = function(){
-	var self = this;
+	var self = this,
+		css = gadgetui.util.setStyle;
 	//$( "span", this.bubbleSelector )
 	this.spanElement[0]
-	.addEventListener( "click", function(){
-			self.bubbleSelector.style.display= 'none';
-			self.bubbleSelector.parentNode.removeChild( self.bubbleSelector );
-		});
+		.addEventListener( "click", function(){
+				css( self.bubbleSelector, "display", 'none' );
+				self.bubbleSelector.parentNode.removeChild( self.bubbleSelector );
+			});
 
 	if( this.autoClose ){
 		closeBubble = function(){
-			self.bubbleSelector.style.display= 'none';
+			css( self.bubbleSelector, "display", 'none' );
 			self.bubbleSelector.parentNode.removeChild( self.bubbleSelector );
 		};
 		setTimeout( closeBubble, this.autoCloseDelay );
@@ -303,6 +296,7 @@ Bubble.prototype.setBehaviors = function(){
 };
 
 Bubble.prototype.config = function( options ){
+	options = ( options === undefined ? {} : options );
 	//var baseUIColor = getStyleRuleValue( "color", ".ui-state-active" );
 	var baseUIColor = "silver";
 	this.bubbleType = ( options.bubbleType === undefined ? "speech" : options.bubbleType );

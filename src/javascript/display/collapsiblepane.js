@@ -1,9 +1,7 @@
 function CollapsiblePane( selector, options ){
 
 	this.selector = selector;
-	if( options !== undefined ){
-		this.config( options );
-	}
+	this.config( options );
 	
 	this.addControl();
 
@@ -77,19 +75,6 @@ CollapsiblePane.prototype.addBindings = function(){
 
 };
 
-CollapsiblePane.prototype.config = function( args ){
-	this.title = ( args.title === undefined ? "": args.title );
-	this.path = ( args.path === undefined ? "/bower_components/gadget-ui/dist/": args.path );
-	this.padding = ( args.padding === undefined ? ".5em": args.padding );
-	this.paddingTop = ( args.paddingTop === undefined ? ".3em": args.paddingTop );
-	this.width = ( args.width === undefined ? gadgetui.util.getStyle( this.selector, "width" ) : args.width );
-	this.interiorWidth = ( args.interiorWidth === undefined ? "": args.interiorWidth );
-	this.collapse = ( ( args.collapse === undefined || args.collapse === false ? false : true ) );
-	this.borderColor = ( args.borderColor === undefined ? "silver": args.borderColor );
-	this.headerColor = ( args.headerColor === undefined ? "black": args.headerColor );
-	this.headerBackgroundColor = ( args.headerBackgroundColor === undefined ? "silver": args.headerBackgroundColor );
-	this.borderRadius = ( args.borderRadius === undefined ? 6 : args.borderRadius );
-};
 
 CollapsiblePane.prototype.toggle = function(){
 	var self = this, 
@@ -151,4 +136,19 @@ CollapsiblePane.prototype.toggle = function(){
 			$( this ).css( "padding", self.padding );
 			self.selector.trigger( self.eventName );
 		});	*/
+};
+
+CollapsiblePane.prototype.config = function( options ){
+	options = ( options === undefined ? {} : options );
+	this.title = ( options.title === undefined ? "": options.title );
+	this.path = ( options.path === undefined ? "/bower_components/gadget-ui/dist/": options.path );
+	this.padding = ( options.padding === undefined ? ".5em": options.padding );
+	this.paddingTop = ( options.paddingTop === undefined ? ".3em": options.paddingTop );
+	this.width = ( options.width === undefined ? gadgetui.util.getStyle( this.selector, "width" ) : options.width );
+	this.interiorWidth = ( options.interiorWidth === undefined ? "": options.interiorWidth );
+	this.collapse = ( ( options.collapse === undefined || options.collapse === false ? false : true ) );
+	this.borderColor = ( options.borderColor === undefined ? "silver": options.borderColor );
+	this.headerColor = ( options.headerColor === undefined ? "black": options.headerColor );
+	this.headerBackgroundColor = ( options.headerBackgroundColor === undefined ? "silver": options.headerBackgroundColor );
+	this.borderRadius = ( options.borderRadius === undefined ? 6 : options.borderRadius );
 };
