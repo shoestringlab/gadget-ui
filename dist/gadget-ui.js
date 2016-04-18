@@ -638,7 +638,7 @@ Bubble.prototype.config = function( options ){
 	this.borderRadius = ( options.borderRadius === undefined ? 30 : options.borderRadius );	//border-radius
 	this.boxShadowColor = ( options.boxShadowColor === undefined ? baseUIColor : options.boxShadowColor );
 	this.font = ( options.font === undefined ? "1em Arial sans" : options.font );
-	this.zIndex = ( options.zIndex === undefined ? 100 : options.zIndex );
+	this.zIndex = ( options.zIndex === undefined ? gadgetui.util.getMaxZIndex() + 1 : options.zIndex );
 	this.closable = ( options.closable === undefined ? false : options.closable );
 	this.autoClose = ( options.autoClose === undefined ? false : options.autoClose );
 	this.autoCloseDelay = ( options.autoCloseDelay === undefined ? 5000 : options.autoCloseDelay );
@@ -665,7 +665,6 @@ function CollapsiblePane( selector, options ){
 		this.toggle();
 	}		
 }
-	
 
 CollapsiblePane.prototype.addControl = function(){
 	var pane = document.createElement( "div" );
@@ -675,14 +674,22 @@ CollapsiblePane.prototype.addControl = function(){
 	this.wrapper = this.selector.previousSibling;
 	this.selector.parentNode.removeChild( this.selector );
 	pane.appendChild( this.selector );
-	
-	//$( this.selector ).wrap( '<div class="gadget-ui-collapsiblePane ui-corner-all ui-widget-content"></div>' );
 };
 
 CollapsiblePane.prototype.addHeader = function(){
 	var div,
+	css = gadgetui.util.setStyle,
 		header = document.createElement( "div" );
-	header.setAttribute( "style", "padding: 2px 0px 2px .5em; text-align: left; border-radius: " + this.borderRadius + "px; border: 1px solid "  + this.borderColor + "; background: " + this.headerBackgroundColor + "; color: " + this.headerColor + "; font-weight: bold; font: " + this.font );
+
+	css( header, "padding",  "2px 0px 2px .5em" );
+	css( header, "text-align",  "left" );
+	css( header, "border-radius",  this.borderRadius + "px" );
+	css( header, "border",  "1px solid "  + this.borderColor );
+	css( header, "background",  this.headerBackgroundColor );
+	css( header, "color",  this.headerColor );
+	css( header, "font-weight",  "bold" );
+	css( header, "font",  this.font );
+
 	gadgetui.util.addClass( header, "gadget-ui-collapsiblePane-header" );
 	header.innerHTML = this.title;
 	this.wrapper.insertBefore( header, this.selector );
@@ -691,26 +698,21 @@ CollapsiblePane.prototype.addHeader = function(){
 	gadgetui.util.addClass( div, "oi" );
 	div.setAttribute( 'data-glyph', "caret-top" );
 	this.header.appendChild( div );
-	//this.wrapper.prepend( '<div class="ui-widget-header ui-corner-all gadget-ui-collapsiblePane-header">' + this.title + '<div class="ui-icon ui-icon-triangle-1-n"></div></div>');
 };
 
 CollapsiblePane.prototype.addCSS = function(){
-	var theWidth = this.width;
-/*		if( parseInt( this.width, 10 ) > 0 ){
-		theWidth = theWidth;
-	}	*/
-	//copy width from selector
-	//if( !this.wrapper.style ){
-		this.wrapper.setAttribute( "style", "width: " + theWidth + "; border: 1px solid "  + this.borderColor + "; border-radius: " + this.borderRadius + "px; overflow: hidden;");
-	//}else{
-	//	this.wrapper.style.width = this.width + "px";
-	//}
-	
+	var theWidth = this.width,
+		css = gadgetui.util.setStyle;
+
+	css( this.wrapper, "width", theWidth );
+	css( this.wrapper, "border",  "1px solid "  + this.borderColor );
+	css( this.wrapper, "border-radius",  this.borderRadius + "px" );
+	css( this.wrapper, "overflow",  "hidden" );
+
 	//now make the width of the selector to fill the wrapper
 	if( !this.selector.style ){
-		this.selector.setAttribute( "style", "padding: " + this.padding + "px;" );
+		css( this.selector, "padding", this.padding + "px" );
 	}
-	
 };
 
 CollapsiblePane.prototype.addBindings = function(){
@@ -719,12 +721,11 @@ CollapsiblePane.prototype.addBindings = function(){
 		.addEventListener( "click", function(){
 			self.toggle();
 		});
-
 };
 
-
 CollapsiblePane.prototype.toggle = function(){
-	var self = this, 
+	var self = this,
+		css = gadgetui.util.setStyle,
 		icon,
 		myHeight,
 		display,
@@ -748,16 +749,16 @@ CollapsiblePane.prototype.toggle = function(){
 		this.collapsed = true;
 	}
 	
-	self.eventName = ( ( self.eventName === "collapse" ) ? "expand" : "collapse" );
-	self.selector.style.padding = self.padding + "px";
-	self.selector.style.paddingTop = self.paddingTop + "px";
+	this.eventName = ( ( this.eventName === "collapse" ) ? "expand" : "collapse" );
+	css( this.selector, "padding", this.padding + "px" );
+	css( this.selector, "padding-top", this.paddingTop + "px" );
 
-	var ev = new Event( self.eventName );
-	self.selector.dispatchEvent( ev );
+	var ev = new Event( this.eventName );
+	this.selector.dispatchEvent( ev );
 	
-	if( typeof Velocity != 'undefined' ){
+	if( typeof Velocity != 'undefined' && this.animate ){
 		if( display === "block" ){
-			self.wrapper.style.border = border;
+			css( this.wrapper, "border", border );
 		}
 		Velocity( this.wrapper, {
 			height: myHeight
@@ -774,19 +775,14 @@ CollapsiblePane.prototype.toggle = function(){
 			} 
 		});			
 	}else{
-		self.selector.style.display = display;
-		self.icon.setAttribute( "data-glyph", icon );
+		css( this.selector, "display", display );
+		this.icon.setAttribute( "data-glyph", icon );
 	}
-	/*		.toggle( 'blind', {}, 200, function(  ) {
-			$( self.icon ).addClass( add )
-						.removeClass( remove );
-			$( this ).css( "padding", self.padding );
-			self.selector.trigger( self.eventName );
-		});	*/
 };
 
 CollapsiblePane.prototype.config = function( options ){
 	options = ( options === undefined ? {} : options );
+	this.animate = (( options.animate === undefined) ? true : options.animate );
 	this.title = ( options.title === undefined ? "": options.title );
 	this.path = ( options.path === undefined ? "/bower_components/gadget-ui/dist/": options.path );
 	this.padding = ( options.padding === undefined ? ".5em": options.padding );
@@ -836,35 +832,44 @@ FloatingPane.prototype.addBindings = function(){
 };
 
 FloatingPane.prototype.addHeader = function(){
+	var css = gadgetui.util.setStyle;
 	this.header = document.createElement( "div" );
 	this.header.innerHTML = this.title;
 	gadgetui.util.addClass( this.header, 'gadget-ui-floatingPane-header' );
-	this.header.setAttribute( "style", "padding: 2px 0px 2px .5em; text-align: left; border-radius: " + this.borderRadius + "px; border: 1px solid "  + this.borderColor + "; background: " + this.headerBackgroundColor + "; color: " + this.headerColor + "; font-weight: bold; font: " + this.font );
+	//this.header.setAttribute( "style",
+	css( this.header, "padding",  "2px 0px 2px .5em" );
+	css( this.header, "text-align",  "left" );
+	css( this.header, "border-radius", this.borderRadius + "px" );
+	css( this.header, "border",  "1px solid "  + this.borderColor );
+	css( this.header, "background", this.headerBackgroundColor );
+	css( this.header, "color",  this.headerColor );
+	css( this.header, "font-weight",  "bold" );
+	css( this.header, "font",  this.font );
+
 	this.icon = document.createElement( "div" );
 	gadgetui.util.addClass( this.icon, "oi" );
 	this.header.insertBefore( this.icon, undefined );
 	this.wrapper.insertBefore( this.header, this.selector );
 	this.icon.setAttribute( 'data-glyph', "fullscreen-exit" );
 	this.header.appendChild( this.icon );	
-	//this.wrapper.prepend( '<div class="ui-widget-header ui-corner-all gadget-ui-floatingPane-header">' + this.title + '<div class="ui-icon ui-icon-arrow-4"></div></div>');
 };
 
 FloatingPane.prototype.addCSS = function(){
+	var css = gadgetui.util.setStyle;
 	//copy width from selector
-	this.wrapper.setAttribute( "style", "width: " + this.width + "; border: 1px solid "  + this.borderColor + "; border-radius: " + this.borderRadius + "px;");
-	//.css( "width", this.width )
-	this.wrapper.style.minWidth = this.minWidth;
-	this.wrapper.style.opacity = this.opacity;
-	this.wrapper.style.zIndex = this.zIndex;
+	css( this.wrapper, "width",  this.width );
+	css( this.wrapper, "border",  "1px solid "  + this.borderColor );
+	css( this.wrapper, "border-radius", this.borderRadius + "px" );
+	css( this.wrapper, "min-width", this.minWidth );
+	css( this.wrapper, "opacity", this.opacity );
+	css( this.wrapper, "z-index", this.zIndex );
 	
 	//now make the width of the selector to fill the wrapper
-	this.selector.setAttribute( "style", "width: " + this.interiorWidth + "px; padding: " + this.padding + "px;" );
-/*			.css( "width", this.interiorWidth )
-		.css( "padding", this.padding );	*/
+	css( this.selector, "width", this.interiorWidth + "px" );
+	css( this.selector, "padding", this.padding + "px" );
 	
-	this.maxmin.setAttribute( "style", "float: right; display: inline;" );
-	/*		.css( "float", "right" )
-		.css( "display", "inline" );	*/
+	css( this.maxmin, "float", "right" );
+	css( this.maxmin, "display", "inline" );
 };
 
 FloatingPane.prototype.addControl = function(){
@@ -882,12 +887,13 @@ FloatingPane.prototype.expand = function(){
 	// when minimizing and expanding, we must look up the ancestor chain to see if there are position: relative elements.
 	// if so, we must subtract the offset left of the ancestor to get the pane back to its original position
 	
-	var self = this, 
+	var self = this,
+		css = gadgetui.util.setStyle,
 		offset = gadgetui.util.getOffset( this.wrapper ),
 		lx =  parseInt( new Number( offset.left ), 10 ) - this.relativeOffsetLeft,
 		width = parseInt( this.width.substr( 0,this.width.length - 2), 10 );
 	
-	if( typeof Velocity != 'undefined' ){
+	if( typeof Velocity != 'undefined' && this.animate ){
 		
 		Velocity( this.wrapper, {
 			left: lx - width + self.minWidth
@@ -908,9 +914,9 @@ FloatingPane.prototype.expand = function(){
 		}
 		});
 	}else{
-		this.wrapper.style.left = ( lx - width + this.minWidth ) + "px";
-		this.wrapper.style.width = this.width;
-		this.wrapper.style.height = this.height;
+		css( this.wrapper, "left", ( lx - width + this.minWidth ) + "px" );
+		css( this.wrapper, "width", this.width );
+		css( this.wrapper, "height", this.height );
 		this.icon.setAttribute( "data-glyph", "fullscreen-exit" );
 	}
 	this.minimized = false;
@@ -920,11 +926,13 @@ FloatingPane.prototype.minimize = function(){
 	// when minimizing and maximizing, we must look up the ancestor chain to see if there are position: relative elements.
 	// if so, we must subtract the offset left of the ancestor to get the pane back to its original position
 	
-	var self = this, offset = gadgetui.util.getOffset( this.wrapper ),
+	var self = this,
+		css = gadgetui.util.setStyle,
+		offset = gadgetui.util.getOffset( this.wrapper ),
 		lx =  parseInt( new Number( offset.left ), 10 ) - this.relativeOffsetLeft,
 		width = parseInt( this.width.substr( 0,this.width.length - 2), 10 );
 
-	if( typeof Velocity != 'undefined' ){
+	if( typeof Velocity != 'undefined' && this.animate ){
 			
 		Velocity( this.wrapper, {
 			left: lx + width - self.minWidth
@@ -945,9 +953,9 @@ FloatingPane.prototype.minimize = function(){
 			// Animation complete.
 		});
 	}else{
-		this.wrapper.style.left = ( lx + width - this.minWidth ) + "px";
-		this.wrapper.style.width = this.minWidth + "px";
-		this.wrapper.style.height = "50px";
+		css( this.wrapper, "left", ( lx + width - this.minWidth ) + "px" );
+		css( this.wrapper, "width", this.minWidth + "px" );
+		css( this.wrapper, "height", "50px" );
 		this.icon.setAttribute( "data-glyph", "fullscreen-enter" );
 	}
 	this.minimized = true;
@@ -955,6 +963,7 @@ FloatingPane.prototype.minimize = function(){
 
 FloatingPane.prototype.config = function( options ){
 	options = ( options === undefined ? {} : options );
+	this.animate = (( options.animate === undefined) ? true : options.animate );
 	this.title = ( options.title === undefined ? "": options.title );
 	this.path = ( options.path === undefined ? "/bower_components/gadget-ui/dist/": options.path );
 	this.position = ( options.position === undefined ? { my: "right top", at: "right top", of: window } : options.position );
@@ -966,7 +975,7 @@ FloatingPane.prototype.config = function( options ){
 	this.height = ( options.height === undefined ? gadgetui.util.getNumberValue( gadgetui.util.getStyle( this.selector, "height" ) ) + ( gadgetui.util.getNumberValue( this.padding ) * 2 ) : options.height );
 	this.interiorWidth = ( options.interiorWidth === undefined ? "": options.interiorWidth );
 	this.opacity = ( ( options.opacity === undefined ? 1 : options.opacity ) );
-	this.zIndex = ( ( options.zIndex === undefined ? 100000 : options.zIndex ) );
+	this.zIndex = ( ( options.zIndex === undefined ? gadgetui.util.getMaxZIndex() + 1 : options.zIndex ) );
 	this.minimized = false;
 	this.relativeOffsetLeft = 0;
 	this.borderColor = ( options.borderColor === undefined ? "silver": options.borderColor );
@@ -1721,6 +1730,15 @@ SelectInput.prototype.addBindings = function() {
 	var self = this,
 		css = gadgetui.util.setStyle;
 
+	// setup mousePosition
+	if( gadgetui.mousePosition === undefined ){
+		document
+			.addEventListener( "mousemove", function(ev){ 
+				ev = ev || window.event; 
+				gadgetui.mousePosition = gadgetui.util.mouseCoords(ev); 
+			});
+	}
+
 	this.label
 		.addEventListener( this.activate, function( event ) {
 			css( self.label, "display", 'none' );
@@ -1759,10 +1777,10 @@ SelectInput.prototype.addBindings = function() {
 					self.func( { id: value, text: label } );
 				}
 				self.value = { id: value, text: label };
-			}, 200 );
+			}, 100 );
 		});
 
-	this.wrapper
+	this.selector
 		.addEventListener( "mouseleave", function( ) {
 			if ( self.selector !== document.activeElement ) {
 				css( self.label, "display", 'inline-block' );
@@ -1972,6 +1990,35 @@ TextInput.prototype.addBindings = function(){
 			});
 	}
 
+	this.label
+		//.off( self.activate )
+		.addEventListener( self.activate, function( ) {
+			if( self.useActive && ( self.label.getAttribute( "data-active" ) === "false" || self.label.getAttribute( "data-active" ) === undefined ) ){
+				self.label.setAttribute( "data-active", "true" );
+			}else{
+				setTimeout( 
+					function(){
+					var event, css = gadgetui.util.setStyle;
+					if( gadgetui.util.mouseWithin( self.label, gadgetui.mousePosition ) === true ){
+						// both input and label
+						css( self.labelDiv, "display", 'none' );
+						css( self.inputDiv, "display", 'block' );
+						self.setControlWidth( self.selector.value );
+
+						// if we are only showing the input on click, focus on the element immediately
+						if( self.activate === "click" ){
+							self.selector.focus();
+						}
+						if( self.emitEvents === true ){
+							// raise an event that the input is active
+							
+							event = new Event( "gadgetui-input-show" );
+							self.selector.dispatchEvent( event );
+						}
+					}}, self.delay );
+			}
+		});
+
 	this.selector
 		.addEventListener( "focus", function(e){
 			e.preventDefault();
@@ -2036,35 +2083,6 @@ TextInput.prototype.addBindings = function(){
 			css( self.label, "maxWidth", self.maxWidth );
 		});
 
-	this.label
-		//.off( self.activate )
-		.addEventListener( self.activate, function( ) {
-			if( self.useActive && ( self.label.getAttribute( "data-active" ) === "false" || self.label.getAttribute( "data-active" ) === undefined ) ){
-				self.label.setAttribute( "data-active", "true" );
-			}else{
-				setTimeout( 
-					function(){
-					var event, css = gadgetui.util.setStyle;
-					if( gadgetui.util.mouseWithin( self.label, gadgetui.mousePosition ) === true ){
-						// both input and label
-						css( self.labelDiv, "display", 'none' );
-						css( self.inputDiv, "display", 'block' );
-						self.setControlWidth( self.selector.value );
-
-						// if we are only showing the input on click, focus on the element immediately
-						if( self.activate === "click" ){
-							self.selector.focus();
-						}
-						if( self.emitEvents === true ){
-							// raise an event that the input is active
-							
-							event = new Event( "gadgetui-input-show" );
-							self.selector.dispatchEvent( event );
-						}
-					}}, self.delay );
-			}
-		});
-
 };
 
 TextInput.prototype.config = function( options ){
@@ -2072,7 +2090,6 @@ TextInput.prototype.config = function( options ){
 	this.borderColor =  (( options.borderColor === undefined) ? "#d0d0d0" : options.borderColor );
 	this.useActive =  (( options.useActive === undefined) ? false : options.useActive );
 	this.model =  (( options.model === undefined) ? this.model : options.model );
-	this.object = (( options.object === undefined) ? undefined : options.object );
 	this.func = (( options.func === undefined) ? undefined : options.func );
 	this.emitEvents = (( options.emitEvents === undefined) ? true : options.emitEvents );
 	this.activate = (( options.activate === undefined) ? "mouseenter" : options.activate );
@@ -2446,8 +2463,20 @@ gadgetui.util = ( function(){
 			
 			selector.dispatchEvent( new CustomEvent( eventType, { detail: data } ) );
 			
+		},
+		getMaxZIndex : function(){
+			  var elems = document.querySelectorAll( "*" );
+			  var highest = 0;
+			  for (var ix = 0; ix < elems.length; ix++ )
+			  {
+			    var zindex = gadgetui.util.getStyle( elems[ix], "z-index" );
+			    if ((zindex > highest) && (zindex != 'auto'))
+			    {
+			      highest = zindex;
+			    }
+			  }
+			  return highest;
 		}
-		
 	};
 } ());	
 //# sourceMappingURL=gadget-ui.js.map

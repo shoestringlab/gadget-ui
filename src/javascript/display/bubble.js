@@ -329,7 +329,7 @@ Bubble.prototype.config = function( options ){
 	this.borderRadius = ( options.borderRadius === undefined ? 30 : options.borderRadius );	//border-radius
 	this.boxShadowColor = ( options.boxShadowColor === undefined ? baseUIColor : options.boxShadowColor );
 	this.font = ( options.font === undefined ? "1em Arial sans" : options.font );
-	this.zIndex = ( options.zIndex === undefined ? 100 : options.zIndex );
+	this.zIndex = ( options.zIndex === undefined ? gadgetui.util.getMaxZIndex() + 1 : options.zIndex );
 	this.closable = ( options.closable === undefined ? false : options.closable );
 	this.autoClose = ( options.autoClose === undefined ? false : options.autoClose );
 	this.autoCloseDelay = ( options.autoCloseDelay === undefined ? 5000 : options.autoCloseDelay );

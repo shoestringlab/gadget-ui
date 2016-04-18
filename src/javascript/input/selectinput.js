@@ -61,6 +61,15 @@ SelectInput.prototype.addBindings = function() {
 	var self = this,
 		css = gadgetui.util.setStyle;
 
+	// setup mousePosition
+	if( gadgetui.mousePosition === undefined ){
+		document
+			.addEventListener( "mousemove", function(ev){ 
+				ev = ev || window.event; 
+				gadgetui.mousePosition = gadgetui.util.mouseCoords(ev); 
+			});
+	}
+
 	this.label
 		.addEventListener( this.activate, function( event ) {
 			css( self.label, "display", 'none' );
@@ -99,10 +108,10 @@ SelectInput.prototype.addBindings = function() {
 					self.func( { id: value, text: label } );
 				}
 				self.value = { id: value, text: label };
-			}, 200 );
+			}, 100 );
 		});
 
-	this.wrapper
+	this.selector
 		.addEventListener( "mouseleave", function( ) {
 			if ( self.selector !== document.activeElement ) {
 				css( self.label, "display", 'inline-block' );

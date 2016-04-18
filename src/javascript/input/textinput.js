@@ -171,6 +171,35 @@ TextInput.prototype.addBindings = function(){
 			});
 	}
 
+	this.label
+		//.off( self.activate )
+		.addEventListener( self.activate, function( ) {
+			if( self.useActive && ( self.label.getAttribute( "data-active" ) === "false" || self.label.getAttribute( "data-active" ) === undefined ) ){
+				self.label.setAttribute( "data-active", "true" );
+			}else{
+				setTimeout( 
+					function(){
+					var event, css = gadgetui.util.setStyle;
+					if( gadgetui.util.mouseWithin( self.label, gadgetui.mousePosition ) === true ){
+						// both input and label
+						css( self.labelDiv, "display", 'none' );
+						css( self.inputDiv, "display", 'block' );
+						self.setControlWidth( self.selector.value );
+
+						// if we are only showing the input on click, focus on the element immediately
+						if( self.activate === "click" ){
+							self.selector.focus();
+						}
+						if( self.emitEvents === true ){
+							// raise an event that the input is active
+							
+							event = new Event( "gadgetui-input-show" );
+							self.selector.dispatchEvent( event );
+						}
+					}}, self.delay );
+			}
+		});
+
 	this.selector
 		.addEventListener( "focus", function(e){
 			e.preventDefault();
@@ -235,35 +264,6 @@ TextInput.prototype.addBindings = function(){
 			css( self.label, "maxWidth", self.maxWidth );
 		});
 
-	this.label
-		//.off( self.activate )
-		.addEventListener( self.activate, function( ) {
-			if( self.useActive && ( self.label.getAttribute( "data-active" ) === "false" || self.label.getAttribute( "data-active" ) === undefined ) ){
-				self.label.setAttribute( "data-active", "true" );
-			}else{
-				setTimeout( 
-					function(){
-					var event, css = gadgetui.util.setStyle;
-					if( gadgetui.util.mouseWithin( self.label, gadgetui.mousePosition ) === true ){
-						// both input and label
-						css( self.labelDiv, "display", 'none' );
-						css( self.inputDiv, "display", 'block' );
-						self.setControlWidth( self.selector.value );
-
-						// if we are only showing the input on click, focus on the element immediately
-						if( self.activate === "click" ){
-							self.selector.focus();
-						}
-						if( self.emitEvents === true ){
-							// raise an event that the input is active
-							
-							event = new Event( "gadgetui-input-show" );
-							self.selector.dispatchEvent( event );
-						}
-					}}, self.delay );
-			}
-		});
-
 };
 
 TextInput.prototype.config = function( options ){
@@ -271,7 +271,6 @@ TextInput.prototype.config = function( options ){
 	this.borderColor =  (( options.borderColor === undefined) ? "#d0d0d0" : options.borderColor );
 	this.useActive =  (( options.useActive === undefined) ? false : options.useActive );
 	this.model =  (( options.model === undefined) ? this.model : options.model );
-	this.object = (( options.object === undefined) ? undefined : options.object );
 	this.func = (( options.func === undefined) ? undefined : options.func );
 	this.emitEvents = (( options.emitEvents === undefined) ? true : options.emitEvents );
 	this.activate = (( options.activate === undefined) ? "mouseenter" : options.activate );

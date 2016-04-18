@@ -3,18 +3,27 @@ gadget-ui
 
 JavaScript UI and data binding library
 
-Version 2.2.8
+Version 2.4.0
 
 For a quickstart guide and working examples, see http://www.bonnydoonmedia.com/index.cfm/projects/gadget-ui/.
 
 **Dependencies**
+
+As of version 2.4.0, the plain JavaScript version of the project has optional functionality dependent on Velocity for animations. The display components depend on 
+open-ionic for font-based icons in place of jQuery-UI icons. 
+
+The place JavaScript version also uses a number of functions that require polyfills in older browsers. Some polyfills are included in the gadget-ui library; others are
+external polyfills that are included in the Bower manifest bower.json. For these external polyfills, you may use your own or forego polyfills if you do not need to support 
+older browsers, especially IE < 9.0. 
+
+Prior to version 2.4.0:
 
 This project has dependencies on:
  - jQuery
  - jQuery UI
  - jQuery addRule
  - jQuery Encoder ( OWASP )
- - jQuery Placeholder
+ - jQuery Placeholder (polyfill)
  - jQuery Shadow Animation
  - Promise polyfill
 

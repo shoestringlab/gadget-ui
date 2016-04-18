@@ -353,7 +353,19 @@ gadgetui.util = ( function(){
 			
 			selector.dispatchEvent( new CustomEvent( eventType, { detail: data } ) );
 			
+		},
+		getMaxZIndex : function(){
+			  var elems = document.querySelectorAll( "*" );
+			  var highest = 0;
+			  for (var ix = 0; ix < elems.length; ix++ )
+			  {
+			    var zindex = gadgetui.util.getStyle( elems[ix], "z-index" );
+			    if ((zindex > highest) && (zindex != 'auto'))
+			    {
+			      highest = zindex;
+			    }
+			  }
+			  return highest;
 		}
-		
 	};
 } ());	

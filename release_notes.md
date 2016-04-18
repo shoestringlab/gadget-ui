@@ -1,6 +1,16 @@
 		
 ***Release Notes***
 
+2.4.0
+======
+
+- Ported all components except LookupListInput to jQuery-free version of code to remove dependencies
+- Re-organized SelectInput and TextInput code, eliminated custom object as an option in favor of emitting a generic object in events.
+- Added convenience methods to gadgetui.util to replace some functionality that was provided by jQuery
+	- css() replacement
+	- draggable replacement
+
+
 2.2.9
 ======
 

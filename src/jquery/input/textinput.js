@@ -6,9 +6,7 @@ function TextInput( selector, options ){
 
 	this.selector = selector;
 
-	if( options !== undefined ){
-		this.config( options );
-	}
+	this.config( options );
 
 	// bind to the model if binding is specified
 	gadgetui.util.bind( this.selector, this.model );
@@ -26,12 +24,12 @@ function TextInput( selector, options ){
 }
 
 TextInput.prototype.addBindings = function(){
-	var self = this, oVar, 
+	var self = this, 
 		obj = $( this.selector ).parent(),
 		labeldiv = $( "div[class='gadgetui-inputlabel']", obj ),
 		label = $( "input", labeldiv ),
 		font = obj.css( "font-size" ) + " " + obj.css( "font-family" );
-	oVar = ( (this.object === undefined) ? {} : this.object );
+
 
 	// setup mousePosition
 	if( gadgetui.mousePosition === undefined ){
@@ -92,49 +90,21 @@ TextInput.prototype.addBindings = function(){
 	$( this.selector )
 		.off( "blur" )
 		.on( "blur", function( ) {
-			var it = this, newVal, txtWidth, labelText;
-			setTimeout( function( ) {
-				newVal = $( it ).val( );
-				if ( oVar.isDirty === true ) {
-					if( newVal.length === 0 && $( it ).attr( "placeholder" ) !== undefined ){
-						newVal = $( it ).attr( "placeholder" );
-					}
-					oVar[ it.name ] = $( it ).val( );
-					
-					txtWidth = $.gadgetui.textWidth( newVal, font );
-					if( self.maxWidth < txtWidth ){
-						labelText = $.gadgetui.fitText( newVal, font, self.maxWidth );
-					}else{
-						labelText = newVal;
-					}
-					label.val( labelText );
-					if( self.model !== undefined && $( it ).attr( "gadgetui-bind" ) === undefined ){	
-						// if we have specified a model but no data binding, change the model value
-						self.model.set( it.name, oVar[ it.name ] );
-					}
-	
-					oVar.isDirty = false;
-					if( self.emitEvents === true ){
-						$( it ).trigger( "gadgetui-input-change", [ oVar ] );
-					}
-					if( self.func !== undefined ){
-						self.func( oVar );
-					}
-				}
-				$( it ).hide( );
-				label.css( "display", "block" );
-				labeldiv.css( "display", "block" );
-				label.attr( "data-active", "false" );
-				//$( "img", $( self ).parent( ) ).hide( );
+			var it = this;
 
-				$( "input", $( obj ).parent() )
-					.css( "max-width",  self.maxWidth );
-				
-				
-				if( self.emitEvents === true ){
-					$( it ).trigger( "gadgetui-input-hide", it );
-				}	
-			}, 200 );
+			$( it ).hide( );
+			label.css( "display", "block" );
+			labeldiv.css( "display", "block" );
+			label.attr( "data-active", "false" );
+			//$( "img", $( self ).parent( ) ).hide( );
+
+			$( "input", $( obj ).parent() )
+				.css( "max-width",  self.maxWidth );
+			
+			if( self.emitEvents === true ){
+				$( it ).trigger( "gadgetui-input-hide", it );
+			}	
+
 		});
 	$( this.selector )
 		.off( "keyup" )
@@ -148,13 +118,34 @@ TextInput.prototype.addBindings = function(){
 	$( this.selector )
 		.off( "change" )
 		.on( "change", function( e ) {
-			var value = e.target.value;
-			if( value.trim().length === 0 ){
-				value = " ... ";
-			}
-			oVar.isDirty = true;
-			label.val( value );
-			});
+			var it = this, newVal, txtWidth, labelText;
+			setTimeout( function( ) {
+				newVal = $( it ).val( );
+					if( newVal.length === 0 && $( it ).attr( "placeholder" ) !== undefined ){
+						newVal = $( it ).attr( "placeholder" );
+					}
+					
+					txtWidth = $.gadgetui.textWidth( newVal, font );
+					if( self.maxWidth < txtWidth ){
+						labelText = $.gadgetui.fitText( newVal, font, self.maxWidth );
+					}else{
+						labelText = newVal;
+					}
+					label.val( labelText );
+					if( self.model !== undefined && $( it ).attr( "gadgetui-bind" ) === undefined ){	
+						// if we have specified a model but no data binding, change the model value
+						self.model.set( it.name, oVar[ it.name ] );
+					}
+	
+					if( self.emitEvents === true ){
+						$( it ).trigger( "gadgetui-input-change", { text: $( it ).val( ) } );
+					}
+					if( self.func !== undefined ){
+						self.func( { text: $( it ).val( ) } );
+					}
+				
+			}, 200 );
+		});
 };
 
 TextInput.prototype.addClass = function(){
@@ -242,14 +233,14 @@ TextInput.prototype.addCSS = function(){
 	}
 };
 
-TextInput.prototype.config = function( args ){
-	this.borderColor =  (( args.borderColor === undefined) ? "#d0d0d0" : args.borderColor );
-	this.useActive =  (( args.useActive === undefined) ? false : args.useActive );
-	this.model =  (( args.model === undefined) ? this.model : args.model );
-	this.object = (( args.object === undefined) ? undefined : args.object );
-	this.func = (( args.func === undefined) ? undefined : args.func );
-	this.emitEvents = (( args.emitEvents === undefined) ? true : args.emitEvents );
-	this.activate = (( args.activate === undefined) ? "mouseenter" : args.activate );
-	this.delay = (( args.delay === undefined) ? 10 : args.delay );
-	this.enforceMaxWidth = ( args.enforceMaxWidth === undefined ? false : args.enforceMaxWidth );
+TextInput.prototype.config = function( options ){
+	options = ( options === undefined ? {} : options );
+	this.borderColor =  (( options.borderColor === undefined) ? "#d0d0d0" : options.borderColor );
+	this.useActive =  (( options.useActive === undefined) ? false : options.useActive );
+	this.model =  (( options.model === undefined) ? this.model : options.model );
+	this.func = (( options.func === undefined) ? undefined : options.func );
+	this.emitEvents = (( options.emitEvents === undefined) ? true : options.emitEvents );
+	this.activate = (( options.activate === undefined) ? "mouseenter" : options.activate );
+	this.delay = (( options.delay === undefined) ? 10 : options.delay );
+	this.enforceMaxWidth = ( options.enforceMaxWidth === undefined ? false : options.enforceMaxWidth );
 };

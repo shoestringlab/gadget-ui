@@ -1,15 +1,8 @@
 
 function SelectInput( selector, options ){
-	this.emitEvents = true;
-	this.model = gadgetui.model;
-	this.func;
-
 	this.selector = selector;
 
-	if( options !== undefined ){
-		this.config( options );
-	}
-
+	this.config( options );
 	this.setInitialValue();
 
 	// bind to the model if binding is specified
@@ -17,143 +10,108 @@ function SelectInput( selector, options ){
 
 	this.addControl();
 	this.addCSS();
-	$( this.selector ).hide();
+	this.selector.css( "display", 'none' );
 	
 	this.addBindings();
 }
 
 SelectInput.prototype.setInitialValue = function(){
-	var val = $( this.selector ).val(),
-		ph = $( this.selector ).attr( "placeholder" );
-
-	if( val.length === 0 ){
-		if( ph !== undefined && ph.length > 0 ){
-			val = ph;
-		}else{
-			val = " ... ";
-		}
-	}
-	this.value = val;
+	// this.value set in config()
+	this.selector.val( this.value.id );
 };
 
 SelectInput.prototype.addControl = function(){
 	$( this.selector ).wrap( "<div class='gadgetui-selectinput-div'></div>");
-	$( this.selector ).parent().prepend( "<div class='gadgetui-selectinput-label'>" + this.value + "</div>");
+	$( this.selector ).parent().prepend( "<div class='gadgetui-selectinput-label'>" + this.value.text + "</div>");
+	this.label = $( "div[class='gadgetui-selectinput-label']", $( this.selector ).parent() );
 };
 
 SelectInput.prototype.addCSS = function(){
 	var height, 
 		parentstyle,
-		label = $( "div[class='gadgetui-selectinput-label']", $( this.selector ).parent() );
+		style = gadgetui.util.getStyle( $(this.selector)[0] );
 
-	/*	$( this.selector )
-		.css( "border", "1px solid silver" );	*/
+	this.selector.css( "min-width", "100px" );
+	this.selector.css( "font-size", style.fontSize );
 
-	$( this.selector )
-		.css( "min-width", "10em" );
-	$( this.selector )
-		.css( "font-size", "1em" );
-
-	parentstyle = gadgetui.util.getStyle( $( this.selector ).parent()[0] );
+	parentstyle = gadgetui.util.getStyle( $(this.selector).parent()[0] );
 	height = gadgetui.util.getNumberValue( parentstyle.height ) - 2;
-	label
-		.css( "padding-top", "2px" )
-		.css( "height", height )
-		.css( "margin-left", "9px");
+	this.label.attr( "style", "" );
+	this.label.css( "padding-top", "2px" );
+	this.label.css( "height", height + "px" );
+	this.label.css( "margin-left", "9px" );	
 
 	if( navigator.userAgent.match( /Edge/ ) ){
-		this.selector
-			.css( "margin-left", "5px" );
+		this.selector.css( "margin-left", "5px" );
 	}else if( navigator.userAgent.match( /MSIE/ ) ){
-		this.selector
-		.css( "margin-top", "0px")
-		.css( "margin-left", "5px" );
-/*				.css( "margin-top", "1px")
-			.css( "margin-left", "6px" );	*/
+		this.selector.css( "margin-top", "0px" );
+		this.selector.css( "margin-left", "5px" );
 	}
 };
 
 SelectInput.prototype.addBindings = function() {
-	var self = this, 
-		oVar,
-		control = $( self.selector ).parent(),
-		label = $( "div[class='gadgetui-selectinput-label']", control );
+	var self = this;
 
-	oVar = ( (self.o === undefined) ? {} : self.o );
+	// setup mousePosition
+	if( gadgetui.mousePosition === undefined ){
+		document
+			.addEventListener( "mousemove", function(ev){ 
+				ev = ev || window.event; 
+				gadgetui.mousePosition = gadgetui.util.mouseCoords(ev); 
+			});
+	}
 
-	label
-		.off( this.activate )
-		.on( this.activate, function( ) {
-			$( this ).hide();
-			
-			$( self.selector ).css( "display", "inline-block" );
+	this.label
+		.on( this.activate, function( event ) {
+			self.label.css( "display", 'none' );
+			self.selector.css( "display", "inline-block" );
+			event.preventDefault();
 		});
 
-	control
-		.off( "change" )
-		.on( "change", function( ev ) {
-			var value = ev.target.value;
-			if( value.trim().length === 0 ){
-				value = " ... ";
-			}
-			oVar.isDirty = true;
-			label
-				.text( value );
-		});
-
-	$( self.selector )
-		.off( "blur" )
-		//.css( "min-width", "10em" )
+	this.selector
 		.on( "blur", function( ev ) {
-			var newVal;
+			//setTimeout( function() {
+				self.label.css( "display", "inline-block" );
+				self.selector.css( "display", 'none' );
+			//}, 100 );
+		});
+
+	this.selector
+		.on( "change", function( ev ) {
 			setTimeout( function() {
-				newVal = $( self.selector ).val();
-				if ( oVar.isDirty === true ) {
-					if( newVal.trim().length === 0 ){
-						newVal = " ... ";
-					}
-					oVar[ this.name ] = $( self.selector ).val();
-
-					label
-						.text( newVal );
-					if( self.model !== undefined && $( self.selector ).attr( "gadgetui-bind" ) === undefined ){	
-						// if we have specified a model but no data binding, change the model value
-						self.model.set( this.name, oVar[ this.name ] );
-					}
-
-					oVar.isDirty = false;
-					if( self.emitEvents === true ){
-						$( self.selector )
-							.trigger( "gadgetui-input-change", [ oVar ] );
-					}
-					if( self.func !== undefined ){
-						self.func( oVar );
-					}
+				var value = ev.target.value,
+					label = ev.target[ ev.target.selectedIndex ].innerHTML;
+				
+				if( value.trim().length === 0 ){
+					value = 0;
 				}
-				label
-					.css( "display", "inline-block" );
-				$( self.selector ).hide( );
+	
+				self.label.text( label );
+				if( self.model !== undefined && self.selector.attr( "gadgetui-bind" ) === undefined ){	
+					// if we have specified a model but no data binding, change the model value
+					self.model.set( this.name, { id: value, text: label } );
+				}
+	
+				if( self.emitEvents === true ){
+					gadgetui.util.trigger( self.selector, "gadgetui-input-change", { id: value, text: label } );
+				}
+				if( self.func !== undefined ){
+					self.func( { id: value, text: label } );
+				}
+				self.value = { id: value, text: label };
 			}, 100 );
-		})
-		.off( "keyup" )
-		.on( "keyup", function( event ) {
-			if ( parseInt( event.which, 10 ) === 13 ) {
-				$( self.selector ).blur();
-			}
 		});
 
-	control
-		.off( "mouseleave" )
+	this.selector
 		.on( "mouseleave", function( ) {
-			if ( $( self.selector ).is( ":focus" ) === false ) {
-				label
-					.css( "display", "inline-block" );
-				$( self.selector )
-					.hide( );
+			if ( self.selector !== document.activeElement ) {
+				self.label.css( "display", 'inline-block' );
+				self.selector.css( "display", 'none' );
 			}
 		});
+	
 
-	function detectLeftButton(evt) {
+/*		function detectLeftButton(evt) {
 	    evt = evt || window.event;
 	    var button = evt.which || evt.button;
 	    return button == 1;
@@ -169,17 +127,15 @@ SelectInput.prototype.addBindings = function() {
 					.hide( );
 			}			
 		}
-	};
+	};	*/
 };
 
 SelectInput.prototype.config = function( options ){
-	this.model =  (( options.model === undefined) ? this.model : options.model );
+	options = ( options === undefined ? {} : options );
+	this.model =  (( options.model === undefined) ? undefined : options.model );
 	this.func = (( options.func === undefined) ? undefined : options.func );
 	this.emitEvents = (( options.emitEvents === undefined) ? true : options.emitEvents );
 	this.activate = (( options.activate === undefined) ? "mouseenter" : options.activate );
-
-	if( options.object !== undefined ){
-		this.o = options.object;
-	}
+	this.value = (( options.value === undefined) ? { id: $(this.selector).val(), text : $(this.selector)[0][ $(this.selector)[0].selectedIndex ].innerHTML } : options.value );
 };
 	
