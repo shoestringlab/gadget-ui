@@ -12,7 +12,26 @@
  * 
  */
 
-var gadgetui = {};
+var gadgetui = {
+		keyCode: {
+			BACKSPACE: 8,
+			COMMA: 188,
+			DELETE: 46,
+			DOWN: 40,
+			END: 35,
+			ENTER: 13,
+			ESCAPE: 27,
+			HOME: 36,
+			LEFT: 37,
+			PAGE_DOWN: 34,
+			PAGE_UP: 33,
+			PERIOD: 190,
+			RIGHT: 39,
+			SPACE: 32,
+			TAB: 9,
+			UP: 38
+		}
+};
 gadgetui.model = ( function() {
 	"use strict";
 
@@ -61,7 +80,7 @@ gadgetui.model = ( function() {
 		}
 		else if ( typeof this.data === 'object' ) {
 			//Directive is to replace a property of the value stored in the BindableObject
-			// verifies that "data" is an object and not a simple value
+			// verifies _this "data" is an object and not a simple value
 			// update the BindableObject's specified property with the incoming value
 			// value could be anything, simple value or object, does not matter
 			
@@ -130,7 +149,7 @@ gadgetui.model = ( function() {
 
 	// bind an object to an HTML element
 	BindableObject.prototype.bind = function( element, property ) {
-		var e, self = this;
+		var e, _this = this;
 
 		if ( property === undefined ) {
 			// BindableObject holds a simple value
@@ -163,7 +182,7 @@ gadgetui.model = ( function() {
 			element.attachEvent("onpropertychange", function( ev ){
 				if( ev.propertyName === 'value'){
 					var el = ev.srcElement, val = ( el.nodeName === 'SELECT' ) ? { value: el.value, key: el.options[el.selectedIndex].innerHTML } : el.value;
-					self.change( val, { target: el }, el.name );
+					_this.change( val, { target: el }, el.name );
 				}
 			});
 		}
@@ -440,8 +459,8 @@ Bubble.prototype.setAfterRules = function(){
 };
 
 Bubble.prototype.calculatePosition = function(){
-	var self = this;
-	// Here we must walk up the DOM to the ancestors of the selector to see whether they are set to position: relative. If that is the case,
+	var _this = this;
+	// Here we must walk up the DOM to the ancestors of the selector to see whether they are set to position: relative. If _this is the case,
 	// we must add the offset values of the ancestor to the position values for the control or it will not be correctly placed.
 	this.relativeOffset = gadgetui.util.getRelativeParentOffset( this.selector );
 
@@ -449,22 +468,22 @@ Bubble.prototype.calculatePosition = function(){
 	this.position.split( " " ).forEach( function( ele ){
 		switch( ele ){
 			case "top":
-				self.top =  self.top - self.relativeOffset.top;
+				_this.top =  _this.top - _this.relativeOffset.top;
 				break;
 			case "bottom":
-				self.top =  self.top + self.selector.offsetHeight - self.relativeOffset.top;
-				//console.log( "self.top + self.selector.outerHeight() " + self.selector.outerHeight() );
+				_this.top =  _this.top + _this.selector.offsetHeight - _this.relativeOffset.top;
+				//console.log( "_this.top + _this.selector.outerHeight() " + _this.selector.outerHeight() );
 				break;
 			case "left":
 
 				break;
 			case "right":
-				self.left = self.left + self.selector.offsetWidth - self.relativeOffset.left;
-				//console.log( "self.left + self.selector.outerWidth() - self.relativeOffset.left " + self.selector.outerWidth() );
+				_this.left = _this.left + _this.selector.offsetWidth - _this.relativeOffset.left;
+				//console.log( "_this.left + _this.selector.outerWidth() - _this.relativeOffset.left " + _this.selector.outerWidth() );
 				break;
 			case "center":
-				self.left = self.left + self.selector.offsetWidth / 2  - self.relativeOffset.left;
-				//console.log( "self.left + self.selector.outerWidth() / 2 - self.relativeOffset.left  " + self.selector.outerWidth() / 2);
+				_this.left = _this.left + _this.selector.offsetWidth / 2  - _this.relativeOffset.left;
+				//console.log( "_this.left + _this.selector.outerWidth() / 2 - _this.relativeOffset.left  " + _this.selector.outerWidth() / 2);
 				break;
 			}
 	});	
@@ -586,19 +605,19 @@ Bubble.prototype.calculateArrowStyle = function(){
 };
 
 Bubble.prototype.setBehaviors = function(){
-	var self = this,
+	var _this = this,
 		css = gadgetui.util.setStyle;
 	//$( "span", this.bubbleSelector )
 	this.spanElement[0]
 		.addEventListener( "click", function(){
-				css( self.bubbleSelector, "display", 'none' );
-				self.bubbleSelector.parentNode.removeChild( self.bubbleSelector );
+				css( _this.bubbleSelector, "display", 'none' );
+				_this.bubbleSelector.parentNode.removeChild( _this.bubbleSelector );
 			});
 
 	if( this.autoClose ){
 		closeBubble = function(){
-			css( self.bubbleSelector, "display", 'none' );
-			self.bubbleSelector.parentNode.removeChild( self.bubbleSelector );
+			css( _this.bubbleSelector, "display", 'none' );
+			_this.bubbleSelector.parentNode.removeChild( _this.bubbleSelector );
 		};
 		setTimeout( closeBubble, this.autoCloseDelay );
 	}
@@ -716,15 +735,15 @@ CollapsiblePane.prototype.addCSS = function(){
 };
 
 CollapsiblePane.prototype.addBindings = function(){
-	var self = this, header = this.wrapper.querySelector(  "div.gadget-ui-collapsiblePane-header" );
+	var _this = this, header = this.wrapper.querySelector(  "div.gadget-ui-collapsiblePane-header" );
 	header
 		.addEventListener( "click", function(){
-			self.toggle();
+			_this.toggle();
 		});
 };
 
 CollapsiblePane.prototype.toggle = function(){
-	var self = this,
+	var _this = this,
 		css = gadgetui.util.setStyle,
 		icon,
 		myHeight,
@@ -763,9 +782,9 @@ CollapsiblePane.prototype.toggle = function(){
 		Velocity( this.wrapper, {
 			height: myHeight
 		},{ queue: false, duration: 500, complete: function() {
-			//self.selector.style.display = display;
-			//self.wrapper.style.border = border;
-			self.icon.setAttribute( "data-glyph", icon );
+			//_this.selector.style.display = display;
+			//_this.wrapper.style.border = border;
+			_this.icon.setAttribute( "data-glyph", icon );
 			} 
 		});
 		Velocity( this.selector, {
@@ -809,7 +828,7 @@ CollapsiblePane.prototype.config = function( options ){
 	
 	this.addCSS();
 
-	// now set height to computed height of control that has been created
+	// now set height to computed height of control _this has been created
 	this.height = gadgetui.util.getStyle( this.wrapper, "height" );
 
 	this.relativeOffsetLeft = gadgetui.util.getRelativeParentOffset( this.selector ).left;
@@ -817,16 +836,16 @@ CollapsiblePane.prototype.config = function( options ){
 }
 
 FloatingPane.prototype.addBindings = function(){
-	var self = this;
+	var _this = this;
 	// jquery-ui draggable
 	//this.wrapper.draggable( {addClasses: false } );
 	gadgetui.util.draggable( this.wrapper );
 	
 	this.maxmin.addEventListener( "click", function(){
-		if( self.minimized ){
-			self.expand();
+		if( _this.minimized ){
+			_this.expand();
 		}else{
-			self.minimize();
+			_this.minimize();
 		}
 	});
 };
@@ -887,7 +906,7 @@ FloatingPane.prototype.expand = function(){
 	// when minimizing and expanding, we must look up the ancestor chain to see if there are position: relative elements.
 	// if so, we must subtract the offset left of the ancestor to get the pane back to its original position
 	
-	var self = this,
+	var _this = this,
 		css = gadgetui.util.setStyle,
 		offset = gadgetui.util.getOffset( this.wrapper ),
 		lx =  parseInt( new Number( offset.left ), 10 ) - this.relativeOffsetLeft,
@@ -896,7 +915,7 @@ FloatingPane.prototype.expand = function(){
 	if( typeof Velocity != 'undefined' && this.animate ){
 		
 		Velocity( this.wrapper, {
-			left: lx - width + self.minWidth
+			left: lx - width + _this.minWidth
 		},{queue: false, duration: 500}, function() {
 			// Animation complete.
 		});
@@ -910,7 +929,7 @@ FloatingPane.prototype.expand = function(){
 		Velocity( this.wrapper, {
 			height: this.height
 		},{queue: false, duration: 500, complete: function() {
-			self.icon.setAttribute( "data-glyph", "fullscreen-exit" );
+			_this.icon.setAttribute( "data-glyph", "fullscreen-exit" );
 		}
 		});
 	}else{
@@ -926,7 +945,7 @@ FloatingPane.prototype.minimize = function(){
 	// when minimizing and maximizing, we must look up the ancestor chain to see if there are position: relative elements.
 	// if so, we must subtract the offset left of the ancestor to get the pane back to its original position
 	
-	var self = this,
+	var _this = this,
 		css = gadgetui.util.setStyle,
 		offset = gadgetui.util.getOffset( this.wrapper ),
 		lx =  parseInt( new Number( offset.left ), 10 ) - this.relativeOffsetLeft,
@@ -935,15 +954,15 @@ FloatingPane.prototype.minimize = function(){
 	if( typeof Velocity != 'undefined' && this.animate ){
 			
 		Velocity( this.wrapper, {
-			left: lx + width - self.minWidth
+			left: lx + width - _this.minWidth
 		},{queue: false, duration: 500}, function() {
 	
 		});
 	
 		Velocity( this.wrapper, {
-			width: self.minWidth
+			width: _this.minWidth
 		},{queue: false, duration: 500, complete: function() {
-			self.icon.setAttribute( "data-glyph", "fullscreen-enter" );
+			_this.icon.setAttribute( "data-glyph", "fullscreen-enter" );
 			}
 		});
 	
@@ -1045,29 +1064,29 @@ ComboBox.prototype.addControl = function(){
 };
 
 ComboBox.prototype.setCSS = function(){
-	var self = this,
+	var _this = this,
 
 	promise = new Promise(
 		function( resolve, reject ){
-			self.getArrowWidth( resolve, reject );
+			_this.getArrowWidth( resolve, reject );
 		});
 	promise
 		.then( function(){
-			self.addCSS();
+			_this.addCSS();
 		});
 	promise['catch']( function( message ){
 			// use width of default icon
-			self.arrowWidth = 22;
+			_this.arrowWidth = 22;
 			console.log( message );
-			self.addCSS();
+			_this.addCSS();
 		});
 };
 
 ComboBox.prototype.getArrowWidth = function( resolve, reject ){
-	var self = this, 
+	var _this = this, 
 		img = new Image();
 		img.onload = function() {
-			self.arrowWidth = this.width;
+			_this.arrowWidth = this.width;
 			resolve();
 		};
 		img.onerror = function(){
@@ -1189,17 +1208,17 @@ ComboBox.prototype.addCSS = function(){
 };
 
 ComboBox.prototype.setSelectOptions = function(){
-	var self = this, id, text, option;
+	var _this = this, id, text, option;
 
 	
-	while (self.selector.options.length > 0) {                
-		self.selector.remove(0);
+	while (_this.selector.options.length > 0) {                
+		_this.selector.remove(0);
     }      
 	//console.log( "append new option" );
 	option = gadgetui.util.createElement( "option" );
-	option.value = self.newOption.id;
-	option.text = self.newOption.text;
-	self.selector.add( option );
+	option.value = _this.newOption.id;
+	option.text = _this.newOption.text;
+	_this.selector.add( option );
 
 	this.dataProvider.data.forEach( function( obj ){
 		id = obj.id;
@@ -1211,7 +1230,7 @@ ComboBox.prototype.setSelectOptions = function(){
 		option.value = id;
 		option.text = text;
 
-		self.selector.add( option );
+		_this.selector.add( option );
 	});
 };
 
@@ -1246,7 +1265,7 @@ ComboBox.prototype.showLabel = function(){
 };
 
 ComboBox.prototype.addBehaviors = function( obj ) {
-	var self = this;
+	var _this = this;
 	// setup mousePosition
 	if( gadgetui.mousePosition === undefined ){
 		document
@@ -1259,52 +1278,52 @@ ComboBox.prototype.addBehaviors = function( obj ) {
 	this.comboBox
 		.addEventListener( this.activate, function( ) {
 			setTimeout( function( ) {
-				if( self.label.style.display != "none" ){
+				if( _this.label.style.display != "none" ){
 					console.log( "combo mouseenter ");
-					//self.label.style.display = "none" );
-					self.selectWrapper.style.display = "inline";
-					self.label.style.display = "none";
-					if( self.selector.selectedIndex <= 0 ) {
-						self.inputWrapper.style.display = "inline";
+					//_this.label.style.display = "none" );
+					_this.selectWrapper.style.display = "inline";
+					_this.label.style.display = "none";
+					if( _this.selector.selectedIndex <= 0 ) {
+						_this.inputWrapper.style.display = "inline";
 					}
 				}
-			}, self.delay );
+			}, _this.delay );
 		});
 	this.comboBox
 		.addEventListener( "mouseleave", function( ) {
 			console.log( "combo mouseleave ");
-			if ( self.selector != document.activeElement && self.input != document.activeElement ) {
-				self.showLabel();
+			if ( _this.selector != document.activeElement && _this.input != document.activeElement ) {
+				_this.showLabel();
 			}
 		});
 
-	self.input
+	_this.input
 		.addEventListener( "click", function( e ){
 			console.log( "input click ");
 		});
-	self.input
+	_this.input
 		.addEventListener( "keyup", function( event ) {
 			console.log( "input keyup");
 			if ( event.which === 13 ) {
-				var inputText =  gadgetui.util.encode( self.input.value );
-				self.handleInput( inputText );
+				var inputText =  gadgetui.util.encode( _this.input.value );
+				_this.handleInput( inputText );
 			}
 		});
-	self.input
+	_this.input
 		.addEventListener( "blur", function( ) {
 			console.log( "input blur" );
 
-			if( gadgetui.util.mouseWithin( self.selector, gadgetui.mousePosition ) === true ){
-				self.inputWrapper.style.display = 'none';
-				self.selector.focus();
+			if( gadgetui.util.mouseWithin( _this.selector, gadgetui.mousePosition ) === true ){
+				_this.inputWrapper.style.display = 'none';
+				_this.selector.focus();
 			}else{
-				self.showLabel();
+				_this.showLabel();
 			}
 		});
 
 	this.selector
 		.addEventListener( "mouseenter", function( ev ){
-			self.selector.style.display = "inline";
+			_this.selector.style.display = "inline";
 		});
 	this.selector
 		.addEventListener( "click", function( ev ){
@@ -1313,17 +1332,17 @@ ComboBox.prototype.addBehaviors = function( obj ) {
 		});
 	this.selector
 		.addEventListener( "change", function( event ) {
-			if( parseInt( event.target[ event.target.selectedIndex ].value, 10 ) !== parseInt(self.id, 10 ) ){
+			if( parseInt( event.target[ event.target.selectedIndex ].value, 10 ) !== parseInt(_this.id, 10 ) ){
 				console.log( "select change");
 				if( event.target.selectedIndex > 0 ){
-					self.inputWrapper.style.display = 'none';
-					self.setValue( event.target[ event.target.selectedIndex ].value );
+					_this.inputWrapper.style.display = 'none';
+					_this.setValue( event.target[ event.target.selectedIndex ].value );
 				}else{
-					self.inputWrapper.style.display = 'block';
-					self.setValue( self.newOption.value );
-					self.input.focus();
+					_this.inputWrapper.style.display = 'block';
+					_this.setValue( _this.newOption.value );
+					_this.input.focus();
 				}
-				gadgetui.util.trigger( self.selector, "gadgetui-combobox-change", { id: event.target[ event.target.selectedIndex ].value, text: event.target[ event.target.selectedIndex ].innerHTML } );
+				gadgetui.util.trigger( _this.selector, "gadgetui-combobox-change", { id: event.target[ event.target.selectedIndex ].value, text: event.target[ event.target.selectedIndex ].innerHTML } );
 			}
 		});
 	this.selector
@@ -1331,10 +1350,10 @@ ComboBox.prototype.addBehaviors = function( obj ) {
 			console.log( "select blur ");
 			event.stopPropagation();
 			setTimeout( function( ) {
-				//if( self.emitEvents === true ){
+				//if( _this.emitEvents === true ){
 
-				if( self.input !== document.activeElement ){
-					self.showLabel();
+				if( _this.input !== document.activeElement ){
+					_this.showLabel();
 				}
 			}, 200 );
 		});
@@ -1342,8 +1361,8 @@ ComboBox.prototype.addBehaviors = function( obj ) {
 /*		$( "option", this.selector
 		.on( "mouseenter", function( ev ){
 			console.log( "option mouseenter" );
-			if( self.selector.css( "display" ) !== "inline" ){
-				self.selector.style.display = "inline";
+			if( _this.selector.css( "display" ) !== "inline" ){
+				_this.selector.style.display = "inline";
 			}
 		});	*/
 };
@@ -1374,12 +1393,12 @@ ComboBox.prototype.triggerSelectChange = function(){
 };
 
 ComboBox.prototype.setSaveFunc = function(){
-	var self = this;
+	var _this = this;
 
 	if( this.save !== undefined ){
 		var save = this.save;
 		this.save = function( text ) {
-			var that = this,
+			var _this = this,
 				func,  
 				promise, 
 				args = [ text ],
@@ -1391,42 +1410,42 @@ ComboBox.prototype.setSaveFunc = function(){
 						function( resolve, reject ){
 							args.push( resolve );
 							args.push( reject );
-							func = save.apply(that, args);
+							func = save.apply(_this, args);
 							console.log( func );
 						});
 				promise.then(
 						function( value ){
 							function callback(){
 								// trigger save event if we're triggering events 
-								//if( self.emitEvents === true ){
-								gadgetui.util.trigger( self.selector, "gadgetui-combobox-save", { id: value, text: text } );
-									//self.selector.dispatchEvent( new Event( "gadgetui-combobox-save" ), { id: value, text: text } );
+								//if( _this.emitEvents === true ){
+								gadgetui.util.trigger( _this.selector, "gadgetui-combobox-save", { id: value, text: text } );
+									//_this.selector.dispatchEvent( new Event( "gadgetui-combobox-save" ), { id: value, text: text } );
 								//}
-								self.input.value = '';
-								self.inputWrapper.style.display = 'none';
-								self.id = value;
-								self.dataProvider.refresh();
+								_this.input.value = '';
+								_this.inputWrapper.style.display = 'none';
+								_this.id = value;
+								_this.dataProvider.refresh();
 							}
-							if( self.animate === true && typeof Velocity !== "undefined" ){
-								Velocity( self.selectWrapper, {
-									boxShadow: '0 0 5px ' + self.glowColor,
-									borderColor: self.glowColor
-								  }, self.animateDelay / 2, function(){
-									 self.selectWrapper.style.borderColor = self.glowColor;
+							if( _this.animate === true && typeof Velocity !== "undefined" ){
+								Velocity( _this.selectWrapper, {
+									boxShadow: '0 0 5px ' + _this.glowColor,
+									borderColor: _this.glowColor
+								  }, _this.animateDelay / 2, function(){
+									 _this.selectWrapper.style.borderColor = _this.glowColor;
 								  } );							
-								Velocity( self.selectWrapper, {
+								Velocity( _this.selectWrapper, {
 									boxShadow: 0,
-									borderColor: self.borderColor
-								  }, self.animateDelay / 2, callback );
+									borderColor: _this.borderColor
+								  }, _this.animateDelay / 2, callback );
 							}else{
 								callback();
 							}
 						});
 				promise['catch']( function( message ){
-					self.input.value= '';
-					self.inputWrapper.hide();
+					_this.input.value= '';
+					_this.inputWrapper.hide();
 					console.log( message );
-					self.dataProvider.refresh();
+					_this.dataProvider.refresh();
 
 				});
 			}
@@ -1459,7 +1478,7 @@ ComboBox.prototype.setValue = function( id ){
 };
 
 ComboBox.prototype.setDataProviderRefresh = function(){
-	var self = this,
+	var _this = this,
 		promise,
 		refresh = this.dataProvider.refresh,
 		func;
@@ -1473,13 +1492,13 @@ ComboBox.prototype.setDataProviderRefresh = function(){
 					});
 			promise
 				.then( function(){
-					gadgetui.util.trigger( self.selector, "gadgetui-combobox-refresh" );
-					//self.selector.dispatchEvent( new Event( "gadgetui-combobox-refresh" ) );
-					self.setControls();
+					gadgetui.util.trigger( _this.selector, "gadgetui-combobox-refresh" );
+					//_this.selector.dispatchEvent( new Event( "gadgetui-combobox-refresh" ) );
+					_this.setControls();
 				});
 			promise['catch']( function( message ){
 					console.log( "message" );
-					self.setControls();
+					_this.setControls();
 				});
 		}
 		return func;
@@ -1520,6 +1539,7 @@ function LookupListInput( selector, options ){
 	this.selector = selector;
 	this.items = [];
 	this.config( options );
+	this.setIsMultiLine();
 	this.addControl();
 	this.addBindings();
 }
@@ -1534,23 +1554,216 @@ LookupListInput.prototype.addControl = function(){
 	//$( this.selector ).wrap( '<div class="gadgetui-lookuplistinput-div ui-widget-content ui-corner-all"></div>' );
 };
 
+// adapted from jQuery UI autocomplete. modified and re-distributed per MIT License.
+LookupListInput.prototype.initSource = function(){
+		var array, url,
+			_this = this;
+		if ( typeof this.datasource === Array ) {
+			array = this.datasource;
+			this.source = function( request, response ) {
+				response( _this.filter( array, request.term ) );
+			};
+		} else if ( typeof this.datasource === "string" ) {
+			url = this.datasource;
+			this.source = function( request, response ) {
+				if ( _this.xhr ) {
+					_this.xhr.abort();
+				}
+				_this.xhr = fetch({
+					url: url,
+					data: request,
+					dataType: "json",
+					success: function( data ) {
+						response( data );
+					},
+					error: function() {
+						response([]);
+					}
+				});
+			};
+		} else {
+			this.source = this.datasource;
+		}
+};
+
+//adapted from jQuery UI autocomplete. modified and re-distributed per MIT License.
+LookupListInput.prototype.escapeRegex = function( value ) {
+	return value.replace( /[\-\[\]{}()*+?.,\\\^$|#\s]/g, "\\$&" );
+};
+
+//adapted from jQuery UI autocomplete. modified and re-distributed per MIT License.
+LookupListInput.prototype.filter = function( array, term ) {
+	var matcher = new RegExp( this.escapeRegex( term ), "i" );
+	return gadgetui.util.grep( array, function( value ) {
+		return matcher.test( value.label || value.value || value );
+	});
+};
+
+LookupListInput.prototype.setIsMultiLine = function(){
+	var nodeName = this.selector.nodeName.toLowerCase(),
+	isTextarea = nodeName === "textarea",
+	isInput = nodeName === "input";
+
+	this.isMultiLine = isTextarea ? true : isInput ? false : this.selector.getAttribute( "isContentEditable" );
+};
+
 LookupListInput.prototype.addBindings = function(){
-	var self = this;
+	var _this = this;
 	
 	this.wrapper
 		.addEventListener( "click", function(){
-			self.selector.focus();
+			_this.selector.focus();
 		});
 	
+	var suppressKeyPress, suppressKeyPressRepeat, suppressInput;
+	
+	
+	this.valueMethod = this.selector[ isTextarea || isInput ? "value" : "innerText" ];
+	this.isNewMenu = true;
+	
+	this.selector.setAttribute( "autocomplete", "off" );
+	
+	this.selector
+		.addEventListener( "keydown", function( event ) {
+			if ( this.selector.prop( "readOnly" ) ) {
+				suppressKeyPress = true;
+				suppressInput = true;
+				suppressKeyPressRepeat = true;
+				return;
+			}
+	
+			suppressKeyPress = false;
+			suppressInput = false;
+			suppressKeyPressRepeat = false;
+			var keyCode = gadgetui.keyCode;
+			switch ( event.keyCode ) {
+			case keyCode.PAGE_UP:
+				suppressKeyPress = true;
+				this._move( "previousPage", event );
+				break;
+			case keyCode.PAGE_DOWN:
+				suppressKeyPress = true;
+				this._move( "nextPage", event );
+				break;
+			case keyCode.UP:
+				suppressKeyPress = true;
+				this._keyEvent( "previous", event );
+				break;
+			case keyCode.DOWN:
+				suppressKeyPress = true;
+				this._keyEvent( "next", event );
+				break;
+			case keyCode.ENTER:
+				// when menu is open and has focus
+				if ( this.menu.active ) {
+					// #6055 - Opera still allows the keypress to occur
+					// which causes forms to submit
+					suppressKeyPress = true;
+					event.preventDefault();
+					this.menu.select( event );
+				}
+				break;
+			case keyCode.TAB:
+				if ( this.menu.active ) {
+					this.menu.select( event );
+				}
+				break;
+			case keyCode.ESCAPE:
+				if ( this.menu.element.is( ":visible" ) ) {
+					if ( !this.isMultiLine ) {
+						this._value( this.term );
+					}
+					this.close( event );
+					// Different browsers have different default behavior for escape
+					// Single press can mean undo or clear
+					// Double press in IE means clear the whole form
+					event.preventDefault();
+				}
+				break;
+			default:
+				suppressKeyPressRepeat = true;
+				// search timeout should be triggered before the input value is changed
+				this._searchTimeout( event );
+				break;
+			}
+		});
+
+	this.selector
+		.addEventListener( "keypress", function( event ) {
+			if ( suppressKeyPress ) {
+				suppressKeyPress = false;
+				if ( !this.isMultiLine || this.menu.element.is( ":visible" ) ) {
+					event.preventDefault();
+				}
+				return;
+			}
+			if ( suppressKeyPressRepeat ) {
+				return;
+			}
+	
+			// replicate some key handlers to allow them to repeat in Firefox and Opera
+			var keyCode = gadgetui.keyCode;
+			switch ( event.keyCode ) {
+			case keyCode.PAGE_UP:
+				this._move( "previousPage", event );
+				break;
+			case keyCode.PAGE_DOWN:
+				this._move( "nextPage", event );
+				break;
+			case keyCode.UP:
+				this._keyEvent( "previous", event );
+				break;
+			case keyCode.DOWN:
+				this._keyEvent( "next", event );
+				break;
+			}
+		});
+
+	this.selector
+		.addEventListener( "input", function( event ) {	
+			if ( suppressInput ) {
+				suppressInput = false;
+				event.preventDefault();
+				return;
+			}
+			this._searchTimeout( event );
+		});
+
+	this.selector
+		.addEventListener( "focus", function( event ) {	
+			this.selectedItem = null;
+			this.previous = this._value();
+		});
+
+	this.selector
+		.addEventListener( "blur", function( event ) {	
+			if ( this.cancelBlur ) {
+				delete this.cancelBlur;
+				return;
+			}
+	
+			clearTimeout( this.searching );
+			this.close( event );
+			this._change( event );
+		});
+	
+	
+	
+	
+	
+	
+	
+	
+	
 		/*	.addEventListener( "click", "div[class~='gadgetui-lookuplist-input-cancel']", function(e){
-			self.remove( self.selector, $( e.target ).attr( "gadgetui-lookuplist-input-value" ) );
+			_this.remove( _this.selector, $( e.target ).attr( "gadgetui-lookuplist-input-value" ) );
 		});	*/
 	/*	
 	$( this.selector )
 		.autocomplete( {
-			minLength : self.minLength,
+			minLength : _this.minLength,
 			source : function( request, response ) {
-				response( $.ui.autocomplete.filter( self.datasource, gadgetui.util.extractLast( request.term ) ) );
+				response( $.ui.autocomplete.filter( _this.datasource, gadgetui.util.extractLast( request.term ) ) );
 			},
 
 			focus : function( ) {
@@ -1563,7 +1776,7 @@ LookupListInput.prototype.addBindings = function(){
 				// remove the current input
 				terms.pop( );
 
-				self.add( self.selector, ui.item );
+				_this.add( _this.selector, ui.item );
 				this.value = '';
 				this.focus( );
 				return false;
@@ -1584,10 +1797,10 @@ LookupListInput.prototype.addBindings = function(){
 		});
 
 	$.ui.autocomplete.prototype._renderItem = function( ul, item){
-		if( typeof self.menuItemRenderer === "function"){
+		if( typeof _this.menuItemRenderer === "function"){
 			return $( "<li>" )
 			.setAttribute( "data-value", item.value )
-			.append( $( "<a>" ).text( self.menuItemRenderer( item ) ) )
+			.append( $( "<a>" ).text( _this.menuItemRenderer( item ) ) )
 			.appendTo( ul );
 		}else{
 			//default jquery-ui implementation
@@ -1638,9 +1851,9 @@ LookupListInput.prototype.add = function( el, item ){
 };
 
 LookupListInput.prototype.remove = function( el, value ){
-	el.parentNode.querySelector( "div[gadgetui-lookuplist-input-value='" + value + "']" ).parentNode.remove();
+	el.parentNode.querySelector( "div[gadgetui-lookuplistinput-value='" + value + "']" ).parentNode.remove();
 
-	var self = this, prop, list;
+	var _this = this, prop, list;
 
 	if( this.model !== undefined ){
 		prop = el.getAttribute( "gadgetui-bind" );
@@ -1648,13 +1861,13 @@ LookupListInput.prototype.remove = function( el, value ){
 		list.forEach( function( obj, ix ){
 			if( obj.value === value ){
 				list.splice( ix, 1 );
-				if( self.func !== undefined ){
-					self.func( obj, 'remove' );
+				if( _this.func !== undefined ){
+					_this.func( obj, 'remove' );
 				}
-				if( self.emitEvents === true ){
+				if( _this.emitEvents === true ){
 					gadgetui.util.trigger( el, "gadgetui-lookuplistinput-remove", obj );
 				}
-				self.model.set( prop, list );
+				_this.model.set( prop, list );
 				return false;
 			}
 		});
@@ -1669,6 +1882,13 @@ LookupListInput.prototype.reset = function(){
 		list = this.model.get( prop );
 		list.length = 0;
 	}
+};
+
+LookupListInput.prototype.destroy = function() {
+	clearTimeout( this.searching );
+	//this.selector.removeClass( "gadgetui-lookuplistinput" );
+	this.menu.element.remove();
+	this.liveRegion.remove();
 };
 
 LookupListInput.prototype.config = function( options ){
@@ -1746,7 +1966,7 @@ SelectInput.prototype.addCSS = function(){
 };
 
 SelectInput.prototype.addBindings = function() {
-	var self = this,
+	var _this = this,
 		css = gadgetui.util.setStyle;
 
 	// setup mousePosition
@@ -1760,16 +1980,16 @@ SelectInput.prototype.addBindings = function() {
 
 	this.label
 		.addEventListener( this.activate, function( event ) {
-			css( self.label, "display", 'none' );
-			css( self.selector, "display", "inline-block" );
+			css( _this.label, "display", 'none' );
+			css( _this.selector, "display", "inline-block" );
 			event.preventDefault();
 		});
 
 	this.selector
 		.addEventListener( "blur", function( ev ) {
 			//setTimeout( function() {
-				css( self.label, "display", "inline-block" );
-				css( self.selector, "display", 'none' );
+				css( _this.label, "display", "inline-block" );
+				css( _this.selector, "display", 'none' );
 			//}, 100 );
 		});
 
@@ -1783,27 +2003,27 @@ SelectInput.prototype.addBindings = function() {
 					value = 0;
 				}
 	
-				self.label.innerText = label;
-				if( self.model !== undefined && self.selector.getAttribute( "gadgetui-bind" ) === undefined ){	
+				_this.label.innerText = label;
+				if( _this.model !== undefined && _this.selector.getAttribute( "gadgetui-bind" ) === undefined ){	
 					// if we have specified a model but no data binding, change the model value
-					self.model.set( this.name, { id: value, text: label } );
+					_this.model.set( this.name, { id: value, text: label } );
 				}
 	
-				if( self.emitEvents === true ){
-					gadgetui.util.trigger( self.selector, "gadgetui-input-change", { id: value, text: label } );
+				if( _this.emitEvents === true ){
+					gadgetui.util.trigger( _this.selector, "gadgetui-input-change", { id: value, text: label } );
 				}
-				if( self.func !== undefined ){
-					self.func( { id: value, text: label } );
+				if( _this.func !== undefined ){
+					_this.func( { id: value, text: label } );
 				}
-				self.value = { id: value, text: label };
+				_this.value = { id: value, text: label };
 			}, 100 );
 		});
 
 	this.selector
 		.addEventListener( "mouseleave", function( ) {
-			if ( self.selector !== document.activeElement ) {
-				css( self.label, "display", 'inline-block' );
-				css( self.selector, "display", 'none' );
+			if ( _this.selector !== document.activeElement ) {
+				css( _this.label, "display", 'inline-block' );
+				css( _this.selector, "display", 'none' );
 			}
 		});
 	
@@ -1817,10 +2037,10 @@ SelectInput.prototype.addBindings = function() {
 	document.onmouseup = function( event ){
 		var isLeftClick = detectLeftButton( event );
 		if( isLeftClick === true ){
-			if ( $( self.selector ).is( ":focus" ) === false ) {
+			if ( $( _this.selector ).is( ":focus" ) === false ) {
 				label
 					.css( "display", "inline-block" );
-				$( self.selector )
+				$( _this.selector )
 					.hide( );
 			}			
 		}
@@ -1998,7 +2218,7 @@ TextInput.prototype.setControlWidth = function( text ){
 };
 
 TextInput.prototype.addBindings = function(){
-	var self = this;
+	var _this = this;
 
 	// setup mousePosition
 	if( gadgetui.mousePosition === undefined ){
@@ -2010,31 +2230,31 @@ TextInput.prototype.addBindings = function(){
 	}
 
 	this.label
-		//.off( self.activate )
-		.addEventListener( self.activate, function( ) {
-			if( self.useActive && ( self.label.getAttribute( "data-active" ) === "false" || self.label.getAttribute( "data-active" ) === undefined ) ){
-				self.label.setAttribute( "data-active", "true" );
+		//.off( _this.activate )
+		.addEventListener( _this.activate, function( ) {
+			if( _this.useActive && ( _this.label.getAttribute( "data-active" ) === "false" || _this.label.getAttribute( "data-active" ) === undefined ) ){
+				_this.label.setAttribute( "data-active", "true" );
 			}else{
 				setTimeout( 
 					function(){
 					var event, css = gadgetui.util.setStyle;
-					if( gadgetui.util.mouseWithin( self.label, gadgetui.mousePosition ) === true ){
+					if( gadgetui.util.mouseWithin( _this.label, gadgetui.mousePosition ) === true ){
 						// both input and label
-						css( self.labelDiv, "display", 'none' );
-						css( self.inputDiv, "display", 'block' );
-						self.setControlWidth( self.selector.value );
+						css( _this.labelDiv, "display", 'none' );
+						css( _this.inputDiv, "display", 'block' );
+						_this.setControlWidth( _this.selector.value );
 
 						// if we are only showing the input on click, focus on the element immediately
-						if( self.activate === "click" ){
-							self.selector.focus();
+						if( _this.activate === "click" ){
+							_this.selector.focus();
 						}
-						if( self.emitEvents === true ){
-							// raise an event that the input is active
+						if( _this.emitEvents === true ){
+							// raise an event _this the input is active
 							
 							event = new Event( "gadgetui-input-show" );
-							self.selector.dispatchEvent( event );
+							_this.selector.dispatchEvent( event );
 						}
-					}}, self.delay );
+					}}, _this.delay );
 			}
 		});
 
@@ -2048,35 +2268,35 @@ TextInput.prototype.addBindings = function(){
 			if ( parseInt( event.keyCode, 10 ) === 13 ) {
 				this.blur();
 			}
-			self.setControlWidth( this.value );
+			_this.setControlWidth( this.value );
 		});
 
 	this.selector
 		.addEventListener( "change", function( event ) {
 			setTimeout( function( ) {
 				var value = event.target.value, style, txtWidth;
-				if( value.length === 0 && self.selector.getAttribute( "placeholder" ) !== undefined ){
-					value = self.selector.getAttribute( "placeholder" );
+				if( value.length === 0 && _this.selector.getAttribute( "placeholder" ) !== undefined ){
+					value = _this.selector.getAttribute( "placeholder" );
 				}
 
-				style = gadgetui.util.getStyle( self.selector );
+				style = gadgetui.util.getStyle( _this.selector );
 				txtWidth = gadgetui.util.textWidth( value, style );
 
-				if( self.maxWidth < txtWidth ){
-					value = gadgetui.util.fitText( value, self.font, self.maxWidth );
+				if( _this.maxWidth < txtWidth ){
+					value = gadgetui.util.fitText( value, _this.font, _this.maxWidth );
 				}
-				self.label.value = value;
-				if( self.model !== undefined && self.selector.getAttribute( "gadgetui-bind" ) === undefined ){	
+				_this.label.value = value;
+				if( _this.model !== undefined && _this.selector.getAttribute( "gadgetui-bind" ) === undefined ){	
 					// if we have specified a model but no data binding, change the model value
-					self.model.set( self.selector.name, event.target.value );
+					_this.model.set( _this.selector.name, event.target.value );
 				}
 
-				if( self.emitEvents === true ){
-					gadgetui.util.trigger( self.selector, "gadgetui-input-change", { text: event.target.value } );
+				if( _this.emitEvents === true ){
+					gadgetui.util.trigger( _this.selector, "gadgetui-input-change", { text: event.target.value } );
 				}
 
-				if( self.func !== undefined ){
-					self.func( { text: event.target.value } );
+				if( _this.func !== undefined ){
+					_this.func( { text: event.target.value } );
 				}				
 			}, 200 );
 		});
@@ -2086,20 +2306,20 @@ TextInput.prototype.addBindings = function(){
 		.addEventListener( "mouseleave", function( ) {
 			var css = gadgetui.util.setStyle;
 			if( this !== document.activeElement ){
-				css( self.labelDiv, "display", "block" );
-				css( self.inputDiv, "display", "none" );
-				css( self.label, "maxWidth", self.maxWidth );				
+				css( _this.labelDiv, "display", "block" );
+				css( _this.inputDiv, "display", "none" );
+				css( _this.label, "maxWidth", _this.maxWidth );				
 			}
 		});
 
 	this.selector
 		.addEventListener( "blur", function( ) {
 			var css = gadgetui.util.setStyle;
-			css( self.inputDiv, "display", 'none' );
-			css( self.labelDiv, "display", 'block' );
-			self.label.setAttribute( "data-active", "false" );
-			css( self.selector, "maxWidth", self.maxWidth );
-			css( self.label, "maxWidth", self.maxWidth );
+			css( _this.inputDiv, "display", 'none' );
+			css( _this.labelDiv, "display", 'block' );
+			_this.label.setAttribute( "data-active", "false" );
+			css( _this.selector, "maxWidth", _this.maxWidth );
+			css( _this.label, "maxWidth", _this.maxWidth );
 		});
 
 };
@@ -2492,6 +2712,25 @@ gadgetui.util = ( function(){
 			    }
 			  }
 			  return highest;
+		},
+		// copied from jQuery core, re-distributed per MIT License
+		grep: function( elems, callback, invert ) {
+			var callbackInverse,
+				matches = [],
+				i = 0,
+				length = elems.length,
+				callbackExpect = !invert;
+
+			// Go through the array, only saving the items
+			// _this pass the validator function
+			for ( ; i < length; i++ ) {
+				callbackInverse = !callback( elems[ i ], i );
+				if ( callbackInverse !== callbackExpect ) {
+					matches.push( elems[ i ] );
+				}
+			}
+
+			return matches;
 		}
 	};
 } ());	

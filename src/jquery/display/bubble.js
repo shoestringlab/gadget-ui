@@ -112,30 +112,30 @@ Bubble.prototype.setAfterRules = function(){
 };
 
 Bubble.prototype.calculatePosition = function(){
-	var that = this;
-	// Here we must walk up the DOM to the ancestors of the selector to see whether they are set to position: relative. If that is the case,
+	var _this = this;
+	// Here we must walk up the DOM to the ancestors of the selector to see whether they are set to position: relative. If _this is the case,
 	// we must add the offset values of the ancestor to the position values for the control or it will not be correctly placed.
 	this.relativeOffset = gadgetui.util.getRelativeParentOffset( this.selector );
 
 	$.each(  this.position.split( " " ), function( ix, ele ){
 			switch( ele ){
 			case "top":
-				that.top =  that.top - that.relativeOffset.top;
+				_this.top =  _this.top - _this.relativeOffset.top;
 				break;
 			case "bottom":
-				that.top =  that.top + that.selector.outerHeight() - that.relativeOffset.top;
-				//console.log( "that.top + that.selector.outerHeight() " + that.selector.outerHeight() );
+				_this.top =  _this.top + _this.selector.outerHeight() - _this.relativeOffset.top;
+				//console.log( "_this.top + _this.selector.outerHeight() " + _this.selector.outerHeight() );
 				break;
 			case "left":
 
 				break;
 			case "right":
-				that.left = that.left + that.selector.outerWidth() - that.relativeOffset.left;
-				//console.log( "that.left + that.selector.outerWidth() - that.relativeOffset.left " + that.selector.outerWidth() );
+				_this.left = _this.left + _this.selector.outerWidth() - _this.relativeOffset.left;
+				//console.log( "_this.left + _this.selector.outerWidth() - _this.relativeOffset.left " + _this.selector.outerWidth() );
 				break;
 			case "center":
-				that.left = that.left + that.selector.outerWidth() / 2  - that.relativeOffset.left;
-				//console.log( "that.left + that.selector.outerWidth() / 2 - that.relativeOffset.left  " + that.selector.outerWidth() / 2);
+				_this.left = _this.left + _this.selector.outerWidth() / 2  - _this.relativeOffset.left;
+				//console.log( "_this.left + _this.selector.outerWidth() / 2 - _this.relativeOffset.left  " + _this.selector.outerWidth() / 2);
 				break;
 			}
 	});	
@@ -302,15 +302,15 @@ Bubble.prototype.calculateArrowStyle = function(){
 };
 
 Bubble.prototype.setBehaviors = function(){
-	var that = this;
+	var _this = this;
 	$( "span", this.bubbleSelector )
 		.on( "click", function(){
-			that.bubbleSelector.hide( "fade" ).remove();
+			_this.bubbleSelector.hide( "fade" ).remove();
 		});
 
 	if( this.autoClose ){
 		closeBubble = function(){
-			that.bubbleSelector.hide( "fade" ).remove();
+			_this.bubbleSelector.hide( "fade" ).remove();
 		};
 		setTimeout( closeBubble, this.autoCloseDelay );
 	}

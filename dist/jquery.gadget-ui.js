@@ -12,7 +12,26 @@
  * 
  */
 
-var gadgetui = {};
+var gadgetui = {
+		keyCode: {
+			BACKSPACE: 8,
+			COMMA: 188,
+			DELETE: 46,
+			DOWN: 40,
+			END: 35,
+			ENTER: 13,
+			ESCAPE: 27,
+			HOME: 36,
+			LEFT: 37,
+			PAGE_DOWN: 34,
+			PAGE_UP: 33,
+			PERIOD: 190,
+			RIGHT: 39,
+			SPACE: 32,
+			TAB: 9,
+			UP: 38
+		}
+};
 gadgetui.model = ( function( $ ) {
 	"use strict";
 
@@ -61,7 +80,7 @@ gadgetui.model = ( function( $ ) {
 		}
 		else if ( typeof this.data === 'object' ) {
 			//Directive is to replace a property of the value stored in the BindableObject
-			// verifies that "data" is an object and not a simple value
+			// verifies _this "data" is an object and not a simple value
 			// update the BindableObject's specified property with the incoming value
 			// value could be anything, simple value or object, does not matter
 			
@@ -124,7 +143,7 @@ gadgetui.model = ( function( $ ) {
 
 	// bind an object to an HTML element
 	BindableObject.prototype.bind = function( element, property ) {
-		var e, self = this;
+		var e, _this = this;
 
 		if ( property === undefined ) {
 			// BindableObject holds a simple value
@@ -157,7 +176,7 @@ gadgetui.model = ( function( $ ) {
 			element[ 0 ].attachEvent("onpropertychange", function( ev ){
 				if( ev.propertyName === 'value'){
 					var el = ev.srcElement, val = ( el.nodeName === 'SELECT' ) ? { value: el.value, key: el.options[el.selectedIndex].innerHTML } : el.value;
-					self.change( val, { target: el }, el.name );
+					_this.change( val, { target: el }, el.name );
 				}
 			});
 		}
@@ -468,30 +487,30 @@ Bubble.prototype.setAfterRules = function(){
 };
 
 Bubble.prototype.calculatePosition = function(){
-	var self = this;
-	// Here we must walk up the DOM to the ancestors of the selector to see whether they are set to position: relative. If that is the case,
+	var _this = this;
+	// Here we must walk up the DOM to the ancestors of the selector to see whether they are set to position: relative. If _this is the case,
 	// we must add the offset values of the ancestor to the position values for the control or it will not be correctly placed.
 	this.relativeOffset = gadgetui.util.getRelativeParentOffset( this.selector );
 
 	$.each(  this.position.split( " " ), function( ix, ele ){
 			switch( ele ){
 			case "top":
-				self.top =  self.top - self.relativeOffset.top;
+				_this.top =  _this.top - _this.relativeOffset.top;
 				break;
 			case "bottom":
-				self.top =  self.top + self.selector.outerHeight() - self.relativeOffset.top;
-				//console.log( "self.top + self.selector.outerHeight() " + self.selector.outerHeight() );
+				_this.top =  _this.top + _this.selector.outerHeight() - _this.relativeOffset.top;
+				//console.log( "_this.top + _this.selector.outerHeight() " + _this.selector.outerHeight() );
 				break;
 			case "left":
 
 				break;
 			case "right":
-				self.left = self.left + self.selector.outerWidth() - self.relativeOffset.left;
-				//console.log( "self.left + self.selector.outerWidth() - self.relativeOffset.left " + self.selector.outerWidth() );
+				_this.left = _this.left + _this.selector.outerWidth() - _this.relativeOffset.left;
+				//console.log( "_this.left + _this.selector.outerWidth() - _this.relativeOffset.left " + _this.selector.outerWidth() );
 				break;
 			case "center":
-				self.left = self.left + self.selector.outerWidth() / 2  - self.relativeOffset.left;
-				//console.log( "self.left + self.selector.outerWidth() / 2 - self.relativeOffset.left  " + self.selector.outerWidth() / 2);
+				_this.left = _this.left + _this.selector.outerWidth() / 2  - _this.relativeOffset.left;
+				//console.log( "_this.left + _this.selector.outerWidth() / 2 - _this.relativeOffset.left  " + _this.selector.outerWidth() / 2);
 				break;
 			}
 	});	
@@ -658,15 +677,15 @@ Bubble.prototype.calculateArrowStyle = function(){
 };
 
 Bubble.prototype.setBehaviors = function(){
-	var self = this;
+	var _this = this;
 	$( "span", this.bubbleSelector )
 		.on( "click", function(){
-			self.bubbleSelector.hide( "fade" ).remove();
+			_this.bubbleSelector.hide( "fade" ).remove();
 		});
 
 	if( this.autoClose ){
 		closeBubble = function(){
-			self.bubbleSelector.hide( "fade" ).remove();
+			_this.bubbleSelector.hide( "fade" ).remove();
 		};
 		setTimeout( closeBubble, this.autoCloseDelay );
 	}
@@ -732,10 +751,10 @@ function CollapsiblePane( selector, options ){
 }
 
 CollapsiblePane.prototype.addBindings = function(){
-	var self = this, header = $( "div.gadget-ui-collapsiblePane-header", this.wrapper );
+	var _this = this, header = $( "div.gadget-ui-collapsiblePane-header", this.wrapper );
 	header
 		.on( "click", function(){
-			self.toggle();
+			_this.toggle();
 		});
 
 };
@@ -771,8 +790,8 @@ CollapsiblePane.prototype.config = function( args ){
 };
 
 CollapsiblePane.prototype.toggle = function(){
-	var self = this, add, remove, expandClass = "ui-icon-triangle-1-s", collapseClass = "ui-icon-triangle-1-n";
-	if( self.selector.css( "display" ) === "none" ){
+	var _this = this, add, remove, expandClass = "ui-icon-triangle-1-s", collapseClass = "ui-icon-triangle-1-n";
+	if( _this.selector.css( "display" ) === "none" ){
 		add = collapseClass;
 		remove = expandClass;
 	}else{
@@ -780,15 +799,15 @@ CollapsiblePane.prototype.toggle = function(){
 		remove = collapseClass;			
 	}
 	
-	self.eventName = ( ( self.eventName === undefined || self.eventName === "collapse" ) ? "expand" : "collapse" );
-	self.selector
-		.css( "padding", self.padding )
-		.css( "padding-top", self.paddingTop )
+	_this.eventName = ( ( _this.eventName === undefined || _this.eventName === "collapse" ) ? "expand" : "collapse" );
+	_this.selector
+		.css( "padding", _this.padding )
+		.css( "padding-top", _this.paddingTop )
 		.toggle( 'blind', {}, 200, function(  ) {
-			$( self.icon ).addClass( add )
+			$( _this.icon ).addClass( add )
 						.removeClass( remove );
-			$( this ).css( "padding", self.padding );
-			self.selector.trigger( self.eventName );
+			$( this ).css( "padding", _this.padding );
+			_this.selector.trigger( _this.eventName );
 		});
 };
 
@@ -807,7 +826,7 @@ function FloatingPane( selector, options ){
 	
 	this.addCSS();
 
-	// now set height to computed height of control that has been created
+	// now set height to computed height of control _this has been created
 	this.height = gadgetui.util.getStyle( $( this.selector ).parent()[0], "height" );
 
 	this.relativeOffsetLeft = gadgetui.util.getRelativeParentOffset( this.selector ).left;
@@ -815,15 +834,15 @@ function FloatingPane( selector, options ){
 }
 
 FloatingPane.prototype.addBindings = function(){
-	var self = this;
+	var _this = this;
 	// jquery-ui draggable
 	this.wrapper.draggable( {addClasses: false } );
 	
 	this.maxmin.on( "click", function(){
-		if( self.minimized ){
-			self.expand();
+		if( _this.minimized ){
+			_this.expand();
 		}else{
-			self.minimize();
+			_this.minimize();
 		}
 	});
 };
@@ -875,7 +894,7 @@ FloatingPane.prototype.expand = function(){
 	// when minimizing and expanding, we must look up the ancestor chain to see if there are position: relative elements.
 	// if so, we must subtract the offset left of the ancestor to get the pane back to its original position
 	
-	var self = this, 
+	var _this = this, 
 		offset = $( this.wrapper).offset(),
 		l =  parseInt( new Number( offset.left ), 10 ) - this.relativeOffsetLeft,
 		width = parseInt( this.width.substr( 0,this.width.length - 2), 10 );
@@ -883,7 +902,7 @@ FloatingPane.prototype.expand = function(){
 	
 	
 	this.wrapper.animate({
-		left: l - width + self.minWidth
+		left: l - width + _this.minWidth
 	},{queue: false, duration: 500}, function() {
 		// Animation complete.
 	});
@@ -897,7 +916,7 @@ FloatingPane.prototype.expand = function(){
 	this.wrapper.animate({
 		height: this.height
 	},{queue: false, duration: 500, complete: function() {
-		self.maxmin
+		_this.maxmin
 		.removeClass( "ui-icon-arrow-4-diag" )
 		.addClass( "ui-icon-arrow-4" );
 	}
@@ -910,20 +929,20 @@ FloatingPane.prototype.minimize = function(){
 	// when minimizing and maximizing, we must look up the ancestor chain to see if there are position: relative elements.
 	// if so, we must subtract the offset left of the ancestor to get the pane back to its original position
 	
-	var self = this, offset = $( this.wrapper).offset(),
+	var _this = this, offset = $( this.wrapper).offset(),
 		l =  parseInt( new Number( offset.left ), 10 ) - this.relativeOffsetLeft,
 		width = parseInt( this.width.substr( 0,this.width.length - 2), 10 );
 
 	this.wrapper.animate({
-		left: l + width - self.minWidth
+		left: l + width - _this.minWidth
 	},{queue: false, duration: 500}, function() {
 
 	});
 
 	this.wrapper.animate({
-		width: self.minWidth
+		width: _this.minWidth
 	},{queue: false, duration: 500, complete: function() {
-		self.maxmin
+		_this.maxmin
 		.removeClass( "ui-icon-arrow-4" )
 		.addClass( "ui-icon-arrow-4-diag" );
 		}
@@ -994,29 +1013,29 @@ ComboBox.prototype.addControl = function(){
 };
 
 ComboBox.prototype.setCSS = function(){
-	var self = this,
+	var _this = this,
 
 	promise = new Promise(
 		function( resolve, reject ){
-			self.getArrowWidth( resolve, reject );
+			_this.getArrowWidth( resolve, reject );
 		});
 	promise
 		.then( function(){
-			self.addCSS();
+			_this.addCSS();
 		});
 	promise['catch']( function( message ){
 			// use width of default icon
-			self.arrowWidth = 22;
+			_this.arrowWidth = 22;
 			console.log( message );
-			self.addCSS();
+			_this.addCSS();
 		});
 };
 
 ComboBox.prototype.getArrowWidth = function( resolve, reject ){
-	var self = this, 
+	var _this = this, 
 		img = new Image();
 		img.onload = function() {
-			self.arrowWidth = this.width;
+			_this.arrowWidth = this.width;
 			resolve();
 		};
 		img.onerror = function(){
@@ -1154,13 +1173,13 @@ ComboBox.prototype.addCSS = function(){
 };
 
 ComboBox.prototype.setSelectOptions = function(){
-	var self = this, id, text;
+	var _this = this, id, text;
 
-	$( self.selector )
+	$( _this.selector )
 		.empty();
 	//console.log( "append new option" );
-	$( self.selector )
-		.append( "<option value='" + self.newOption.id + "'>" + self.newOption.text + "</option>" );
+	$( _this.selector )
+		.append( "<option value='" + _this.newOption.id + "'>" + _this.newOption.text + "</option>" );
 
 	$.each( this.dataProvider.data, function( ix, obj ){
 		id = obj.id;
@@ -1169,7 +1188,7 @@ ComboBox.prototype.setSelectOptions = function(){
 			text = id; 
 		}
 		//console.log( "append " + text );
-		$( self.selector )
+		$( _this.selector )
 			.append( "<option value=" + id + ">" + text );
 	});
 };
@@ -1204,7 +1223,7 @@ ComboBox.prototype.showLabel = function(){
 };
 
 ComboBox.prototype.addBehaviors = function( obj ) {
-	var self = this;
+	var _this = this;
 	// setup mousePosition
 	if( gadgetui.mousePosition === undefined ){
 		$( document )
@@ -1217,71 +1236,71 @@ ComboBox.prototype.addBehaviors = function( obj ) {
 	$( this.comboBox )
 		.on( this.activate, function( ) {
 			setTimeout( function( ) {
-				if( self.label.css( "display" ) != "none" ){
+				if( _this.label.css( "display" ) != "none" ){
 					console.log( "combo mouseenter ");
-					//self.label.css( "display", "none" );
-					self.selectWrapper.css( "display", "inline" );
-					self.label.css( "display", "none" );
-					if( self.selector.prop('selectedIndex') <= 0 ) {
-						self.inputWrapper.css( "display", "inline" );
+					//_this.label.css( "display", "none" );
+					_this.selectWrapper.css( "display", "inline" );
+					_this.label.css( "display", "none" );
+					if( _this.selector.prop('selectedIndex') <= 0 ) {
+						_this.inputWrapper.css( "display", "inline" );
 					}
-				//	self.selector
+				//	_this.selector
 				//		.css( "display", "inline" );
 				}
-			}, self.delay );
+			}, _this.delay );
 		})
 		.on( "mouseleave", function( ) {
 			console.log( "combo mouseleave ");
-			if ( self.selector.is( ":focus" ) === false && self.input.is( ":focus" ) === false ) {
-				self.showLabel();
+			if ( _this.selector.is( ":focus" ) === false && _this.input.is( ":focus" ) === false ) {
+				_this.showLabel();
 			}
 		});
 
-	self.input
+	_this.input
 		.on( "click", function( e ){
 			console.log( "input click ");
 		})
 		.on( "keyup", function( event ) {
 			console.log( "input keyup");
 			if ( event.which === 13 ) {
-				var inputText =  gadgetui.util.encode( self.input.val() );
-				self.handleInput( inputText );
+				var inputText =  gadgetui.util.encode( _this.input.val() );
+				_this.handleInput( inputText );
 			}
 		})
 		.on( "blur", function( ) {
 			console.log( "input blur" );
 
-			if( gadgetui.util.mouseWithin( self.selector, gadgetui.mousePosition ) === true ){
-				self.inputWrapper.hide();
-				self.selector.focus();
+			if( gadgetui.util.mouseWithin( _this.selector, gadgetui.mousePosition ) === true ){
+				_this.inputWrapper.hide();
+				_this.selector.focus();
 			}else{
-				self.showLabel();
+				_this.showLabel();
 			}
 		});
 
 	this.selector
 		.on( "mouseenter", function( ev ){
-			self.selector.css( "display", "inline" );
+			_this.selector.css( "display", "inline" );
 		})
 		.on( "click", function( ev ){
 			console.log( "select click");
 			ev.stopPropagation();
 		})
 		.on( "change", function( event ) {
-			if( parseInt( event.target[ event.target.selectedIndex ].value, 10 ) !== parseInt(self.id, 10 ) ){
+			if( parseInt( event.target[ event.target.selectedIndex ].value, 10 ) !== parseInt(_this.id, 10 ) ){
 				console.log( "select change");
 				if( event.target.selectedIndex > 0 ){
-					self.inputWrapper.hide();
-					self.setValue( event.target[ event.target.selectedIndex ].value );
+					_this.inputWrapper.hide();
+					_this.setValue( event.target[ event.target.selectedIndex ].value );
 				}else{
-					self.inputWrapper.show();
-					self.setValue( self.newOption.value );
-					self.input.focus();
+					_this.inputWrapper.show();
+					_this.setValue( _this.newOption.value );
+					_this.input.focus();
 				}
-				$( self.selector )
+				$( _this.selector )
 					.trigger( "gadgetui-combobox-change", [ { id: event.target[ event.target.selectedIndex ].value, text: event.target[ event.target.selectedIndex ].innerHTML } ] );
 	
-				console.log( "label:" + self.label.text() );
+				console.log( "label:" + _this.label.text() );
 			}
 		})
 
@@ -1289,10 +1308,10 @@ ComboBox.prototype.addBehaviors = function( obj ) {
 			console.log( "select blur ");
 			event.stopPropagation();
 			setTimeout( function( ) {
-				//if( self.emitEvents === true ){
+				//if( _this.emitEvents === true ){
 
-				if( self.input.is( ":focus" ) === false ){
-					self.showLabel();
+				if( _this.input.is( ":focus" ) === false ){
+					_this.showLabel();
 				}
 			}, 200 );
 		} );
@@ -1300,8 +1319,8 @@ ComboBox.prototype.addBehaviors = function( obj ) {
 	$( "option", this.selector )
 		.on( "mouseenter", function( ev ){
 			console.log( "option mouseenter" );
-			if( self.selector.css( "display" ) !== "inline" ){
-				self.selector.css( "display", "inline" );
+			if( _this.selector.css( "display" ) !== "inline" ){
+				_this.selector.css( "display", "inline" );
 			}
 		});
 };
@@ -1331,12 +1350,12 @@ ComboBox.prototype.triggerSelectChange = function(){
 };
 
 ComboBox.prototype.setSaveFunc = function(){
-	var self = this;
+	var _this = this;
 
 	if( $.isFunction( this.save ) === true ){
 		var save = this.save;
 		this.save = function( text ) {
-			var that = this,
+			var _this = this,
 				func,  
 				promise, 
 				args = [ text ],
@@ -1348,39 +1367,39 @@ ComboBox.prototype.setSaveFunc = function(){
 						function( resolve, reject ){
 							args.push( resolve );
 							args.push( reject );
-							func = save.apply(that, args);
+							func = save.apply(_this, args);
 							console.log( func );
 						});
 				promise.then(
 						function( value ){
 							function callback(){
 								// trigger save event if we're triggering events 
-								//if( self.emitEvents === true ){
-									self.selector.trigger( "gadgetui-combobox-save", { id: value, text: text } );
+								//if( _this.emitEvents === true ){
+									_this.selector.trigger( "gadgetui-combobox-save", { id: value, text: text } );
 								//}
-								self.input.val( "" );
-								self.inputWrapper.hide();
-								self.id = value;
-								self.dataProvider.refresh();
+								_this.input.val( "" );
+								_this.inputWrapper.hide();
+								_this.id = value;
+								_this.dataProvider.refresh();
 							}
-							if( self.animate === true ){
-								self.selectWrapper.animate({
-									boxShadow: '0 0 5px ' + self.glowColor,
-									borderColor: self.glowColor
-								  }, self.animateDelay / 2 );							
-								self.selectWrapper.animate({
+							if( _this.animate === true ){
+								_this.selectWrapper.animate({
+									boxShadow: '0 0 5px ' + _this.glowColor,
+									borderColor: _this.glowColor
+								  }, _this.animateDelay / 2 );							
+								_this.selectWrapper.animate({
 									boxShadow: 0,
-									borderColor: self.borderColor
-								  }, self.animateDelay / 2, callback );
+									borderColor: _this.borderColor
+								  }, _this.animateDelay / 2, callback );
 							}else{
 								callback();
 							}
 						});
 				promise['catch']( function( message ){
-					self.input.val( "" );
-					self.inputWrapper.hide();
+					_this.input.val( "" );
+					_this.inputWrapper.hide();
 					console.log( message );
-					self.dataProvider.refresh();
+					_this.dataProvider.refresh();
 
 				});
 			}
@@ -1413,7 +1432,7 @@ ComboBox.prototype.setValue = function( id ){
 };
 
 ComboBox.prototype.setDataProviderRefresh = function(){
-	var self = this,
+	var _this = this,
 		promise,
 		refresh = this.dataProvider.refresh,
 		func;
@@ -1427,12 +1446,12 @@ ComboBox.prototype.setDataProviderRefresh = function(){
 					});
 			promise
 				.then( function(){
-					self.selector.trigger( "gadgetui-combobox-refresh" );
-					self.setControls();
+					_this.selector.trigger( "gadgetui-combobox-refresh" );
+					_this.setControls();
 				});
 			promise['catch']( function( message ){
 					console.log( "message" );
-					self.setControls();
+					_this.setControls();
 				});
 		}
 		return func;
@@ -1484,21 +1503,21 @@ function LookupListInput( selector, options ){
 }
 
 LookupListInput.prototype.addBindings = function(){
-	var self = this;
+	var _this = this;
 	
 	$( this.selector ).parent()
 		.on( "click", function(){
-			$( self ).focus();
+			$( _this ).focus();
 		})
 		.on( "click", "div[class~='gadgetui-lookuplist-input-cancel']", function(e){
-			self.remove( self.selector, $( e.target ).attr( "gadgetui-lookuplist-input-value" ) );
+			_this.remove( _this.selector, $( e.target ).attr( "gadgetui-lookuplist-input-value" ) );
 		});
 	
 	$( this.selector )
 		.autocomplete( {
-			minLength : self.minLength,
+			minLength : _this.minLength,
 			source : function( request, response ) {
-				response( $.ui.autocomplete.filter( self.datasource, gadgetui.util.extractLast( request.term ) ) );
+				response( $.ui.autocomplete.filter( _this.datasource, gadgetui.util.extractLast( request.term ) ) );
 			},
 
 			focus : function( ) {
@@ -1511,7 +1530,7 @@ LookupListInput.prototype.addBindings = function(){
 				// remove the current input
 				terms.pop( );
 
-				self.add( self.selector, ui.item );
+				_this.add( _this.selector, ui.item );
 				this.value = '';
 				this.focus( );
 				return false;
@@ -1532,10 +1551,10 @@ LookupListInput.prototype.addBindings = function(){
 		});
 	
 	$.ui.autocomplete.prototype._renderItem = function( ul, item){
-		if( typeof self.menuItemRenderer === "function"){
+		if( typeof _this.menuItemRenderer === "function"){
 			return $( "<li>" )
 			.attr( "data-value", item.value )
-			.append( $( "<a>" ).text( self.menuItemRenderer( item ) ) )
+			.append( $( "<a>" ).text( _this.menuItemRenderer( item ) ) )
 			.appendTo( ul );
 		}else{
 			//default jquery-ui implementation
@@ -1575,7 +1594,7 @@ LookupListInput.prototype.add = function( el, item ){
 LookupListInput.prototype.remove = function( el, value ){
 	$( "div[gadgetui-lookuplist-input-value='" + value + "']", $( el ).parent() ).parent().remove();
 
-	var self = this, prop, list;
+	var _this = this, prop, list;
 
 	if( this.model !== undefined ){
 		prop = $( el ).attr( "gadgetui-bind" );
@@ -1583,13 +1602,13 @@ LookupListInput.prototype.remove = function( el, value ){
 		$.each( list, function( i, obj ){
 			if( obj.value === value ){
 				list.splice( i, 1 );
-				if( self.func !== undefined ){
-					self.func( obj, 'remove' );
+				if( _this.func !== undefined ){
+					_this.func( obj, 'remove' );
 				}
-				if( self.emitEvents === true ){
+				if( _this.emitEvents === true ){
 					$( el ).trigger( "gadgetui-lookuplistinput-remove", [ obj ] );
 				}
-				self.model.set( prop, list );
+				_this.model.set( prop, list );
 				return false;
 			}
 		});
@@ -1672,7 +1691,7 @@ SelectInput.prototype.addCSS = function(){
 };
 
 SelectInput.prototype.addBindings = function() {
-	var self = this;
+	var _this = this;
 
 	// setup mousePosition
 	if( gadgetui.mousePosition === undefined ){
@@ -1685,16 +1704,16 @@ SelectInput.prototype.addBindings = function() {
 
 	this.label
 		.on( this.activate, function( event ) {
-			self.label.css( "display", 'none' );
-			self.selector.css( "display", "inline-block" );
+			_this.label.css( "display", 'none' );
+			_this.selector.css( "display", "inline-block" );
 			event.preventDefault();
 		});
 
 	this.selector
 		.on( "blur", function( ev ) {
 			//setTimeout( function() {
-				self.label.css( "display", "inline-block" );
-				self.selector.css( "display", 'none' );
+				_this.label.css( "display", "inline-block" );
+				_this.selector.css( "display", 'none' );
 			//}, 100 );
 		});
 
@@ -1708,27 +1727,27 @@ SelectInput.prototype.addBindings = function() {
 					value = 0;
 				}
 	
-				self.label.text( label );
-				if( self.model !== undefined && self.selector.attr( "gadgetui-bind" ) === undefined ){	
+				_this.label.text( label );
+				if( _this.model !== undefined && _this.selector.attr( "gadgetui-bind" ) === undefined ){	
 					// if we have specified a model but no data binding, change the model value
-					self.model.set( this.name, { id: value, text: label } );
+					_this.model.set( this.name, { id: value, text: label } );
 				}
 	
-				if( self.emitEvents === true ){
-					gadgetui.util.trigger( self.selector, "gadgetui-input-change", { id: value, text: label } );
+				if( _this.emitEvents === true ){
+					gadgetui.util.trigger( _this.selector, "gadgetui-input-change", { id: value, text: label } );
 				}
-				if( self.func !== undefined ){
-					self.func( { id: value, text: label } );
+				if( _this.func !== undefined ){
+					_this.func( { id: value, text: label } );
 				}
-				self.value = { id: value, text: label };
+				_this.value = { id: value, text: label };
 			}, 100 );
 		});
 
 	this.selector
 		.on( "mouseleave", function( ) {
-			if ( self.selector !== document.activeElement ) {
-				self.label.css( "display", 'inline-block' );
-				self.selector.css( "display", 'none' );
+			if ( _this.selector !== document.activeElement ) {
+				_this.label.css( "display", 'inline-block' );
+				_this.selector.css( "display", 'none' );
 			}
 		});
 	
@@ -1742,10 +1761,10 @@ SelectInput.prototype.addBindings = function() {
 	document.onmouseup = function( event ){
 		var isLeftClick = detectLeftButton( event );
 		if( isLeftClick === true ){
-			if ( $( self.selector ).is( ":focus" ) === false ) {
+			if ( $( _this.selector ).is( ":focus" ) === false ) {
 				label
 					.css( "display", "inline-block" );
-				$( self.selector )
+				$( _this.selector )
 					.hide( );
 			}			
 		}
@@ -1787,7 +1806,7 @@ function TextInput( selector, options ){
 }
 
 TextInput.prototype.addBindings = function(){
-	var self = this, 
+	var _this = this, 
 		obj = $( this.selector ).parent(),
 		labeldiv = $( "div[class='gadgetui-inputlabel']", obj ),
 		label = $( "input", labeldiv ),
@@ -1810,14 +1829,14 @@ TextInput.prototype.addBindings = function(){
 				labeldiv.css( "display", "block" );
 				$( this ).hide();
 				$( "input", $( obj ).parent() )
-					.css( "max-width",  self.maxWidth );					
+					.css( "max-width",  _this.maxWidth );					
 			}
 		});		
 
 	label
-		.off( self.activate )
-		.on( self.activate, function( ) {
-			if( self.useActive && ( label.attr( "data-active" ) === "false" || label.attr( "data-active" ) === undefined ) ){
+		.off( _this.activate )
+		.on( _this.activate, function( ) {
+			if( _this.useActive && ( label.attr( "data-active" ) === "false" || label.attr( "data-active" ) === undefined ) ){
 				label.attr( "data-active", "true" );
 			}else{
 				setTimeout( 
@@ -1829,20 +1848,20 @@ TextInput.prototype.addBindings = function(){
 						$( "input", obj )
 							.css( "max-width",  "" )
 							.css( "min-width", "10em" )
-							.css( "width", $.gadgetui.textWidth( $( self.selector ).val(), font ) + 10 );
+							.css( "width", $.gadgetui.textWidth( $( _this.selector ).val(), font ) + 10 );
 			
 						//just input
-						$( self.selector ).css( "display", "block" );
+						$( _this.selector ).css( "display", "block" );
 							
 						// if we are only showing the input on click, focus on the element immediately
-						if( self.activate === "click" ){
-							$( self.selector ).focus();
+						if( _this.activate === "click" ){
+							$( _this.selector ).focus();
 						}
-						if( self.emitEvents === true ){
-							// raise an event that the input is active
-							$( self.selector ).trigger( "gadgetui-input-show", self.selector );
+						if( _this.emitEvents === true ){
+							// raise an event _this the input is active
+							$( _this.selector ).trigger( "gadgetui-input-show", _this.selector );
 						}
-					}}, self.delay );
+					}}, _this.delay );
 			}
 		});
 	$( this.selector )
@@ -1859,12 +1878,12 @@ TextInput.prototype.addBindings = function(){
 			label.css( "display", "block" );
 			labeldiv.css( "display", "block" );
 			label.attr( "data-active", "false" );
-			//$( "img", $( self ).parent( ) ).hide( );
+			//$( "img", $( _this ).parent( ) ).hide( );
 
 			$( "input", $( obj ).parent() )
-				.css( "max-width",  self.maxWidth );
+				.css( "max-width",  _this.maxWidth );
 			
-			if( self.emitEvents === true ){
+			if( _this.emitEvents === true ){
 				$( it ).trigger( "gadgetui-input-hide", it );
 			}	
 
@@ -1889,22 +1908,22 @@ TextInput.prototype.addBindings = function(){
 					}
 					
 					txtWidth = $.gadgetui.textWidth( newVal, font );
-					if( self.maxWidth < txtWidth ){
-						labelText = $.gadgetui.fitText( newVal, font, self.maxWidth );
+					if( _this.maxWidth < txtWidth ){
+						labelText = $.gadgetui.fitText( newVal, font, _this.maxWidth );
 					}else{
 						labelText = newVal;
 					}
 					label.val( labelText );
-					if( self.model !== undefined && $( it ).attr( "gadgetui-bind" ) === undefined ){	
+					if( _this.model !== undefined && $( it ).attr( "gadgetui-bind" ) === undefined ){	
 						// if we have specified a model but no data binding, change the model value
-						self.model.set( it.name, oVar[ it.name ] );
+						_this.model.set( it.name, oVar[ it.name ] );
 					}
 	
-					if( self.emitEvents === true ){
+					if( _this.emitEvents === true ){
 						$( it ).trigger( "gadgetui-input-change", { text: $( it ).val( ) } );
 					}
-					if( self.func !== undefined ){
-						self.func( { text: $( it ).val( ) } );
+					if( _this.func !== undefined ){
+						_this.func( { text: $( it ).val( ) } );
 					}
 				
 			}, 200 );

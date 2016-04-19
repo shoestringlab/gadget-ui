@@ -19,21 +19,21 @@ function LookupListInput( selector, options ){
 }
 
 LookupListInput.prototype.addBindings = function(){
-	var that = this;
+	var _this = this;
 	
 	$( this.selector ).parent()
 		.on( "click", function(){
-			$( that ).focus();
+			$( _this ).focus();
 		})
 		.on( "click", "div[class~='gadgetui-lookuplist-input-cancel']", function(e){
-			that.remove( that.selector, $( e.target ).attr( "gadgetui-lookuplist-input-value" ) );
+			_this.remove( _this.selector, $( e.target ).attr( "gadgetui-lookuplist-input-value" ) );
 		});
 	
 	$( this.selector )
 		.autocomplete( {
-			minLength : that.minLength,
+			minLength : _this.minLength,
 			source : function( request, response ) {
-				response( $.ui.autocomplete.filter( that.datasource, gadgetui.util.extractLast( request.term ) ) );
+				response( $.ui.autocomplete.filter( _this.datasource, gadgetui.util.extractLast( request.term ) ) );
 			},
 
 			focus : function( ) {
@@ -46,7 +46,7 @@ LookupListInput.prototype.addBindings = function(){
 				// remove the current input
 				terms.pop( );
 
-				that.add( that.selector, ui.item );
+				_this.add( _this.selector, ui.item );
 				this.value = '';
 				this.focus( );
 				return false;
@@ -67,10 +67,10 @@ LookupListInput.prototype.addBindings = function(){
 		});
 	
 	$.ui.autocomplete.prototype._renderItem = function( ul, item){
-		if( typeof that.menuItemRenderer === "function"){
+		if( typeof _this.menuItemRenderer === "function"){
 			return $( "<li>" )
 			.attr( "data-value", item.value )
-			.append( $( "<a>" ).text( that.menuItemRenderer( item ) ) )
+			.append( $( "<a>" ).text( _this.menuItemRenderer( item ) ) )
 			.appendTo( ul );
 		}else{
 			//default jquery-ui implementation
@@ -110,7 +110,7 @@ LookupListInput.prototype.add = function( el, item ){
 LookupListInput.prototype.remove = function( el, value ){
 	$( "div[gadgetui-lookuplist-input-value='" + value + "']", $( el ).parent() ).parent().remove();
 
-	var that = this, prop, list;
+	var _this = this, prop, list;
 
 	if( this.model !== undefined ){
 		prop = $( el ).attr( "gadgetui-bind" );
@@ -118,13 +118,13 @@ LookupListInput.prototype.remove = function( el, value ){
 		$.each( list, function( i, obj ){
 			if( obj.value === value ){
 				list.splice( i, 1 );
-				if( that.func !== undefined ){
-					that.func( obj, 'remove' );
+				if( _this.func !== undefined ){
+					_this.func( obj, 'remove' );
 				}
-				if( that.emitEvents === true ){
+				if( _this.emitEvents === true ){
 					$( el ).trigger( "gadgetui-lookuplistinput-remove", [ obj ] );
 				}
-				that.model.set( prop, list );
+				_this.model.set( prop, list );
 				return false;
 			}
 		});

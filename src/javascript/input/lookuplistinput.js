@@ -26,19 +26,19 @@ LookupListInput.prototype.addControl = function(){
 // adapted from jQuery UI autocomplete. modified and re-distributed per MIT License.
 LookupListInput.prototype.initSource = function(){
 		var array, url,
-			that = this;
+			_this = this;
 		if ( typeof this.datasource === Array ) {
 			array = this.datasource;
 			this.source = function( request, response ) {
-				response( that.filter( array, request.term ) );
+				response( _this.filter( array, request.term ) );
 			};
 		} else if ( typeof this.datasource === "string" ) {
 			url = this.datasource;
 			this.source = function( request, response ) {
-				if ( that.xhr ) {
-					that.xhr.abort();
+				if ( _this.xhr ) {
+					_this.xhr.abort();
 				}
-				that.xhr = fetch({
+				_this.xhr = fetch({
 					url: url,
 					data: request,
 					dataType: "json",
@@ -77,11 +77,11 @@ LookupListInput.prototype.setIsMultiLine = function(){
 };
 
 LookupListInput.prototype.addBindings = function(){
-	var that = this;
+	var _this = this;
 	
 	this.wrapper
 		.addEventListener( "click", function(){
-			that.selector.focus();
+			_this.selector.focus();
 		});
 	
 	var suppressKeyPress, suppressKeyPressRepeat, suppressInput;
@@ -225,14 +225,14 @@ LookupListInput.prototype.addBindings = function(){
 	
 	
 		/*	.addEventListener( "click", "div[class~='gadgetui-lookuplist-input-cancel']", function(e){
-			that.remove( that.selector, $( e.target ).attr( "gadgetui-lookuplist-input-value" ) );
+			_this.remove( _this.selector, $( e.target ).attr( "gadgetui-lookuplist-input-value" ) );
 		});	*/
 	/*	
 	$( this.selector )
 		.autocomplete( {
-			minLength : that.minLength,
+			minLength : _this.minLength,
 			source : function( request, response ) {
-				response( $.ui.autocomplete.filter( that.datasource, gadgetui.util.extractLast( request.term ) ) );
+				response( $.ui.autocomplete.filter( _this.datasource, gadgetui.util.extractLast( request.term ) ) );
 			},
 
 			focus : function( ) {
@@ -245,7 +245,7 @@ LookupListInput.prototype.addBindings = function(){
 				// remove the current input
 				terms.pop( );
 
-				that.add( that.selector, ui.item );
+				_this.add( _this.selector, ui.item );
 				this.value = '';
 				this.focus( );
 				return false;
@@ -266,10 +266,10 @@ LookupListInput.prototype.addBindings = function(){
 		});
 
 	$.ui.autocomplete.prototype._renderItem = function( ul, item){
-		if( typeof that.menuItemRenderer === "function"){
+		if( typeof _this.menuItemRenderer === "function"){
 			return $( "<li>" )
 			.setAttribute( "data-value", item.value )
-			.append( $( "<a>" ).text( that.menuItemRenderer( item ) ) )
+			.append( $( "<a>" ).text( _this.menuItemRenderer( item ) ) )
 			.appendTo( ul );
 		}else{
 			//default jquery-ui implementation
@@ -322,7 +322,7 @@ LookupListInput.prototype.add = function( el, item ){
 LookupListInput.prototype.remove = function( el, value ){
 	el.parentNode.querySelector( "div[gadgetui-lookuplistinput-value='" + value + "']" ).parentNode.remove();
 
-	var that = this, prop, list;
+	var _this = this, prop, list;
 
 	if( this.model !== undefined ){
 		prop = el.getAttribute( "gadgetui-bind" );
@@ -330,13 +330,13 @@ LookupListInput.prototype.remove = function( el, value ){
 		list.forEach( function( obj, ix ){
 			if( obj.value === value ){
 				list.splice( ix, 1 );
-				if( that.func !== undefined ){
-					that.func( obj, 'remove' );
+				if( _this.func !== undefined ){
+					_this.func( obj, 'remove' );
 				}
-				if( that.emitEvents === true ){
+				if( _this.emitEvents === true ){
 					gadgetui.util.trigger( el, "gadgetui-lookuplistinput-remove", obj );
 				}
-				that.model.set( prop, list );
+				_this.model.set( prop, list );
 				return false;
 			}
 		});

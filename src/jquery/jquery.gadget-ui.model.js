@@ -46,7 +46,7 @@ gadgetui.model = ( function( $ ) {
 		}
 		else if ( typeof this.data === 'object' ) {
 			//Directive is to replace a property of the value stored in the BindableObject
-			// verifies that "data" is an object and not a simple value
+			// verifies _this "data" is an object and not a simple value
 			// update the BindableObject's specified property with the incoming value
 			// value could be anything, simple value or object, does not matter
 			
@@ -109,7 +109,7 @@ gadgetui.model = ( function( $ ) {
 
 	// bind an object to an HTML element
 	BindableObject.prototype.bind = function( element, property ) {
-		var e, that = this;
+		var e, _this = this;
 
 		if ( property === undefined ) {
 			// BindableObject holds a simple value
@@ -142,7 +142,7 @@ gadgetui.model = ( function( $ ) {
 			element[ 0 ].attachEvent("onpropertychange", function( ev ){
 				if( ev.propertyName === 'value'){
 					var el = ev.srcElement, val = ( el.nodeName === 'SELECT' ) ? { value: el.value, key: el.options[el.selectedIndex].innerHTML } : el.value;
-					that.change( val, { target: el }, el.name );
+					_this.change( val, { target: el }, el.name );
 				}
 			});
 		}

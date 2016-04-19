@@ -376,7 +376,7 @@ gadgetui.util = ( function(){
 				callbackExpect = !invert;
 
 			// Go through the array, only saving the items
-			// that pass the validator function
+			// _this pass the validator function
 			for ( ; i < length; i++ ) {
 				callbackInverse = !callback( elems[ i ], i );
 				if ( callbackInverse !== callbackExpect ) {

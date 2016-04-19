@@ -43,29 +43,29 @@ ComboBox.prototype.addControl = function(){
 };
 
 ComboBox.prototype.setCSS = function(){
-	var that = this,
+	var _this = this,
 
 	promise = new Promise(
 		function( resolve, reject ){
-			that.getArrowWidth( resolve, reject );
+			_this.getArrowWidth( resolve, reject );
 		});
 	promise
 		.then( function(){
-			that.addCSS();
+			_this.addCSS();
 		});
 	promise['catch']( function( message ){
 			// use width of default icon
-			that.arrowWidth = 22;
+			_this.arrowWidth = 22;
 			console.log( message );
-			that.addCSS();
+			_this.addCSS();
 		});
 };
 
 ComboBox.prototype.getArrowWidth = function( resolve, reject ){
-	var that = this, 
+	var _this = this, 
 		img = new Image();
 		img.onload = function() {
-			that.arrowWidth = this.width;
+			_this.arrowWidth = this.width;
 			resolve();
 		};
 		img.onerror = function(){
@@ -203,13 +203,13 @@ ComboBox.prototype.addCSS = function(){
 };
 
 ComboBox.prototype.setSelectOptions = function(){
-	var that = this, id, text;
+	var _this = this, id, text;
 
-	$( that.selector )
+	$( _this.selector )
 		.empty();
 	//console.log( "append new option" );
-	$( that.selector )
-		.append( "<option value='" + that.newOption.id + "'>" + that.newOption.text + "</option>" );
+	$( _this.selector )
+		.append( "<option value='" + _this.newOption.id + "'>" + _this.newOption.text + "</option>" );
 
 	$.each( this.dataProvider.data, function( ix, obj ){
 		id = obj.id;
@@ -218,7 +218,7 @@ ComboBox.prototype.setSelectOptions = function(){
 			text = id; 
 		}
 		//console.log( "append " + text );
-		$( that.selector )
+		$( _this.selector )
 			.append( "<option value=" + id + ">" + text );
 	});
 };
@@ -253,7 +253,7 @@ ComboBox.prototype.showLabel = function(){
 };
 
 ComboBox.prototype.addBehaviors = function( obj ) {
-	var that = this;
+	var _this = this;
 	// setup mousePosition
 	if( gadgetui.mousePosition === undefined ){
 		$( document )
@@ -266,71 +266,71 @@ ComboBox.prototype.addBehaviors = function( obj ) {
 	$( this.comboBox )
 		.on( this.activate, function( ) {
 			setTimeout( function( ) {
-				if( that.label.css( "display" ) != "none" ){
+				if( _this.label.css( "display" ) != "none" ){
 					console.log( "combo mouseenter ");
-					//that.label.css( "display", "none" );
-					that.selectWrapper.css( "display", "inline" );
-					that.label.css( "display", "none" );
-					if( that.selector.prop('selectedIndex') <= 0 ) {
-						that.inputWrapper.css( "display", "inline" );
+					//_this.label.css( "display", "none" );
+					_this.selectWrapper.css( "display", "inline" );
+					_this.label.css( "display", "none" );
+					if( _this.selector.prop('selectedIndex') <= 0 ) {
+						_this.inputWrapper.css( "display", "inline" );
 					}
-				//	that.selector
+				//	_this.selector
 				//		.css( "display", "inline" );
 				}
-			}, that.delay );
+			}, _this.delay );
 		})
 		.on( "mouseleave", function( ) {
 			console.log( "combo mouseleave ");
-			if ( that.selector.is( ":focus" ) === false && that.input.is( ":focus" ) === false ) {
-				that.showLabel();
+			if ( _this.selector.is( ":focus" ) === false && _this.input.is( ":focus" ) === false ) {
+				_this.showLabel();
 			}
 		});
 
-	that.input
+	_this.input
 		.on( "click", function( e ){
 			console.log( "input click ");
 		})
 		.on( "keyup", function( event ) {
 			console.log( "input keyup");
 			if ( event.which === 13 ) {
-				var inputText =  gadgetui.util.encode( that.input.val() );
-				that.handleInput( inputText );
+				var inputText =  gadgetui.util.encode( _this.input.val() );
+				_this.handleInput( inputText );
 			}
 		})
 		.on( "blur", function( ) {
 			console.log( "input blur" );
 
-			if( gadgetui.util.mouseWithin( that.selector, gadgetui.mousePosition ) === true ){
-				that.inputWrapper.hide();
-				that.selector.focus();
+			if( gadgetui.util.mouseWithin( _this.selector, gadgetui.mousePosition ) === true ){
+				_this.inputWrapper.hide();
+				_this.selector.focus();
 			}else{
-				that.showLabel();
+				_this.showLabel();
 			}
 		});
 
 	this.selector
 		.on( "mouseenter", function( ev ){
-			that.selector.css( "display", "inline" );
+			_this.selector.css( "display", "inline" );
 		})
 		.on( "click", function( ev ){
 			console.log( "select click");
 			ev.stopPropagation();
 		})
 		.on( "change", function( event ) {
-			if( parseInt( event.target[ event.target.selectedIndex ].value, 10 ) !== parseInt(that.id, 10 ) ){
+			if( parseInt( event.target[ event.target.selectedIndex ].value, 10 ) !== parseInt(_this.id, 10 ) ){
 				console.log( "select change");
 				if( event.target.selectedIndex > 0 ){
-					that.inputWrapper.hide();
-					that.setValue( event.target[ event.target.selectedIndex ].value );
+					_this.inputWrapper.hide();
+					_this.setValue( event.target[ event.target.selectedIndex ].value );
 				}else{
-					that.inputWrapper.show();
-					that.setValue( that.newOption.value );
-					that.input.focus();
+					_this.inputWrapper.show();
+					_this.setValue( _this.newOption.value );
+					_this.input.focus();
 				}
-				$( that.selector )
+				$( _this.selector )
 					.trigger( "gadgetui-combobox-change", [ { id: event.target[ event.target.selectedIndex ].value, text: event.target[ event.target.selectedIndex ].innerHTML } ] );
 	
-				console.log( "label:" + that.label.text() );
+				console.log( "label:" + _this.label.text() );
 			}
 		})
 
@@ -338,10 +338,10 @@ ComboBox.prototype.addBehaviors = function( obj ) {
 			console.log( "select blur ");
 			event.stopPropagation();
 			setTimeout( function( ) {
-				//if( that.emitEvents === true ){
+				//if( _this.emitEvents === true ){
 
-				if( that.input.is( ":focus" ) === false ){
-					that.showLabel();
+				if( _this.input.is( ":focus" ) === false ){
+					_this.showLabel();
 				}
 			}, 200 );
 		} );
@@ -349,8 +349,8 @@ ComboBox.prototype.addBehaviors = function( obj ) {
 	$( "option", this.selector )
 		.on( "mouseenter", function( ev ){
 			console.log( "option mouseenter" );
-			if( that.selector.css( "display" ) !== "inline" ){
-				that.selector.css( "display", "inline" );
+			if( _this.selector.css( "display" ) !== "inline" ){
+				_this.selector.css( "display", "inline" );
 			}
 		});
 };
@@ -380,12 +380,12 @@ ComboBox.prototype.triggerSelectChange = function(){
 };
 
 ComboBox.prototype.setSaveFunc = function(){
-	var that = this;
+	var _this = this;
 
 	if( $.isFunction( this.save ) === true ){
 		var save = this.save;
 		this.save = function( text ) {
-			var that = this,
+			var _this = this,
 				func,  
 				promise, 
 				args = [ text ],
@@ -397,39 +397,39 @@ ComboBox.prototype.setSaveFunc = function(){
 						function( resolve, reject ){
 							args.push( resolve );
 							args.push( reject );
-							func = save.apply(that, args);
+							func = save.apply(_this, args);
 							console.log( func );
 						});
 				promise.then(
 						function( value ){
 							function callback(){
 								// trigger save event if we're triggering events 
-								//if( that.emitEvents === true ){
-									that.selector.trigger( "gadgetui-combobox-save", { id: value, text: text } );
+								//if( _this.emitEvents === true ){
+									_this.selector.trigger( "gadgetui-combobox-save", { id: value, text: text } );
 								//}
-								that.input.val( "" );
-								that.inputWrapper.hide();
-								that.id = value;
-								that.dataProvider.refresh();
+								_this.input.val( "" );
+								_this.inputWrapper.hide();
+								_this.id = value;
+								_this.dataProvider.refresh();
 							}
-							if( that.animate === true ){
-								that.selectWrapper.animate({
-									boxShadow: '0 0 5px ' + that.glowColor,
-									borderColor: that.glowColor
-								  }, that.animateDelay / 2 );							
-								that.selectWrapper.animate({
+							if( _this.animate === true ){
+								_this.selectWrapper.animate({
+									boxShadow: '0 0 5px ' + _this.glowColor,
+									borderColor: _this.glowColor
+								  }, _this.animateDelay / 2 );							
+								_this.selectWrapper.animate({
 									boxShadow: 0,
-									borderColor: that.borderColor
-								  }, that.animateDelay / 2, callback );
+									borderColor: _this.borderColor
+								  }, _this.animateDelay / 2, callback );
 							}else{
 								callback();
 							}
 						});
 				promise['catch']( function( message ){
-					that.input.val( "" );
-					that.inputWrapper.hide();
+					_this.input.val( "" );
+					_this.inputWrapper.hide();
 					console.log( message );
-					that.dataProvider.refresh();
+					_this.dataProvider.refresh();
 
 				});
 			}
@@ -462,7 +462,7 @@ ComboBox.prototype.setValue = function( id ){
 };
 
 ComboBox.prototype.setDataProviderRefresh = function(){
-	var that = this,
+	var _this = this,
 		promise,
 		refresh = this.dataProvider.refresh,
 		func;
@@ -476,12 +476,12 @@ ComboBox.prototype.setDataProviderRefresh = function(){
 					});
 			promise
 				.then( function(){
-					that.selector.trigger( "gadgetui-combobox-refresh" );
-					that.setControls();
+					_this.selector.trigger( "gadgetui-combobox-refresh" );
+					_this.setControls();
 				});
 			promise['catch']( function( message ){
 					console.log( "message" );
-					that.setControls();
+					_this.setControls();
 				});
 		}
 		return func;

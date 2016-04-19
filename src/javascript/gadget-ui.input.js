@@ -1,9 +1,9 @@
 gadgetui.input = (function($) {
 	function TextInput( args ){
-		var that = this, val, ph, o, bindVar;
-		that.emitEvents = true;
-		that.model;
-		that.func;
+		var _this = this, val, ph, o, bindVar;
+		_this.emitEvents = true;
+		_this.model;
+		_this.func;
 
 		if( args.el === undefined ){
 			el = $( "input[gadgetui-textinput='true']", document );
@@ -15,15 +15,15 @@ gadgetui.input = (function($) {
 			o = args.object;
 		}
 		if( args.config !== undefined ){
-			that.config( args.config );
+			_this.config( args.config );
 		}
 		$.each( el,  function( index, obj ){
 			val = $( obj ).val();
 			ph = $( obj ).attr( "placeholder" );
 			bindVar = $( obj ).attr( "gadgetui-bind" );
 			// if binding was specified, make it so
-			if( bindVar !== undefined && that.model !== undefined ){
-				that.model.bind( bindVar, $( obj ) );
+			if( bindVar !== undefined && _this.model !== undefined ){
+				_this.model.bind( bindVar, $( obj ) );
 			}
 			if( val.length === 0 ){
 				if( ph !== undefined && ph.length > 0 ){
@@ -36,99 +36,99 @@ gadgetui.input = (function($) {
 			$( obj ).parent().prepend( "<span>" + val + "</span>");
 			$( obj ).hide();
 	
-			_bindTextInput( $( obj ).parent(), that.emitEvents, that.model, that.func, o  );
+			_bindTextInput( $( obj ).parent(), _this.emitEvents, _this.model, _this.func, o  );
 		});
 
 		function _bindTextInput( obj, emitEvents, model, func, object ) {
-			var that = this, oVar;
+			var _this = this, oVar;
 			oVar = ( (object === undefined) ? {} : object );
 			
 			$( "span", $( obj ) ).on( "mouseenter", function( ) {
-				that = this;
-				$( $( that ) ).hide( );
-				$( $( that ).parent( ) )
+				_this = this;
+				$( $( _this ) ).hide( );
+				$( $( _this ).parent( ) )
 					.on( "mouseleave", function( ) {
-						var that = this;
-						if ( $( "input", $( that ) ).is( ":focus" ) === false ) {
-							$( "span", $( that ) ).css( "display", "inline" );
-							$( "input", $( that ) ).hide( );
+						var _this = this;
+						if ( $( "input", $( _this ) ).is( ":focus" ) === false ) {
+							$( "span", $( _this ) ).css( "display", "inline" );
+							$( "input", $( _this ) ).hide( );
 						}
 					} );
-					$( "input", $( that ).parent( ) ).css( "min-width", "10em" )
-					.css( "width", Math.round( $( "input", $( that ).parent() ).val().length * 0.66 ) + "em" )
+					$( "input", $( _this ).parent( ) ).css( "min-width", "10em" )
+					.css( "width", Math.round( $( "input", $( _this ).parent() ).val().length * 0.66 ) + "em" )
 					.css( "display", "inline" )
 					.on( "blur", function( ) {
-						var that = this, newVal;
+						var _this = this, newVal;
 						setTimeout( function( ) {
-							newVal = $( that ).val( );
+							newVal = $( _this ).val( );
 							if ( oVar.isDirty === true ) {
-								if( newVal.length === 0 && $( that ).attr( "placeholder" ) !== undefined ){
-									newVal = $( that ).attr( "placeholder" );
+								if( newVal.length === 0 && $( _this ).attr( "placeholder" ) !== undefined ){
+									newVal = $( _this ).attr( "placeholder" );
 								}
-								oVar[ that.name ] = $( that ).val( );
-								$( "span", $( that ).parent( ) ).text( newVal );
+								oVar[ _this.name ] = $( _this ).val( );
+								$( "span", $( _this ).parent( ) ).text( newVal );
 	
-								if( model !== undefined && $( that ).attr( "gadgetui-bind" ) === undefined ){	
+								if( model !== undefined && $( _this ).attr( "gadgetui-bind" ) === undefined ){	
 									// if we have specified a model but no data binding, change the model value
-									model.set( that.name, oVar[ that.name ] );
+									model.set( _this.name, oVar[ _this.name ] );
 								}
 	
 								oVar.isDirty = false;
 								if( emitEvents === true ){
-									$( that )
+									$( _this )
 										.trigger( "gadgetui-input-change", [ oVar ] );
 								}
 								if( func !== undefined ){
 									func( oVar );
 								}
 							}
-							$( "span", $( that ).parent( ) ).css( "display", "inline" );
-							$( "img", $( that ).parent( ) ).hide( );
-							$( that ).hide( );
+							$( "span", $( _this ).parent( ) ).css( "display", "inline" );
+							$( "img", $( _this ).parent( ) ).hide( );
+							$( _this ).hide( );
 	
 						}, 200 );
 					})
 					/*	.on( "change", function( e ) {
-						var that = this, value = e.target.value;
+						var _this = this, value = e.target.value;
 						if( value.trim().length === 0 ){
 							value = " ... ";
 						}
 						oVar.isDirty = true;
-						$( "span", $( that ).parent( ) ).text( value );
+						$( "span", $( _this ).parent( ) ).text( value );
 						})		*/
 					.on( "keyup", function( event ) {
-						var that = this;
+						var _this = this;
 						if ( parseInt( event.keyCode, 10 ) === 13 ) {
-							$( that ).blur( );
+							$( _this ).blur( );
 						}
-						$( that ).css( "width", Math.round( $( "input", $( that ).parent( ) ).val( ).length * 0.66 ) + "em" );
+						$( _this ).css( "width", Math.round( $( "input", $( _this ).parent( ) ).val( ).length * 0.66 ) + "em" );
 					});
 			});
 			$( obj )
 				.on( "change", function( e ) {
-					var that = this, value = e.target.value;
+					var _this = this, value = e.target.value;
 					if( value.trim().length === 0 ){
 						value = " ... ";
 					}
 					oVar.isDirty = true;
-					$( "span", $( that ).parent( ) ).text( value );
+					$( "span", $( _this ).parent( ) ).text( value );
 					});			
 		}
 		return this;
 	}
 	
 	TextInput.prototype.config = function( args ){
-		var that = this;
-		that.model =  (( args.model === undefined) ? that.model : args.model );
-		that.func = (( args.func === undefined) ? undefined : args.func );
-		that.emitEvents = (( args.emitEvents === undefined) ? true : args.emitEvents );
+		var _this = this;
+		_this.model =  (( args.model === undefined) ? _this.model : args.model );
+		_this.func = (( args.func === undefined) ? undefined : args.func );
+		_this.emitEvents = (( args.emitEvents === undefined) ? true : args.emitEvents );
 	};
 	
 	function SelectInput( args ){
-		var that = this, val, ph, o, bindVar;
-		that.emitEvents = true;
-		that.model;
-		that.func;
+		var _this = this, val, ph, o, bindVar;
+		_this.emitEvents = true;
+		_this.model;
+		_this.func;
 
 		if( args.el === undefined ){
 			el = $( "select[gadgetui-selectinput='true']", document );
@@ -140,15 +140,15 @@ gadgetui.input = (function($) {
 			o = args.object;
 		}
 		if( args.config !== undefined ){
-			that.config( args.config );
+			_this.config( args.config );
 		}
 		$.each( el,  function( index, obj ){
 			val = $( obj ).val();
 			ph = $( obj ).attr( "placeholder" );
 			bindVar = $( obj ).attr( "gadgetui-bind" );
 			// if binding was specified, make it so
-			if( bindVar !== undefined && that.model !== undefined ){
-				that.model.bind( bindVar, $( obj ) );
+			if( bindVar !== undefined && _this.model !== undefined ){
+				_this.model.bind( bindVar, $( obj ) );
 			}
 
 			if( val.length === 0 ){
@@ -162,17 +162,17 @@ gadgetui.input = (function($) {
 			$( obj ).parent().prepend( "<span>" + val + "</span>");
 			$( obj ).hide();
 	
-			_bindSelectInput( $( obj ).parent(), that.emitEvents, that.model, that.func, o  );
+			_bindSelectInput( $( obj ).parent(), _this.emitEvents, _this.model, _this.func, o  );
 
 		});
 
 		function _bindSelectInput( obj, emitEvents, model, func, object ) {
-			var that = this, oVar;
+			var _this = this, oVar;
 			oVar = ( (object === undefined) ? {} : object );
 			
 			$( "span", $( obj ) ).on( "mouseenter", function( ) {
-				that = this;
-				$( $( that ) ).hide( );
+				_this = this;
+				$( $( _this ) ).hide( );
 				
 				$( $( this ).parent( ) ).on( "mouseleave", function( ) {
 					if ( $( "select", $( this ) ).is( ":focus" ) === false && $( "input", $( this ).parent( ).parent( ) ).is( ":focus" ) === false ) {
@@ -181,49 +181,49 @@ gadgetui.input = (function($) {
 					}
 				} );				
 					
-				$( "select", $( that ).parent( ) ).css( "min-width", "10em" )
+				$( "select", $( _this ).parent( ) ).css( "min-width", "10em" )
 					.css( "display", "inline" )
 					.on( "blur", function( ) {
-						var that = this, newVal;
+						var _this = this, newVal;
 						setTimeout( function( ) {
-							newVal = $( that ).val( );
+							newVal = $( _this ).val( );
 							if ( oVar.isDirty === true ) {
 								if( newVal.trim().length === 0 ){
 									newVal = " ... ";
 								}
-								oVar[ that.name ] = $( that ).val( );
+								oVar[ _this.name ] = $( _this ).val( );
 
-								$( "span", $( that ).parent( ) ).text( newVal );
-								if( model !== undefined && $( that ).attr( "gadgetui-bind" ) === undefined ){	
+								$( "span", $( _this ).parent( ) ).text( newVal );
+								if( model !== undefined && $( _this ).attr( "gadgetui-bind" ) === undefined ){	
 									// if we have specified a model but no data binding, change the model value
-									model.set( that.name, oVar[ that.name ] );
+									model.set( _this.name, oVar[ _this.name ] );
 								}
 	
 								oVar.isDirty = false;
 								if( emitEvents === true ){
-									$( that )
+									$( _this )
 										.trigger( "gadgetui-input-change", [ oVar ] );
 								}
 								if( func !== undefined ){
 									func( oVar );
 								}
 							}
-							$( "span", $( that ).parent( ) ).css( "display", "inline" );
-							$( that ).hide( );
+							$( "span", $( _this ).parent( ) ).css( "display", "inline" );
+							$( _this ).hide( );
 						}, 100 );
 					})
 					.on( "change", function( e ) {
-						var that = this, value = e.target.value;
+						var _this = this, value = e.target.value;
 						if( value.trim().length === 0 ){
 							value = " ... ";
 						}
 						oVar.isDirty = true;
-						$( "span", $( that ).parent( ) ).text( value );
+						$( "span", $( _this ).parent( ) ).text( value );
 						})					
 					.on( "keyup", function( event ) {
-						var that = this;
+						var _this = this;
 						if ( parseInt( event.keyCode, 10 ) === 13 ) {
-							$( that ).blur( );
+							$( _this ).blur( );
 						}
 					});
 			});
@@ -232,10 +232,10 @@ gadgetui.input = (function($) {
 	}
 	
 	SelectInput.prototype.config = function( args ){
-		var that = this;
-		that.model =  (( args.model === undefined) ? that.model : args.model );
-		that.func = (( args.func === undefined) ? undefined : args.func );
-		that.emitEvents = (( args.emitEvents === undefined) ? true : args.emitEvents );
+		var _this = this;
+		_this.model =  (( args.model === undefined) ? _this.model : args.model );
+		_this.func = (( args.func === undefined) ? undefined : args.func );
+		_this.emitEvents = (( args.emitEvents === undefined) ? true : args.emitEvents );
 	};
 		
 	

@@ -11,7 +11,7 @@
 	
 	this.addCSS();
 
-	// now set height to computed height of control that has been created
+	// now set height to computed height of control _this has been created
 	this.height = gadgetui.util.getStyle( this.wrapper, "height" );
 
 	this.relativeOffsetLeft = gadgetui.util.getRelativeParentOffset( this.selector ).left;
@@ -19,16 +19,16 @@
 }
 
 FloatingPane.prototype.addBindings = function(){
-	var that = this;
+	var _this = this;
 	// jquery-ui draggable
 	//this.wrapper.draggable( {addClasses: false } );
 	gadgetui.util.draggable( this.wrapper );
 	
 	this.maxmin.addEventListener( "click", function(){
-		if( that.minimized ){
-			that.expand();
+		if( _this.minimized ){
+			_this.expand();
 		}else{
-			that.minimize();
+			_this.minimize();
 		}
 	});
 };
@@ -89,7 +89,7 @@ FloatingPane.prototype.expand = function(){
 	// when minimizing and expanding, we must look up the ancestor chain to see if there are position: relative elements.
 	// if so, we must subtract the offset left of the ancestor to get the pane back to its original position
 	
-	var that = this,
+	var _this = this,
 		css = gadgetui.util.setStyle,
 		offset = gadgetui.util.getOffset( this.wrapper ),
 		lx =  parseInt( new Number( offset.left ), 10 ) - this.relativeOffsetLeft,
@@ -98,7 +98,7 @@ FloatingPane.prototype.expand = function(){
 	if( typeof Velocity != 'undefined' && this.animate ){
 		
 		Velocity( this.wrapper, {
-			left: lx - width + that.minWidth
+			left: lx - width + _this.minWidth
 		},{queue: false, duration: 500}, function() {
 			// Animation complete.
 		});
@@ -112,7 +112,7 @@ FloatingPane.prototype.expand = function(){
 		Velocity( this.wrapper, {
 			height: this.height
 		},{queue: false, duration: 500, complete: function() {
-			that.icon.setAttribute( "data-glyph", "fullscreen-exit" );
+			_this.icon.setAttribute( "data-glyph", "fullscreen-exit" );
 		}
 		});
 	}else{
@@ -128,7 +128,7 @@ FloatingPane.prototype.minimize = function(){
 	// when minimizing and maximizing, we must look up the ancestor chain to see if there are position: relative elements.
 	// if so, we must subtract the offset left of the ancestor to get the pane back to its original position
 	
-	var that = this,
+	var _this = this,
 		css = gadgetui.util.setStyle,
 		offset = gadgetui.util.getOffset( this.wrapper ),
 		lx =  parseInt( new Number( offset.left ), 10 ) - this.relativeOffsetLeft,
@@ -137,15 +137,15 @@ FloatingPane.prototype.minimize = function(){
 	if( typeof Velocity != 'undefined' && this.animate ){
 			
 		Velocity( this.wrapper, {
-			left: lx + width - that.minWidth
+			left: lx + width - _this.minWidth
 		},{queue: false, duration: 500}, function() {
 	
 		});
 	
 		Velocity( this.wrapper, {
-			width: that.minWidth
+			width: _this.minWidth
 		},{queue: false, duration: 500, complete: function() {
-			that.icon.setAttribute( "data-glyph", "fullscreen-enter" );
+			_this.icon.setAttribute( "data-glyph", "fullscreen-enter" );
 			}
 		});
 	

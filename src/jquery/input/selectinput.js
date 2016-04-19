@@ -50,7 +50,7 @@ SelectInput.prototype.addCSS = function(){
 };
 
 SelectInput.prototype.addBindings = function() {
-	var that = this;
+	var _this = this;
 
 	// setup mousePosition
 	if( gadgetui.mousePosition === undefined ){
@@ -63,16 +63,16 @@ SelectInput.prototype.addBindings = function() {
 
 	this.label
 		.on( this.activate, function( event ) {
-			that.label.css( "display", 'none' );
-			that.selector.css( "display", "inline-block" );
+			_this.label.css( "display", 'none' );
+			_this.selector.css( "display", "inline-block" );
 			event.preventDefault();
 		});
 
 	this.selector
 		.on( "blur", function( ev ) {
 			//setTimeout( function() {
-				that.label.css( "display", "inline-block" );
-				that.selector.css( "display", 'none' );
+				_this.label.css( "display", "inline-block" );
+				_this.selector.css( "display", 'none' );
 			//}, 100 );
 		});
 
@@ -86,27 +86,27 @@ SelectInput.prototype.addBindings = function() {
 					value = 0;
 				}
 	
-				that.label.text( label );
-				if( that.model !== undefined && that.selector.attr( "gadgetui-bind" ) === undefined ){	
+				_this.label.text( label );
+				if( _this.model !== undefined && _this.selector.attr( "gadgetui-bind" ) === undefined ){	
 					// if we have specified a model but no data binding, change the model value
-					that.model.set( this.name, { id: value, text: label } );
+					_this.model.set( this.name, { id: value, text: label } );
 				}
 	
-				if( that.emitEvents === true ){
-					gadgetui.util.trigger( that.selector, "gadgetui-input-change", { id: value, text: label } );
+				if( _this.emitEvents === true ){
+					gadgetui.util.trigger( _this.selector, "gadgetui-input-change", { id: value, text: label } );
 				}
-				if( that.func !== undefined ){
-					that.func( { id: value, text: label } );
+				if( _this.func !== undefined ){
+					_this.func( { id: value, text: label } );
 				}
-				that.value = { id: value, text: label };
+				_this.value = { id: value, text: label };
 			}, 100 );
 		});
 
 	this.selector
 		.on( "mouseleave", function( ) {
-			if ( that.selector !== document.activeElement ) {
-				that.label.css( "display", 'inline-block' );
-				that.selector.css( "display", 'none' );
+			if ( _this.selector !== document.activeElement ) {
+				_this.label.css( "display", 'inline-block' );
+				_this.selector.css( "display", 'none' );
 			}
 		});
 	
@@ -120,10 +120,10 @@ SelectInput.prototype.addBindings = function() {
 	document.onmouseup = function( event ){
 		var isLeftClick = detectLeftButton( event );
 		if( isLeftClick === true ){
-			if ( $( that.selector ).is( ":focus" ) === false ) {
+			if ( $( _this.selector ).is( ":focus" ) === false ) {
 				label
 					.css( "display", "inline-block" );
-				$( that.selector )
+				$( _this.selector )
 					.hide( );
 			}			
 		}
