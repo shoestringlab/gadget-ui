@@ -1,0 +1,28 @@
+<!doctype html>
+<html>
+	<head>
+		<title>gadget-ui LookupListInput Test</title>
+		 <script src='../bower_components/lazyloader/dist/lazy.1.0.0.min.js'></script>
+		 <script>
+		 	lazy.load([ 'lookuplistinput.js < ../dist/gadget-ui.js', '../dist/gadget-ui.css', "/bower_components/open-iconic/font/css/open-iconic.css" ], function(){
+  				console.log('All files have been loaded');
+			});
+		 </script>
+
+		<style>
+			body {font-size: 2em;}
+			input, select, select option{ font-size: 1em;}
+		</style>
+
+	</head>
+
+	<body>
+		<p>Test the LookupListInput control</p>
+	<p>Type into the box to find your friends. ( Hint: Start with the letter A. )</p>
+				<div>
+					<input name="friends" type="text" gadgetui-bind="user.friends" placeholder="Friends"/>
+					<input type="button" value="Reset Friends list" name="resetLookupList" />
+				</div>
+
+	</body>
+</html>
