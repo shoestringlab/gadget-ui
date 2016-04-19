@@ -69,15 +69,15 @@ CollapsiblePane.prototype.addCSS = function(){
 };
 
 CollapsiblePane.prototype.addBindings = function(){
-	var self = this, header = this.wrapper.querySelector(  "div.gadget-ui-collapsiblePane-header" );
+	var that = this, header = this.wrapper.querySelector(  "div.gadget-ui-collapsiblePane-header" );
 	header
 		.addEventListener( "click", function(){
-			self.toggle();
+			that.toggle();
 		});
 };
 
 CollapsiblePane.prototype.toggle = function(){
-	var self = this,
+	var that = this,
 		css = gadgetui.util.setStyle,
 		icon,
 		myHeight,
@@ -116,9 +116,9 @@ CollapsiblePane.prototype.toggle = function(){
 		Velocity( this.wrapper, {
 			height: myHeight
 		},{ queue: false, duration: 500, complete: function() {
-			//self.selector.style.display = display;
-			//self.wrapper.style.border = border;
-			self.icon.setAttribute( "data-glyph", icon );
+			//that.selector.style.display = display;
+			//that.wrapper.style.border = border;
+			that.icon.setAttribute( "data-glyph", icon );
 			} 
 		});
 		Velocity( this.selector, {

@@ -58,7 +58,7 @@ SelectInput.prototype.addCSS = function(){
 };
 
 SelectInput.prototype.addBindings = function() {
-	var self = this,
+	var that = this,
 		css = gadgetui.util.setStyle;
 
 	// setup mousePosition
@@ -72,16 +72,16 @@ SelectInput.prototype.addBindings = function() {
 
 	this.label
 		.addEventListener( this.activate, function( event ) {
-			css( self.label, "display", 'none' );
-			css( self.selector, "display", "inline-block" );
+			css( that.label, "display", 'none' );
+			css( that.selector, "display", "inline-block" );
 			event.preventDefault();
 		});
 
 	this.selector
 		.addEventListener( "blur", function( ev ) {
 			//setTimeout( function() {
-				css( self.label, "display", "inline-block" );
-				css( self.selector, "display", 'none' );
+				css( that.label, "display", "inline-block" );
+				css( that.selector, "display", 'none' );
 			//}, 100 );
 		});
 
@@ -95,27 +95,27 @@ SelectInput.prototype.addBindings = function() {
 					value = 0;
 				}
 	
-				self.label.innerText = label;
-				if( self.model !== undefined && self.selector.getAttribute( "gadgetui-bind" ) === undefined ){	
+				that.label.innerText = label;
+				if( that.model !== undefined && that.selector.getAttribute( "gadgetui-bind" ) === undefined ){	
 					// if we have specified a model but no data binding, change the model value
-					self.model.set( this.name, { id: value, text: label } );
+					that.model.set( this.name, { id: value, text: label } );
 				}
 	
-				if( self.emitEvents === true ){
-					gadgetui.util.trigger( self.selector, "gadgetui-input-change", { id: value, text: label } );
+				if( that.emitEvents === true ){
+					gadgetui.util.trigger( that.selector, "gadgetui-input-change", { id: value, text: label } );
 				}
-				if( self.func !== undefined ){
-					self.func( { id: value, text: label } );
+				if( that.func !== undefined ){
+					that.func( { id: value, text: label } );
 				}
-				self.value = { id: value, text: label };
+				that.value = { id: value, text: label };
 			}, 100 );
 		});
 
 	this.selector
 		.addEventListener( "mouseleave", function( ) {
-			if ( self.selector !== document.activeElement ) {
-				css( self.label, "display", 'inline-block' );
-				css( self.selector, "display", 'none' );
+			if ( that.selector !== document.activeElement ) {
+				css( that.label, "display", 'inline-block' );
+				css( that.selector, "display", 'none' );
 			}
 		});
 	
@@ -129,10 +129,10 @@ SelectInput.prototype.addBindings = function() {
 	document.onmouseup = function( event ){
 		var isLeftClick = detectLeftButton( event );
 		if( isLeftClick === true ){
-			if ( $( self.selector ).is( ":focus" ) === false ) {
+			if ( $( that.selector ).is( ":focus" ) === false ) {
 				label
 					.css( "display", "inline-block" );
-				$( self.selector )
+				$( that.selector )
 					.hide( );
 			}			
 		}

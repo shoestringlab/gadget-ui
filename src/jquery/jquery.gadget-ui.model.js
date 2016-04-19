@@ -109,7 +109,7 @@ gadgetui.model = ( function( $ ) {
 
 	// bind an object to an HTML element
 	BindableObject.prototype.bind = function( element, property ) {
-		var e, self = this;
+		var e, that = this;
 
 		if ( property === undefined ) {
 			// BindableObject holds a simple value
@@ -142,7 +142,7 @@ gadgetui.model = ( function( $ ) {
 			element[ 0 ].attachEvent("onpropertychange", function( ev ){
 				if( ev.propertyName === 'value'){
 					var el = ev.srcElement, val = ( el.nodeName === 'SELECT' ) ? { value: el.value, key: el.options[el.selectedIndex].innerHTML } : el.value;
-					self.change( val, { target: el }, el.name );
+					that.change( val, { target: el }, el.name );
 				}
 			});
 		}

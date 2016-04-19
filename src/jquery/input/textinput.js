@@ -24,7 +24,7 @@ function TextInput( selector, options ){
 }
 
 TextInput.prototype.addBindings = function(){
-	var self = this, 
+	var that = this, 
 		obj = $( this.selector ).parent(),
 		labeldiv = $( "div[class='gadgetui-inputlabel']", obj ),
 		label = $( "input", labeldiv ),
@@ -47,14 +47,14 @@ TextInput.prototype.addBindings = function(){
 				labeldiv.css( "display", "block" );
 				$( this ).hide();
 				$( "input", $( obj ).parent() )
-					.css( "max-width",  self.maxWidth );					
+					.css( "max-width",  that.maxWidth );					
 			}
 		});		
 
 	label
-		.off( self.activate )
-		.on( self.activate, function( ) {
-			if( self.useActive && ( label.attr( "data-active" ) === "false" || label.attr( "data-active" ) === undefined ) ){
+		.off( that.activate )
+		.on( that.activate, function( ) {
+			if( that.useActive && ( label.attr( "data-active" ) === "false" || label.attr( "data-active" ) === undefined ) ){
 				label.attr( "data-active", "true" );
 			}else{
 				setTimeout( 
@@ -66,20 +66,20 @@ TextInput.prototype.addBindings = function(){
 						$( "input", obj )
 							.css( "max-width",  "" )
 							.css( "min-width", "10em" )
-							.css( "width", $.gadgetui.textWidth( $( self.selector ).val(), font ) + 10 );
+							.css( "width", $.gadgetui.textWidth( $( that.selector ).val(), font ) + 10 );
 			
 						//just input
-						$( self.selector ).css( "display", "block" );
+						$( that.selector ).css( "display", "block" );
 							
 						// if we are only showing the input on click, focus on the element immediately
-						if( self.activate === "click" ){
-							$( self.selector ).focus();
+						if( that.activate === "click" ){
+							$( that.selector ).focus();
 						}
-						if( self.emitEvents === true ){
+						if( that.emitEvents === true ){
 							// raise an event that the input is active
-							$( self.selector ).trigger( "gadgetui-input-show", self.selector );
+							$( that.selector ).trigger( "gadgetui-input-show", that.selector );
 						}
-					}}, self.delay );
+					}}, that.delay );
 			}
 		});
 	$( this.selector )
@@ -96,12 +96,12 @@ TextInput.prototype.addBindings = function(){
 			label.css( "display", "block" );
 			labeldiv.css( "display", "block" );
 			label.attr( "data-active", "false" );
-			//$( "img", $( self ).parent( ) ).hide( );
+			//$( "img", $( that ).parent( ) ).hide( );
 
 			$( "input", $( obj ).parent() )
-				.css( "max-width",  self.maxWidth );
+				.css( "max-width",  that.maxWidth );
 			
-			if( self.emitEvents === true ){
+			if( that.emitEvents === true ){
 				$( it ).trigger( "gadgetui-input-hide", it );
 			}	
 
@@ -126,22 +126,22 @@ TextInput.prototype.addBindings = function(){
 					}
 					
 					txtWidth = $.gadgetui.textWidth( newVal, font );
-					if( self.maxWidth < txtWidth ){
-						labelText = $.gadgetui.fitText( newVal, font, self.maxWidth );
+					if( that.maxWidth < txtWidth ){
+						labelText = $.gadgetui.fitText( newVal, font, that.maxWidth );
 					}else{
 						labelText = newVal;
 					}
 					label.val( labelText );
-					if( self.model !== undefined && $( it ).attr( "gadgetui-bind" ) === undefined ){	
+					if( that.model !== undefined && $( it ).attr( "gadgetui-bind" ) === undefined ){	
 						// if we have specified a model but no data binding, change the model value
-						self.model.set( it.name, oVar[ it.name ] );
+						that.model.set( it.name, oVar[ it.name ] );
 					}
 	
-					if( self.emitEvents === true ){
+					if( that.emitEvents === true ){
 						$( it ).trigger( "gadgetui-input-change", { text: $( it ).val( ) } );
 					}
-					if( self.func !== undefined ){
-						self.func( { text: $( it ).val( ) } );
+					if( that.func !== undefined ){
+						that.func( { text: $( it ).val( ) } );
 					}
 				
 			}, 200 );

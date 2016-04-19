@@ -21,15 +21,15 @@ function FloatingPane( selector, options ){
 }
 
 FloatingPane.prototype.addBindings = function(){
-	var self = this;
+	var that = this;
 	// jquery-ui draggable
 	this.wrapper.draggable( {addClasses: false } );
 	
 	this.maxmin.on( "click", function(){
-		if( self.minimized ){
-			self.expand();
+		if( that.minimized ){
+			that.expand();
 		}else{
-			self.minimize();
+			that.minimize();
 		}
 	});
 };
@@ -81,7 +81,7 @@ FloatingPane.prototype.expand = function(){
 	// when minimizing and expanding, we must look up the ancestor chain to see if there are position: relative elements.
 	// if so, we must subtract the offset left of the ancestor to get the pane back to its original position
 	
-	var self = this, 
+	var that = this, 
 		offset = $( this.wrapper).offset(),
 		l =  parseInt( new Number( offset.left ), 10 ) - this.relativeOffsetLeft,
 		width = parseInt( this.width.substr( 0,this.width.length - 2), 10 );
@@ -89,7 +89,7 @@ FloatingPane.prototype.expand = function(){
 	
 	
 	this.wrapper.animate({
-		left: l - width + self.minWidth
+		left: l - width + that.minWidth
 	},{queue: false, duration: 500}, function() {
 		// Animation complete.
 	});
@@ -103,7 +103,7 @@ FloatingPane.prototype.expand = function(){
 	this.wrapper.animate({
 		height: this.height
 	},{queue: false, duration: 500, complete: function() {
-		self.maxmin
+		that.maxmin
 		.removeClass( "ui-icon-arrow-4-diag" )
 		.addClass( "ui-icon-arrow-4" );
 	}
@@ -116,20 +116,20 @@ FloatingPane.prototype.minimize = function(){
 	// when minimizing and maximizing, we must look up the ancestor chain to see if there are position: relative elements.
 	// if so, we must subtract the offset left of the ancestor to get the pane back to its original position
 	
-	var self = this, offset = $( this.wrapper).offset(),
+	var that = this, offset = $( this.wrapper).offset(),
 		l =  parseInt( new Number( offset.left ), 10 ) - this.relativeOffsetLeft,
 		width = parseInt( this.width.substr( 0,this.width.length - 2), 10 );
 
 	this.wrapper.animate({
-		left: l + width - self.minWidth
+		left: l + width - that.minWidth
 	},{queue: false, duration: 500}, function() {
 
 	});
 
 	this.wrapper.animate({
-		width: self.minWidth
+		width: that.minWidth
 	},{queue: false, duration: 500, complete: function() {
-		self.maxmin
+		that.maxmin
 		.removeClass( "ui-icon-arrow-4" )
 		.addClass( "ui-icon-arrow-4-diag" );
 		}

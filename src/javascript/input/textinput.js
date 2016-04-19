@@ -160,7 +160,7 @@ TextInput.prototype.setControlWidth = function( text ){
 };
 
 TextInput.prototype.addBindings = function(){
-	var self = this;
+	var that = this;
 
 	// setup mousePosition
 	if( gadgetui.mousePosition === undefined ){
@@ -172,31 +172,31 @@ TextInput.prototype.addBindings = function(){
 	}
 
 	this.label
-		//.off( self.activate )
-		.addEventListener( self.activate, function( ) {
-			if( self.useActive && ( self.label.getAttribute( "data-active" ) === "false" || self.label.getAttribute( "data-active" ) === undefined ) ){
-				self.label.setAttribute( "data-active", "true" );
+		//.off( that.activate )
+		.addEventListener( that.activate, function( ) {
+			if( that.useActive && ( that.label.getAttribute( "data-active" ) === "false" || that.label.getAttribute( "data-active" ) === undefined ) ){
+				that.label.setAttribute( "data-active", "true" );
 			}else{
 				setTimeout( 
 					function(){
 					var event, css = gadgetui.util.setStyle;
-					if( gadgetui.util.mouseWithin( self.label, gadgetui.mousePosition ) === true ){
+					if( gadgetui.util.mouseWithin( that.label, gadgetui.mousePosition ) === true ){
 						// both input and label
-						css( self.labelDiv, "display", 'none' );
-						css( self.inputDiv, "display", 'block' );
-						self.setControlWidth( self.selector.value );
+						css( that.labelDiv, "display", 'none' );
+						css( that.inputDiv, "display", 'block' );
+						that.setControlWidth( that.selector.value );
 
 						// if we are only showing the input on click, focus on the element immediately
-						if( self.activate === "click" ){
-							self.selector.focus();
+						if( that.activate === "click" ){
+							that.selector.focus();
 						}
-						if( self.emitEvents === true ){
+						if( that.emitEvents === true ){
 							// raise an event that the input is active
 							
 							event = new Event( "gadgetui-input-show" );
-							self.selector.dispatchEvent( event );
+							that.selector.dispatchEvent( event );
 						}
-					}}, self.delay );
+					}}, that.delay );
 			}
 		});
 
@@ -210,35 +210,35 @@ TextInput.prototype.addBindings = function(){
 			if ( parseInt( event.keyCode, 10 ) === 13 ) {
 				this.blur();
 			}
-			self.setControlWidth( this.value );
+			that.setControlWidth( this.value );
 		});
 
 	this.selector
 		.addEventListener( "change", function( event ) {
 			setTimeout( function( ) {
 				var value = event.target.value, style, txtWidth;
-				if( value.length === 0 && self.selector.getAttribute( "placeholder" ) !== undefined ){
-					value = self.selector.getAttribute( "placeholder" );
+				if( value.length === 0 && that.selector.getAttribute( "placeholder" ) !== undefined ){
+					value = that.selector.getAttribute( "placeholder" );
 				}
 
-				style = gadgetui.util.getStyle( self.selector );
+				style = gadgetui.util.getStyle( that.selector );
 				txtWidth = gadgetui.util.textWidth( value, style );
 
-				if( self.maxWidth < txtWidth ){
-					value = gadgetui.util.fitText( value, self.font, self.maxWidth );
+				if( that.maxWidth < txtWidth ){
+					value = gadgetui.util.fitText( value, that.font, that.maxWidth );
 				}
-				self.label.value = value;
-				if( self.model !== undefined && self.selector.getAttribute( "gadgetui-bind" ) === undefined ){	
+				that.label.value = value;
+				if( that.model !== undefined && that.selector.getAttribute( "gadgetui-bind" ) === undefined ){	
 					// if we have specified a model but no data binding, change the model value
-					self.model.set( self.selector.name, event.target.value );
+					that.model.set( that.selector.name, event.target.value );
 				}
 
-				if( self.emitEvents === true ){
-					gadgetui.util.trigger( self.selector, "gadgetui-input-change", { text: event.target.value } );
+				if( that.emitEvents === true ){
+					gadgetui.util.trigger( that.selector, "gadgetui-input-change", { text: event.target.value } );
 				}
 
-				if( self.func !== undefined ){
-					self.func( { text: event.target.value } );
+				if( that.func !== undefined ){
+					that.func( { text: event.target.value } );
 				}				
 			}, 200 );
 		});
@@ -248,20 +248,20 @@ TextInput.prototype.addBindings = function(){
 		.addEventListener( "mouseleave", function( ) {
 			var css = gadgetui.util.setStyle;
 			if( this !== document.activeElement ){
-				css( self.labelDiv, "display", "block" );
-				css( self.inputDiv, "display", "none" );
-				css( self.label, "maxWidth", self.maxWidth );				
+				css( that.labelDiv, "display", "block" );
+				css( that.inputDiv, "display", "none" );
+				css( that.label, "maxWidth", that.maxWidth );				
 			}
 		});
 
 	this.selector
 		.addEventListener( "blur", function( ) {
 			var css = gadgetui.util.setStyle;
-			css( self.inputDiv, "display", 'none' );
-			css( self.labelDiv, "display", 'block' );
-			self.label.setAttribute( "data-active", "false" );
-			css( self.selector, "maxWidth", self.maxWidth );
-			css( self.label, "maxWidth", self.maxWidth );
+			css( that.inputDiv, "display", 'none' );
+			css( that.labelDiv, "display", 'block' );
+			that.label.setAttribute( "data-active", "false" );
+			css( that.selector, "maxWidth", that.maxWidth );
+			css( that.label, "maxWidth", that.maxWidth );
 		});
 
 };

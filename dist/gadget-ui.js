@@ -1510,37 +1510,42 @@ ComboBox.prototype.config = function( options ){
 	this.border = this.borderWidth + "px " + this.borderStyle + " " + this.borderColor;
 	this.saveBorder = this.borderWidth + "px " + this.borderStyle + " " + this.glowColor;
 };
-/*	
+
 function LookupListInput( selector, options ){
 	function _renderLabel( item ){
 		return item.label;
 	};
 	this.itemRenderer = _renderLabel;
 	this.menuItemRenderer = _renderLabel;
-	this.emitEvents = true;
-	
 	this.selector = selector;
-	
-	if( options !== undefined ){
-		this.config( options );
-	}
-	
-	//gadgetui.util.bind( this.selector, this.model );
-	$( this.selector ).wrap( '<div class="gadgetui-lookuplistinput-div ui-widget-content ui-corner-all"></div>' );
+	this.items = [];
+	this.config( options );
+	this.addControl();
 	this.addBindings();
 }
+
+LookupListInput.prototype.addControl = function(){
+	this.wrapper = document.createElement( "div" );
+	
+	gadgetui.util.addClass( this.wrapper, "gadgetui-lookuplistinput" );
+	this.selector.parentNode.insertBefore( this.wrapper, this.selector );
+	this.selector.parentNode.removeChild( this.selector );
+	this.wrapper.appendChild( this.selector );
+	//$( this.selector ).wrap( '<div class="gadgetui-lookuplistinput-div ui-widget-content ui-corner-all"></div>' );
+};
 
 LookupListInput.prototype.addBindings = function(){
 	var self = this;
 	
-	this.selector.parentNode
-		.on( "click", function(){
-			$( self ).focus();
-		})
-		.on( "click", "div[class~='gadgetui-lookuplist-input-cancel']", function(e){
-			self.remove( self.selector, $( e.target ).attr( "gadgetui-lookuplist-input-value" ) );
+	this.wrapper
+		.addEventListener( "click", function(){
+			self.selector.focus();
 		});
 	
+		/*	.addEventListener( "click", "div[class~='gadgetui-lookuplist-input-cancel']", function(e){
+			self.remove( self.selector, $( e.target ).attr( "gadgetui-lookuplist-input-value" ) );
+		});	*/
+	/*	
 	$( this.selector )
 		.autocomplete( {
 			minLength : self.minLength,
@@ -1577,11 +1582,11 @@ LookupListInput.prototype.addBindings = function(){
 				elem.remove( );
 			}
 		});
-	
+
 	$.ui.autocomplete.prototype._renderItem = function( ul, item){
 		if( typeof self.menuItemRenderer === "function"){
 			return $( "<li>" )
-			.attr( "data-value", item.value )
+			.setAttribute( "data-value", item.value )
 			.append( $( "<a>" ).text( self.menuItemRenderer( item ) ) )
 			.appendTo( ul );
 		}else{
@@ -1590,28 +1595,41 @@ LookupListInput.prototype.addBindings = function(){
 			.append( $( "<a>" ).text( item.label ) )
 			.appendTo( ul );
 		}
-	};	
+	};		*/
 };
 
 LookupListInput.prototype.add = function( el, item ){
-	var prop, list;
-	$( "<div class='gadgetui-lookuplist-input-item-wrapper'><div class='gadgetui-lookuplist-input-cancel ui-corner-all ui-widget-content' gadgetui-lookuplist-input-value='" + item.value + "'><div class='gadgetui-lookuplist-input-item'>" + this.itemRenderer( item ) + "</div></div></div>" )
-		.insertBefore( el );
-	$( el ).val('');
+	var prop, list, itemWrapper, itemCancel, itemNode;
+
+	itemWrapper = document.createElement( "div" );
+	gadgetui.util.addClass( itemWrapper, "gadgetui-lookuplistinput-itemwrapper" );
+	itemCancel = document.createElement( "div" );
+	gadgetui.util.addClass( itemCancel, "gadgetui-lookuplistinput-cancel" );
+	itemCancel.setAttribute( "gadgetui-lookuplistinput-value", item.value );
 	if( item.title !== undefined ){
-		$( "div[class~='gadgetui-lookuplist-input-cancel']", $( el ).parentNode ).last().attr( "title", item.title );
+		itemCancel.setAttribute( "title", item.title );
 	}
+	itemNode = document.createElement( "div" );
+	gadgetui.util.addClass( itemNode, "gadgetui-lookuplistinput-item" ); 
+	itemNode.innerHTML = this.itemRenderer( item );
+	itemWrapper.appendChild( itemCancel );
+	itemWrapper.appendChild( itemNode );
+	itemWrapper.insertBefore( el );
+	el.value = '';
+
+	this.items.push( item );
 	if( this.emitEvents === true ){
-		$( el ).trigger( "gadgetui-lookuplistinput-add", [ item ] );
+		gadgetui.util.trigger( el, "gadgetui-lookuplistinput-add", item );
 	}
+
 	if( this.func !== undefined ){
 		this.func( item, 'add' );
 	}
 	if( this.model !== undefined ){
 		//update the model 
-		prop = $( el ).attr( "gadgetui-bind" );
+		prop = el.getAttribute( "gadgetui-bind" );
 		list = this.model.get( prop );
-		if( $.isArray( list ) === false ){
+		if( typeof list === Array ){
 			list = [];
 		}
 		list.push( item );
@@ -1620,21 +1638,21 @@ LookupListInput.prototype.add = function( el, item ){
 };
 
 LookupListInput.prototype.remove = function( el, value ){
-	$( "div[gadgetui-lookuplist-input-value='" + value + "']", $( el ).parentNode ).parentNode.remove();
+	el.parentNode.querySelector( "div[gadgetui-lookuplist-input-value='" + value + "']" ).parentNode.remove();
 
 	var self = this, prop, list;
 
 	if( this.model !== undefined ){
-		prop = $( el ).attr( "gadgetui-bind" );
+		prop = el.getAttribute( "gadgetui-bind" );
 		list = this.model.get( prop );
-		$.each( list, function( i, obj ){
+		list.forEach( function( obj, ix ){
 			if( obj.value === value ){
-				list.splice( i, 1 );
+				list.splice( ix, 1 );
 				if( self.func !== undefined ){
 					self.func( obj, 'remove' );
 				}
 				if( self.emitEvents === true ){
-					$( el ).trigger( "gadgetui-lookuplistinput-remove", [ obj ] );
+					gadgetui.util.trigger( el, "gadgetui-lookuplistinput-remove", obj );
 				}
 				self.model.set( prop, list );
 				return false;
@@ -1644,29 +1662,30 @@ LookupListInput.prototype.remove = function( el, value ){
 };
 
 LookupListInput.prototype.reset = function(){
-	$( ".gadgetui-lookuplist-input-item-wrapper", $(  this.el ).parentNode ).empty();
+	this.el.parentNode.querySelector( ".gadgetui-lookuplist-input-item-wrapper" ).empty();
 
 	if( this.model !== undefined ){
-		prop = $( this.el ).attr( "gadget-ui-bind" );
+		prop = this.el.getAttribute( "gadget-ui-bind" );
 		list = this.model.get( prop );
 		list.length = 0;
 	}
 };
 
-LookupListInput.prototype.config = function( args ){
+LookupListInput.prototype.config = function( options ){
+	options = ( options === undefined ? {} : options );
 	// if binding but no model was specified, use gadgetui model
-	if( $( this.selector ).attr( "gadgetui-bind" ) !== undefined ){
-		this.model = (( args.model === undefined) ? gadgetui.model : args.model );
+	if( this.selector.getAttribute( "gadgetui-bind" ) !== undefined ){
+		this.model = (( options.model === undefined) ? gadgetui.model : options.model );
 	}
-	this.func = (( args.func === undefined) ? undefined : args.func );
-	this.itemRenderer = (( args.itemRenderer === undefined) ? this.itemRenderer : args.itemRenderer );
-	this.menuItemRenderer = (( args.menuItemRenderer === undefined) ? this.menuItemRenderer : args.menuItemRenderer );
-	this.emitEvents = (( args.emitEvents === undefined) ? true : args.emitEvents );
-	this.datasource = (( args.datasource === undefined) ? (( args.lookupList !== undefined ) ? args.lookupList : true ) : args.datasource );
-	this.minLength = (( args.minLength === undefined) ? 0 : args.minLength );
+
+	this.func = (( options.func === undefined) ? undefined : options.func );
+	this.itemRenderer = (( options.itemRenderer === undefined) ? this.itemRenderer : options.itemRenderer );
+	this.menuItemRenderer = (( options.menuItemRenderer === undefined) ? this.menuItemRenderer : options.menuItemRenderer );
+	this.emitEvents = (( options.emitEvents === undefined) ? true : options.emitEvents );
+	this.datasource = (( options.datasource === undefined) ? (( options.lookupList !== undefined ) ? options.lookupList : true ) : options.datasource );
+	this.minLength = (( options.minLength === undefined) ? 0 : options.minLength );
 	return this;
-};	
-	*/
+};
 
 function SelectInput( selector, options ){
 	this.selector = selector;
@@ -2101,11 +2120,8 @@ TextInput.prototype.config = function( options ){
 	return{
 		TextInput: TextInput,
 		SelectInput: SelectInput,
-		ComboBox: ComboBox
-		/*	
-		
-		
-		LookupListInput: LookupListInput	*/
+		ComboBox: ComboBox,
+		LookupListInput: LookupListInput
 	};
 }());
 gadgetui.util = ( function(){

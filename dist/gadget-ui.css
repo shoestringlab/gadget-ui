@@ -67,20 +67,20 @@ div .gadget-ui-input-div div{
 	
 }
 
-div.gadgetui-lookuplistinput-div{
+div.gadgetui-lookuplistinput-div, div.gadgetui-lookuplistinput{
 	background:#fff;
 }
 
-div.gadgetui-lookuplistinput-div input{
+div.gadgetui-lookuplistinput-div input, div.gadgetui-lookuplistinput input{
 	border:0;
 	outline: none;
 }
 
-div.gadgetui-lookuplistinput-div .gadgetui-lookuplist-input-item{
+div.gadgetui-lookuplistinput-div .gadgetui-lookuplist-input-item, div.gadgetui-lookuplistinput .gadgetui-lookuplist-input-item{
 	/*	padding: 2px;	*/
 }
 
-div.gadgetui-lookuplistinput-div .gadgetui-lookuplist-input-cancel{
+div.gadgetui-lookuplistinput-div .gadgetui-lookuplist-input-cancel, div.gadgetui-lookuplistinput .gadgetui-lookuplist-input-cancel{
 	background: url('img/cancel.png') 98% center no-repeat #f4f0ec;
 	border: 1px solid #f4f0ec;
 	padding: 0px 20px 0px 3px;
@@ -88,7 +88,7 @@ div.gadgetui-lookuplistinput-div .gadgetui-lookuplist-input-cancel{
 	display:inline-block;
 }
 
-div.gadgetui-lookuplistinput-div > .gadgetui-lookuplist-input-item-wrapper{
+div.gadgetui-lookuplistinput-div > .gadgetui-lookuplist-input-item-wrapper, div.gadgetui-lookuplistinput > .gadgetui-lookuplist-input-item-wrapper{
 	margin:3px;
 	display:inline-block;
 }
@@ -137,3 +137,5 @@ select.gadgetui-combobox-select option{
 div.gadgetui-combobox-selectwrapper{
 	box-shadow: 0px 0px 0px;
 }
+
+/*# sourceMappingURL=gadget-ui.css.map */

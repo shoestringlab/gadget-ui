@@ -131,7 +131,7 @@ Bubble.prototype.setAfterRules = function(){
 };
 
 Bubble.prototype.calculatePosition = function(){
-	var self = this;
+	var that = this;
 	// Here we must walk up the DOM to the ancestors of the selector to see whether they are set to position: relative. If that is the case,
 	// we must add the offset values of the ancestor to the position values for the control or it will not be correctly placed.
 	this.relativeOffset = gadgetui.util.getRelativeParentOffset( this.selector );
@@ -140,22 +140,22 @@ Bubble.prototype.calculatePosition = function(){
 	this.position.split( " " ).forEach( function( ele ){
 		switch( ele ){
 			case "top":
-				self.top =  self.top - self.relativeOffset.top;
+				that.top =  that.top - that.relativeOffset.top;
 				break;
 			case "bottom":
-				self.top =  self.top + self.selector.offsetHeight - self.relativeOffset.top;
-				//console.log( "self.top + self.selector.outerHeight() " + self.selector.outerHeight() );
+				that.top =  that.top + that.selector.offsetHeight - that.relativeOffset.top;
+				//console.log( "that.top + that.selector.outerHeight() " + that.selector.outerHeight() );
 				break;
 			case "left":
 
 				break;
 			case "right":
-				self.left = self.left + self.selector.offsetWidth - self.relativeOffset.left;
-				//console.log( "self.left + self.selector.outerWidth() - self.relativeOffset.left " + self.selector.outerWidth() );
+				that.left = that.left + that.selector.offsetWidth - that.relativeOffset.left;
+				//console.log( "that.left + that.selector.outerWidth() - that.relativeOffset.left " + that.selector.outerWidth() );
 				break;
 			case "center":
-				self.left = self.left + self.selector.offsetWidth / 2  - self.relativeOffset.left;
-				//console.log( "self.left + self.selector.outerWidth() / 2 - self.relativeOffset.left  " + self.selector.outerWidth() / 2);
+				that.left = that.left + that.selector.offsetWidth / 2  - that.relativeOffset.left;
+				//console.log( "that.left + that.selector.outerWidth() / 2 - that.relativeOffset.left  " + that.selector.outerWidth() / 2);
 				break;
 			}
 	});	
@@ -277,19 +277,19 @@ Bubble.prototype.calculateArrowStyle = function(){
 };
 
 Bubble.prototype.setBehaviors = function(){
-	var self = this,
+	var that = this,
 		css = gadgetui.util.setStyle;
 	//$( "span", this.bubbleSelector )
 	this.spanElement[0]
 		.addEventListener( "click", function(){
-				css( self.bubbleSelector, "display", 'none' );
-				self.bubbleSelector.parentNode.removeChild( self.bubbleSelector );
+				css( that.bubbleSelector, "display", 'none' );
+				that.bubbleSelector.parentNode.removeChild( that.bubbleSelector );
 			});
 
 	if( this.autoClose ){
 		closeBubble = function(){
-			css( self.bubbleSelector, "display", 'none' );
-			self.bubbleSelector.parentNode.removeChild( self.bubbleSelector );
+			css( that.bubbleSelector, "display", 'none' );
+			that.bubbleSelector.parentNode.removeChild( that.bubbleSelector );
 		};
 		setTimeout( closeBubble, this.autoCloseDelay );
 	}

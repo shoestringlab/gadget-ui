@@ -1,6 +1,11 @@
 		
 ***Release Notes***
 
+2.4.1
+======
+
+- global replace of "self" alias for "this" with "that"
+
 2.4.0
 ======
 

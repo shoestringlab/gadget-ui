@@ -19,10 +19,10 @@ function CollapsiblePane( selector, options ){
 }
 
 CollapsiblePane.prototype.addBindings = function(){
-	var self = this, header = $( "div.gadget-ui-collapsiblePane-header", this.wrapper );
+	var that = this, header = $( "div.gadget-ui-collapsiblePane-header", this.wrapper );
 	header
 		.on( "click", function(){
-			self.toggle();
+			that.toggle();
 		});
 
 };
@@ -58,8 +58,8 @@ CollapsiblePane.prototype.config = function( args ){
 };
 
 CollapsiblePane.prototype.toggle = function(){
-	var self = this, add, remove, expandClass = "ui-icon-triangle-1-s", collapseClass = "ui-icon-triangle-1-n";
-	if( self.selector.css( "display" ) === "none" ){
+	var that = this, add, remove, expandClass = "ui-icon-triangle-1-s", collapseClass = "ui-icon-triangle-1-n";
+	if( that.selector.css( "display" ) === "none" ){
 		add = collapseClass;
 		remove = expandClass;
 	}else{
@@ -67,14 +67,14 @@ CollapsiblePane.prototype.toggle = function(){
 		remove = collapseClass;			
 	}
 	
-	self.eventName = ( ( self.eventName === undefined || self.eventName === "collapse" ) ? "expand" : "collapse" );
-	self.selector
-		.css( "padding", self.padding )
-		.css( "padding-top", self.paddingTop )
+	that.eventName = ( ( that.eventName === undefined || that.eventName === "collapse" ) ? "expand" : "collapse" );
+	that.selector
+		.css( "padding", that.padding )
+		.css( "padding-top", that.paddingTop )
 		.toggle( 'blind', {}, 200, function(  ) {
-			$( self.icon ).addClass( add )
+			$( that.icon ).addClass( add )
 						.removeClass( remove );
-			$( this ).css( "padding", self.padding );
-			self.selector.trigger( self.eventName );
+			$( this ).css( "padding", that.padding );
+			that.selector.trigger( that.eventName );
 		});
 };
