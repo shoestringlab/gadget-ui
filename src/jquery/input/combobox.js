@@ -86,8 +86,8 @@ ComboBox.prototype.addCSS = function(){
 		.css( "position", "relative" );
 
 	var rules,
-		styles = gadgetui.util.getStyle( this.selector[0] ),
-		wrapperStyles = gadgetui.util.getStyle( this.selectWrapper[0] ),
+		styles = gadgetui.util.getStyle( this.selector ),
+		wrapperStyles = gadgetui.util.getStyle( this.selectWrapper ),
 		inputWidth = this.selector[0].clientWidth,
 		inputWidthAdjusted,
 		inputLeftOffset = 0,
@@ -254,14 +254,6 @@ ComboBox.prototype.showLabel = function(){
 
 ComboBox.prototype.addBehaviors = function( obj ) {
 	var _this = this;
-	// setup mousePosition
-	if( gadgetui.mousePosition === undefined ){
-		$( document )
-			.on( "mousemove", function(ev){ 
-				ev = ev || window.event; 
-				gadgetui.mousePosition = gadgetui.util.mouseCoords(ev); 
-			});
-	}
 
 	$( this.comboBox )
 		.on( this.activate, function( ) {
@@ -317,7 +309,8 @@ ComboBox.prototype.addBehaviors = function( obj ) {
 			ev.stopPropagation();
 		})
 		.on( "change", function( event ) {
-			if( parseInt( event.target[ event.target.selectedIndex ].value, 10 ) !== parseInt(_this.id, 10 ) ){
+			var idx = ( event.target.selectedIndex >= 0 ) ? event.target.selectedIndex : 0;
+			if( parseInt( event.target[ idx ].value, 10 ) !== parseInt( _this.id, 10 ) ){
 				console.log( "select change");
 				if( event.target.selectedIndex > 0 ){
 					_this.inputWrapper.hide();

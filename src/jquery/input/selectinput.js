@@ -29,12 +29,12 @@ SelectInput.prototype.addControl = function(){
 SelectInput.prototype.addCSS = function(){
 	var height, 
 		parentstyle,
-		style = gadgetui.util.getStyle( $(this.selector)[0] );
+		style = gadgetui.util.getStyle( $(this.selector) );
 
 	this.selector.css( "min-width", "100px" );
 	this.selector.css( "font-size", style.fontSize );
 
-	parentstyle = gadgetui.util.getStyle( $(this.selector).parent()[0] );
+	parentstyle = gadgetui.util.getStyle( $(this.selector).parent() );
 	height = gadgetui.util.getNumberValue( parentstyle.height ) - 2;
 	this.label.attr( "style", "" );
 	this.label.css( "padding-top", "2px" );
@@ -51,15 +51,6 @@ SelectInput.prototype.addCSS = function(){
 
 SelectInput.prototype.addBindings = function() {
 	var _this = this;
-
-	// setup mousePosition
-	if( gadgetui.mousePosition === undefined ){
-		document
-			.addEventListener( "mousemove", function(ev){ 
-				ev = ev || window.event; 
-				gadgetui.mousePosition = gadgetui.util.mouseCoords(ev); 
-			});
-	}
 
 	this.label
 		.on( this.activate, function( event ) {
