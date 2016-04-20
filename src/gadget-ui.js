@@ -32,3 +32,11 @@ var gadgetui = {
 			UP: 38
 		}
 };
+
+// save mouse position
+document
+	.addEventListener( "mousemove", function(ev){ 
+		ev = ev || window.event; 
+		gadgetui.mousePosition = gadgetui.util.mouseCoords(ev); 
+	});
+
