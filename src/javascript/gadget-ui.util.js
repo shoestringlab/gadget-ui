@@ -350,9 +350,7 @@ gadgetui.util = ( function(){
 		},
 		
 		trigger : function( selector, eventType, data ){
-			
 			selector.dispatchEvent( new CustomEvent( eventType, { detail: data } ) );
-			
 		},
 		getMaxZIndex : function(){
 			  var elems = document.querySelectorAll( "*" );
