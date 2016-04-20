@@ -7,18 +7,17 @@ function TextInput( selector, options ){
 
 	this.config( options );
 
-	// bind to the model if binding is specified
-	gadgetui.util.bind( this.selector, this.model );
-
 	this.setInitialValue();
-	//this.addClass();
 	this.addControl();
 	this.setLineHeight();
 	this.setFont();
 	this.setMaxWidth();
 	this.setWidth();
 	this.addCSS();
-
+	// bind to the model if binding is specified
+	gadgetui.util.bind( this.selector, this.model );
+	// bind to the model if binding is specified
+	gadgetui.util.bind( this.label, this.model );
 	this.addBindings();
 }
 
@@ -32,6 +31,7 @@ TextInput.prototype.addControl = function(){
 	this.label.setAttribute( "data-active", "false" );
 	this.label.setAttribute( "readonly", "true" );
 	this.label.setAttribute( "value", this.value );
+	this.label.setAttribute( "gadgetui-bind", this.selector.getAttribute( "gadgetui-bind" ) );
 	this.labelDiv.appendChild( this.label );
 	
 	this.selector.parentNode.insertBefore( this.wrapper, this.selector );
@@ -45,7 +45,6 @@ TextInput.prototype.addControl = function(){
 	this.labelDiv = this.wrapper.childNodes[0];
 	this.label = this.labelDiv.childNodes[0];
 	this.inputDiv = this.wrapper.childNodes[1];
-	
 };
 
 TextInput.prototype.setInitialValue = function(){
@@ -64,7 +63,6 @@ TextInput.prototype.setInitialValue = function(){
 
 TextInput.prototype.setLineHeight = function(){
 	var lineHeight = this.selector.offsetHeight;
-	// minimum height
 	this.lineHeight = lineHeight;
 };
 
@@ -75,10 +73,9 @@ TextInput.prototype.setFont = function(){
 };
 
 TextInput.prototype.setWidth = function(){
-	var style = gadgetui.util.getStyle( this.selector );
-	this.width = gadgetui.util.textWidth( this.selector.value, style ) + 10;
+	this.width = gadgetui.util.textWidth( this.selector.value, this.font ) + 10;
 	if( this.width === 10 ){
-		this.width = this.minWidth;
+		this.width = this.maxWidth;
 	}
 };
 
@@ -148,9 +145,7 @@ TextInput.prototype.addCSS = function(){
 };
 
 TextInput.prototype.setControlWidth = function( text ){
-	
-	var style = gadgetui.util.getStyle( this.selector ),
-		textWidth = parseInt( gadgetui.util.textWidth(text, style ), 10 ),
+	var textWidth = parseInt( gadgetui.util.textWidth(text, this.font ), 10 ),
 		css = gadgetui.util.setStyle;
 	if( textWidth < this.minWidth ){
 		textWidth = this.minWidth;
@@ -161,15 +156,6 @@ TextInput.prototype.setControlWidth = function( text ){
 
 TextInput.prototype.addBindings = function(){
 	var _this = this;
-
-	// setup mousePosition
-	if( gadgetui.mousePosition === undefined ){
-		document
-			.addEventListener( "mousemove", function(ev){ 
-				ev = ev || window.event; 
-				gadgetui.mousePosition = gadgetui.util.mouseCoords(ev); 
-			});
-	}
 
 	this.label
 		//.off( _this.activate )
@@ -221,8 +207,7 @@ TextInput.prototype.addBindings = function(){
 					value = _this.selector.getAttribute( "placeholder" );
 				}
 
-				style = gadgetui.util.getStyle( _this.selector );
-				txtWidth = gadgetui.util.textWidth( value, style );
+				txtWidth = gadgetui.util.textWidth( value, _this.font );
 
 				if( _this.maxWidth < txtWidth ){
 					value = gadgetui.util.fitText( value, _this.font, _this.maxWidth );
