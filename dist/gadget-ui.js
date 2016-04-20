@@ -65,8 +65,8 @@ gadgetui.model = ( function() {
 					if( ev.target.name === obj.prop && ev.originalSource !== 'BindableObject.updateDomElement' ){
 						//select box binding
 						if( ev.target.type.match( /select/ ) ){
-							this.change( { 	value : ev.target.value, 
-									key : ev.target.options[ev.target.selectedIndex].innerHTML 
+							this.change( { 	id : ev.target.value, 
+									text : ev.target.options[ev.target.selectedIndex].innerHTML 
 								}, ev, obj.prop );
 						}
 						else{
@@ -158,14 +158,14 @@ gadgetui.model = ( function() {
 		console.log( "updateDomElement : selector: { type: " + selector.nodeName + ", name: " + selector.name + " }" );
 		console.log( "updateDomElement : Source: " + event.originalSource );	
 		if( typeof value === 'object' ){
-			// select box objects are populated with { key: key, value: value } 
-			if( selector.tagName === "DIV" ){
+			// select box objects are populated with { text: text, id: id } 
+			if( selector.tagName === "DIV" || selector.tagName === "SPAN" ){
 				selector.innerText = value.text;
 			}else{
 				selector.value = value.id;
 			}
 		}else{
-			if( selector.tagName === "DIV" ){
+			if( selector.tagName === "DIV" || selector.tagName === "SPAN" ){
 				selector.innerText = value;
 			}else{
 				selector.value = value;
@@ -218,7 +218,7 @@ gadgetui.model = ( function() {
 			// IE8
 			element.attachEvent("onpropertychange", function( ev ){
 				if( ev.propertyName === 'value'){
-					var el = ev.srcElement, val = ( el.nodeName === 'SELECT' ) ? { value: el.value, key: el.options[el.selectedIndex].innerHTML } : el.value;
+					var el = ev.srcElement, val = ( el.nodeName === 'SELECT' ) ? { id: el.value, text: el.options[el.selectedIndex].innerHTML } : el.value;
 					_this.change( val, { target: el }, el.name );
 				}
 			});
@@ -1052,7 +1052,6 @@ gadgetui.input = (function() {
 	
 	
 function ComboBox( selector, options ){
-
 	this.emitEvents = true;
 	this.model = gadgetui.model;
 	this.func;
@@ -1061,10 +1060,12 @@ function ComboBox( selector, options ){
 	this.config( options );
 	this.setSaveFunc();
 	this.setDataProviderRefresh();
-	// bind to the model if binding is specified
-	gadgetui.util.bind( this.selector, this.model );
 	this.addControl();
 	this.setCSS();
+	// bind to the model if binding is specified
+	gadgetui.util.bind( this.selector, this.model );
+	// bind to the model if binding is specified
+	gadgetui.util.bind( this.label, this.model );
 	this.addBehaviors();
 	this.setStartingValues();
 }
@@ -1086,12 +1087,13 @@ ComboBox.prototype.addControl = function(){
 	this.selector.parentNode.insertBefore( this.comboBox, this.selector );
 	this.selector.parentNode.removeChild( this.selector );
 	this.comboBox.appendChild( this.label );
-	
+
 	this.selectWrapper.appendChild( this.selector );
 	this.comboBox.appendChild( this.selectWrapper );
 	this.inputWrapper.appendChild( this.input );
 	this.comboBox.appendChild( this.inputWrapper );
 	this.label.setAttribute( "data-id", this.id );
+	this.label.setAttribute( "gadgetui-bind", this.selector.getAttribute( "gadgetui-bind" ) );	
 	this.label.innerHTML = this.text;
 	this.input.setAttribute( "placeholder", this.newOption.text );
 	this.input.setAttribute( "type", "text" );
@@ -1135,7 +1137,7 @@ ComboBox.prototype.getArrowWidth = function( resolve, reject ){
 ComboBox.prototype.addCSS = function(){
 	var css = gadgetui.util.setStyle;
 	gadgetui.util.addClass( this.selector, "gadgetui-combobox-select" );
-	css( this.selector, "width", this.width + "px" ); 
+	css( this.selector, "width", this.width ); 
 	css( this.selector, "border",  0 ); 
 	css( this.selector, "display",  "inline" ); 
 	css( this.comboBox, "position",  "relative" ); 
@@ -1175,24 +1177,24 @@ ComboBox.prototype.addCSS = function(){
 		selectLeftPadding = (selectLeftPadding < 4 ) ? 4 : this.borderRadius - 1;
 		selectMarginTop = 1;
 	}
-
+	
 	// positioning 
-	css( this.selector, "margin-top", selectMarginTop + "px" ); 
-	css( this.selector, "padding-left", selectLeftPadding + "px" ); 
+	css( this.selector, "margin-top", selectMarginTop ); 
+	css( this.selector, "padding-left", selectLeftPadding ); 
 	
 	
 	css( this.inputWrapper, "position",  "absolute" ); 
-	css( this.inputWrapper, "top", inputWrapperTop + "px" );
-	css( this.inputWrapper,"left",leftOffset + "px" );
+	css( this.inputWrapper, "top", inputWrapperTop );
+	css( this.inputWrapper,"left",leftOffset );
 
 	css( this.input, "display",  "inline" ); 
-	css( this.input,"padding-left",inputLeftOffset + "px" );
-	css( this.input,"margin-left",inputLeftMargin + "px" );
-	css( this.input, "width", inputWidthAdjusted + "px" ); 
+	css( this.input,"padding-left",inputLeftOffset );
+	css( this.input,"margin-left",inputLeftMargin );
+	css( this.input, "width", inputWidthAdjusted ); 
 
 	css( this.label, "position",  "absolute" ); 
-	css( this.label,"left",leftPosition + "px" );
-	css( this.label,"top",( this.borderWidth + 1 ) + "px" );
+	css( this.label,"left",leftPosition );
+	css( this.label,"top",( this.borderWidth + 1 ) );
 	css( this.label, "margin-left", 0 );
 
 	css( this.selectWrapper, "display",  "inline" ); 
@@ -1207,7 +1209,7 @@ ComboBox.prototype.addCSS = function(){
 	css( this.selectWrapper, "border-color", this.borderColor ); 
 	css( this.selectWrapper, "border-style", this.borderStyle ); 
 	css( this.selectWrapper, "border-width", this.borderWidth ); 
-	css( this.selectWrapper, "border-radius", this.borderRadius + "px" ); 
+	css( this.selectWrapper, "border-radius", this.borderRadius ); 
 
 	css( this.input, "border", 0 );
 	css( this.input, "font-size", styles.fontSize );
@@ -1226,7 +1228,7 @@ ComboBox.prototype.addCSS = function(){
 		css( this.selectWrapper, "background-position",  "right center" ); 
 
 		if( this.scaleIconHeight === true ){
-			css( this.selectWrapper, background-size,  this.arrowWidth + "px " + inputHeight + "px" ); 
+			css( this.selectWrapper, "background-size",  this.arrowWidth + "px " + inputHeight + "px" ); 
 		}
 	}
 	css( this.selector, "-webkit-appearance",  "none" ); 
@@ -1943,13 +1945,14 @@ function SelectInput( selector, options ){
 	this.config( options );
 	this.setInitialValue();
 
-	// bind to the model if binding is specified
-	gadgetui.util.bind( this.selector, this.model );
-
 	this.addControl();
 	this.addCSS();
 	this.selector.style.display = 'none';
-	
+
+	// bind to the model if binding is specified
+	gadgetui.util.bind( this.selector, this.model );
+	// bind to the model if binding is specified
+	gadgetui.util.bind( this.label, this.model );	
 	this.addBindings();
 }
 
@@ -1963,6 +1966,7 @@ SelectInput.prototype.addControl = function(){
 	this.label = document.createElement( "div" );
 	gadgetui.util.addClass( this.wrapper, "gadgetui-selectinput-div" );
 	gadgetui.util.addClass( this.label, "gadgetui-selectinput-label" );
+	this.label.setAttribute( "gadgetui-bind", this.selector.getAttribute( "gadgetui-bind" ) );	
 	this.label.innerHTML = this.value.text;
 	this.selector.parentNode.insertBefore( this.wrapper, this.selector );
 	this.wrapper = this.selector.previousSibling;
@@ -2676,12 +2680,17 @@ gadgetui.util = ( function(){
 			el.setAttribute( "style", "" );
 			return el;	
 		},
-		
+
 		addStyle : function( element, style ){
 			var estyles = element.getAttribute( "style" ),
 				currentStyles = ( estyles !== null ? estyles : "" );
 			element.setAttribute( "style", currentStyles + " " + style + ";" );
 		},
+
+		isNumeric: function( num ) {
+			  return !isNaN(parseFloat( num )) && isFinite( num );
+		},
+			
 		setStyle : function( element, style, value ){
 			var newStyles,
 				estyles = element.getAttribute( "style" ),
@@ -2690,6 +2699,20 @@ gadgetui.util = ( function(){
 				re = new RegExp( str , "g" );
 			//find styles in the style string
 			//([\w\-]+)+ *\:[^\;]*\;
+			
+			// assume 
+			if( gadgetui.util.isNumeric( value ) === true ){
+				// don't modify properties that accept a straight numeric value
+				switch( style ){
+				case "opacity":
+				case "z-index":
+				case "font-weight":
+					break;
+				default:
+					value = value + "px";
+				}
+			}
+			
 			if( currentStyles.search( re ) >= 0 ){
 				newStyles = currentStyles.replace( re, style + ": " + value + ";" ); 
 			}else{

@@ -65,8 +65,8 @@ gadgetui.model = ( function( $ ) {
 					if( ev.target.name === obj.prop && ev.originalSource !== 'BindableObject.updateDomElement'){
 						//select box binding
 						if( ev.target.type.match( /select/ ) ){
-							this.change( { 	value : $( ev.target ).val(), 
-									key : $( ev.target ).find('option:selected').text() 
+							this.change( { 	id : $( ev.target ).val(), 
+									text : $( ev.target ).find('option:selected').text() 
 								}, ev, obj.prop );
 						}
 						else{
@@ -218,7 +218,7 @@ gadgetui.model = ( function( $ ) {
 			// IE8
 			element[ 0 ].attachEvent("onpropertychange", function( ev ){
 				if( ev.propertyName === 'value'){
-					var el = ev.srcElement, val = ( el.nodeName === 'SELECT' ) ? { value: el.value, key: el.options[el.selectedIndex].innerHTML } : el.value;
+					var el = ev.srcElement, val = ( el.nodeName === 'SELECT' ) ? { id: el.value, text: el.options[el.selectedIndex].innerHTML } : el.value;
 					_this.change( val, { target: el }, el.name );
 				}
 			});
@@ -1019,20 +1019,17 @@ function ComboBox( selector, options ){
 
 	this.selector = selector;
 	this.config( options );
-	console.log( "1:" + this.id );
 	this.setSaveFunc();
-	console.log( "2:" + this.id );
 	this.setDataProviderRefresh();
-	console.log( "3:" + this.id );
+
+	this.addControl();
+	this.setCSS();
 	// bind to the model if binding is specified
 	gadgetui.util.bind( this.selector, this.model );
-	this.addControl();
-	console.log( "4:" + this.id );
-	this.setCSS();
+	// bind to the model if binding is specified
+	gadgetui.util.bind( this.label, this.model );
 	this.addBehaviors();
-	console.log( "5:" + this.id );
 	this.setStartingValues();
-	console.log( "6:" + this.id );
 }
 
 ComboBox.prototype.addControl = function(){
@@ -1046,6 +1043,8 @@ ComboBox.prototype.addControl = function(){
 	this.comboBox = $( this.selector ).parent().parent();
 	this.input = $( "input[class='gadgetui-combobox-input']", $( this.selector ).parent().parent() );
 	this.label = $( "div[class='gadgetui-combobox-label']", $( this.selector ).parent().parent() );
+	this.label.attr( "gadgetui-bind", this.selector.attr( "gadgetui-bind" ) );	
+
 	this.inputWrapper = $( "div[class='gadgetui-combobox-inputwrapper']", $( this.selector ).parent().parent() );
 	this.selectWrapper = $( "div[class='gadgetui-combobox-selectwrapper']", $( this.selector ).parent().parent() );
 	this.comboBox.css( "opacity", ".0" );
@@ -1135,7 +1134,6 @@ ComboBox.prototype.addCSS = function(){
 		selectLeftPadding = (selectLeftPadding < 4 ) ? 4 : this.borderRadius - 1;
 		selectMarginTop = 1;
 	}
-
 
 	// positioning 
 	this.selector
@@ -1682,12 +1680,13 @@ function SelectInput( selector, options ){
 	this.config( options );
 	this.setInitialValue();
 
-	// bind to the model if binding is specified
-	gadgetui.util.bind( this.selector, this.model );
-
 	this.addControl();
 	this.addCSS();
 	this.selector.css( "display", 'none' );
+	// bind to the model if binding is specified
+	gadgetui.util.bind( this.selector, this.model );
+	// bind to the model if binding is specified
+	gadgetui.util.bind( this.label, this.model );
 	
 	this.addBindings();
 }
@@ -1701,6 +1700,7 @@ SelectInput.prototype.addControl = function(){
 	$( this.selector ).wrap( "<div class='gadgetui-selectinput-div'></div>");
 	$( this.selector ).parent().prepend( "<div class='gadgetui-selectinput-label'>" + this.value.text + "</div>");
 	this.label = $( "div[class='gadgetui-selectinput-label']", $( this.selector ).parent() );
+	this.label.attr( "gadgetui-bind", this.selector.attr( "gadgetui-bind" ) );
 };
 
 SelectInput.prototype.addCSS = function(){
