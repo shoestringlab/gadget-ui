@@ -1,4 +1,3 @@
-
 function TextInput( selector, options ){
 	this.emitEvents = true;
 	this.model = gadgetui.model;
@@ -8,229 +7,235 @@ function TextInput( selector, options ){
 
 	this.config( options );
 
-	// bind to the model if binding is specified
-	gadgetui.util.bind( this.selector, this.model );
-
 	this.setInitialValue();
-	this.addClass();
 	this.addControl();
 	this.setLineHeight();
 	this.setFont();
 	this.setMaxWidth();
 	this.setWidth();
 	this.addCSS();
-
+	// bind to the model if binding is specified
+	gadgetui.util.bind( this.selector, this.model );
+	// bind to the model if binding is specified
+	gadgetui.util.bind( this.label, this.model );
 	this.addBindings();
 }
 
-TextInput.prototype.addBindings = function(){
-	var _this = this, 
-		obj = $( this.selector ).parent(),
-		labeldiv = $( "div[class='gadgetui-inputlabel']", obj ),
-		label = $( "input", labeldiv ),
-		font = obj.css( "font-size" ) + " " + obj.css( "font-family" );
-
-
-	// setup mousePosition
-	if( gadgetui.mousePosition === undefined ){
-		$( document )
-			.on( "mousemove", function(ev){ 
-				ev = ev || window.event; 
-				gadgetui.mousePosition = gadgetui.util.mouseCoords(ev); 
-			});
-	}
-	
-	$( this.selector )
-		.off( "mouseleave" )
-		.on( "mouseleave", function( ) {
-			if( $( this ).is( ":focus" ) === false ) {
-				labeldiv.css( "display", "block" );
-				$( this ).hide();
-				$( "input", $( obj ).parent() )
-					.css( "max-width",  _this.maxWidth );					
-			}
-		});		
-
-	label
-		.off( _this.activate )
-		.on( _this.activate, function( ) {
-			if( _this.useActive && ( label.attr( "data-active" ) === "false" || label.attr( "data-active" ) === undefined ) ){
-				label.attr( "data-active", "true" );
-			}else{
-				setTimeout( 
-					function(){
-					if( gadgetui.util.mouseWithin( label, gadgetui.mousePosition ) === true ){
-						// both input and label
-						labeldiv.hide();
-	
-						$( "input", obj )
-							.css( "max-width",  "" )
-							.css( "min-width", "10em" )
-							.css( "width", $.gadgetui.textWidth( $( _this.selector ).val(), font ) + 10 );
-			
-						//just input
-						$( _this.selector ).css( "display", "block" );
-							
-						// if we are only showing the input on click, focus on the element immediately
-						if( _this.activate === "click" ){
-							$( _this.selector ).focus();
-						}
-						if( _this.emitEvents === true ){
-							// raise an event _this the input is active
-							$( _this.selector ).trigger( "gadgetui-input-show", _this.selector );
-						}
-					}}, _this.delay );
-			}
-		});
-	$( this.selector )
-		.off( "focus" )
-		.on( "focus", function(e){
-			e.preventDefault();
-		});
-	$( this.selector )
-		.off( "blur" )
-		.on( "blur", function( ) {
-			var it = this;
-
-			$( it ).hide( );
-			label.css( "display", "block" );
-			labeldiv.css( "display", "block" );
-			label.attr( "data-active", "false" );
-			//$( "img", $( _this ).parent( ) ).hide( );
-
-			$( "input", $( obj ).parent() )
-				.css( "max-width",  _this.maxWidth );
-			
-			if( _this.emitEvents === true ){
-				$( it ).trigger( "gadgetui-input-hide", it );
-			}	
-
-		});
-	$( this.selector )
-		.off( "keyup" )
-		.on( "keyup", function( event ) {
-			if ( parseInt( event.keyCode, 10 ) === 13 ) {
-				$( this ).blur( );
-			}
-			$( "input", obj )
-				.css( "width", $.gadgetui.textWidth( $( this ).val(), font ) + 10 );
-		});
-	$( this.selector )
-		.off( "change" )
-		.on( "change", function( e ) {
-			var it = this, newVal, txtWidth, labelText;
-			setTimeout( function( ) {
-				newVal = $( it ).val( );
-					if( newVal.length === 0 && $( it ).attr( "placeholder" ) !== undefined ){
-						newVal = $( it ).attr( "placeholder" );
-					}
-					
-					txtWidth = $.gadgetui.textWidth( newVal, font );
-					if( _this.maxWidth < txtWidth ){
-						labelText = $.gadgetui.fitText( newVal, font, _this.maxWidth );
-					}else{
-						labelText = newVal;
-					}
-					label.val( labelText );
-					if( _this.model !== undefined && $( it ).attr( "gadgetui-bind" ) === undefined ){	
-						// if we have specified a model but no data binding, change the model value
-						_this.model.set( it.name, oVar[ it.name ] );
-					}
-	
-					if( _this.emitEvents === true ){
-						$( it ).trigger( "gadgetui-input-change", { text: $( it ).val( ) } );
-					}
-					if( _this.func !== undefined ){
-						_this.func( { text: $( it ).val( ) } );
-					}
-				
-			}, 200 );
-		});
-};
-
-TextInput.prototype.addClass = function(){
-	$( this.selector )
-		.addClass( "gadgetui-textinput" );
+TextInput.prototype.addControl = function(){
+	this.selector.wrap( "<div class='gadgetui-inputdiv'></div>" );
+	this.inputDiv = this.selector.parent();
+	this.inputDiv.wrap( "<div class='gadgetui-textinput-div'></div>");
+	this.wrapper = this.selector.parent().parent();
+	this.wrapper.prepend( "<div class='gadgetui-inputlabel'><input type='text' data-active='false' class='gadgetui-inputlabelinput' readonly='true' style='border:0;background:none;' value='" + this.value + "'></div>");
+	this.labelDiv = $( "div[class='gadgetui-inputlabel']", this.wrapper );
+	this.label = $( "input[class='gadgetui-inputlabelinput']", this.wrapper );
+	this.label.attr( "gadgetui-bind", this.selector.attr( "gadgetui-bind" ) );
 };
 
 TextInput.prototype.setInitialValue = function(){
-	var val = $( this.selector ).val(),
-		ph = $( this.selector ).attr( "placeholder" );
+	var val = this.selector.val(),
+		ph = this.selector.attr( "placeholder" );
 
 	if( val.length === 0 ){
-		if( ph !== undefined && ph.length > 0 ){
+		if( ph !== null && ph !== undefined && ph.length > 0 ){
 			val = ph;
 		}else{
 			val = " ... ";
 		}
 	}
-
 	this.value = val;
 };
 
-TextInput.prototype.addControl = function(){
-	$( this.selector ).wrap( "<div class='gadgetui-textinput-div'></div>");
-	$( this.selector ).parent().prepend( "<div class='gadgetui-inputlabel'><input type='text' data-active='false' class='gadgetui-inputlabelinput' readonly='true' style='border:0;background:none;' value='" + this.value + "'></div>");
-	$( this.selector ).hide();	
-};
-
 TextInput.prototype.setLineHeight = function(){
-	var lineHeight = $( this.selector ).outerHeight();
-	// minimum height
-	if( lineHeight > 20 ){
-		$( this.selector ).parent()
-			.css( "min-height", lineHeight );
-		// add min height to label div as well so label/input isn't offset vertically
-		$( "div[class='gadgetui-inputlabel']", $( this.selector ).parent() )
-			.css( "min-height", lineHeight );
-	}
+	var lineHeight = this.selector.outerHeight();
 	this.lineHeight = lineHeight;
 };
 
 TextInput.prototype.setFont = function(){
-	var style = gadgetui.util.getStyle( $( this.selector )[0] ),
+	var style = gadgetui.util.getStyle( this.selector ),
 		font = style.fontFamily + " " + style.fontSize + " " + style.fontWeight + " " + style.fontVariant;
 		this.font = font;
 };
 
 TextInput.prototype.setWidth = function(){
-	this.width = $.gadgetui.textWidth( $( this.selector ).val(), this.font ) + 10;
+	this.width = $.gadgetui.textWidth( this.selector.val(), this.font ) + 10;
 	if( this.width === 10 ){
 		this.width = this.maxWidth;
 	}
 };
 
 TextInput.prototype.setMaxWidth = function(){
-	var parentStyle = gadgetui.util.getStyle( $( this.selector ).parent().parent()[0] );
+	var parentStyle = gadgetui.util.getStyle( this.selector.parent().parent() );
 	this.maxWidth = gadgetui.util.getNumberValue( parentStyle.width );
 };
 
 TextInput.prototype.addCSS = function(){
-	$( "input[class='gadgetui-inputlabelinput']", $( this.selector ).parent()  )
-		.css( "font-size", gadgetui.util.getStyle( $( this.selector )[0] ).fontSize )
-		.css( "padding-left", "4px" )
-		.css( "border", "1px solid transparent" )
-		.css( "width", this.width );
-
-	$( "div[class='gadgetui-inputlabel']", $( this.selector ).parent() )
-		.css( "height", this.lineHeight )
-		
-		.css( "font-size", $( this.selector ).css( "font-size" ) )
-		.css( "display", "block" );	
+	var style = gadgetui.util.getStyle( this.selector );
+	this.selector
+		.addClass( "gadgetui-textinput" );
 	
-	$( this.selector )
+	this.label
+		.css( "background", "none" )
 		.css( "padding-left", "4px" )
-		.css( "border", "1px solid " + this.borderColor );
+		.css( "border", " 1px solid transparent" )
+		.css( "width", this.width )
+		.css( "font-family", style.fontFamily )
+		.css( "font-size", style.fontSize )
+		.css( "font-weight", style.fontWeight )
+		.css( "font-variant", style.fontVariant )
+		
+		.css( "max-width", "" )
+		.css( "min-width", this.minWidth );
+	
+	if( this.lineHeight > 20 ){
+		// add min height to label div as well so label/input isn't offset vertically
+		this.wrapper
+			.css( "min-height", this.lineHeight );
+		this.labelDiv
+		 	.css( "min-height", this.lineHeight );
+		this.inputDiv
+			.css( "min-height", this.lineHeight );
+	}	
+	
+	this.labelDiv
+		.css( "height", this.lineHeight )
+		.css( "font-size", style.fontSize )
+		.css( "display", "block" );
+	
+	this.inputDiv
+		.css( "height", this.lineHeight )
+		.css( "font-size", style.fontSize )
+		.css( "display", "block" );	
+	this.selector
+		.css( "padding-left", "4px" )
+		.css( "border", "1px solid " + this.borderColor )
+		.css( "font-family", style.fontFamily )
+		.css( "font-size", style.fontSize )
+		.css( "font-weight", style.fontWeight )
+		.css( "font-variant", style.fontVariant )
+		
+		.css( "width", this.width )
+		.css( "min-width", this.minWidth );	
+
+	this.selector.attr( "placeholder", this.value );
+	this.inputDiv
+		.css( "display", 'none' );
 
 	if( this.maxWidth > 10 && this.enforceMaxWidth === true ){
-		$( "input", $( this.selector ).parent() )
+		this.label
+			.css( "max-width", this.maxWidth );
+		this.selector
 			.css( "max-width", this.maxWidth );
 
 		if( this.maxWidth < this.width ){
-			$( "input[class='gadgetui-inputlabelinput']", $( this.selector ).parent() )
-				.val( $.gadgetui.fitText( this.value ), this.font, this.maxWidth );
+			this.label.val( $.gadgetui.fitText( this.value, this.font, this.maxWidth ) );
 		}
 	}
+};
+
+TextInput.prototype.setControlWidth = function( text ){
+	var textWidth = parseInt( $.gadgetui.textWidth( text, this.font ), 10 );
+	if( textWidth < this.minWidth ){
+		textWidth = this.minWidth;
+	}
+	this.selector.css( "width", ( textWidth + 30 ) );
+	this.label.css( "width", ( textWidth + 30 ) );	
+};
+
+TextInput.prototype.addBindings = function(){
+	var _this = this;
+
+	this.label
+		//.off( _this.activate )
+		.on( _this.activate, function( event ) {
+			if( _this.useActive && ( _this.label.attr( "data-active" ) === "false" || _this.label.attr( "data-active" ) === undefined ) ){
+				_this.label.attr( "data-active", "true" );
+			}else{
+				setTimeout( 
+					function(){
+					var css = gadgetui.util.setStyle;
+					//if( gadgetui.util.mouseWithin( _this.labelDiv, gadgetui.mousePosition ) ){
+						// both input and label
+						_this.labelDiv.css( "display", 'none' );
+						_this.inputDiv.css( "display", 'block' );
+						_this.setControlWidth( _this.selector.val() );
+
+						// if we are only showing the input on click, focus on the element immediately
+						if( _this.activate === "click" ){
+							_this.selector.focus();
+						}
+						if( _this.emitEvents === true ){
+							// raise an event _this the input is active
+							
+							//_this.selector.trigger( "gadgetui-input-show" );
+							_this.selector.trigger( "gadgetui-input-show", _this.selector );
+						}
+					//}
+					}, _this.delay );
+			}
+		});
+
+	this.selector
+		.on( "focus", function(e){
+			e.preventDefault();
+		});
+
+	this.selector
+		.on( "keyup", function( event ) {
+			if ( parseInt( event.keyCode, 10 ) === 13 ) {
+				this.blur();
+			}
+			_this.setControlWidth( this.value );
+		});
+
+	this.selector
+		.on( "change", function( event ) {
+			setTimeout( function( ) {
+				var value = event.target.value, style, txtWidth;
+				if( value.length === 0 && _this.selector.attr( "placeholder" ) !== undefined ){
+					value = _this.selector.attr( "placeholder" );
+				}
+
+				txtWidth = $.gadgetui.textWidth( value, _this.font );
+
+				if( _this.maxWidth < txtWidth ){
+					value = $.gadgetui.fitText( value, _this.font, _this.maxWidth );
+				}
+				_this.label.val( value );
+				if( _this.model !== undefined && _this.selector.attr( "gadgetui-bind" ) === undefined ){	
+					// if we have specified a model but no data binding, change the model value
+					_this.model.set( _this.selector.name, event.target.value );
+				}
+
+				if( _this.emitEvents === true ){
+					_this.selector.trigger( "gadgetui-input-change", { text: event.target.value } );
+				}
+
+				if( _this.func !== undefined ){
+					_this.func( { text: event.target.value } );
+				}				
+			}, 200 );
+		});
+	
+	this.selector
+		//.removeEventListener( "mouseleave" )
+		.on( "mouseleave", function( ) {
+			if( this !== document.activeElement ){
+				_this.labelDiv.css( "display", "block" );
+				_this.inputDiv.css( "display", "none" );
+				_this.label.css( "maxWidth", _this.maxWidth );				
+			}
+		});
+
+	this.selector
+		.on( "blur", function( ) {
+			_this.inputDiv.css( "display", 'none' );
+			_this.labelDiv.css( "display", 'block' );
+			_this.label.attr( "data-active", "false" );
+			_this.selector.css( "maxWidth", _this.maxWidth );
+			_this.label.css( "maxWidth", _this.maxWidth );
+		});
+
 };
 
 TextInput.prototype.config = function( options ){
