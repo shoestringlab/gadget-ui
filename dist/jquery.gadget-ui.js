@@ -171,8 +171,7 @@ gadgetui.model = ( function( $ ) {
 				selector.val( value );
 			}
 		}
-		//console.log( "updated Dom element: " + selector );
-		
+
 		// we have three ways to update values 
 		// 1. via a change event fired from changing the DOM element
 		// 2. via model.set() which should change the model value and update the dom element(s)
