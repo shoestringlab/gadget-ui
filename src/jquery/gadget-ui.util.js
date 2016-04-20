@@ -61,7 +61,7 @@ gadgetui.util = ( function(){
 				model.bind( bindVar, selector );
 			}
 		},
-		/*	encode : function( input, options ){
+		encode : function( input, options ){
 			var result, canon = true, encode = true, encodeType = 'html';
 			if( options !== undefined ){
 				canon = ( options.canon === undefined ? true : options.canon );
@@ -93,7 +93,7 @@ gadgetui.util = ( function(){
 				
 			}
 			return result;
-		},	*/
+		},
 		mouseCoords : function(ev){
 			// from http://www.webreference.com/programming/javascript/mk/column2/
 			if(ev.pageX || ev.pageY){
@@ -111,15 +111,15 @@ gadgetui.util = ( function(){
 		getStyle : function (el, prop) {
 		    if ( window.getComputedStyle !== undefined ) {
 		    	if( prop !== undefined ){
-		    		return window.getComputedStyle(el, null).getPropertyValue(prop);
+		    		return window.getComputedStyle(el[0], null).getPropertyValue(prop);
 		    	}else{
-		    		return window.getComputedStyle(el, null);
+		    		return window.getComputedStyle(el[0], null);
 		    	}
 		    } else {
 		    	if( prop !== undefined ){
-		    		return el.currentStyle[prop];
+		    		return el[0].currentStyle[prop];
 		    	}else{
-		    		return el.currentStyle;
+		    		return el[0].currentStyle;
 		    	}
 		    }
 		}
