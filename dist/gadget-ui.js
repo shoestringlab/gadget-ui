@@ -32,6 +32,15 @@ var gadgetui = {
 			UP: 38
 		}
 };
+
+// save mouse position
+document
+	.addEventListener( "mousemove", function(ev){ 
+		ev = ev || window.event; 
+		gadgetui.mousePosition = gadgetui.util.mouseCoords(ev); 
+	});
+
+
 gadgetui.model = ( function() {
 	"use strict";
 
@@ -50,7 +59,7 @@ gadgetui.model = ( function() {
 			case "change":
 				for( ix = 0; ix < this.elements.length; ix++ ){
 					obj = this.elements[ ix ];
-					if( ev.target.name === obj.prop && ev.originalSource !== 'updateDomElement' ){
+					if( ev.target.name === obj.prop && ev.originalSource !== 'model.updateDomElement' ){
 						//select box binding
 						if( ev.target.type.match( /select/ ) ){
 							this.change( { 	value : ev.target.value, 
@@ -142,7 +151,7 @@ gadgetui.model = ( function() {
 		// don't generate a change event on the selector if the change came from model.set method
 		if( event.originalSource !== 'model.set' ){
 			var ev = new Event( "change" );
-			ev.originalSource = 'updateDomElement';
+			ev.originalSource = 'model.updateDomElement';
 			selector.dispatchEvent( ev );
 		}
 	};
@@ -1266,14 +1275,6 @@ ComboBox.prototype.showLabel = function(){
 
 ComboBox.prototype.addBehaviors = function( obj ) {
 	var _this = this;
-	// setup mousePosition
-	if( gadgetui.mousePosition === undefined ){
-		document
-			.addEventListener( "mousemove", function(ev){ 
-				ev = ev || window.event; 
-				gadgetui.mousePosition = gadgetui.util.mouseCoords(ev); 
-			});
-	}
 
 	this.comboBox
 		.addEventListener( this.activate, function( ) {
@@ -1332,7 +1333,8 @@ ComboBox.prototype.addBehaviors = function( obj ) {
 		});
 	this.selector
 		.addEventListener( "change", function( event ) {
-			if( parseInt( event.target[ event.target.selectedIndex ].value, 10 ) !== parseInt(_this.id, 10 ) ){
+			var idx = ( event.target.selectedIndex >= 0 ) ? event.target.selectedIndex : 0;
+			if( parseInt( event.target[ idx ].value, 10 ) !== parseInt( _this.id, 10 ) ){
 				console.log( "select change");
 				if( event.target.selectedIndex > 0 ){
 					_this.inputWrapper.style.display = 'none';
@@ -1969,15 +1971,6 @@ SelectInput.prototype.addBindings = function() {
 	var _this = this,
 		css = gadgetui.util.setStyle;
 
-	// setup mousePosition
-	if( gadgetui.mousePosition === undefined ){
-		document
-			.addEventListener( "mousemove", function(ev){ 
-				ev = ev || window.event; 
-				gadgetui.mousePosition = gadgetui.util.mouseCoords(ev); 
-			});
-	}
-
 	this.label
 		.addEventListener( this.activate, function( event ) {
 			css( _this.label, "display", 'none' );
@@ -2065,18 +2058,17 @@ function TextInput( selector, options ){
 
 	this.config( options );
 
-	// bind to the model if binding is specified
-	gadgetui.util.bind( this.selector, this.model );
-
 	this.setInitialValue();
-	//this.addClass();
 	this.addControl();
 	this.setLineHeight();
 	this.setFont();
 	this.setMaxWidth();
 	this.setWidth();
 	this.addCSS();
-
+	// bind to the model if binding is specified
+	gadgetui.util.bind( this.selector, this.model );
+	// bind to the model if binding is specified
+	gadgetui.util.bind( this.label, this.model );
 	this.addBindings();
 }
 
@@ -2090,6 +2082,7 @@ TextInput.prototype.addControl = function(){
 	this.label.setAttribute( "data-active", "false" );
 	this.label.setAttribute( "readonly", "true" );
 	this.label.setAttribute( "value", this.value );
+	this.label.setAttribute( "gadgetui-bind", this.selector.getAttribute( "gadgetui-bind" ) );
 	this.labelDiv.appendChild( this.label );
 	
 	this.selector.parentNode.insertBefore( this.wrapper, this.selector );
@@ -2103,7 +2096,6 @@ TextInput.prototype.addControl = function(){
 	this.labelDiv = this.wrapper.childNodes[0];
 	this.label = this.labelDiv.childNodes[0];
 	this.inputDiv = this.wrapper.childNodes[1];
-	
 };
 
 TextInput.prototype.setInitialValue = function(){
@@ -2122,7 +2114,6 @@ TextInput.prototype.setInitialValue = function(){
 
 TextInput.prototype.setLineHeight = function(){
 	var lineHeight = this.selector.offsetHeight;
-	// minimum height
 	this.lineHeight = lineHeight;
 };
 
@@ -2133,10 +2124,9 @@ TextInput.prototype.setFont = function(){
 };
 
 TextInput.prototype.setWidth = function(){
-	var style = gadgetui.util.getStyle( this.selector );
-	this.width = gadgetui.util.textWidth( this.selector.value, style ) + 10;
+	this.width = gadgetui.util.textWidth( this.selector.value, this.font ) + 10;
 	if( this.width === 10 ){
-		this.width = this.minWidth;
+		this.width = this.maxWidth;
 	}
 };
 
@@ -2206,9 +2196,7 @@ TextInput.prototype.addCSS = function(){
 };
 
 TextInput.prototype.setControlWidth = function( text ){
-	
-	var style = gadgetui.util.getStyle( this.selector ),
-		textWidth = parseInt( gadgetui.util.textWidth(text, style ), 10 ),
+	var textWidth = parseInt( gadgetui.util.textWidth(text, this.font ), 10 ),
 		css = gadgetui.util.setStyle;
 	if( textWidth < this.minWidth ){
 		textWidth = this.minWidth;
@@ -2219,15 +2207,6 @@ TextInput.prototype.setControlWidth = function( text ){
 
 TextInput.prototype.addBindings = function(){
 	var _this = this;
-
-	// setup mousePosition
-	if( gadgetui.mousePosition === undefined ){
-		document
-			.addEventListener( "mousemove", function(ev){ 
-				ev = ev || window.event; 
-				gadgetui.mousePosition = gadgetui.util.mouseCoords(ev); 
-			});
-	}
 
 	this.label
 		//.off( _this.activate )
@@ -2279,8 +2258,7 @@ TextInput.prototype.addBindings = function(){
 					value = _this.selector.getAttribute( "placeholder" );
 				}
 
-				style = gadgetui.util.getStyle( _this.selector );
-				txtWidth = gadgetui.util.textWidth( value, style );
+				txtWidth = gadgetui.util.textWidth( value, _this.font );
 
 				if( _this.maxWidth < txtWidth ){
 					value = gadgetui.util.fitText( value, _this.font, _this.maxWidth );
@@ -2696,9 +2674,7 @@ gadgetui.util = ( function(){
 		},
 		
 		trigger : function( selector, eventType, data ){
-			
 			selector.dispatchEvent( new CustomEvent( eventType, { detail: data } ) );
-			
 		},
 		getMaxZIndex : function(){
 			  var elems = document.querySelectorAll( "*" );
