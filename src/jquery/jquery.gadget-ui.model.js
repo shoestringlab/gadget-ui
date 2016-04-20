@@ -22,8 +22,8 @@ gadgetui.model = ( function( $ ) {
 					if( ev.target.name === obj.prop && ev.originalSource !== 'BindableObject.updateDomElement'){
 						//select box binding
 						if( ev.target.type.match( /select/ ) ){
-							this.change( { 	value : $( ev.target ).val(), 
-									key : $( ev.target ).find('option:selected').text() 
+							this.change( { 	id : $( ev.target ).val(), 
+									text : $( ev.target ).find('option:selected').text() 
 								}, ev, obj.prop );
 						}
 						else{
@@ -175,7 +175,7 @@ gadgetui.model = ( function( $ ) {
 			// IE8
 			element[ 0 ].attachEvent("onpropertychange", function( ev ){
 				if( ev.propertyName === 'value'){
-					var el = ev.srcElement, val = ( el.nodeName === 'SELECT' ) ? { value: el.value, key: el.options[el.selectedIndex].innerHTML } : el.value;
+					var el = ev.srcElement, val = ( el.nodeName === 'SELECT' ) ? { id: el.value, text: el.options[el.selectedIndex].innerHTML } : el.value;
 					_this.change( val, { target: el }, el.name );
 				}
 			});

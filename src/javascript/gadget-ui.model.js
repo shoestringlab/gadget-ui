@@ -22,8 +22,8 @@ gadgetui.model = ( function() {
 					if( ev.target.name === obj.prop && ev.originalSource !== 'BindableObject.updateDomElement' ){
 						//select box binding
 						if( ev.target.type.match( /select/ ) ){
-							this.change( { 	value : ev.target.value, 
-									key : ev.target.options[ev.target.selectedIndex].innerHTML 
+							this.change( { 	id : ev.target.value, 
+									text : ev.target.options[ev.target.selectedIndex].innerHTML 
 								}, ev, obj.prop );
 						}
 						else{
@@ -115,14 +115,14 @@ gadgetui.model = ( function() {
 		console.log( "updateDomElement : selector: { type: " + selector.nodeName + ", name: " + selector.name + " }" );
 		console.log( "updateDomElement : Source: " + event.originalSource );	
 		if( typeof value === 'object' ){
-			// select box objects are populated with { key: key, value: value } 
-			if( selector.tagName === "DIV" ){
+			// select box objects are populated with { text: text, id: id } 
+			if( selector.tagName === "DIV" || selector.tagName === "SPAN" ){
 				selector.innerText = value.text;
 			}else{
 				selector.value = value.id;
 			}
 		}else{
-			if( selector.tagName === "DIV" ){
+			if( selector.tagName === "DIV" || selector.tagName === "SPAN" ){
 				selector.innerText = value;
 			}else{
 				selector.value = value;
@@ -175,7 +175,7 @@ gadgetui.model = ( function() {
 			// IE8
 			element.attachEvent("onpropertychange", function( ev ){
 				if( ev.propertyName === 'value'){
-					var el = ev.srcElement, val = ( el.nodeName === 'SELECT' ) ? { value: el.value, key: el.options[el.selectedIndex].innerHTML } : el.value;
+					var el = ev.srcElement, val = ( el.nodeName === 'SELECT' ) ? { id: el.value, text: el.options[el.selectedIndex].innerHTML } : el.value;
 					_this.change( val, { target: el }, el.name );
 				}
 			});
