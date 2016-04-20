@@ -6,20 +6,17 @@ function ComboBox( selector, options ){
 
 	this.selector = selector;
 	this.config( options );
-	console.log( "1:" + this.id );
 	this.setSaveFunc();
-	console.log( "2:" + this.id );
 	this.setDataProviderRefresh();
-	console.log( "3:" + this.id );
+
+	this.addControl();
+	this.setCSS();
 	// bind to the model if binding is specified
 	gadgetui.util.bind( this.selector, this.model );
-	this.addControl();
-	console.log( "4:" + this.id );
-	this.setCSS();
+	// bind to the model if binding is specified
+	gadgetui.util.bind( this.label, this.model );
 	this.addBehaviors();
-	console.log( "5:" + this.id );
 	this.setStartingValues();
-	console.log( "6:" + this.id );
 }
 
 ComboBox.prototype.addControl = function(){
@@ -33,6 +30,8 @@ ComboBox.prototype.addControl = function(){
 	this.comboBox = $( this.selector ).parent().parent();
 	this.input = $( "input[class='gadgetui-combobox-input']", $( this.selector ).parent().parent() );
 	this.label = $( "div[class='gadgetui-combobox-label']", $( this.selector ).parent().parent() );
+	this.label.attr( "gadgetui-bind", this.selector.attr( "gadgetui-bind" ) );	
+
 	this.inputWrapper = $( "div[class='gadgetui-combobox-inputwrapper']", $( this.selector ).parent().parent() );
 	this.selectWrapper = $( "div[class='gadgetui-combobox-selectwrapper']", $( this.selector ).parent().parent() );
 	this.comboBox.css( "opacity", ".0" );
@@ -122,7 +121,6 @@ ComboBox.prototype.addCSS = function(){
 		selectLeftPadding = (selectLeftPadding < 4 ) ? 4 : this.borderRadius - 1;
 		selectMarginTop = 1;
 	}
-
 
 	// positioning 
 	this.selector

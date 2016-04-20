@@ -5,12 +5,13 @@ function SelectInput( selector, options ){
 	this.config( options );
 	this.setInitialValue();
 
-	// bind to the model if binding is specified
-	gadgetui.util.bind( this.selector, this.model );
-
 	this.addControl();
 	this.addCSS();
 	this.selector.css( "display", 'none' );
+	// bind to the model if binding is specified
+	gadgetui.util.bind( this.selector, this.model );
+	// bind to the model if binding is specified
+	gadgetui.util.bind( this.label, this.model );
 	
 	this.addBindings();
 }
@@ -24,6 +25,7 @@ SelectInput.prototype.addControl = function(){
 	$( this.selector ).wrap( "<div class='gadgetui-selectinput-div'></div>");
 	$( this.selector ).parent().prepend( "<div class='gadgetui-selectinput-label'>" + this.value.text + "</div>");
 	this.label = $( "div[class='gadgetui-selectinput-label']", $( this.selector ).parent() );
+	this.label.attr( "gadgetui-bind", this.selector.attr( "gadgetui-bind" ) );
 };
 
 SelectInput.prototype.addCSS = function(){

@@ -1,5 +1,4 @@
 function ComboBox( selector, options ){
-
 	this.emitEvents = true;
 	this.model = gadgetui.model;
 	this.func;
@@ -8,10 +7,12 @@ function ComboBox( selector, options ){
 	this.config( options );
 	this.setSaveFunc();
 	this.setDataProviderRefresh();
-	// bind to the model if binding is specified
-	gadgetui.util.bind( this.selector, this.model );
 	this.addControl();
 	this.setCSS();
+	// bind to the model if binding is specified
+	gadgetui.util.bind( this.selector, this.model );
+	// bind to the model if binding is specified
+	gadgetui.util.bind( this.label, this.model );
 	this.addBehaviors();
 	this.setStartingValues();
 }
@@ -33,12 +34,13 @@ ComboBox.prototype.addControl = function(){
 	this.selector.parentNode.insertBefore( this.comboBox, this.selector );
 	this.selector.parentNode.removeChild( this.selector );
 	this.comboBox.appendChild( this.label );
-	
+
 	this.selectWrapper.appendChild( this.selector );
 	this.comboBox.appendChild( this.selectWrapper );
 	this.inputWrapper.appendChild( this.input );
 	this.comboBox.appendChild( this.inputWrapper );
 	this.label.setAttribute( "data-id", this.id );
+	this.label.setAttribute( "gadgetui-bind", this.selector.getAttribute( "gadgetui-bind" ) );	
 	this.label.innerHTML = this.text;
 	this.input.setAttribute( "placeholder", this.newOption.text );
 	this.input.setAttribute( "type", "text" );
@@ -82,7 +84,7 @@ ComboBox.prototype.getArrowWidth = function( resolve, reject ){
 ComboBox.prototype.addCSS = function(){
 	var css = gadgetui.util.setStyle;
 	gadgetui.util.addClass( this.selector, "gadgetui-combobox-select" );
-	css( this.selector, "width", this.width + "px" ); 
+	css( this.selector, "width", this.width ); 
 	css( this.selector, "border",  0 ); 
 	css( this.selector, "display",  "inline" ); 
 	css( this.comboBox, "position",  "relative" ); 
@@ -122,24 +124,24 @@ ComboBox.prototype.addCSS = function(){
 		selectLeftPadding = (selectLeftPadding < 4 ) ? 4 : this.borderRadius - 1;
 		selectMarginTop = 1;
 	}
-
+	
 	// positioning 
-	css( this.selector, "margin-top", selectMarginTop + "px" ); 
-	css( this.selector, "padding-left", selectLeftPadding + "px" ); 
+	css( this.selector, "margin-top", selectMarginTop ); 
+	css( this.selector, "padding-left", selectLeftPadding ); 
 	
 	
 	css( this.inputWrapper, "position",  "absolute" ); 
-	css( this.inputWrapper, "top", inputWrapperTop + "px" );
-	css( this.inputWrapper,"left",leftOffset + "px" );
+	css( this.inputWrapper, "top", inputWrapperTop );
+	css( this.inputWrapper,"left",leftOffset );
 
 	css( this.input, "display",  "inline" ); 
-	css( this.input,"padding-left",inputLeftOffset + "px" );
-	css( this.input,"margin-left",inputLeftMargin + "px" );
-	css( this.input, "width", inputWidthAdjusted + "px" ); 
+	css( this.input,"padding-left",inputLeftOffset );
+	css( this.input,"margin-left",inputLeftMargin );
+	css( this.input, "width", inputWidthAdjusted ); 
 
 	css( this.label, "position",  "absolute" ); 
-	css( this.label,"left",leftPosition + "px" );
-	css( this.label,"top",( this.borderWidth + 1 ) + "px" );
+	css( this.label,"left",leftPosition );
+	css( this.label,"top",( this.borderWidth + 1 ) );
 	css( this.label, "margin-left", 0 );
 
 	css( this.selectWrapper, "display",  "inline" ); 
@@ -154,7 +156,7 @@ ComboBox.prototype.addCSS = function(){
 	css( this.selectWrapper, "border-color", this.borderColor ); 
 	css( this.selectWrapper, "border-style", this.borderStyle ); 
 	css( this.selectWrapper, "border-width", this.borderWidth ); 
-	css( this.selectWrapper, "border-radius", this.borderRadius + "px" ); 
+	css( this.selectWrapper, "border-radius", this.borderRadius ); 
 
 	css( this.input, "border", 0 );
 	css( this.input, "font-size", styles.fontSize );
@@ -173,7 +175,7 @@ ComboBox.prototype.addCSS = function(){
 		css( this.selectWrapper, "background-position",  "right center" ); 
 
 		if( this.scaleIconHeight === true ){
-			css( this.selectWrapper, background-size,  this.arrowWidth + "px " + inputHeight + "px" ); 
+			css( this.selectWrapper, "background-size",  this.arrowWidth + "px " + inputHeight + "px" ); 
 		}
 	}
 	css( this.selector, "-webkit-appearance",  "none" ); 
