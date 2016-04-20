@@ -61,15 +61,6 @@ SelectInput.prototype.addBindings = function() {
 	var _this = this,
 		css = gadgetui.util.setStyle;
 
-	// setup mousePosition
-	if( gadgetui.mousePosition === undefined ){
-		document
-			.addEventListener( "mousemove", function(ev){ 
-				ev = ev || window.event; 
-				gadgetui.mousePosition = gadgetui.util.mouseCoords(ev); 
-			});
-	}
-
 	this.label
 		.addEventListener( this.activate, function( event ) {
 			css( _this.label, "display", 'none' );
