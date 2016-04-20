@@ -324,12 +324,17 @@ gadgetui.util = ( function(){
 			el.setAttribute( "style", "" );
 			return el;	
 		},
-		
+
 		addStyle : function( element, style ){
 			var estyles = element.getAttribute( "style" ),
 				currentStyles = ( estyles !== null ? estyles : "" );
 			element.setAttribute( "style", currentStyles + " " + style + ";" );
 		},
+
+		isNumeric: function( num ) {
+			  return !isNaN(parseFloat( num )) && isFinite( num );
+		},
+			
 		setStyle : function( element, style, value ){
 			var newStyles,
 				estyles = element.getAttribute( "style" ),
@@ -338,6 +343,20 @@ gadgetui.util = ( function(){
 				re = new RegExp( str , "g" );
 			//find styles in the style string
 			//([\w\-]+)+ *\:[^\;]*\;
+			
+			// assume 
+			if( gadgetui.util.isNumeric( value ) === true ){
+				// don't modify properties that accept a straight numeric value
+				switch( style ){
+				case "opacity":
+				case "z-index":
+				case "font-weight":
+					break;
+				default:
+					value = value + "px";
+				}
+			}
+			
 			if( currentStyles.search( re ) >= 0 ){
 				newStyles = currentStyles.replace( re, style + ": " + value + ";" ); 
 			}else{
