@@ -250,14 +250,6 @@ ComboBox.prototype.showLabel = function(){
 
 ComboBox.prototype.addBehaviors = function( obj ) {
 	var _this = this;
-	// setup mousePosition
-	if( gadgetui.mousePosition === undefined ){
-		document
-			.addEventListener( "mousemove", function(ev){ 
-				ev = ev || window.event; 
-				gadgetui.mousePosition = gadgetui.util.mouseCoords(ev); 
-			});
-	}
 
 	this.comboBox
 		.addEventListener( this.activate, function( ) {
@@ -316,7 +308,8 @@ ComboBox.prototype.addBehaviors = function( obj ) {
 		});
 	this.selector
 		.addEventListener( "change", function( event ) {
-			if( parseInt( event.target[ event.target.selectedIndex ].value, 10 ) !== parseInt(_this.id, 10 ) ){
+			var idx = ( event.target.selectedIndex >= 0 ) ? event.target.selectedIndex : 0;
+			if( parseInt( event.target[ idx ].value, 10 ) !== parseInt( _this.id, 10 ) ){
 				console.log( "select change");
 				if( event.target.selectedIndex > 0 ){
 					_this.inputWrapper.style.display = 'none';
