@@ -23,30 +23,57 @@ div .gadget-ui-input-div div{
 	
 }
 
-div.gadgetui-lookuplistinput-div, div.gadgetui-lookuplistinput{
+div.gadgetui-lookuplist-input-div, div.gadgetui-lookuplist-input{
 	background:#fff;
+	border: 1px solid silver;
 }
 
-div.gadgetui-lookuplistinput-div input, div.gadgetui-lookuplistinput input{
+div.gadgetui-lookuplist-input-div input, div.gadgetui-lookuplist-input input{
 	border:0;
 	outline: none;
+	padding-left: 10px;
 }
 
-div.gadgetui-lookuplistinput-div .gadgetui-lookuplist-input-item, div.gadgetui-lookuplistinput .gadgetui-lookuplist-input-item{
-	/*	padding: 2px;	*/
+div.gadgetui-lookuplist-input-div .gadgetui-lookuplist-input-item, div.gadgetui-lookuplist-input .gadgetui-lookuplist-input-item{
+	display:inline !important;
+	padding: 0 20px 0 10px;
 }
 
-div.gadgetui-lookuplistinput-div .gadgetui-lookuplist-input-cancel, div.gadgetui-lookuplistinput .gadgetui-lookuplist-input-cancel{
+div.gadgetui-lookuplist-input-div .gadgetui-lookuplist-input-cancel, div.gadgetui-lookuplist-input .gadgetui-lookuplist-input-cancel{
 	background: url('img/cancel.png') 98% center no-repeat #f4f0ec;
 	border: 1px solid #f4f0ec;
 	padding: 0px 20px 0px 3px;
 	margin:0px;
 	display:inline-block;
+	position:absolute;
+	height: 15px;
 }
 
-div.gadgetui-lookuplistinput-div > .gadgetui-lookuplist-input-item-wrapper, div.gadgetui-lookuplistinput > .gadgetui-lookuplist-input-item-wrapper{
+div.gadgetui-lookuplist-input-div > .gadgetui-lookuplist-input-item-wrapper, div.gadgetui-lookuplist-input > .gadgetui-lookuplist-input-item-wrapper{
 	margin:3px;
 	display:inline-block;
+	position:relative;
+	background: silver;
+}
+
+div.gadgetui-lookuplist-menu{
+	padding: 0;
+	margin:0;
+	background: white;
+	color: black;
+	border: 1px solid silver;
+}
+
+div.gadgetui-lookuplist-item{
+	display:block;
+	padding-left: 10px;
+}
+
+div.gadgetui-lookuplist-item:hover{
+	/*	background: silver;	*/
+	color: silver;
+	border-top: 1px solid silver;
+	border-bottom: 1px solid silver;
 }
 
 div.gadgetui-selectinput-label{

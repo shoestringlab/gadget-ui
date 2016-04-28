@@ -8,12 +8,12 @@
 		var lookuplist = [ {
 			label : "Abby",
 			email : "abby@abby",
-			value : "123",
+			value : "133",
 			title : "Abby abby@abby"
 		}, {
 			label : "Andy",
 			email : "andy@andy",
-			value : "123",
+			value : "153",
 			title : "Andy andy@andy"
 		}, {
 			label : "Anne",
@@ -47,7 +47,8 @@
 				emitEvents : false,
 				datasource : lookuplist,
 				model : gadgetui.model,
-				menuItemRenderer : renderLabel
+				menuItemRenderer : renderLabel,
+				width: 500
 			}
 		);
 

@@ -402,6 +402,24 @@ gadgetui.util = ( function(){
 			}
 
 			return matches;
+		},
+		delay: function( handler, delay ) {
+			function handlerProxy() {
+				return handler
+					.apply( instance, arguments );
+			}
+			var instance = this;
+			return setTimeout( handlerProxy, delay || 0 );
+		},
+		contains: function( child, parent ){
+			 var node = child.parentNode;
+		     while (node != null) {
+		         if (node == parent) {
+		             return true;
+		         }
+		         node = node.parentNode;
+		     }
+		     return false;
 		}
 	};
 } ());	

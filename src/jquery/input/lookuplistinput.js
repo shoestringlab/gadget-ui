@@ -20,7 +20,7 @@ function LookupListInput( selector, options ){
 
 LookupListInput.prototype.addBindings = function(){
 	var _this = this;
-	
+
 	$( this.selector ).parent()
 		.on( "click", function(){
 			$( _this ).focus();
@@ -28,7 +28,7 @@ LookupListInput.prototype.addBindings = function(){
 		.on( "click", "div[class~='gadgetui-lookuplist-input-cancel']", function(e){
 			_this.remove( _this.selector, $( e.target ).attr( "gadgetui-lookuplist-input-value" ) );
 		});
-	
+
 	$( this.selector )
 		.autocomplete( {
 			minLength : _this.minLength,
@@ -41,6 +41,7 @@ LookupListInput.prototype.addBindings = function(){
 				// focus
 				return false;
 			},
+
 			select : function( event, ui ) {
 				var terms = gadgetui.util.split( this.value );
 				// remove the current input
@@ -65,7 +66,7 @@ LookupListInput.prototype.addBindings = function(){
 				elem.remove( );
 			}
 		});
-	
+
 	$.ui.autocomplete.prototype._renderItem = function( ul, item){
 		if( typeof _this.menuItemRenderer === "function"){
 			return $( "<li>" )
