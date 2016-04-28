@@ -178,8 +178,8 @@ gadgetui.model = ( function( $ ) {
 		// 3. via a second dom element, e.g. when more than one dom element is linked to the property
 		//    we need to be able to update the other dom elements without entering an infinite loop
 		if( event.originalSource !== 'model.set' ){
-			var ev = new Event( "change" );
-			ev.originalSource = 'model.updateDomElement';
+			var ev = $.Event( "change" );
+			ev.originalSource = 'BindableObject.updateDomElement';
 			selector.trigger( ev );
 		}
 	};
@@ -1532,7 +1532,7 @@ function LookupListInput( selector, options ){
 	}
 	
 	//gadgetui.util.bind( this.selector, this.model );
-	$( this.selector ).wrap( '<div class="gadgetui-lookuplistinput-div ui-widget-content ui-corner-all"></div>' );
+	$( this.selector ).wrap( '<div class="gadgetui-lookuplist-input-div ui-widget-content ui-corner-all"></div>' );
 	this.addBindings();
 }
 
@@ -1609,7 +1609,7 @@ LookupListInput.prototype.add = function( el, item ){
 		$( "div[class~='gadgetui-lookuplist-input-cancel']", $( el ).parent() ).last().attr( "title", item.title );
 	}
 	if( this.emitEvents === true ){
-		$( el ).trigger( "gadgetui-lookuplistinput-add", [ item ] );
+		$( el ).trigger( "gadgetui-lookuplist-input-add", [ item ] );
 	}
 	if( this.func !== undefined ){
 		this.func( item, 'add' );
@@ -1641,7 +1641,7 @@ LookupListInput.prototype.remove = function( el, value ){
 					_this.func( obj, 'remove' );
 				}
 				if( _this.emitEvents === true ){
-					$( el ).trigger( "gadgetui-lookuplistinput-remove", [ obj ] );
+					$( el ).trigger( "gadgetui-lookuplist-input-remove", [ obj ] );
 				}
 				_this.model.set( prop, list );
 				return false;
@@ -1660,17 +1660,19 @@ LookupListInput.prototype.reset = function(){
 	}
 };
 
-LookupListInput.prototype.config = function( args ){
+LookupListInput.prototype.config = function( options ){
 	// if binding but no model was specified, use gadgetui model
 	if( $( this.selector ).attr( "gadgetui-bind" ) !== undefined ){
-		this.model = (( args.model === undefined) ? gadgetui.model : args.model );
+		this.model = (( options.model === undefined) ? gadgetui.model : options.model );
 	}
-	this.func = (( args.func === undefined) ? undefined : args.func );
-	this.itemRenderer = (( args.itemRenderer === undefined) ? this.itemRenderer : args.itemRenderer );
-	this.menuItemRenderer = (( args.menuItemRenderer === undefined) ? this.menuItemRenderer : args.menuItemRenderer );
-	this.emitEvents = (( args.emitEvents === undefined) ? true : args.emitEvents );
-	this.datasource = (( args.datasource === undefined) ? (( args.lookupList !== undefined ) ? args.lookupList : true ) : args.datasource );
-	this.minLength = (( args.minLength === undefined) ? 0 : args.minLength );
+	this.func = (( options.func === undefined) ? undefined : options.func );
+	this.itemRenderer = (( options.itemRenderer === undefined) ? this.itemRenderer : options.itemRenderer );
+	this.menuItemRenderer = (( options.menuItemRenderer === undefined) ? this.menuItemRenderer : options.menuItemRenderer );
+	this.emitEvents = (( options.emitEvents === undefined) ? true : options.emitEvents );
+	this.datasource = (( options.datasource === undefined) ? (( options.lookupList !== undefined ) ? options.lookupList : true ) : options.datasource );
+	this.width = (( options.width === undefined) ? undefined : options.width );
+	this.minLength = (( options.minLength === undefined) ? 0 : options.minLength );
+	
 	return this;
 };	
 

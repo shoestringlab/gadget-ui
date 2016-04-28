@@ -24,7 +24,15 @@ module.exports = {
 		options: {
 		      sourceMap: true
 		    },	
-		src : [ 'src/css/*.css' ],
+		src : [ 'src/css/gadget-ui*.css' ],
 		dest : 'dist/gadget-ui.css'
+	},
+	jquerycss : {
+		options: {
+		      sourceMap: true
+		    },	
+		src : [ 'src/css/jquery*.css' ],
+		dest : 'dist/jquery.gadget-ui.css'
 	}
+	
 };

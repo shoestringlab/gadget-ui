@@ -40,11 +40,11 @@
 				$( "span[name='lastname']" ).text( gadgetui.model.get( 'user.lastname' ) );
 				$( "span[name='tagline']" ).text( gadgetui.model.get( 'user.tagline' ) );
 				var role = gadgetui.model.get( 'user.role' );
-				$( "span[name='role']" ).text( "key : " + role.key + ", value : " + role.value );
+				$( "span[name='role']" ).text( "text : " + role.text + ", id : " + role.id );
 				$( "span[name='friends']" ).text( gadgetui.model.get( 'user.friends' ) );
 				$( "span[name='nickname']" ).text( gadgetui.model.get( 'user.nickname' ) );
 				var food = gadgetui.model.get( 'user.food' );
-				$( "span[name='food']" ).text(  "key : " + food.key + ", value : " + food.value  );
+				$( "span[name='food']" ).text(  "text : " + food.text + ", id : " + food.id  );
 				/*	$( '#modelDiv' ).html( 'firstname: ' + gadgetui.model.get( 'user.firstname' ) 
 				+ '<br/><br/>lastname: ' + gadgetui.model.get( 'user.lastname' ) 
 				+ '<br/><br/>tag line: ' + gadgetui.model.get( 'user.tagline' ) 

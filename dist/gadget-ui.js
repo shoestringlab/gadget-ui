@@ -1905,58 +1905,6 @@ LookupListInput.prototype.addBindings = function(){
 				
 			}
 		});
-	
-	/*	
-	$( this.selector )
-		.autocomplete( {
-			minLength : _this.minLength,
-			source : function( request, response ) {
-				response( $.ui.autocomplete.filter( _this.datasource, gadgetui.util.extractLast( request.term ) ) );
-			},
-
-			focus : function( ) {
-				// prevent value inserted on
-				// focus
-				return false;
-			},
-			select : function( event, ui ) {
-				var terms = gadgetui.util.split( this.value );
-				// remove the current input
-				terms.pop( );
-
-				_this.add( _this.selector, ui.item );
-				this.value = '';
-				this.focus( );
-				return false;
-			}
-		} ).on( "keydown", function( event ) {
-			$( this )
-				.css( "width", Math.round( ( $( this ).val( ).length * 0.66 ) + 3 ) + "em" );
-	
-			if ( event.keyCode === $.ui.keyCode.TAB && $( this ).data( "ui-autocomplete" ).menu.active ) {
-				event.preventDefault( );
-			}
-			if ( event.keyCode === $.ui.keyCode.BACKSPACE && $( this ).val( ).length === 0 ) {
-				event.preventDefault();
-				var elem = $( this ).prev( "div[class~='gadgetui-lookuplist-input-item-wrapper']" );
-
-				elem.remove( );
-			}
-		});
-
-	$.ui.autocomplete.prototype._renderItem = function( ul, item){
-		if( typeof _this.menuItemRenderer === "function"){
-			return $( "<li>" )
-			.setAttribute( "data-value", item.value )
-			.append( $( "<a>" ).text( _this.menuItemRenderer( item ) ) )
-			.appendTo( ul );
-		}else{
-			//default jquery-ui implementation
-			return $( "<li>" )
-			.append( $( "<a>" ).text( item.label ) )
-			.appendTo( ul );
-		}
-	};		*/
 };
 
 LookupListInput.prototype.add = function( item ){
@@ -2027,7 +1975,6 @@ LookupListInput.prototype.remove = function( selector ){
 	for( ix = 0; ix < this.items.length; ix++ ){
 		if( this.items[ ix ].value === value ){
 			removed = this.items.splice( ix, 1 );
-			console.log( 'removed: ' + removed.label );
 		}
 	}
 	if( this.model !== undefined ){
@@ -2050,12 +1997,14 @@ LookupListInput.prototype.remove = function( selector ){
 };
 
 LookupListInput.prototype.reset = function(){
-	this.selector.parentNode.querySelector( ".gadgetui-lookuplist-input-item-wrapper" ).empty();
 
+	while ( this.wrapper.firstChild && this.wrapper.firstChild !== this.selector ) {
+			this.wrapper.removeChild( this.wrapper.firstChild );
+	}
+	this.items = [];
 	if( this.model !== undefined ){
 		prop = this.el.getAttribute( "gadget-ui-bind" );
-		list = this.model.get( prop );
-		list.length = 0;
+		list = this.model.set( prop, [] );		
 	}
 };
 

@@ -135,8 +135,8 @@ gadgetui.model = ( function( $ ) {
 		// 3. via a second dom element, e.g. when more than one dom element is linked to the property
 		//    we need to be able to update the other dom elements without entering an infinite loop
 		if( event.originalSource !== 'model.set' ){
-			var ev = new Event( "change" );
-			ev.originalSource = 'model.updateDomElement';
+			var ev = $.Event( "change" );
+			ev.originalSource = 'BindableObject.updateDomElement';
 			selector.trigger( ev );
 		}
 	};
