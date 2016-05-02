@@ -1,6 +1,14 @@
 		
 ***Release Notes***
 
+3.0.1
+======
+
+- Separated docs for jQuery-based and jQuery-free versions
+- Clean up code from LookupListInput
+- Additional notes in README
+- plain JavaScript LookupListInput does not currently support keyboard navigation of the suggestion list
+
 3.0.0
 ======
 

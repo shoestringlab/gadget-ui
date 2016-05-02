@@ -363,7 +363,7 @@ LookupListInput.prototype.add = function( item ){
 			_this.remove( this.parentNode );
 		});
 	}
-	
+
 	this.selector.value = '';
 	this.items.push( item );
 	
@@ -387,7 +387,6 @@ LookupListInput.prototype.add = function( item ){
 };
 
 LookupListInput.prototype.remove = function( selector ){
-	//el.parentNode.querySelector( "div[data-value='" + value + "']" ).parentNode.remove();
 	var _this = this, removed, ix, prop, list, value = selector.getAttribute( "data-value" );
 
 	selector.parentNode.removeChild( selector );
@@ -430,13 +429,11 @@ LookupListInput.prototype.reset = function(){
 
 LookupListInput.prototype.destroy = function() {
 	clearTimeout( this.searching );
-	//this.selector.removeClass( "gadgetui-lookuplist-input" );
 	this.menu.element.remove();
 	this.liveRegion.remove();
 };
 
 LookupListInput.prototype._setOption = function( key, value ) {
-//_setOption: function( key, value ) {
 	this._super( key, value );
 	if ( key === "source" ) {
 		this._initSource();
@@ -450,7 +447,6 @@ LookupListInput.prototype._setOption = function( key, value ) {
 };
 
 LookupListInput.prototype._appendTo = function() {
-//_appendTo: function() {
 	var element = this.options.appendTo;
 
 	if ( element ) {
@@ -509,16 +505,15 @@ LookupListInput.prototype._search = function( value ) {
 };
 
 LookupListInput.prototype._response = function() {
-	//_response: function() {
 	var _this = this, 
 		index = ++this.requestIndex,
 		fn = function( content ) {
 				_this.__response( content );
 
 			_this.pending--;
-			if ( !_this.pending ) {
-				//this.element.removeClass( "ui-autocomplete-loading" );
-			}
+			/*	if ( !_this.pending ) {
+				this.element.removeClass( "ui-autocomplete-loading" );
+			}	*/
 		},
 		proxy = function(){
 			return fn.apply( _this, arguments );
@@ -527,20 +522,16 @@ LookupListInput.prototype._response = function() {
 };
 
 LookupListInput.prototype.__response = function( content ) {
-	//__response: function( content ) {
 	content = this.makeUnique( content );
 	
 	if ( content && content.length ) {
 		content = this._normalize( content );
 	}
-	//this._trigger( "response", null, { content: content } );
 	this.selector.dispatchEvent( new CustomEvent( "response", { content: content } ) );
 	if ( !this.disabled && content && content.length && !this.cancelSearch ) {
 		this._suggest( content );
 		this.selector.dispatchEvent( new Event( "open" ) );
-		//this._trigger( "open" );
 	} else {
-		// use ._close() instead of .close() so we don't cancel future searches
 		this._close();
 	}
 };
@@ -555,16 +546,14 @@ LookupListInput.prototype._close = function( event ) {
 		this.menu.element.style.display = 'none';
 		this.menu.element.blur();
 		this.isNewMenu = true;
-		//this.selector.dispatchEvent( event );
-		//this._trigger( "close", event );
 	}
 };
 
 LookupListInput.prototype._change = function( event ) {
-	if ( this.previous !== this._value() ) {
+	/*	if ( this.previous !== this._value() ) {
 	//	this._trigger( "change", event, { item: this.selectedItem } );
 		//this.selector.dispatchEvent( event );
-	}
+	}	*/
 };
 
 LookupListInput.prototype._normalize = function( items ) {
@@ -593,16 +582,15 @@ LookupListInput.prototype._suggest = function( items ) {
 	}
 	this._renderMenu( items );
 	this.isNewMenu = true;
-	//this.menu.refresh();
 
 	// size and position menu
 	div.style.display = 'block';
 	this._resizeMenu();
 	this.position.of = this.element;
 	
-	if ( this.autoFocus ) {
+	/*	if ( this.autoFocus ) {
 	//	this.menu.next();
-	}
+	}	*/
 };
 
 LookupListInput.prototype._resizeMenu = function() {
@@ -612,9 +600,6 @@ LookupListInput.prototype._resizeMenu = function() {
 
 LookupListInput.prototype._renderMenu = function( items ) {
 	var _this = this, ix;
-/*		items.forEach( function( item, index ) {
-		_this._renderItemData( item );
-	});	*/
 	var maxItems = Math.min( this.maxSuggestions, items.length );
 	for( ix = 0; ix < maxItems; ix++ ){
 		_this._renderItemData( items[ ix ] );
