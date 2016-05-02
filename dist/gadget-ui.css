@@ -98,6 +98,7 @@ div.gadgetui-lookuplist-input-div > .gadgetui-lookuplist-input-item-wrapper, div
 	display:inline-block;
 	position:relative;
 	background: silver;
+	border-radius: 5px;
 }
 
 div.gadgetui-lookuplist-menu{

@@ -47,7 +47,7 @@
 				emitEvents : false,
 				datasource : lookuplist,
 				model : gadgetui.model,
-				menuItemRenderer : renderLabel,
+				labelRenderer : renderLabel,
 				width: 500
 			}
 		);
