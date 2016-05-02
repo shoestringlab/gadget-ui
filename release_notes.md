@@ -1,6 +1,14 @@
 		
 ***Release Notes***
 
+3.0.0
+======
+
+- Re-factored LookupListInput using jQuery-UI autocomplete as a base to create jQuery-free component
+- First version with the complete set of components available in jQuery-free versions
+- Added ability to use custom renderers for menu items, selected items, and cancel icon
+- Global replace of "self" with "_this". 
+
 2.4.1
 ======
 

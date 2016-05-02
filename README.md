@@ -3,7 +3,19 @@ gadget-ui
 
 JavaScript UI and data binding library
 
-Version 2.4.1
+Version 3.0.0
+
+As of v 3.0.0, gadget-ui comes in two distinct flavors:
+- a jQuery-based version that is dependent on jQuery, partially on jQuery-UI, and partially on additional libraries.
+- a plain JavaScript version that only has a dependency on open-iconic icons and optional dependency on Velocity (to enable animations) and polyfills for promises and queryselector
+
+jQuery-free version
+
+The options for this version of the code are largely the same. The primary difference is that you pass components native HTML elements as selectors instead of using jQuery selectors.
+The LookupListInput in this version of the code has a few new features that the jQuery version lacks. Look at test/lookuplistinput.advanced.htm for an example.
+
+
+jQuery version
 
 For a quickstart guide and working examples, see http://www.bonnydoonmedia.com/index.cfm/projects/gadget-ui/.
 
