@@ -377,12 +377,14 @@ LookupListInput.prototype.add = function( item ){
 	if( this.model !== undefined ){
 		//update the model 
 		prop = this.selector.getAttribute( "gadgetui-bind" );
-		list = this.model.get( prop );
-		if( typeof list === Array ){
-			list = [];
+		if( prop !== null && prop !== undefined ){
+			list = this.model.get( prop );
+			if( typeof list === Array ){
+				list = [];
+			}
+			list.push( item );
+			this.model.set( prop, list );
 		}
-		list.push( item );
-		this.model.set( prop, list );
 	}
 };
 
@@ -398,20 +400,22 @@ LookupListInput.prototype.remove = function( selector ){
 	}
 	if( this.model !== undefined ){
 		prop = this.selector.getAttribute( "gadgetui-bind" );
-		list = this.model.get( prop );
-		list.forEach( function( obj, ix ){
-			if( obj.value === value ){
-				list.splice( ix, 1 );
-				if( _this.func !== undefined ){
-					_this.func( obj, 'remove' );
+		if( prop !== null && prop !== undefined ){
+			list = this.model.get( prop );
+			list.forEach( function( obj, ix ){
+				if( obj.value === value ){
+					list.splice( ix, 1 );
+					if( _this.func !== undefined ){
+						_this.func( obj, 'remove' );
+					}
+					if( _this.emitEvents === true ){
+						gadgetui.util.trigger( _this.selector, "gadgetui-lookuplist-input-remove", obj );
+					}
+					_this.model.set( prop, list );
+					return false;
 				}
-				if( _this.emitEvents === true ){
-					gadgetui.util.trigger( _this.selector, "gadgetui-lookuplist-input-remove", obj );
-				}
-				_this.model.set( prop, list );
-				return false;
-			}
-		});
+			});
+		}
 	}
 };
 

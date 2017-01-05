@@ -1,4 +1,4 @@
-	function FloatingPane( selector, options ){
+function FloatingPane( selector, options ){
 
 	this.selector = selector;
 	if( options !== undefined ){
@@ -20,8 +20,7 @@
 
 FloatingPane.prototype.addBindings = function(){
 	var _this = this;
-	// jquery-ui draggable
-	//this.wrapper.draggable( {addClasses: false } );
+	
 	gadgetui.util.draggable( this.wrapper );
 	
 	this.maxmin.addEventListener( "click", function(){
@@ -65,6 +64,9 @@ FloatingPane.prototype.addCSS = function(){
 	css( this.wrapper, "min-width", this.minWidth );
 	css( this.wrapper, "opacity", this.opacity );
 	css( this.wrapper, "z-index", this.zIndex );
+	css( this.wrapper, "position", this.position );
+	css( this.wrapper, "top", this.top );
+	css( this.wrapper, "left", this.left );
 	
 	//now make the width of the selector to fill the wrapper
 	css( this.selector, "width", this.interiorWidth + "px" );
@@ -168,12 +170,14 @@ FloatingPane.prototype.config = function( options ){
 	this.animate = (( options.animate === undefined) ? true : options.animate );
 	this.title = ( options.title === undefined ? "": options.title );
 	this.path = ( options.path === undefined ? "/bower_components/gadget-ui/dist/": options.path );
-	this.position = ( options.position === undefined ? { my: "right top", at: "right top", of: window } : options.position );
+	this.position = ( options.position === undefined ? "absolute" : options.position );
 	this.padding = ( options.padding === undefined ? "15px": options.padding );
 	this.paddingTop = ( options.paddingTop === undefined ? ".3em": options.paddingTop );
 	this.width = ( options.width === undefined ? gadgetui.util.getStyle( this.selector, "width" ) : options.width );
 	this.minWidth = ( this.title.length > 0 ? Math.max( 100, this.title.length * 10 ) + 20 : 100 );
-
+	this.top = ( options.top === undefined ? 0: options.top );
+	this.left = ( options.left === undefined ? 0: options.left );
+	
 	this.height = ( options.height === undefined ? gadgetui.util.getNumberValue( gadgetui.util.getStyle( this.selector, "height" ) ) + ( gadgetui.util.getNumberValue( this.padding ) * 2 ) : options.height );
 	this.interiorWidth = ( options.interiorWidth === undefined ? "": options.interiorWidth );
 	this.opacity = ( ( options.opacity === undefined ? 1 : options.opacity ) );
