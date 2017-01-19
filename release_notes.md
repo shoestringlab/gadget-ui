@@ -1,6 +1,13 @@
 		
 ***Release Notes***
 
+3.0.2
+======
+
+- Bug fixes in floating pane styling
+- Bug fix in util.getNumberValue - now returns same value if passed a number
+
+
 3.0.1
 ======
 

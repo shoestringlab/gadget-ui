@@ -5,7 +5,7 @@ JavaScript UI and data binding library
 
 This library uses [semver](http://semver.org/) version numbering.
 
-v 3.0.1
+v 3.0.2
 
 **Why version 3.0.0?**
 
