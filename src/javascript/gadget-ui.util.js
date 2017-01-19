@@ -203,87 +203,46 @@ gadgetui.util = ( function() {
 				}
 			}
 		},
-		draggable : function( selector, container ) {
-			var dragger = gadgetui.util.dragger();
-			// by default item can be dragged anywhere on the page
-			if ( container === undefined ) {
-				container = document.querySelector( "body" );
-			}
-			selector.addEventListener( "mousedown", function( event ) {
-				dragger.startMoving( selector, container, event );
-			} );
-			selector.addEventListener( "mouseup", function( event ) {
-				dragger.stopMoving( container );
-			} );
-
+		draggable : function( selector ){
+			return gadgetui.util.dragger( selector );
 		},
+		dragger : function( selector ){
+			var selected = null, // Object of the element to be moved
+		    x_pos = 0, y_pos = 0, // Stores x & y coordinates of the mouse pointer
+		    x_elem = 0, y_elem = 0; // Stores top, left values (edge) of the element
 
-		dragger : function() {
-			/*
-			 * //https://jsfiddle.net/tovic/Xcb8d/ //author: Taufik Nurrohman //
-			 * code belongs to author // no license enforced var selected =
-			 * null, // Object of the element to be moved x_pos = 0, y_pos = 0, //
-			 * Stores x & y coordinates of the mouse pointer x_elem = 0, y_elem =
-			 * 0; // Stores top, left values (edge) of the element
-			 *  // Will be called when user starts dragging an element function
-			 * _drag_init(elem) { // Store the object of the element which needs
-			 * to be moved selected = elem; x_elem = x_pos -
-			 * selected.offsetLeft; y_elem = y_pos - selected.offsetTop; }
-			 *  // Will be called when user dragging an element function
-			 * _move_elem(e) { x_pos = document.all ? window.event.clientX :
-			 * e.pageX; y_pos = document.all ? window.event.clientY : e.pageY;
-			 * if (selected !== null) { selected.style.left = (x_pos - x_elem) +
-			 * 'px'; selected.style.top = (y_pos - y_elem) + 'px'; } }
-			 *  // Destroy the object when we are done function _destroy() {
-			 * selected = null; }
-			 *  // Bind the functions... selector.onmousedown = function () {
-			 * _drag_init(this); return false; };
-			 * 
-			 * document.onmousemove = _move_elem; document.onmouseup = _destroy;
-			 */
-			return {
-				move : function( selector, xpos, ypos ) {
-					selector.style.left = xpos + 'px';
-					selector.style.top = ypos + 'px';
+			// Bind the functions...
+			selector.onmousedown = function () {
+			    _drag_init(this);
+			    return false;
+			};
+
+			document.onmousemove = _move_elem;
+			document.onmouseup = _destroy;
+
+			return{
+				// Will be called when user starts dragging an element
+				_drag_init : function(elem) {
+				    // Store the object of the element which needs to be moved
+				    selected = elem;
+				    x_elem = x_pos - selected.offsetLeft;
+				    y_elem = y_pos - selected.offsetTop;
 				},
-				startMoving : function( selector, container, evt ) {
-					evt = evt || window.event;
-					var self = this, 
-						posX = evt.clientX, 
-						posY = evt.clientY, 
-						divTop = selector.style.top, 
-						divLeft = selector.style.left, 
-						eWi = parseInt( selector.style.width ), 
-						eHe = parseInt( selector.style.height ), 
-						cWi = parseInt( container.style.width ), 
-						cHe = parseInt( container.style.height );
-					container.style.cursor = 'move';
-					divTop = divTop.replace( 'px', '' );
-					divLeft = divLeft.replace( 'px', '' );
-					var diffX = posX - divLeft, diffY = posY - divTop;
-					document.onmousemove = function( evt) {
-						evt = evt || window.event;
-						if( evt.target === selector ){
-							var posX = evt.clientX, posY = evt.clientY, aX = posX
-									- diffX, aY = posY - diffY;
-							if ( aX < 0 )
-								aX = 0;
-							if ( aY < 0 )
-								aY = 0;
-							if ( aX + eWi > cWi )
-								aX = cWi - eWi;
-							if ( aY + eHe > cHe )
-								aY = cHe - eHe;
-							self.move( selector, aX, aY );
-						}
-					}
+
+				// Will be called when user dragging an element
+				_move_elem : function(e) {
+				    x_pos = document.all ? window.event.clientX : e.pageX;
+				    y_pos = document.all ? window.event.clientY : e.pageY;
+				    if (selected !== null) {
+				        selected.style.left = (x_pos - x_elem) + 'px';
+				        selected.style.top = (y_pos - y_elem) + 'px';
+				    }
 				},
-				stopMoving : function( container ) {
-					var a = document.createElement( 'script' );
-					container.style.cursor = 'default';
-					document.onmousemove = function() {
-					}
-				},
+
+				// Destroy the object when we are done
+				_destroy : function() {
+				    selected = null;
+				}
 			}
 		},
 

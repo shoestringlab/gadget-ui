@@ -20,9 +20,9 @@ function FloatingPane( selector, options ){
 
 FloatingPane.prototype.addBindings = function(){
 	var _this = this;
-	
-	gadgetui.util.draggable( this.wrapper );
-	
+
+	var dragger = gadgetui.util.draggable( this.wrapper );
+
 	this.maxmin.addEventListener( "click", function(){
 		if( _this.minimized ){
 			_this.expand();
@@ -137,20 +137,20 @@ FloatingPane.prototype.minimize = function(){
 		width = parseInt( this.width.substr( 0,this.width.length - 2), 10 );
 
 	if( typeof Velocity != 'undefined' && this.animate ){
-			
+
 		Velocity( this.wrapper, {
 			left: lx + width - _this.minWidth
 		},{queue: false, duration: 500}, function() {
 	
 		});
-	
+
 		Velocity( this.wrapper, {
 			width: _this.minWidth
 		},{queue: false, duration: 500, complete: function() {
 			_this.icon.setAttribute( "data-glyph", "fullscreen-enter" );
 			}
 		});
-	
+
 		Velocity( this.wrapper, {
 			height: "50px"
 		},{queue: false, duration: 500}, function() {
