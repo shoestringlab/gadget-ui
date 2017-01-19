@@ -1,3 +1,3 @@
 module.exports = {
-	files : [ 'test/index.htm' ]
+	//files : [ 'test/index.htm' ]
 };

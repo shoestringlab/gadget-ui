@@ -285,6 +285,11 @@ gadgetui.model = ( function( $ ) {
 		// setter - if the name of the object to set has a period, we are
 		// setting a property of the object, e.g. user.firstname
 		set : function( name, value ) {
+			if( name === null || name === undefined ){
+				console.log( "Expected parameter [name] is not defined." );
+				return;
+			}
+
 			var n = name.split( "." ), event = { originalSource : 'model.set'};
 			if ( this.exists( n[ 0 ] ) === false ) {
 				if ( n.length === 1 ) {
