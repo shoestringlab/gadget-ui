@@ -31,7 +31,6 @@
 	- css() replacement
 	- draggable replacement
 
-
 2.2.9
 ======
 

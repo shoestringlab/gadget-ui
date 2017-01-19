@@ -884,9 +884,9 @@ function FloatingPane( selector, options ){
 
 FloatingPane.prototype.addBindings = function(){
 	var _this = this;
-	
+
 	var dragger = gadgetui.util.draggable( this.wrapper );
-	
+
 	this.maxmin.addEventListener( "click", function(){
 		if( _this.minimized ){
 			_this.expand();
@@ -1001,20 +1001,20 @@ FloatingPane.prototype.minimize = function(){
 		width = parseInt( this.width.substr( 0,this.width.length - 2), 10 );
 
 	if( typeof Velocity != 'undefined' && this.animate ){
-			
+
 		Velocity( this.wrapper, {
 			left: lx + width - _this.minWidth
 		},{queue: false, duration: 500}, function() {
 	
 		});
-	
+
 		Velocity( this.wrapper, {
 			width: _this.minWidth
 		},{queue: false, duration: 500, complete: function() {
 			_this.icon.setAttribute( "data-glyph", "fullscreen-enter" );
 			}
 		});
-	
+
 		Velocity( this.wrapper, {
 			height: "50px"
 		},{queue: false, duration: 500}, function() {
@@ -2893,18 +2893,16 @@ gadgetui.util = ( function() {
 			return gadgetui.util.dragger( selector );
 		},
 		dragger : function( selector ){
-			
 			var selected = null, // Object of the element to be moved
 		    x_pos = 0, y_pos = 0, // Stores x & y coordinates of the mouse pointer
 		    x_elem = 0, y_elem = 0; // Stores top, left values (edge) of the element
 
-			
 			// Bind the functions...
 			selector.onmousedown = function () {
 			    _drag_init(this);
 			    return false;
 			};
-	
+
 			document.onmousemove = _move_elem;
 			document.onmouseup = _destroy;
 
@@ -2916,7 +2914,7 @@ gadgetui.util = ( function() {
 				    x_elem = x_pos - selected.offsetLeft;
 				    y_elem = y_pos - selected.offsetTop;
 				},
-		
+
 				// Will be called when user dragging an element
 				_move_elem : function(e) {
 				    x_pos = document.all ? window.event.clientX : e.pageX;
@@ -2926,7 +2924,7 @@ gadgetui.util = ( function() {
 				        selected.style.top = (y_pos - y_elem) + 'px';
 				    }
 				},
-		
+
 				// Destroy the object when we are done
 				_destroy : function() {
 				    selected = null;
