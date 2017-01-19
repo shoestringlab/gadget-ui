@@ -8,7 +8,7 @@ gadgetui.util = ( function() {
 			return this.split( term ).pop();
 		},
 		getNumberValue : function( pixelValue ) {
-			return Number( pixelValue.substring( 0, pixelValue.length - 2 ) );
+			return ( isNaN( Number( pixelValue ) ) ? Number( pixelValue.substring( 0, pixelValue.length - 2 ) ) : pixelValue );
 		},
 
 		addClass : function( sel, className ) {
@@ -203,47 +203,46 @@ gadgetui.util = ( function() {
 				}
 			}
 		},
+		//https://jsfiddle.net/tovic/Xcb8d/
+		//author: Taufik Nurrohman
+		// code belongs to author
+		// no license enforced
 		draggable : function( selector ){
-			return gadgetui.util.dragger( selector );
-		},
-		dragger : function( selector ){
 			var selected = null, // Object of the element to be moved
 		    x_pos = 0, y_pos = 0, // Stores x & y coordinates of the mouse pointer
 		    x_elem = 0, y_elem = 0; // Stores top, left values (edge) of the element
-
+	
+			// Will be called when user starts dragging an element
+			function _drag_init(elem) {
+			    // Store the object of the element which needs to be moved
+			    selected = elem;
+			    x_elem = x_pos - selected.offsetLeft;
+			    y_elem = y_pos - selected.offsetTop;
+			}
+	
+			// Will be called when user dragging an element
+			function _move_elem(e) {
+			    x_pos = document.all ? window.event.clientX : e.pageX;
+			    y_pos = document.all ? window.event.clientY : e.pageY;
+			    if (selected !== null) {
+			        selected.style.left = (x_pos - x_elem) + 'px';
+			        selected.style.top = (y_pos - y_elem) + 'px';
+			    }
+			}
+	
+			// Destroy the object when we are done
+			function _destroy() {
+			    selected = null;
+			}
+	
 			// Bind the functions...
 			selector.onmousedown = function () {
 			    _drag_init(this);
 			    return false;
 			};
-
+	
 			document.onmousemove = _move_elem;
-			document.onmouseup = _destroy;
-
-			return{
-				// Will be called when user starts dragging an element
-				_drag_init : function(elem) {
-				    // Store the object of the element which needs to be moved
-				    selected = elem;
-				    x_elem = x_pos - selected.offsetLeft;
-				    y_elem = y_pos - selected.offsetTop;
-				},
-
-				// Will be called when user dragging an element
-				_move_elem : function(e) {
-				    x_pos = document.all ? window.event.clientX : e.pageX;
-				    y_pos = document.all ? window.event.clientY : e.pageY;
-				    if (selected !== null) {
-				        selected.style.left = (x_pos - x_elem) + 'px';
-				        selected.style.top = (y_pos - y_elem) + 'px';
-				    }
-				},
-
-				// Destroy the object when we are done
-				_destroy : function() {
-				    selected = null;
-				}
-			}
+			document.onmouseup = _destroy;			
 		},
 
 		textWidth : function( text, style ) {
