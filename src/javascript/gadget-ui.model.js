@@ -112,8 +112,8 @@ gadgetui.model = ( function() {
 		if( event.originalSource === undefined ){
 			event.originalSource = "BindableObject.updateDomElement";
 		}
-		console.log( "updateDomElement : selector: { type: " + selector.nodeName + ", name: " + selector.name + " }" );
-		console.log( "updateDomElement : Source: " + event.originalSource );	
+		//console.log( "updateDomElement : selector: { type: " + selector.nodeName + ", name: " + selector.name + " }" );
+		//console.log( "updateDomElement : Source: " + event.originalSource );	
 		if( typeof value === 'object' ){
 			// select box objects are populated with { text: text, id: id } 
 			if( selector.tagName === "DIV" || selector.tagName === "SPAN" ){
@@ -272,7 +272,7 @@ gadgetui.model = ( function() {
 					_model[ n[ 0 ] ].updateDom( event, value, n[1] );	
 				}
 			}
-			console.log( "model value set: name: " + name + ", value: " + value );
+			//console.log( "model value set: name: " + name + ", value: " + value );
 		}
 	};
 
