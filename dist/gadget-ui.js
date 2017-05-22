@@ -896,7 +896,14 @@ FloatingPane.prototype.addBindings = function(){
 
 	var dragger = gadgetui.util.draggable( this.wrapper );
 
-	this.maxmin.addEventListener( "click", function(){
+	this.wrapper.addEventListener( "drag_end", function( event ){
+		_this.top = event.detail.top;
+		_this.left = event.detail.left;
+		_this.relativeOffsetLeft = gadgetui.util.getRelativeParentOffset( _this.selector ).left;
+		console.log( _this );
+	});
+
+	this.maxmin.addEventListener( "click", function( event ){
 		if( _this.minimized ){
 			_this.expand();
 		}else{
@@ -948,6 +955,8 @@ FloatingPane.prototype.addCSS = function(){
 	//now make the width of the selector to fill the wrapper
 	css( this.selector, "width", this.interiorWidth );
 	css( this.selector, "padding", this.padding );
+	css( this.selector, "height", this.height );
+	css( this.selector, "overflow", "scroll" );
 
 	css( this.maxmin, "float", "right" );
 	css( this.maxmin, "display", "inline" );
@@ -956,7 +965,7 @@ FloatingPane.prototype.addCSS = function(){
 FloatingPane.prototype.addControl = function(){
 	var fp = document.createElement( "div" );
 	gadgetui.util.addClass( fp, "gadget-ui-floatingPane" );
-
+	fp.draggable = true;
 	this.selector.parentNode.insertBefore( fp, this.selector );
 	this.wrapper = this.selector.previousSibling;
 	this.selector.parentNode.removeChild( this.selector );
@@ -971,14 +980,15 @@ FloatingPane.prototype.expand = function(){
 	var _this = this,
 		css = gadgetui.util.setStyle,
 		offset = gadgetui.util.getOffset( this.wrapper ),
-		lx =  parseInt( new Number( offset.left ), 10 ) - this.relativeOffsetLeft,
+		parentPaddingLeft = parseInt( gadgetui.util.getNumberValue( gadgetui.util.getStyle( this.wrapper.parentElement, "padding-left" ) ), 10 ),
+		lx =  parseInt( new Number( offset.left ), 10 ) - this.relativeOffsetLeft - parentPaddingLeft,
 		width = parseInt( gadgetui.util.getNumberValue( this.width ), 10 );
 
 	if( typeof Velocity != 'undefined' && this.animate ){
 
 		Velocity( this.wrapper, {
-			//left: lx - width + _this.minWidth
-			left : this.left
+			left: lx - width + _this.minWidth
+			//left : this.left
 		},{queue: false, duration: 500}, function() {
 			// Animation complete.
 		});
@@ -993,15 +1003,18 @@ FloatingPane.prototype.expand = function(){
 			height: this.height
 		},{queue: false, duration: 500, complete: function() {
 			_this.icon.setAttribute( "data-glyph", "fullscreen-exit" );
+			css( _this.selector, "overflow", "scroll" );
 		}
 		});
 	}else{
 		css( this.wrapper, "left", ( lx - width + this.minWidth ) );
-		css( this.wrapper, "left", ( this.left ) );
+		//css( this.wrapper, "left", ( this.left ) );
 		css( this.wrapper, "width", this.width );
 		css( this.wrapper, "height", this.height );
 		this.icon.setAttribute( "data-glyph", "fullscreen-exit" );
+		css( this.selector, "overflow", "scroll" );
 	}
+
 	this.minimized = false;
 };
 
@@ -1012,8 +1025,11 @@ FloatingPane.prototype.minimize = function(){
 	var _this = this,
 		css = gadgetui.util.setStyle,
 		offset = gadgetui.util.getOffset( this.wrapper ),
-		lx =  parseInt( new Number( offset.left ), 10 ) - this.relativeOffsetLeft - parseInt( gadgetui.util.getNumberValue( gadgetui.util.getStyle( document.body, "padding-left" ) ), 10 ),
+		parentPaddingLeft = parseInt( gadgetui.util.getNumberValue( gadgetui.util.getStyle( this.wrapper.parentElement, "padding-left" ) ), 10 ),
+		lx =  parseInt( new Number( offset.left ), 10 ) - this.relativeOffsetLeft - parentPaddingLeft,
 		width = parseInt( gadgetui.util.getNumberValue( this.width ), 10 );
+
+	css( this.selector, "overflow", "hidden" );
 
 	if( typeof Velocity != 'undefined' && this.animate ){
 
@@ -2913,7 +2929,7 @@ gadgetui.util = ( function() {
 			var selected = null, // Object of the element to be moved
 		    x_pos = 0, y_pos = 0, // Stores x & y coordinates of the mouse pointer
 		    x_elem = 0, y_elem = 0; // Stores top, left values (edge) of the element
-	
+
 			// Will be called when user starts dragging an element
 			function _drag_init(elem) {
 			    // Store the object of the element which needs to be moved
@@ -2921,7 +2937,7 @@ gadgetui.util = ( function() {
 			    x_elem = x_pos - selected.offsetLeft;
 			    y_elem = y_pos - selected.offsetTop;
 			}
-	
+
 			// Will be called when user dragging an element
 			function _move_elem(e) {
 			    x_pos = document.all ? window.event.clientX : e.pageX;
@@ -2931,20 +2947,30 @@ gadgetui.util = ( function() {
 			        selected.style.top = (y_pos - y_elem) + 'px';
 			    }
 			}
-	
+
 			// Destroy the object when we are done
-			function _destroy() {
-			    selected = null;
+			function _destroy( event ) {
+				console.log( event );
+				var myEvent = new CustomEvent("drag_end", {
+					detail: {
+						top : gadgetui.util.getStyle( selector, "top" ),
+						left : gadgetui.util.getStyle( selector, "left" )
+					}
+				});
+
+				// Trigger it!
+				selector.dispatchEvent(myEvent);
+			  selected = null;
 			}
-	
+
 			// Bind the functions...
 			selector.onmousedown = function () {
 			    _drag_init(this);
 			    return false;
 			};
-	
+
 			document.onmousemove = _move_elem;
-			document.onmouseup = _destroy;			
+			document.onmouseup = _destroy;
 		},
 
 		textWidth : function( text, style ) {
@@ -3128,4 +3154,5 @@ gadgetui.util = ( function() {
 		}
 	};
 }() );
+
 //# sourceMappingURL=gadget-ui.js.map

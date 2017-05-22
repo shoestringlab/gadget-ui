@@ -32,7 +32,14 @@ FloatingPane.prototype.addBindings = function(){
 
 	var dragger = gadgetui.util.draggable( this.wrapper );
 
-	this.maxmin.addEventListener( "click", function(){
+	this.wrapper.addEventListener( "drag_end", function( event ){
+		_this.top = event.detail.top;
+		_this.left = event.detail.left;
+		_this.relativeOffsetLeft = gadgetui.util.getRelativeParentOffset( _this.selector ).left;
+		console.log( _this );
+	});
+
+	this.maxmin.addEventListener( "click", function( event ){
 		if( _this.minimized ){
 			_this.expand();
 		}else{
@@ -84,6 +91,8 @@ FloatingPane.prototype.addCSS = function(){
 	//now make the width of the selector to fill the wrapper
 	css( this.selector, "width", this.interiorWidth );
 	css( this.selector, "padding", this.padding );
+	css( this.selector, "height", this.height );
+	css( this.selector, "overflow", "scroll" );
 
 	css( this.maxmin, "float", "right" );
 	css( this.maxmin, "display", "inline" );
@@ -92,7 +101,7 @@ FloatingPane.prototype.addCSS = function(){
 FloatingPane.prototype.addControl = function(){
 	var fp = document.createElement( "div" );
 	gadgetui.util.addClass( fp, "gadget-ui-floatingPane" );
-
+	fp.draggable = true;
 	this.selector.parentNode.insertBefore( fp, this.selector );
 	this.wrapper = this.selector.previousSibling;
 	this.selector.parentNode.removeChild( this.selector );
@@ -107,14 +116,15 @@ FloatingPane.prototype.expand = function(){
 	var _this = this,
 		css = gadgetui.util.setStyle,
 		offset = gadgetui.util.getOffset( this.wrapper ),
-		lx =  parseInt( new Number( offset.left ), 10 ) - this.relativeOffsetLeft,
+		parentPaddingLeft = parseInt( gadgetui.util.getNumberValue( gadgetui.util.getStyle( this.wrapper.parentElement, "padding-left" ) ), 10 ),
+		lx =  parseInt( new Number( offset.left ), 10 ) - this.relativeOffsetLeft - parentPaddingLeft,
 		width = parseInt( gadgetui.util.getNumberValue( this.width ), 10 );
 
 	if( typeof Velocity != 'undefined' && this.animate ){
 
 		Velocity( this.wrapper, {
-			//left: lx - width + _this.minWidth
-			left : this.left
+			left: lx - width + _this.minWidth
+			//left : this.left
 		},{queue: false, duration: 500}, function() {
 			// Animation complete.
 		});
@@ -129,15 +139,18 @@ FloatingPane.prototype.expand = function(){
 			height: this.height
 		},{queue: false, duration: 500, complete: function() {
 			_this.icon.setAttribute( "data-glyph", "fullscreen-exit" );
+			css( _this.selector, "overflow", "scroll" );
 		}
 		});
 	}else{
 		css( this.wrapper, "left", ( lx - width + this.minWidth ) );
-		css( this.wrapper, "left", ( this.left ) );
+		//css( this.wrapper, "left", ( this.left ) );
 		css( this.wrapper, "width", this.width );
 		css( this.wrapper, "height", this.height );
 		this.icon.setAttribute( "data-glyph", "fullscreen-exit" );
+		css( this.selector, "overflow", "scroll" );
 	}
+
 	this.minimized = false;
 };
 
@@ -148,8 +161,11 @@ FloatingPane.prototype.minimize = function(){
 	var _this = this,
 		css = gadgetui.util.setStyle,
 		offset = gadgetui.util.getOffset( this.wrapper ),
-		lx =  parseInt( new Number( offset.left ), 10 ) - this.relativeOffsetLeft - parseInt( gadgetui.util.getNumberValue( gadgetui.util.getStyle( document.body, "padding-left" ) ), 10 ),
+		parentPaddingLeft = parseInt( gadgetui.util.getNumberValue( gadgetui.util.getStyle( this.wrapper.parentElement, "padding-left" ) ), 10 ),
+		lx =  parseInt( new Number( offset.left ), 10 ) - this.relativeOffsetLeft - parentPaddingLeft,
 		width = parseInt( gadgetui.util.getNumberValue( this.width ), 10 );
+
+	css( this.selector, "overflow", "hidden" );
 
 	if( typeof Velocity != 'undefined' && this.animate ){
 

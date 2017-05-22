@@ -1,6 +1,6 @@
 {
   "name": "gadget-ui",
-  "version": "3.0.2",
+  "version": "3.0.3",
   "authors": [
     "Robert Munn <robert.d.munn@gmail.com>"
   ],
@@ -32,6 +32,6 @@
     "promise-polyfill" : "*",
     "open-iconic" : "*",
     "velocity": "*"
-    
+
   }
 }
