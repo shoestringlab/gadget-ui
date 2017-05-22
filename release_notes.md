@@ -1,12 +1,20 @@
-		
+
 ***Release Notes***
+
+3.0.3
+======
+
+- Bug fixes for position and minimize/maximize functionality of FloatingPane
+- Bug fix for min/max icon position of FloatingPane
+- Set FloatingPane inner content height to wrapper height
+- Allow FloatingPane content to scroll once inner height set to wrapper height
+- hide scrolling of FloatingPane content on minimize
 
 3.0.2
 ======
 
 - Bug fixes in floating pane styling
 - Bug fix in util.getNumberValue - now returns same value if passed a number
-
 
 3.0.1
 ======
@@ -22,7 +30,7 @@
 - Re-factored LookupListInput using jQuery-UI autocomplete as a base to create jQuery-free component
 - First version with the complete set of components available in jQuery-free versions
 - Added ability to use custom renderers for menu items, selected items, and cancel icon
-- Global replace of "self" with "_this". 
+- Global replace of "self" with "_this".
 
 2.4.1
 ======
@@ -86,10 +94,10 @@
 ======
 
 - Added ComboBox control to input package
-- Fixed bug in Bubble 
-- added useActive flag to TextInput to control whether the check for active flag true before activating control 
+- Fixed bug in Bubble
+- added useActive flag to TextInput to control whether the check for active flag true before activating control
   - This feature enables click on then second click to activate functionality so you can give the control focus without automatically activating it.
-- Made significant changes to the model 
+- Made significant changes to the model
   - Split updating model value and Dom elements into separate methods
   - Enabled updating a DOM element and having it change the model and then update corresponding bound DOM elements
   - Passing an object to a div or select box to update the value expects { text: textvalue, id: idvalue }
@@ -128,7 +136,7 @@
 - re-factored FloatingPane for readability
 - fixed layout issues related to position: relative ancestors for Bubble and FloatingPane
 - made selector a required argument for LookupListInput
-- Re-factored TextInput and SelectInput 
+- Re-factored TextInput and SelectInput
   - only accept a single selector, required
    - function signatures changed   
 
@@ -179,7 +187,7 @@
 
 - Fixed bug with missing config for TextInput.
 
-1.4.2 
+1.4.2
 ======
 
 - Fixed bugs related to mouseover/mouseout of TextInput
@@ -310,12 +318,12 @@
 1.0.0
 ======
 
-- Added CollapsiblePane display control. 
+- Added CollapsiblePane display control.
 
 0.9.0
 ======
 
-- Changed 'that' to 'self' for naming convention. 
+- Changed 'that' to 'self' for naming convention.
 
 - Changed _bind* method signatures to pass in object reference rather than specific properties so signature will not change when properties change.
 - Expanded test page with explanatory text and some additional tests of functionality.
@@ -324,4 +332,3 @@
 ======
 
 - Added exception handling around get() method of model to log an error with the key name and return undefined in the case that a requested key does not exist in the model.
-

@@ -5,14 +5,14 @@ JavaScript UI and data binding library
 
 This library uses [semver](http://semver.org/) version numbering.
 
-v 3.0.2
+v 3.0.3
 
 **Why version 3.0.0?**
 
 In semantic versioning, incrementing the leftmost version number is meant to designate a major change to the software that creates API incompatibilities with
-previous versions. The API change for version 3.0.0 mainly affects LookupListInput, which now has more options in the jQuery-free version than in the jQuery version, but 
-also lacks some functionality of the jQuery version, such as keyboard navigation of the suggestion list.  The version change is also being used to mark a departure from the 
-focus on the jQuery-based library to to jQuery-free library, which only has a dependency on open-iconic and represents a better direction for the library. The jQuery-free 
+previous versions. The API change for version 3.0.0 mainly affects LookupListInput, which now has more options in the jQuery-free version than in the jQuery version, but
+also lacks some functionality of the jQuery version, such as keyboard navigation of the suggestion list.  The version change is also being used to mark a departure from the
+focus on the jQuery-based library to to jQuery-free library, which only has a dependency on open-iconic and represents a better direction for the library. The jQuery-free
 version of the library can be used equally well by jQuery-based and plain JavaScript applications.
 
 As of v 3.0.0, gadget-ui comes in two distinct flavors:
@@ -28,6 +28,6 @@ The LookupListInput in this version of the code has a few new features that the 
 
 [jQuery version](jquery.MD)
 
-***License*** 
+***License***
 
 gadget-ui is released under the Mozilla Public License 2.0.
