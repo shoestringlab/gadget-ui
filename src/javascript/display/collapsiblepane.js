@@ -2,26 +2,26 @@ function CollapsiblePane( selector, options ){
 
 	this.selector = selector;
 	this.config( options );
-	
+
 	this.addControl();
 
 	this.addCSS();
 	this.addHeader();
-	
+
 	this.icon = this.wrapper.querySelector( "div.oi" );
-	
+
 	this.addBindings();
 	this.height = this.wrapper.offsetHeight;
 	this.headerHeight = this.header.offsetHeight;
 	this.selectorHeight = this.selector.offsetHeight;
-	if( this.collapse === true ){
+	//if( this.collapse === true ){
 		this.toggle();
-	}		
+	//}
 }
 
 CollapsiblePane.prototype.addControl = function(){
 	var pane = document.createElement( "div" );
-	
+
 	gadgetui.util.addClass( pane, "gadget-ui-collapsiblePane" );
 	this.selector.parentNode.insertBefore( pane, this.selector );
 	this.wrapper = this.selector.previousSibling;
@@ -49,7 +49,7 @@ CollapsiblePane.prototype.addHeader = function(){
 	this.header = this.wrapper.querySelector( "div.gadget-ui-collapsiblePane-header" );
 	div = document.createElement( "div" );
 	gadgetui.util.addClass( div, "oi" );
-	div.setAttribute( 'data-glyph', "caret-top" );
+	//div.setAttribute( 'data-glyph', "chevron-top" );
 	this.header.appendChild( div );
 };
 
@@ -84,8 +84,8 @@ CollapsiblePane.prototype.toggle = function(){
 		display,
 		border,
 		selectorHeight,
-		expandClass = "caret-bottom", 
-		collapseClass = "caret-top";
+		expandClass = "",
+		collapseClass = "";
 	if( this.collapsed === true ){
 		icon = collapseClass;
 		display = "block";
@@ -101,35 +101,35 @@ CollapsiblePane.prototype.toggle = function(){
 		border = "1px solid transparent";
 		this.collapsed = true;
 	}
-	
-	this.eventName = ( ( this.eventName === "collapse" ) ? "expand" : "collapse" );
+
+	this.eventName = ( this.collapsed ? "collapse" : "expand" );
 	css( this.selector, "padding", this.padding + "px" );
 	css( this.selector, "padding-top", this.paddingTop + "px" );
 
 	var ev = new Event( this.eventName );
 	this.selector.dispatchEvent( ev );
-	
+
 	if( typeof Velocity != 'undefined' && this.animate ){
 		if( display === "block" ){
 			css( this.wrapper, "border", border );
 		}
 		Velocity( this.wrapper, {
 			height: myHeight
-		},{ queue: false, duration: 500, complete: function() {
+		},{ queue: false, duration: 300, complete: function() {
 			//_this.selector.style.display = display;
 			//_this.wrapper.style.border = border;
-			_this.icon.setAttribute( "data-glyph", icon );
-			} 
+			//_this.icon.setAttribute( "data-glyph", icon );
+			}
 		});
 		Velocity( this.selector, {
 			height: selectorHeight
-		},{ queue: false, duration: 500, complete: function() {
+		},{ queue: false, duration: 300, complete: function() {
 
-			} 
-		});			
+			}
+		});
 	}else{
 		css( this.selector, "display", display );
-		this.icon.setAttribute( "data-glyph", icon );
+		//this.icon.setAttribute( "data-glyph", icon );
 	}
 };
 
@@ -142,7 +142,8 @@ CollapsiblePane.prototype.config = function( options ){
 	this.paddingTop = ( options.paddingTop === undefined ? ".3em": options.paddingTop );
 	this.width = ( options.width === undefined ? gadgetui.util.getStyle( this.selector, "width" ) : options.width );
 	this.interiorWidth = ( options.interiorWidth === undefined ? "": options.interiorWidth );
-	this.collapse = ( ( options.collapse === undefined || options.collapse === false ? false : true ) );
+	this.collapse = ( ( options.collapse === undefined ? false : options.collapse ) );
+	this.collapsed = ( ( options.collapse === undefined ? true :!  options.collapse ) );
 	this.borderColor = ( options.borderColor === undefined ? "silver": options.borderColor );
 	this.headerColor = ( options.headerColor === undefined ? "black": options.headerColor );
 	this.headerBackgroundColor = ( options.headerBackgroundColor === undefined ? "silver": options.headerBackgroundColor );

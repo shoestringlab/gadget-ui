@@ -17,9 +17,9 @@
   ],
   "main": "./dist/jquery.gadget-ui.js",
   "devDependencies": {
-  	"grunt" : "*",
-  	"grunt-cli" : "*",
-    "grunt-newer": "^1.1.0",  	
+    "grunt": "*",
+    "grunt-cli": "*",
+    "grunt-newer": "^1.1.0",
     "grunt-contrib-concat": "0.5.0",
     "grunt-contrib-jshint": "~0.10.0",
     "grunt-contrib-qunit": "0.5.2",
@@ -28,5 +28,8 @@
     "load-grunt-config": "0.13.1",
     "load-grunt-tasks": "*",
     "steal-tools": "^0.5.0"
+  },
+  "dependencies": {
+    "concat-map": "0.0.1"
   }
 }

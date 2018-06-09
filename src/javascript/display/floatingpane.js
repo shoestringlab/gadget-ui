@@ -76,7 +76,7 @@ FloatingPane.prototype.addCSS = function(){
 	var css = gadgetui.util.setStyle;
 	//copy width from selector
 	css( this.wrapper, "width",  this.width );
-	css( this.wrapper, "height",  this.height );
+	//css( this.wrapper, "height",  this.height );
 	css( this.wrapper, "border",  "1px solid "  + this.borderColor );
 	css( this.wrapper, "border-radius", this.borderRadius );
 	css( this.wrapper, "min-width", this.minWidth );
@@ -135,7 +135,7 @@ FloatingPane.prototype.expand = function(){
 			// Animation complete.
 		});
 
-		Velocity( this.wrapper, {
+		Velocity( this.selector, {
 			height: this.height
 		},{queue: false, duration: 500, complete: function() {
 			_this.icon.setAttribute( "data-glyph", "fullscreen-exit" );
@@ -146,7 +146,7 @@ FloatingPane.prototype.expand = function(){
 		css( this.wrapper, "left", ( lx - width + this.minWidth ) );
 		//css( this.wrapper, "left", ( this.left ) );
 		css( this.wrapper, "width", this.width );
-		css( this.wrapper, "height", this.height );
+		css( this.selector, "height", this.height );
 		this.icon.setAttribute( "data-glyph", "fullscreen-exit" );
 		css( this.selector, "overflow", "scroll" );
 	}
@@ -182,7 +182,7 @@ FloatingPane.prototype.minimize = function(){
 			}
 		});
 
-		Velocity( this.wrapper, {
+		Velocity( this.selector, {
 			height: "50px"
 		},{queue: false, duration: 500}, function() {
 			// Animation complete.
@@ -190,7 +190,7 @@ FloatingPane.prototype.minimize = function(){
 	}else{
 		css( this.wrapper, "left", ( lx + width - this.minWidth ) );
 		css( this.wrapper, "width", this.minWidth );
-		css( this.wrapper, "height", "50px" );
+		css( this.selector, "height", "50px" );
 		this.icon.setAttribute( "data-glyph", "fullscreen-enter" );
 	}
 	this.minimized = true;

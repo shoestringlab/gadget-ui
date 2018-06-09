@@ -2,6 +2,7 @@
 	return{
 		Bubble : Bubble,
 		CollapsiblePane: CollapsiblePane,
-		FloatingPane: FloatingPane
+		FloatingPane: FloatingPane,
+		ProgressBar: ProgressBar
 	};
 }(jQuery));

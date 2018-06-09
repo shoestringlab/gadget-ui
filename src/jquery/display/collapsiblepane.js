@@ -4,18 +4,18 @@ function CollapsiblePane( selector, options ){
 	if( options !== undefined ){
 		this.config( options );
 	}
-	
+
 	this.addControl();
 	this.wrapper = $( this.selector ).parent();
 	this.addCSS();
 	this.addHeader();
-	
+
 	this.icon = $( "div div", this.wrapper );
-	
+
 	this.addBindings();
 	if( this.collapse === true ){
 		this.toggle();
-	}		
+	}
 }
 
 CollapsiblePane.prototype.addBindings = function(){
@@ -32,11 +32,11 @@ CollapsiblePane.prototype.addHeader = function(){
 };
 
 CollapsiblePane.prototype.addCSS = function(){
-	
+
 	//copy width from selector
 	this.wrapper
 		.css( "width", this.width );
-	
+
 	//now make the width of the selector to fill the wrapper
 	$( this.selector )
 		.css( "width", this.interiorWidth )
@@ -64,9 +64,9 @@ CollapsiblePane.prototype.toggle = function(){
 		remove = expandClass;
 	}else{
 		add = expandClass;
-		remove = collapseClass;			
+		remove = collapseClass;
 	}
-	
+
 	_this.eventName = ( ( _this.eventName === undefined || _this.eventName === "collapse" ) ? "expand" : "collapse" );
 	_this.selector
 		.css( "padding", _this.padding )
