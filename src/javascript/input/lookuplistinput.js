@@ -32,11 +32,11 @@ LookupListInput.prototype.addMenu = function(){
 	var div = document.createElement( "div" );
 	gadgetui.util.addClass( div, "gadgetui-lookuplist-menu" );
 	gadgetui.util.setStyle( div, "display", "none" );
-	
+
 	this.menu = {
 			element: div
 		};
-		
+
 	this.wrapper.appendChild( this.menu.element );
 };
 
@@ -209,7 +209,7 @@ LookupListInput.prototype.addBindings = function(){
 			if ( suppressKeyPressRepeat ) {
 				return;
 			}
-	
+
 			// replicate some key handlers to allow them to repeat in Firefox and Opera
 			var keyCode = gadgetui.keyCode;
 			switch ( event.keyCode ) {
@@ -229,7 +229,7 @@ LookupListInput.prototype.addBindings = function(){
 		});
 
 	this.selector
-		.addEventListener( "input", function( event ) {	
+		.addEventListener( "input", function( event ) {
 			if ( suppressInput ) {
 				suppressInput = false;
 				event.preventDefault();
@@ -239,18 +239,18 @@ LookupListInput.prototype.addBindings = function(){
 		});
 
 	this.selector
-		.addEventListener( "focus", function( event ) {	
+		.addEventListener( "focus", function( event ) {
 			this.selectedItem = null;
 			this.previous = this.value;
 		});
 
 	this.selector
-		.addEventListener( "blur", function( event ) {	
+		.addEventListener( "blur", function( event ) {
 			if ( this.cancelBlur ) {
 				delete this.cancelBlur;
 				return;
 			}
-	
+
 			clearTimeout( this.searching );
 			_this.close( event );
 			_this._change( event );
@@ -285,8 +285,8 @@ LookupListInput.prototype.addBindings = function(){
 			});
 		}
 	});
-	
-	this.menu.element.addEventListener( "menuselect", function( event ) {	
+
+	this.menu.element.addEventListener( "menuselect", function( event ) {
 		var item = event.detail,
 			previous = _this.previous;
 
@@ -315,7 +315,7 @@ LookupListInput.prototype.addBindings = function(){
 		if( !_this.checkForDuplicate( item ) ){
 			_this.add( item );
 		}else{
-			
+
 		}
 	});
 };
@@ -324,7 +324,7 @@ LookupListInput.prototype._renderItem = function( item ){
 	var itemNode, itemWrapper = document.createElement( "div" );
 	gadgetui.util.addClass( itemWrapper, "gadgetui-lookuplist-input-item-wrapper" );
 	itemNode = document.createElement( "div" );
-	gadgetui.util.addClass( itemNode, "gadgetui-lookuplist-input-item" ); 
+	gadgetui.util.addClass( itemNode, "gadgetui-lookuplist-input-item" );
 	itemNode.innerHTML = this.labelRenderer( item );
 	itemWrapper.appendChild( itemNode );
 	return itemWrapper;
@@ -334,9 +334,9 @@ LookupListInput.prototype._renderItemCancel = function( item, wrapper ){
 	var	css = gadgetui.util.setStyle,
 		itemCancel = document.createElement( "span" ),
 		spanLeft = gadgetui.util.getNumberValue( gadgetui.util.getStyle( wrapper, "width" ) )
-		+ 6;  // font-size of icon 
+		+ 6;  // font-size of icon
 		//- 3; // top offset of icon
-	
+
 	gadgetui.util.addClass( itemCancel, "oi" );
 	itemCancel.setAttribute( 'data-glyph', "circle-x" );
 	css( itemCancel, "font-size", 12 );
@@ -352,7 +352,7 @@ LookupListInput.prototype.add = function( item ){
 	var _this = this,
 		prop, list, itemWrapper,
 		itemCancel;
-	
+
 	itemWrapper = this.itemRenderer( item );
 	itemWrapper.setAttribute( "data-value", item.value );
 	this.wrapper.insertBefore( itemWrapper, this.selector );
@@ -366,7 +366,7 @@ LookupListInput.prototype.add = function( item ){
 
 	this.selector.value = '';
 	this.items.push( item );
-	
+
 	if( this.emitEvents === true ){
 		gadgetui.util.trigger( this.selector, "gadgetui-lookuplist-input-add", item );
 	}
@@ -375,7 +375,7 @@ LookupListInput.prototype.add = function( item ){
 		this.func( item, 'add' );
 	}
 	if( this.model !== undefined ){
-		//update the model 
+		//update the model
 		prop = this.selector.getAttribute( "gadgetui-bind" );
 		if( prop !== null && prop !== undefined ){
 			list = this.model.get( prop );
@@ -426,8 +426,8 @@ LookupListInput.prototype.reset = function(){
 	}
 	this.items = [];
 	if( this.model !== undefined ){
-		prop = this.el.getAttribute( "gadget-ui-bind" );
-		list = this.model.set( prop, [] );		
+		var prop = this.selector.getAttribute( "gadgetui-bind" );
+		this.model.set( prop, [] );
 	}
 };
 
@@ -509,7 +509,7 @@ LookupListInput.prototype._search = function( value ) {
 };
 
 LookupListInput.prototype._response = function() {
-	var _this = this, 
+	var _this = this,
 		index = ++this.requestIndex,
 		fn = function( content ) {
 				_this.__response( content );
@@ -527,7 +527,7 @@ LookupListInput.prototype._response = function() {
 
 LookupListInput.prototype.__response = function( content ) {
 	content = this.makeUnique( content );
-	
+
 	if ( content && content.length ) {
 		content = this._normalize( content );
 	}
@@ -574,7 +574,7 @@ LookupListInput.prototype._normalize = function( items ) {
 		}
 		item.label = item.label || item.value;
 		item.value = item.value || item.label;
-		
+
 		return item;
 	});
 };
@@ -591,7 +591,7 @@ LookupListInput.prototype._suggest = function( items ) {
 	div.style.display = 'block';
 	this._resizeMenu();
 	this.position.of = this.element;
-	
+
 	/*	if ( this.autoFocus ) {
 	//	this.menu.next();
 	}	*/
@@ -619,7 +619,7 @@ LookupListInput.prototype._renderItemData = function( item ) {
 		_this.menu.element.dispatchEvent( ev );
 	});
 	this.menu.element.appendChild( menuItem );
-	
+
 };
 
 LookupListInput.prototype._renderMenuItem = function( item ) {
@@ -657,7 +657,7 @@ LookupListInput.prototype.widget = function() {
 };
 
 LookupListInput.prototype._value = function() {
-	return ( this.isInput ? this.selector.value : this.selector.innerText );      
+	return ( this.isInput ? this.selector.value : this.selector.innerText );
 };
 
 LookupListInput.prototype._keyEvent = function( keyEvent, event ) {
