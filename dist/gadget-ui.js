@@ -864,7 +864,6 @@ CollapsiblePane.prototype.config = function( options ){
 };
 
 function FloatingPane( selector, options ){
-
 	this.selector = selector;
 	if( options !== undefined ){
 		this.config( options );
@@ -890,6 +889,8 @@ function FloatingPane( selector, options ){
 
 	this.relativeOffsetLeft = gadgetui.util.getRelativeParentOffset( this.selector ).left;
 	this.addBindings();
+	this.minimize();
+	this.expand();
 }
 
 FloatingPane.prototype.addBindings = function(){
@@ -948,6 +949,8 @@ FloatingPane.prototype.addCSS = function(){
 	css( this.wrapper, "opacity", this.opacity );
 	css( this.wrapper, "z-index", this.zIndex );
 	css( this.wrapper, "position", this.position );
+	css( this.wrapper, "background", gadgetui.util.getStyle( this.selector, "background" ) );
+	css( this.wrapper, "background-color", gadgetui.util.getStyle( this.selector, "background-color" ) );
 	if( this.top !== undefined ) css( this.wrapper, "top", this.top );
 	if( this.left !== undefined )css( this.wrapper, "left", this.left );
 	if( this.bottom !== undefined ) css( this.wrapper, "bottom", this.bottom );
@@ -958,8 +961,9 @@ FloatingPane.prototype.addCSS = function(){
 	css( this.selector, "padding", this.padding );
 	css( this.selector, "height", this.height );
 	css( this.selector, "overflow", "scroll" );
+	css( this.selector, "border-radius", "0 0 " + this.borderRadius + "px " + this.borderRadius + "px" );
 
-	css( this.maxmin, "float", "right" );
+	css( this.maxmin, "float", "left" );
 	css( this.maxmin, "display", "inline" );
 };
 
@@ -987,12 +991,12 @@ FloatingPane.prototype.expand = function(){
 
 	if( typeof Velocity != 'undefined' && this.animate ){
 
-		Velocity( this.wrapper, {
+		/* Velocity( this.wrapper, {
 			left: lx - width + _this.minWidth
 			//left : this.left
 		},{queue: false, duration: 500}, function() {
 			// Animation complete.
-		});
+		}); */
 
 		Velocity( this.wrapper, {
 			width: this.width
@@ -1008,7 +1012,7 @@ FloatingPane.prototype.expand = function(){
 		}
 		});
 	}else{
-		css( this.wrapper, "left", ( lx - width + this.minWidth ) );
+		//css( this.wrapper, "left", ( lx - width + this.minWidth ) );
 		//css( this.wrapper, "left", ( this.left ) );
 		css( this.wrapper, "width", this.width );
 		css( this.selector, "height", this.height );
@@ -1034,11 +1038,11 @@ FloatingPane.prototype.minimize = function(){
 
 	if( typeof Velocity != 'undefined' && this.animate ){
 
-		Velocity( this.wrapper, {
+/* 		Velocity( this.wrapper, {
 			left: lx + width - _this.minWidth
 		},{queue: false, duration: 500}, function() {
 
-		});
+		}); */
 
 		Velocity( this.wrapper, {
 			width: _this.minWidth
@@ -1053,7 +1057,7 @@ FloatingPane.prototype.minimize = function(){
 			// Animation complete.
 		});
 	}else{
-		css( this.wrapper, "left", ( lx + width - this.minWidth ) );
+		//css( this.wrapper, "left", ( lx + width - this.minWidth ) );
 		css( this.wrapper, "width", this.minWidth );
 		css( this.selector, "height", "50px" );
 		this.icon.setAttribute( "data-glyph", "fullscreen-enter" );

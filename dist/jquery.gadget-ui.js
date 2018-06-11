@@ -865,13 +865,13 @@ function FloatingPane( selector, options ){
 	if( options !== undefined ){
 		this.config( options );
 	}
-	
+
 	this.addControl();
 	this.wrapper = $( this.selector ).parent();
 
 	this.addHeader();
 	this.maxmin = $( "div div[class~='ui-icon']", this.wrapper );
-	
+
 	this.addCSS();
 
 	// now set height to computed height of control _this has been created
@@ -879,13 +879,14 @@ function FloatingPane( selector, options ){
 
 	this.relativeOffsetLeft = gadgetui.util.getRelativeParentOffset( this.selector ).left;
 	this.addBindings();
+	this.expand();
 }
 
 FloatingPane.prototype.addBindings = function(){
 	var _this = this;
 	// jquery-ui draggable
 	this.wrapper.draggable( {addClasses: false } );
-	
+
 	this.maxmin.on( "click", function(){
 		if( _this.minimized ){
 			_this.expand();
@@ -911,7 +912,7 @@ FloatingPane.prototype.addCSS = function(){
 	$( this.selector )
 		.css( "width", this.interiorWidth )
 		.css( "padding", this.padding );
-	
+
 	this.maxmin
 		.css( "float", "right" )
 		.css( "display", "inline" );
@@ -941,14 +942,14 @@ FloatingPane.prototype.config = function( args ){
 FloatingPane.prototype.expand = function(){
 	// when minimizing and expanding, we must look up the ancestor chain to see if there are position: relative elements.
 	// if so, we must subtract the offset left of the ancestor to get the pane back to its original position
-	
-	var _this = this, 
+
+	var _this = this,
 		offset = $( this.wrapper).offset(),
 		l =  parseInt( new Number( offset.left ), 10 ) - this.relativeOffsetLeft,
 		width = parseInt( this.width.substr( 0,this.width.length - 2), 10 );
-	
-	
-	
+
+
+
 	this.wrapper.animate({
 		left: l - width + _this.minWidth
 	},{queue: false, duration: 500}, function() {
@@ -976,7 +977,7 @@ FloatingPane.prototype.expand = function(){
 FloatingPane.prototype.minimize = function(){
 	// when minimizing and maximizing, we must look up the ancestor chain to see if there are position: relative elements.
 	// if so, we must subtract the offset left of the ancestor to get the pane back to its original position
-	
+
 	var _this = this, offset = $( this.wrapper).offset(),
 		l =  parseInt( new Number( offset.left ), 10 ) - this.relativeOffsetLeft,
 		width = parseInt( this.width.substr( 0,this.width.length - 2), 10 );
@@ -1005,6 +1006,7 @@ FloatingPane.prototype.minimize = function(){
 	this.minimized = true;
 
 };
+
 
 function ProgressBar(selector, options) {
   this.selector = selector;
