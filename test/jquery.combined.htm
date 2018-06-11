@@ -4,7 +4,8 @@
 		<title>gadget-ui Tests</title>
 		 <script src='../bower_components/lazyloader/dist/lazy.1.0.0.min.js'></script>
 		 <script>
-		 	lazy.load(['jquery.combined.js < ../bower_components/jquery.addrule/jquery.addrule.js < ../bower_components/jquery-ui/jquery-ui.js  < ../bower_components/jquery-encoder/dist/jquery.jquery-encoder.min.js < ../bower_components/jquery-encoder/libs/class.min.js < ../dist/jquery.gadget-ui.js < ../bower_components/jquery-placeholder/jquery.placeholder.js < ../bower_components/promise-polyfill/promise.js < ../bower_components/jquery-legacy/jquery.js', '../dist/gadget-ui.css', '../bower_components/jquery-ui/themes/humanity/jquery-ui.min.css'], function(){
+		 	lazy.load(['jquery.combined.js < ../bower_components/jquery.addrule/jquery.addrule.js < ../bower_components/jquery-ui/jquery-ui.js  < ../bower_components/jquery-encoder/dist/jquery.jquery-encoder.min.js < ../bower_components/jquery-encoder/libs/class.min.js < ../dist/jquery.gadget-ui.js < ../bower_components/jquery-placeholder/jquery.placeholder.js < ../bower_components/promise-polyfill/promise.js < ../bower_components/jquery-legacy/jquery.js',
+			'/bower_components/open-iconic/font/css/open-iconic.css', '../dist/gadget-ui.css', '../bower_components/jquery-ui/themes/humanity/jquery-ui.min.css'], function(){
   				console.log('All files have been loaded');
   				console.log( navigator.userAgent );
 }			);
@@ -12,7 +13,7 @@
 		 <style>
 		 	body, div, span, select, input{
 		 		font-family:Arial, Helvetica, sans-serif;
-	
+
 		 	}
 /*
 			body{
@@ -26,12 +27,12 @@
 			  -moz-box-sizing: border-box;
 			  box-sizing: border-box;
 			}
-				
+
 			#InputDiv > div{
 				margin-top: 2em;
 			}
 			*/
-			
+
 		 </style>
 
 		<script>
@@ -45,23 +46,23 @@
 				$( "span[name='nickname']" ).text( gadgetui.model.get( 'user.nickname' ) );
 				var food = gadgetui.model.get( 'user.food' );
 				$( "span[name='food']" ).text(  "text : " + food.text + ", id : " + food.id  );
-				/*	$( '#modelDiv' ).html( 'firstname: ' + gadgetui.model.get( 'user.firstname' ) 
-				+ '<br/><br/>lastname: ' + gadgetui.model.get( 'user.lastname' ) 
-				+ '<br/><br/>tag line: ' + gadgetui.model.get( 'user.tagline' ) 
-				+ '<br/><br/>role: ' + gadgetui.model.get( 'user.role' ) 
+				/*	$( '#modelDiv' ).html( 'firstname: ' + gadgetui.model.get( 'user.firstname' )
+				+ '<br/><br/>lastname: ' + gadgetui.model.get( 'user.lastname' )
+				+ '<br/><br/>tag line: ' + gadgetui.model.get( 'user.tagline' )
+				+ '<br/><br/>role: ' + gadgetui.model.get( 'user.role' )
 				+ '<br/><br/>friends: ' + gadgetui.model.get( 'user.friends' ) );	*/
 			}
-			
+
 			function changeModel(){
 				gadgetui.model.set('user', {
-												firstname:'Theodore', 
-												lastname:'Roosevelt', 
-												tagline: 'Square Deal', 
-												role: 'President', 
+												firstname:'Theodore',
+												lastname:'Roosevelt',
+												tagline: 'Square Deal',
+												role: 'President',
 												friends: [],
 												food: { text: "danish", id : 3 }
 											});
-			}			
+			}
 		</script>
 	</head>
 	<body>
@@ -115,8 +116,8 @@
 				<div>
 					<input name="friends" type="text" gadgetui-bind="user.friends" placeholder="Friends"/>
 				</div>
-		
-				
+
+
 				<div>
 					Favorite breakfast food:<br>
 					<select name="food" gadgetui-bind="user.food">
@@ -124,7 +125,7 @@
 					</select>
 					<br><br>
 				</div>
-				
+
 			</form>
 		</div>
 
@@ -135,21 +136,21 @@
 			<div style="display:inline-table; width:300px; float:right;">
 				Some Text For Testing
 			</div>
-			
+
 		</div>
 	<br/>
 		<div>
 			<input type="button" value="Change Model" onclick="changeModel();"/>
 			<p>
-			<input type="button" value="Show Model Values" onclick="showModel();"/>	
+			<input type="button" value="Show Model Values" onclick="showModel();"/>
 			</p>
 			<p>
 				<input type="button" value="Reset Friends list" name="resetLookupList" />
 			</p>
 		</div>
 
-	
-			
+
+
 		<div id="modelDiv" style="width: 50%;">
 			<div>firstname: <span name="firstname"></span></div>
 			<div>lastname: <span name="lastname"></span></div>
@@ -159,7 +160,7 @@
 			<div>nickname: <span name="nickname"></span></div>
 			<div>favorite food: <span name="food"></span></div>
 		</div>
-		
+
 		<div id="debugDiv" style="width: 50%; height:300px;">
 When push.default is set to 'matching', git will push local branches
 to the remote branches that already exist with the same name.
@@ -174,10 +175,10 @@ See 'git help config' and search for 'push.default' for further information.
 
 To https://github.com/robertdmunn/gadget-ui.git
    10f2ee7..7231ab0  master -> master
-		
+
 			Need some content.
 		</div>
-	
+
 	</body>
 </html>
 

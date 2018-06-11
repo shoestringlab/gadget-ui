@@ -870,8 +870,8 @@ function FloatingPane( selector, options ){
 	this.wrapper = $( this.selector ).parent();
 
 	this.addHeader();
-	this.maxmin = $( "div div[class~='ui-icon']", this.wrapper );
-
+	this.maxmin = $( "div div[class='oi']", this.wrapper );
+	this.minWidth = ( this.title.length > 0 ? gadgetui.util.textWidth( this.title, this.header[0].style ) + 50 : 100 );
 	this.addCSS();
 
 	// now set height to computed height of control _this has been created
@@ -879,7 +879,6 @@ function FloatingPane( selector, options ){
 
 	this.relativeOffsetLeft = gadgetui.util.getRelativeParentOffset( this.selector ).left;
 	this.addBindings();
-	this.expand();
 }
 
 FloatingPane.prototype.addBindings = function(){
@@ -897,7 +896,10 @@ FloatingPane.prototype.addBindings = function(){
 };
 
 FloatingPane.prototype.addHeader = function(){
-	this.wrapper.prepend( '<div class="ui-widget-header ui-corner-all gadget-ui-floatingPane-header">' + this.title + '<div class="ui-icon ui-icon-arrow-4"></div></div>');
+	this.wrapper.prepend( '<div class="ui-widget-header ui-corner-all gadget-ui-floatingPane-header">' + this.title + '<div class="oi"></div></div>');
+	$( "div[class='oi']", this.wrapper )
+		.attr( "data-glyph", "fullscreen-exit" );
+	this.header = $( "div[class~='gadget-ui-floatingPane-header']", this.wrapper );
 };
 
 
@@ -906,7 +908,9 @@ FloatingPane.prototype.addCSS = function(){
 	this.wrapper.css( "width", this.width )
 			.css( "minWidth", this.minWidth )
 			.css( "opacity", this.opacity )
-			.css( "z-index", this.zIndex );
+			.css( "z-index", this.zIndex )
+			.css( "background", this.selector.css( "background" ) )
+			.css( "background-color", this.selector.css( "background-color" ) );
 
 	//now make the width of the selector to fill the wrapper
 	$( this.selector )
@@ -914,7 +918,7 @@ FloatingPane.prototype.addCSS = function(){
 		.css( "padding", this.padding );
 
 	this.maxmin
-		.css( "float", "right" )
+		.css( "float", "left" )
 		.css( "display", "inline" );
 };
 
@@ -929,7 +933,7 @@ FloatingPane.prototype.config = function( args ){
 	this.padding = ( args.padding === undefined ? "15px": args.padding );
 	this.paddingTop = ( args.paddingTop === undefined ? ".3em": args.paddingTop );
 	this.width = ( args.width === undefined ? $( this.selector ).css( "width" ) : args.width );
-	this.minWidth = ( this.title.length > 0 ? Math.max( 100, this.title.length * 10 ) : 100 );
+	//this.minWidth = ( this.title.length > 0 ? Math.max( 100, this.title.length * 10 ) : 100 );
 
 	this.height = ( args.height === undefined ? gadgetui.util.getNumberValue( gadgetui.util.getStyle( $( this.selector ), "height" ) ) + ( gadgetui.util.getNumberValue( this.padding ) * 2 ) : args.height );
 	this.interiorWidth = ( args.interiorWidth === undefined ? "": args.interiorWidth );
@@ -946,16 +950,20 @@ FloatingPane.prototype.expand = function(){
 	var _this = this,
 		offset = $( this.wrapper).offset(),
 		l =  parseInt( new Number( offset.left ), 10 ) - this.relativeOffsetLeft,
-		width = parseInt( this.width.substr( 0,this.width.length - 2), 10 );
+		width;
+		if( parseInt( this.width ) !== NaN ){
+			width = this.width;
+		}else{
+			width = parseInt( this.width.substr( 0,this.width.length - 2), 10 );
+		}
 
 
-
-	this.wrapper.animate({
+/* 	this.wrapper.animate({
 		left: l - width + _this.minWidth
 	},{queue: false, duration: 500}, function() {
 		// Animation complete.
 	});
-
+ */
 	this.wrapper.animate({
 		width: this.width
 	},{queue: false, duration: 500}, function() {
@@ -966,8 +974,7 @@ FloatingPane.prototype.expand = function(){
 		height: this.height
 	},{queue: false, duration: 500, complete: function() {
 		_this.maxmin
-		.removeClass( "ui-icon-arrow-4-diag" )
-		.addClass( "ui-icon-arrow-4" );
+			.attr( "data-glyph", "fullscreen-exit" );
 	}
 	});
 
@@ -978,22 +985,27 @@ FloatingPane.prototype.minimize = function(){
 	// when minimizing and maximizing, we must look up the ancestor chain to see if there are position: relative elements.
 	// if so, we must subtract the offset left of the ancestor to get the pane back to its original position
 
-	var _this = this, offset = $( this.wrapper).offset(),
+	var _this = this,
+		offset = $( this.wrapper).offset(),
 		l =  parseInt( new Number( offset.left ), 10 ) - this.relativeOffsetLeft,
+		width;
+		//width = parseInt( this.width.substr( 0,this.width.length - 2), 10 )
+	if( parseInt( this.width ) !== NaN ){
+		width = this.width;
+	}else{
 		width = parseInt( this.width.substr( 0,this.width.length - 2), 10 );
-
-	this.wrapper.animate({
+	}
+/* 	this.wrapper.animate({
 		left: l + width - _this.minWidth
 	},{queue: false, duration: 500}, function() {
 
-	});
+	}); */
 
 	this.wrapper.animate({
 		width: _this.minWidth
 	},{queue: false, duration: 500, complete: function() {
 		_this.maxmin
-		.removeClass( "ui-icon-arrow-4" )
-		.addClass( "ui-icon-arrow-4-diag" );
+			.attr( "data-glyph", "fullscreen-enter" );
 		}
 	});
 
@@ -2920,6 +2932,7 @@ TextInput.prototype.config = function( options ){
 }(jQuery));
 
 gadgetui.util = (function() {
+
   var EventBindings = {
     on: function(event, func) {
       if (this.events[event] === undefined) {
@@ -3436,7 +3449,55 @@ gadgetui.util = (function() {
           return el[0].currentStyle;
         }
       }
-    }
+    },
+
+    		textWidth : function( text, style ) {
+    			// http://stackoverflow.com/questions/1582534/calculating-text-width-with-jquery
+    			// based on edsioufi's solution
+    			if ( !gadgetui.util.textWidthEl ) {
+    				gadgetui.util.textWidthEl = document.createElement( "div" );
+    				gadgetui.util.textWidthEl.setAttribute( "id",
+    						"gadgetui-textWidth" );
+    				gadgetui.util.textWidthEl.setAttribute( "style",
+    						"display: none;" );
+    				document.body.appendChild( gadgetui.util.textWidthEl );
+    			}
+    			// gadgetui.util.fakeEl = $('<span
+    			// id="gadgetui-textWidth">').appendTo(document.body);
+
+    			// var width, htmlText = text || selector.value ||
+    			// selector.innerHTML;
+    			var width, htmlText = text;
+    			if ( htmlText.length > 0 ) {
+    				// htmlText =
+    				// gadgetui.util.TextWidth.fakeEl.text(htmlText).html();
+    				// //encode to Html
+    				gadgetui.util.textWidthEl.innerText = htmlText;
+    				if ( htmlText === undefined ) {
+    					htmlText = "";
+    				} else {
+    					htmlText = htmlText.replace( /\s/g, "&nbsp;" ); // replace
+    																	// trailing
+    																	// and
+    																	// leading
+    																	// spaces
+    				}
+    			}
+    			gadgetui.util.textWidthEl.innertText = htmlText;
+    			// gadgetui.util.textWidthEl.style.font = font;
+    			// gadgetui.util.textWidthEl.html( htmlText ).style.font = font;
+    			// gadgetui.util.textWidthEl.html(htmlText).css('font', font ||
+    			// $.fn.css('font'));
+    			gadgetui.util.textWidthEl.style.fontFamily = style.fontFamily;
+    			gadgetui.util.textWidthEl.style.fontSize = style.fontSize;
+    			gadgetui.util.textWidthEl.style.fontWeight = style.fontWeight;
+    			gadgetui.util.textWidthEl.style.fontVariant = style.fontVariant;
+    			gadgetui.util.textWidthEl.style.display = "inline";
+
+    			width = gadgetui.util.textWidthEl.offsetWidth;
+    			gadgetui.util.textWidthEl.style.display = "none";
+    			return width;
+    		}
   };
 })();
 

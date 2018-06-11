@@ -4,13 +4,13 @@ function FloatingPane( selector, options ){
 	if( options !== undefined ){
 		this.config( options );
 	}
-	
+
 	this.addControl();
 	this.wrapper = $( this.selector ).parent();
 
 	this.addHeader();
-	this.maxmin = $( "div div[class~='ui-icon']", this.wrapper );
-	
+	this.maxmin = $( "div div[class='oi']", this.wrapper );
+	this.minWidth = ( this.title.length > 0 ? gadgetui.util.textWidth( this.title, this.header[0].style ) + 50 : 100 );
 	this.addCSS();
 
 	// now set height to computed height of control _this has been created
@@ -24,7 +24,7 @@ FloatingPane.prototype.addBindings = function(){
 	var _this = this;
 	// jquery-ui draggable
 	this.wrapper.draggable( {addClasses: false } );
-	
+
 	this.maxmin.on( "click", function(){
 		if( _this.minimized ){
 			_this.expand();
@@ -35,7 +35,10 @@ FloatingPane.prototype.addBindings = function(){
 };
 
 FloatingPane.prototype.addHeader = function(){
-	this.wrapper.prepend( '<div class="ui-widget-header ui-corner-all gadget-ui-floatingPane-header">' + this.title + '<div class="ui-icon ui-icon-arrow-4"></div></div>');
+	this.wrapper.prepend( '<div class="ui-widget-header ui-corner-all gadget-ui-floatingPane-header">' + this.title + '<div class="oi"></div></div>');
+	$( "div[class='oi']", this.wrapper )
+		.attr( "data-glyph", "fullscreen-exit" );
+	this.header = $( "div[class~='gadget-ui-floatingPane-header']", this.wrapper );
 };
 
 
@@ -44,15 +47,17 @@ FloatingPane.prototype.addCSS = function(){
 	this.wrapper.css( "width", this.width )
 			.css( "minWidth", this.minWidth )
 			.css( "opacity", this.opacity )
-			.css( "z-index", this.zIndex );
+			.css( "z-index", this.zIndex )
+			.css( "background", this.selector.css( "background" ) )
+			.css( "background-color", this.selector.css( "background-color" ) );
 
 	//now make the width of the selector to fill the wrapper
 	$( this.selector )
 		.css( "width", this.interiorWidth )
 		.css( "padding", this.padding );
-	
+
 	this.maxmin
-		.css( "float", "right" )
+		.css( "float", "left" )
 		.css( "display", "inline" );
 };
 
@@ -67,7 +72,7 @@ FloatingPane.prototype.config = function( args ){
 	this.padding = ( args.padding === undefined ? "15px": args.padding );
 	this.paddingTop = ( args.paddingTop === undefined ? ".3em": args.paddingTop );
 	this.width = ( args.width === undefined ? $( this.selector ).css( "width" ) : args.width );
-	this.minWidth = ( this.title.length > 0 ? Math.max( 100, this.title.length * 10 ) : 100 );
+	//this.minWidth = ( this.title.length > 0 ? Math.max( 100, this.title.length * 10 ) : 100 );
 
 	this.height = ( args.height === undefined ? gadgetui.util.getNumberValue( gadgetui.util.getStyle( $( this.selector ), "height" ) ) + ( gadgetui.util.getNumberValue( this.padding ) * 2 ) : args.height );
 	this.interiorWidth = ( args.interiorWidth === undefined ? "": args.interiorWidth );
@@ -80,20 +85,24 @@ FloatingPane.prototype.config = function( args ){
 FloatingPane.prototype.expand = function(){
 	// when minimizing and expanding, we must look up the ancestor chain to see if there are position: relative elements.
 	// if so, we must subtract the offset left of the ancestor to get the pane back to its original position
-	
-	var _this = this, 
+
+	var _this = this,
 		offset = $( this.wrapper).offset(),
 		l =  parseInt( new Number( offset.left ), 10 ) - this.relativeOffsetLeft,
-		width = parseInt( this.width.substr( 0,this.width.length - 2), 10 );
-	
-	
-	
-	this.wrapper.animate({
+		width;
+		if( parseInt( this.width ) !== NaN ){
+			width = this.width;
+		}else{
+			width = parseInt( this.width.substr( 0,this.width.length - 2), 10 );
+		}
+
+
+/* 	this.wrapper.animate({
 		left: l - width + _this.minWidth
 	},{queue: false, duration: 500}, function() {
 		// Animation complete.
 	});
-
+ */
 	this.wrapper.animate({
 		width: this.width
 	},{queue: false, duration: 500}, function() {
@@ -104,8 +113,7 @@ FloatingPane.prototype.expand = function(){
 		height: this.height
 	},{queue: false, duration: 500, complete: function() {
 		_this.maxmin
-		.removeClass( "ui-icon-arrow-4-diag" )
-		.addClass( "ui-icon-arrow-4" );
+			.attr( "data-glyph", "fullscreen-exit" );
 	}
 	});
 
@@ -115,23 +123,28 @@ FloatingPane.prototype.expand = function(){
 FloatingPane.prototype.minimize = function(){
 	// when minimizing and maximizing, we must look up the ancestor chain to see if there are position: relative elements.
 	// if so, we must subtract the offset left of the ancestor to get the pane back to its original position
-	
-	var _this = this, offset = $( this.wrapper).offset(),
-		l =  parseInt( new Number( offset.left ), 10 ) - this.relativeOffsetLeft,
-		width = parseInt( this.width.substr( 0,this.width.length - 2), 10 );
 
-	this.wrapper.animate({
+	var _this = this,
+		offset = $( this.wrapper).offset(),
+		l =  parseInt( new Number( offset.left ), 10 ) - this.relativeOffsetLeft,
+		width;
+		//width = parseInt( this.width.substr( 0,this.width.length - 2), 10 )
+	if( parseInt( this.width ) !== NaN ){
+		width = this.width;
+	}else{
+		width = parseInt( this.width.substr( 0,this.width.length - 2), 10 );
+	}
+/* 	this.wrapper.animate({
 		left: l + width - _this.minWidth
 	},{queue: false, duration: 500}, function() {
 
-	});
+	}); */
 
 	this.wrapper.animate({
 		width: _this.minWidth
 	},{queue: false, duration: 500, complete: function() {
 		_this.maxmin
-		.removeClass( "ui-icon-arrow-4" )
-		.addClass( "ui-icon-arrow-4-diag" );
+			.attr( "data-glyph", "fullscreen-enter" );
 		}
 	});
 

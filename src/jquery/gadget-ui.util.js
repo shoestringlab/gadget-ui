@@ -1,4 +1,5 @@
 gadgetui.util = (function() {
+
   var EventBindings = {
     on: function(event, func) {
       if (this.events[event] === undefined) {
@@ -515,6 +516,54 @@ gadgetui.util = (function() {
           return el[0].currentStyle;
         }
       }
-    }
+    },
+
+    		textWidth : function( text, style ) {
+    			// http://stackoverflow.com/questions/1582534/calculating-text-width-with-jquery
+    			// based on edsioufi's solution
+    			if ( !gadgetui.util.textWidthEl ) {
+    				gadgetui.util.textWidthEl = document.createElement( "div" );
+    				gadgetui.util.textWidthEl.setAttribute( "id",
+    						"gadgetui-textWidth" );
+    				gadgetui.util.textWidthEl.setAttribute( "style",
+    						"display: none;" );
+    				document.body.appendChild( gadgetui.util.textWidthEl );
+    			}
+    			// gadgetui.util.fakeEl = $('<span
+    			// id="gadgetui-textWidth">').appendTo(document.body);
+
+    			// var width, htmlText = text || selector.value ||
+    			// selector.innerHTML;
+    			var width, htmlText = text;
+    			if ( htmlText.length > 0 ) {
+    				// htmlText =
+    				// gadgetui.util.TextWidth.fakeEl.text(htmlText).html();
+    				// //encode to Html
+    				gadgetui.util.textWidthEl.innerText = htmlText;
+    				if ( htmlText === undefined ) {
+    					htmlText = "";
+    				} else {
+    					htmlText = htmlText.replace( /\s/g, "&nbsp;" ); // replace
+    																	// trailing
+    																	// and
+    																	// leading
+    																	// spaces
+    				}
+    			}
+    			gadgetui.util.textWidthEl.innertText = htmlText;
+    			// gadgetui.util.textWidthEl.style.font = font;
+    			// gadgetui.util.textWidthEl.html( htmlText ).style.font = font;
+    			// gadgetui.util.textWidthEl.html(htmlText).css('font', font ||
+    			// $.fn.css('font'));
+    			gadgetui.util.textWidthEl.style.fontFamily = style.fontFamily;
+    			gadgetui.util.textWidthEl.style.fontSize = style.fontSize;
+    			gadgetui.util.textWidthEl.style.fontWeight = style.fontWeight;
+    			gadgetui.util.textWidthEl.style.fontVariant = style.fontVariant;
+    			gadgetui.util.textWidthEl.style.display = "inline";
+
+    			width = gadgetui.util.textWidthEl.offsetWidth;
+    			gadgetui.util.textWidthEl.style.display = "none";
+    			return width;
+    		}
   };
 })();
