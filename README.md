@@ -5,7 +5,9 @@ Experimental JavaScript UI and data binding library
 
 This library uses [semver](http://semver.org/) version numbering.
 
-v 3.1.0
+v 5.0.0
+
+New development will proceed in 5.0. Previous releases will be limited to bug fixes and possibly backports of enhancements.
 
 **What's New**
 

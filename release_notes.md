@@ -1,6 +1,11 @@
 
 ***Release Notes***
 
+5.0.0
+======
+
+- This release has no new features over 3.1.0 but represents a renewed focus for the library on interactive components. The first of these new components, the FileDialog, will be actively developed in this version. Bugs and minor enhancements may be made in previous releases, but new feature development will go forward in this version.
+
 3.1.0
 ======
 
