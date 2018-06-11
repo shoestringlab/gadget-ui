@@ -1,11 +1,17 @@
 gadget-ui
 =========
 
-JavaScript UI and data binding library
+Experimental JavaScript UI and data binding library
 
 This library uses [semver](http://semver.org/) version numbering.
 
-v 3.0.3
+v 3.1.0
+
+**What's New**
+
+This release contains some bug fixes for existing components, including pulling some implementation details from the plain JavaScript version to the jQuery version for consistency. It also contains a significant new component called FileDialog that enables multi-part, multi-file uploads using AJAX.
+
+This library is very much experimental, but semver and release tags are being used faithfully to provide developers with guidance on stability of features and the API.
 
 **Why version 3.0.0?**
 

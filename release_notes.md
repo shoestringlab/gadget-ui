@@ -1,6 +1,19 @@
 
 ***Release Notes***
 
+3.1.0
+======
+
+- Bug fix for LookupListInput on reset model values
+- Change to FloatingPane to move min/max icon to top left instead of right
+- Bug fix for CollapsiblePane collapse initial animation
+- Bug fix for Bug fix for FloatingPane expand/collapse initial function
+- Change for FloatingPane to maintain left position on expand/collapse
+
+PREVIEW - FileDialog
+					- preview of new file upload component FileDialog
+					- Please note this component is still considered experimental and may change substantively before official release
+
 3.0.3
 ======
 
