@@ -65,8 +65,8 @@ gadgetui.model = ( function( $ ) {
 					if( ev.target.name === obj.prop && ev.originalSource !== 'BindableObject.updateDomElement'){
 						//select box binding
 						if( ev.target.type.match( /select/ ) ){
-							this.change( { 	id : $( ev.target ).val(),
-									text : $( ev.target ).find('option:selected').text()
+							this.change( { 	id : $( ev.target ).val(), 
+									text : $( ev.target ).find('option:selected').text() 
 								}, ev, obj.prop );
 						}
 						else{
@@ -75,7 +75,7 @@ gadgetui.model = ( function( $ ) {
 						}
 					}
 				}
-
+				
 		}
 	};
 
@@ -86,7 +86,7 @@ gadgetui.model = ( function( $ ) {
 			event.originalSource = "BindableObject.change";
 		}
 		console.log( "change : Source: " + event.originalSource );
-
+				
 		// this code changes the value of the BinableObject to the incoming value
 		if ( property === undefined ) {
 			// Directive is to replace the entire value stored in the BindableObject
@@ -99,15 +99,15 @@ gadgetui.model = ( function( $ ) {
 			// verifies _this "data" is an object and not a simple value
 			// update the BindableObject's specified property with the incoming value
 			// value could be anything, simple value or object, does not matter
-
+			
 			if( this.data[ property ] === undefined ){
 				throw( "Property '" + property + "' of object is undefined." );
 			}
 			else{
 				this.data[ property ] = value;
-			}
+			}			
 			// check if we are updating only a single property or the entire object
-
+		
 		}
 		else {
 			throw "Attempt to treat a simple value as an object with properties. Change fails.";
@@ -121,7 +121,7 @@ gadgetui.model = ( function( $ ) {
 			}
 		}
 	};
-
+	
 	BindableObject.prototype.updateDom = function( event, value, property ){
 		var ix, obj, key;
 		if( event.originalSource === undefined ){
@@ -150,17 +150,15 @@ gadgetui.model = ( function( $ ) {
 			}
 		}
 	};
-
+	
 	BindableObject.prototype.updateDomElement = function( event, selector, value ){
 		if( event.originalSource === undefined ){
 			event.originalSource = "BindableObject.updateDomElement";
 		}
 		console.log( "updateDomElement : selector: { type: " + selector[0].nodeName + ", name: " + selector[0].name + " }" );
 		console.log( "updateDomElement : Source: " + event.originalSource );
-		// updating the bound DOM element requires understanding what kind of DOM element is being updated
-		// and what kind of data we are dealing with
 		if( typeof value === 'object' ){
-			// select box objects are populated with { key: key, value: value }
+			// select box objects are populated with { key: key, value: value } 
 			if( selector.is( "div" ) === true  ||  selector.is( "span" ) === true){
 				selector.text( value.text );
 			}else{
@@ -174,7 +172,7 @@ gadgetui.model = ( function( $ ) {
 			}
 		}
 
-		// we have three ways to update values
+		// we have three ways to update values 
 		// 1. via a change event fired from changing the DOM element
 		// 2. via model.set() which should change the model value and update the dom element(s)
 		// 3. via a second dom element, e.g. when more than one dom element is linked to the property
@@ -309,7 +307,7 @@ gadgetui.model = ( function( $ ) {
 				}
 				else {
 					_model[ n[ 0 ] ].change( value, event, n[1] );
-					_model[ n[ 0 ] ].updateDom( event, value, n[1] );
+					_model[ n[ 0 ] ].updateDom( event, value, n[1] );	
 				}
 			}
 			console.log( "model value set: name: " + name + ", value: " + value );
