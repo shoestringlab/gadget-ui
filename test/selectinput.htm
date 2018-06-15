@@ -24,11 +24,11 @@
 	<body>
 		<p>Test the SelectInput control.</p>
 
-		<p>What is your current role:</p>
-	<div style="margin-left: 50px;">
+		<p>Role One - SelectInput with static options:</p>
+	<div>
 
 	<select name="role" class="gadgetui-selectinput" gadgetui-bind="user.role">
-		<option value="0">choose ...</option>
+ 		<option value="0">choose ...</option>
 		<option value="1">Friend</option>
 		<option value="2">Sibling</option>
 		<option value="3">co-worker</option>
@@ -36,5 +36,17 @@
 	</select>
 	</div>
 
+	<p>Role Two - SelectInput with options specified by gadgetui-bind-options:</p>
+<div>
+
+<select name="role2" class="gadgetui-selectinput" gadgetui-bind-options="roles" gadgetui-bind="user2.role">
+</select>
+</div>
+<p>Role Three - SelectInput with options specified by dataProvider option:</p>
+<div>
+
+<select name="role3" class="gadgetui-selectinput" gadgetui-bind="user3.role">
+</select>
+</div>
 	</body>
 </html>

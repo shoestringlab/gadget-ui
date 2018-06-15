@@ -33,3 +33,6 @@ document.querySelector( "input[name='lastname']" )
 .addEventListener( "gadgetui-input-change", function( event ){
 	console.log( event.detail );
 });
+
+gadgetui.model.bind( "user.firstname", document.querySelector( "span[name='firstname']" ) );
+gadgetui.model.bind( "user.lastname", document.querySelector( "span[name='lastname']" ) );

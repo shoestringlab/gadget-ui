@@ -65,8 +65,8 @@ gadgetui.model = ( function() {
 					if( ev.target.name === obj.prop && ev.originalSource !== 'BindableObject.updateDomElement' ){
 						//select box binding
 						if( ev.target.type.match( /select/ ) ){
-							this.change( { 	id : ev.target.value, 
-									text : ev.target.options[ev.target.selectedIndex].innerHTML 
+							this.change( { 	id : ev.target.value,
+									text : ev.target.options[ev.target.selectedIndex].innerHTML
 								}, ev, obj.prop );
 						}
 						else{
@@ -75,7 +75,7 @@ gadgetui.model = ( function() {
 						}
 					}
 				}
-				
+
 		}
 	};
 
@@ -86,7 +86,7 @@ gadgetui.model = ( function() {
 			event.originalSource = "BindableObject.change";
 		}
 		console.log( "change : Source: " + event.originalSource );
-			
+
 		// this code changes the value of the BinableObject to the incoming value
 		if ( property === undefined ) {
 			// Directive is to replace the entire value stored in the BindableObject
@@ -99,15 +99,15 @@ gadgetui.model = ( function() {
 			// verifies _this "data" is an object and not a simple value
 			// update the BindableObject's specified property with the incoming value
 			// value could be anything, simple value or object, does not matter
-			
+
 			if( this.data[ property ] === undefined ){
 				throw( "Property '" + property + "' of object is undefined." );
 			}
 			else{
 				this.data[ property ] = value;
-			}			
+			}
 			// check if we are updating only a single property or the entire object
-		
+
 		}
 		else {
 			throw "Attempt to treat a simple value as an object with properties. Change fails.";
@@ -121,7 +121,7 @@ gadgetui.model = ( function() {
 			}
 		}
 	};
-	
+
 	BindableObject.prototype.updateDom = function( event, value, property ){
 		var ix, obj, key;
 		if( event.originalSource === undefined ){
@@ -150,29 +150,49 @@ gadgetui.model = ( function() {
 			}
 		}
 	};
-	
-	BindableObject.prototype.updateDomElement = function( event, selector, value ){
+
+	BindableObject.prototype.updateDomElement = function( event, selector, newValue ){
+		var wrappingElements = "DIV,SPAN,H1,H2,H3,H4,H5,H6,P,TEXTAREA,LABEL,BUTTON";
+		var valueElements = "INPUT";
+		var arrayElements = "OL,UL,SELECT";
+
 		if( event.originalSource === undefined ){
 			event.originalSource = "BindableObject.updateDomElement";
 		}
 		//console.log( "updateDomElement : selector: { type: " + selector.nodeName + ", name: " + selector.name + " }" );
-		//console.log( "updateDomElement : Source: " + event.originalSource );	
-		if( typeof value === 'object' ){
-			// select box objects are populated with { text: text, id: id } 
-			if( selector.tagName === "DIV" || selector.tagName === "SPAN" ){
-				selector.innerText = value.text;
+		//console.log( "updateDomElement : Source: " + event.originalSource );
+
+		// updating the bound DOM element requires understanding what kind of DOM element is being updated
+		// and what kind of data we are dealing with
+
+		if( typeof newValue === 'object' ){
+			// select box objects are populated with { text: text, id: id }
+			if( wrappingElements.indexOf( selector.tagName ) >=0 ){
+				if( selector.getAttribute( "gadgetui-bind-HTML" ) ){
+					selector.innerHTML = newValue.text;
+				}else{
+					selector.innerText = newValue.text;
+				}
+			}else if( valueElements.indexOf( selector.tagName ) >=0 ){
+				selector.value = newValue.id;
+			}else if( arrayElements.indexOf( selector.tagName ) >=0 ){
+
 			}else{
-				selector.value = value.id;
+				selector.value = newValue.id;
 			}
 		}else{
-			if( selector.tagName === "DIV" || selector.tagName === "SPAN" ){
-				selector.innerText = value;
-			}else{
-				selector.value = value;
+			if( wrappingElements.indexOf( selector.tagName ) >=0 ){
+				if( selector.getAttribute( "gadgetui-bind-HTML" ) ){
+					selector.innerHTML = newValue;
+				}else{
+					selector.innerText = newValue;
+				}
+			}else if( valueElements.indexOf( selector.tagName ) >=0 ){
+				selector.value = newValue;
 			}
 		}
 
-		// we have three ways to update values 
+		// we have three ways to update values
 		// 1. via a change event fired from changing the DOM element
 		// 2. via model.set() which should change the model value and update the dom element(s)
 		// 3. via a second dom element, e.g. when more than one dom element is linked to the property
@@ -294,7 +314,7 @@ gadgetui.model = ( function() {
 				console.log( "Expected parameter [name] is not defined." );
 				return;
 			}
-			
+
 			var n = name.split( "." ), event = { originalSource : 'model.set'};
 			if ( this.exists( n[ 0 ] ) === false ) {
 				if ( n.length === 1 ) {
@@ -312,7 +332,7 @@ gadgetui.model = ( function() {
 				}
 				else {
 					_model[ n[ 0 ] ].change( value, event, n[1] );
-					_model[ n[ 0 ] ].updateDom( event, value, n[1] );	
+					_model[ n[ 0 ] ].updateDom( event, value, n[1] );
 				}
 			}
 			//console.log( "model value set: name: " + name + ", value: " + value );
@@ -2311,7 +2331,8 @@ function SelectInput( selector, options ){
 	this.selector = selector;
 
 	this.config( options );
-	this.setInitialValue();
+	this.setSelectOptions();
+	this.setInitialValue( options );
 
 	this.addControl();
 	this.addCSS();
@@ -2320,21 +2341,22 @@ function SelectInput( selector, options ){
 	// bind to the model if binding is specified
 	gadgetui.util.bind( this.selector, this.model );
 	// bind to the model if binding is specified
-	gadgetui.util.bind( this.label, this.model );	
+	gadgetui.util.bind( this.label, this.model );
 	this.addBindings();
 }
 
-SelectInput.prototype.setInitialValue = function(){
-	// this.value set in config()
+SelectInput.prototype.setInitialValue = function( options ){
+	this.value = ( options.value || { id: this.selector.options[this.selector.selectedIndex||0].value, text: this.selector.options[this.selector.selectedIndex||0].innerHTML } );
 	this.selector.value = this.value.id;
 };
 
 SelectInput.prototype.addControl = function(){
+	var _this = this;
 	this.wrapper = document.createElement( "div" );
 	this.label = document.createElement( "div" );
 	gadgetui.util.addClass( this.wrapper, "gadgetui-selectinput-div" );
 	gadgetui.util.addClass( this.label, "gadgetui-selectinput-label" );
-	this.label.setAttribute( "gadgetui-bind", this.selector.getAttribute( "gadgetui-bind" ) );	
+	this.label.setAttribute( "gadgetui-bind", this.selector.getAttribute( "gadgetui-bind" ) );
 	this.label.innerHTML = this.value.text;
 	this.selector.parentNode.insertBefore( this.wrapper, this.selector );
 	this.wrapper = this.selector.previousSibling;
@@ -2343,8 +2365,42 @@ SelectInput.prototype.addControl = function(){
 	this.selector.parentNode.insertBefore( this.label, this.selector );
 };
 
+SelectInput.prototype.setSelectOptions = function(){
+	var _this = this, id, text, option;
+	if( this.selector.getAttribute( "gadgetui-bind-options" ) !== null || this.dataProvider !== undefined ){
+		while (_this.selector.options.length > 0) {
+			_this.selector.remove(0);
+	  }
+
+		if( this.selector.getAttribute( "gadgetui-bind-options" ) !== null ){
+			// use the gadgetui-ui-bind attribute to populate the select box from the model
+			var optionsArray = this.model.get( this.selector.getAttribute( "gadgetui-bind-options" ) );
+			optionsArray.forEach( function( item ){
+				var opt = document.createElement("option");
+				opt.value = item.id;
+				opt.text = item.text;
+				_this.selector.add( opt );
+			});
+		}else if( this.dataProvider !== undefined ){
+			// use the dataProvider option to populate the select if provided
+			this.dataProvider.data.forEach( function( obj ){
+				id = obj.id;
+				text = obj.text;
+				if( text === undefined ){
+					text = id;
+				}
+				option = gadgetui.util.createElement( "option" );
+				option.value = id;
+				option.text = text;
+
+				_this.selector.add( option );
+			});
+		}
+	}
+};
+
 SelectInput.prototype.addCSS = function(){
-	var height, 
+	var height,
 		parentstyle,
 		css = gadgetui.util.setStyle,
 		style = gadgetui.util.getStyle( this.selector );
@@ -2357,7 +2413,7 @@ SelectInput.prototype.addCSS = function(){
 	this.label.setAttribute( "style", "" );
 	css( this.label, "padding-top", "2px" );
 	css( this.label, "height", height + "px" );
-	css( this.label, "margin-left", "9px" );	
+	css( this.label, "margin-left", "9px" );
 
 	if( navigator.userAgent.match( /Edge/ ) ){
 		css( this.selector, "margin-left", "5px" );
@@ -2391,17 +2447,17 @@ SelectInput.prototype.addBindings = function() {
 			setTimeout( function() {
 				var value = ev.target.value,
 					label = ev.target[ ev.target.selectedIndex ].innerHTML;
-				
+
 				if( value.trim().length === 0 ){
 					value = 0;
 				}
-	
+
 				_this.label.innerText = label;
-				if( _this.model !== undefined && _this.selector.getAttribute( "gadgetui-bind" ) === undefined ){	
+				if( _this.model !== undefined && _this.selector.getAttribute( "gadgetui-bind" ) === undefined ){
 					// if we have specified a model but no data binding, change the model value
 					_this.model.set( this.name, { id: value, text: label } );
 				}
-	
+
 				if( _this.emitEvents === true ){
 					gadgetui.util.trigger( _this.selector, "gadgetui-input-change", { id: value, text: label } );
 				}
@@ -2419,14 +2475,14 @@ SelectInput.prototype.addBindings = function() {
 				css( _this.selector, "display", 'none' );
 			}
 		});
-	
+
 
 /*		function detectLeftButton(evt) {
 	    evt = evt || window.event;
 	    var button = evt.which || evt.button;
 	    return button == 1;
 	}
-	
+
 	document.onmouseup = function( event ){
 		var isLeftClick = detectLeftButton( event );
 		if( isLeftClick === true ){
@@ -2435,7 +2491,7 @@ SelectInput.prototype.addBindings = function() {
 					.css( "display", "inline-block" );
 				$( _this.selector )
 					.hide( );
-			}			
+			}
 		}
 	};	*/
 };
@@ -2443,10 +2499,10 @@ SelectInput.prototype.addBindings = function() {
 SelectInput.prototype.config = function( options ){
 	options = ( options === undefined ? {} : options );
 	this.model =  (( options.model === undefined) ? undefined : options.model );
+	this.dataProvider =  (( options.dataProvider === undefined) ? undefined : options.dataProvider );
 	this.func = (( options.func === undefined) ? undefined : options.func );
 	this.emitEvents = (( options.emitEvents === undefined) ? true : options.emitEvents );
 	this.activate = (( options.activate === undefined) ? "mouseenter" : options.activate );
-	this.value = (( options.value === undefined) ? { id: this.selector[ this.selector.selectedIndex ].value, text : this.selector[ this.selector.selectedIndex ].innerHTML } : options.value );
 };
 
 function TextInput( selector, options ){
