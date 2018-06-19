@@ -22,8 +22,8 @@ gadgetui.model = ( function() {
 					if( ev.target.name === obj.prop && ev.originalSource !== 'BindableObject.updateDomElement' ){
 						//select box binding
 						if( ev.target.type.match( /select/ ) ){
-							this.change( { 	id : ev.target.value, 
-									text : ev.target.options[ev.target.selectedIndex].innerHTML 
+							this.change( { 	id : ev.target.value,
+									text : ev.target.options[ev.target.selectedIndex].innerHTML
 								}, ev, obj.prop );
 						}
 						else{
@@ -32,7 +32,7 @@ gadgetui.model = ( function() {
 						}
 					}
 				}
-				
+
 		}
 	};
 
@@ -43,7 +43,7 @@ gadgetui.model = ( function() {
 			event.originalSource = "BindableObject.change";
 		}
 		console.log( "change : Source: " + event.originalSource );
-			
+
 		// this code changes the value of the BinableObject to the incoming value
 		if ( property === undefined ) {
 			// Directive is to replace the entire value stored in the BindableObject
@@ -56,15 +56,15 @@ gadgetui.model = ( function() {
 			// verifies _this "data" is an object and not a simple value
 			// update the BindableObject's specified property with the incoming value
 			// value could be anything, simple value or object, does not matter
-			
+
 			if( this.data[ property ] === undefined ){
 				throw( "Property '" + property + "' of object is undefined." );
 			}
 			else{
 				this.data[ property ] = value;
-			}			
+			}
 			// check if we are updating only a single property or the entire object
-		
+
 		}
 		else {
 			throw "Attempt to treat a simple value as an object with properties. Change fails.";
@@ -78,7 +78,7 @@ gadgetui.model = ( function() {
 			}
 		}
 	};
-	
+
 	BindableObject.prototype.updateDom = function( event, value, property ){
 		var ix, obj, key;
 		if( event.originalSource === undefined ){
@@ -107,29 +107,74 @@ gadgetui.model = ( function() {
 			}
 		}
 	};
-	
-	BindableObject.prototype.updateDomElement = function( event, selector, value ){
+
+	BindableObject.prototype.updateDomElement = function( event, selector, newValue ){
+		var valueElements = "INPUT";
+		var arrayElements = "OL,UL,SELECT";
+		var wrappingElements = "DIV,SPAN,H1,H2,H3,H4,H5,H6,P,TEXTAREA,LABEL,BUTTON";
+
+		var _updateOptions = function(){
+			switch( selector.tagName ){
+				case "SELECT":
+					while (selector.firstChild) {
+						selector.removeChild(selector.firstChild);
+					}
+					var idx = 0;
+					newValue.forEach( function( item ){
+						var opt = document.createElement("option");
+						if( typeof item === 'object' ){
+							opt.value = item.id;
+							opt.text = item.text;
+						}else{
+							opt.text = item;
+						}
+						selector.appendChild( opt );
+						idx++;
+					});
+				break;
+				case "UL":
+				case "OL":
+					while (selector.firstChild) {
+						selector.removeChild(selector.firstChild);
+					}
+					newValue.forEach( function( item ){
+						var opt = document.createElement("li");
+						opt.textContent = item;
+						selector.appendChild( opt );
+					});
+				break;
+			}
+		};
+
 		if( event.originalSource === undefined ){
 			event.originalSource = "BindableObject.updateDomElement";
 		}
 		//console.log( "updateDomElement : selector: { type: " + selector.nodeName + ", name: " + selector.name + " }" );
-		//console.log( "updateDomElement : Source: " + event.originalSource );	
-		if( typeof value === 'object' ){
-			// select box objects are populated with { text: text, id: id } 
-			if( selector.tagName === "DIV" || selector.tagName === "SPAN" ){
-				selector.innerText = value.text;
+		//console.log( "updateDomElement : Source: " + event.originalSource );
+
+		// updating the bound DOM element requires understanding what kind of DOM element is being updated
+		// and what kind of data we are dealing with
+
+		if( typeof newValue === 'object' ){
+			// select box objects are populated with { text: text, id: id }
+			if( valueElements.indexOf( selector.tagName ) >=0 ){
+				selector.value = newValue.id;
+			}else if( arrayElements.indexOf( selector.tagName ) >=0 ){
+				_updateOptions();
 			}else{
-				selector.value = value.id;
+				selector.textContent = newValue.text;
 			}
 		}else{
-			if( selector.tagName === "DIV" || selector.tagName === "SPAN" ){
-				selector.innerText = value;
+			if( valueElements.indexOf( selector.tagName ) >=0 ){
+				selector.value = newValue;
+			}else if( arrayElements.indexOf( selector.tagName ) >=0 ){
+				_updateOptions();
 			}else{
-				selector.value = value;
+				selector.textContent = newValue;
 			}
 		}
 
-		// we have three ways to update values 
+		// we have three ways to update values
 		// 1. via a change event fired from changing the DOM element
 		// 2. via model.set() which should change the model value and update the dom element(s)
 		// 3. via a second dom element, e.g. when more than one dom element is linked to the property
@@ -251,7 +296,7 @@ gadgetui.model = ( function() {
 				console.log( "Expected parameter [name] is not defined." );
 				return;
 			}
-			
+
 			var n = name.split( "." ), event = { originalSource : 'model.set'};
 			if ( this.exists( n[ 0 ] ) === false ) {
 				if ( n.length === 1 ) {
@@ -269,7 +314,7 @@ gadgetui.model = ( function() {
 				}
 				else {
 					_model[ n[ 0 ] ].change( value, event, n[1] );
-					_model[ n[ 0 ] ].updateDom( event, value, n[1] );	
+					_model[ n[ 0 ] ].updateDom( event, value, n[1] );
 				}
 			}
 			//console.log( "model value set: name: " + name + ", value: " + value );

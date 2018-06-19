@@ -49,8 +49,15 @@ SelectInput.prototype.setSelectOptions = function(){
 			var optionsArray = this.model.get( this.selector.getAttribute( "gadgetui-bind-options" ) );
 			optionsArray.forEach( function( item ){
 				var opt = document.createElement("option");
-				opt.value = item.id;
-				opt.text = item.text;
+				if( typeof item === "object" ){
+					// object containing id, text keys
+					opt.value = item.id;
+					opt.text = item.text;
+				}else{
+					// simple values in array
+					opt.text = item;
+				}
+
 				_this.selector.add( opt );
 			});
 		}else if( this.dataProvider !== undefined ){
