@@ -1934,13 +1934,13 @@ LookupListInput.prototype.addBindings = function(){
 		var menuElement = _this.menu.element;
 		if ( !event.target.classList.contains( "gadgetui-lookuplist-item" ) ) {
 			gadgetui.util.delay(function() {
-				this.document.one( "mousedown", function( event ) {
+				/* document.addEventListener( "mousedown", function( event ) {
 					if ( event.target !== _this.menu.element &&
 							event.target !== menuElement &&
 							!gadgetui.util.contains( menuElement, event.target ) ) {
 						_this.close();
 					}
-				});
+				}); */
 			});
 		}
 	});
