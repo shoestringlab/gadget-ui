@@ -1932,17 +1932,17 @@ LookupListInput.prototype.addBindings = function(){
 		// so we have to track the next mousedown and close the menu if
 		// the user clicks somewhere outside of the autocomplete
 		var menuElement = _this.menu.element;
-		if ( !event.target.classList.contains( "gadgetui-lookuplist-item" ) ) {
+		/*if ( !event.target.classList.contains( "gadgetui-lookuplist-item" ) ) {
 			gadgetui.util.delay(function() {
-				/* document.addEventListener( "mousedown", function( event ) {
+				 document.addEventListener( "mousedown", function( event ) {
 					if ( event.target !== _this.menu.element &&
 							event.target !== menuElement &&
 							!gadgetui.util.contains( menuElement, event.target ) ) {
 						_this.close();
 					}
-				}); */
+				});
 			});
-		}
+		}*/
 	});
 
 	this.menu.element.addEventListener( "menuselect", function( event ) {
