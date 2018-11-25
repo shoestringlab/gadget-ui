@@ -36,36 +36,10 @@ component output="false"{
 		required string filesize ){
 
 		local.result = {};
-		/*if( arguments.part eq 1 ){
-			local.result.fileId = createUUID();
-		}else{
-			local.result.fileId = arguments.id;
-		}
-		var fileToWrite = variables.filePath & "temp" & variables.separator & local.result.fileId & "_" & arguments.part;
-		fileWrite( fileToWrite, arguments.temp_file );
-*/		local.addedPart = variables.FilePartDAO.create( fileid = arguments.id, filepath = arguments.temp_file, filepart = arguments.part, parts = arguments.parts );
-		// set permissions so we can concatenate the files
-	/*	if( server.OS.name contains 'Windows' ){
-			//local.str = "chmod 664 " & arguments.temp_file;
-			local.runtime = createObject("java", "java.lang.Runtime");
-			local.process_runtime = local.runtime.getRuntime();
-			local.process_exec = local.process_runtime.exec( javacast( "string[]", ["cmd.exe", "/c", local.str]) );
-			local.exitCode = local.process_exec.waitFor();
-		}else{
-			local.str = "chmod -R 775 " & variables.filePath;
-			local.runtime = createObject("java", "java.lang.Runtime");
-			local.process_runtime = local.runtime.getRuntime();
-			local.process_exec = local.process_runtime.exec( javacast( "string[]", ["bash", "-c", local.str]) );
-			local.exitCode = local.process_exec.waitFor();
-		}*/
+		local.addedPart = variables.FilePartDAO.create( fileid = arguments.id, filepath = arguments.temp_file, filepart = arguments.part, parts = arguments.parts );
 
 		if( arguments.part eq arguments.parts ){
 			if( server.OS.name contains 'Windows' ){
-			/*	local.runtime = createObject("java", "java.lang.Runtime");
-				local.process_runtime = local.runtime.getRuntime();
-				local.process_exec = local.process_runtime.exec( javacast( "string[]", ["cmd.exe", "/c", local.str]) );
-				local.exitCode = local.process_exec.waitFor();
-*/
 				local.str = " copy /b ";
 				local.files = variables.FileParDAO.readByFileId( fileid = arguments.id );
 				local.str = local.str & local.files.filepath[ 1 ];
@@ -73,28 +47,22 @@ component output="false"{
 					local.str = local.str & "+" & local.files.filepath[ local.ix ];
 				}
 				local.str = local.str & " ""#variables.filePath##arguments.filename#""";
-				writelog( file="upload", text="Concatenating: " & local.str );
+				//writelog( file="upload", text="Concatenating: " & local.str );
 
-				//log.info( "Concatenating: " & local.str );
 				local.runtime = createObject("java", "java.lang.Runtime");
 				local.process_runtime = local.runtime.getRuntime();
 				local.process_exec = local.process_runtime.exec( javacast( "string[]", ["cmd.exe", "/c", local.str]) );
 				local.exitCode = local.process_exec.waitFor();
 			}else{
-				//local.str = "chmod -R 775 " & variables.filePath;
-
 				local.str = " cat ";
 				local.files = variables.FilePartDAO.readByFileId( fileid = arguments.id );
 				for( local.ix = 1; local.ix lte local.files.recordcount; local.ix++ ){
-					writelog( file="upload", text="Concat file:" & arguments.filename & ", part: " & local.ix );
-					//log.debug( "Concat file:" & arguments.filename & ", part: " & local.ix  );
+					//writelog( file="upload", text="Concat file:" & arguments.filename & ", part: " & local.ix );
 					local.str = local.str & " " & local.files.filepath[ local.ix ];
 
 				}
 				local.str = local.str & " > ""#variables.filePath##arguments.filename#""";
-				writelog( file="upload", text="Concatenating: " & local.str );
-
-				//log.info( "Concatenating: " & local.str );
+				//writelog( file="upload", text="Concatenating: " & local.str );
 				local.runtime = createObject("java", "java.lang.Runtime");
 				local.process_runtime = local.runtime.getRuntime();
 				local.process_exec = local.process_runtime.exec( javacast( "string[]", ["bash", "-c", local.str]) );
@@ -108,17 +76,16 @@ component output="false"{
 			}
 			//clean up
 			variables.FilePartDAO.delete( fileid = arguments.id );
-
 		}
 
-			local.result.path = variables.viewFilePath;
-			//local.result.tags = arguments.tags;
-			local.result.filename = arguments.filename;
-			local.result.disabled = 0;
-			local.result.filesize = arguments.filesize;
-			local.result.mimetype = "application/octet-stream";
-			local.result.created = now();
+		local.result.path = variables.viewFilePath;
+		//local.result.tags = arguments.tags;
+		local.result.filename = arguments.filename;
+		local.result.disabled = 0;
+		local.result.filesize = arguments.filesize;
+		local.result.mimetype = "application/octet-stream";
+		local.result.created = now();
 
-			return local.result;
+		return local.result;
 	}
-	}
+}
