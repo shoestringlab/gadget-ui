@@ -870,7 +870,7 @@ function FileUploadWrapper(file, selector) {
   options = { id: id, filename: file.name, width: selector.width() };
   this.file = file;
   this.id = id;
-  this.progressbar = new gadgetui.display.ProgressBar(selector, options);
+  this.progressbar = gadgetui.objects.Constructor( gadgetui.display.ProgressBar, [selector, options] );
   this.progressbar.render();
   for (ix = 0; ix < bindings.length; ix++) {
     this[bindings[ix].name] = bindings[ix].func;
@@ -2737,7 +2737,7 @@ TextInput.prototype.config = function( options ){
 	};
 }(jQuery));
 
-gadgetui.objects = (function($) {
+gadgetui.objects = (function() {
 
 function Constructor(constructor, args, addBindings) {
   var ix, returnedObj, obj, bindings;
@@ -2786,7 +2786,7 @@ var EventBindings = {
 
   fireEvent: function(key, args) {
     var self = this;
-    $.each(this.events[key], function(ix, func) {
+    this.events[key].forEach( function( func ) {
       func(self, args);
     });
   },
@@ -2834,7 +2834,7 @@ FileItem.prototype.set = function(args) {
 	  EventBindings: EventBindings,
     FileItem: FileItem
 	};
-}(jQuery));
+}());
 
 gadgetui.util = (function() {
 
@@ -2856,6 +2856,18 @@ gadgetui.util = (function() {
         sel.classList.add(className);
       } else {
         sel.className += " " + className;
+      }
+    },
+
+    removeClass: function(sel, className) {
+      if (sel.classList) {
+        sel.classList.remove(className);
+      } else {
+        //sel.className += " " + className;
+        var classes = sel.className;
+        var regex = / + className + /gi;
+        classes.replace( regex, "" );
+        sel.className = classes;
       }
     },
 
