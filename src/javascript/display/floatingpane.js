@@ -4,10 +4,15 @@ function FloatingPane( selector, options ){
 		this.config( options );
 	}
 
+	this.setup( options );
+}
+
+FloatingPane.prototype.setup = function( options ){
 	this.addControl();
 	this.addHeader();
-	this.maxmin = this.wrapper.querySelector( "div.oi" );
-
+	if( this.enableShrink ){
+		this.maxmin = this.wrapper.querySelector( "div.oi[name='maxmin']" );
+	}
 	// need to be computed after header is done
 	this.minWidth = ( this.title.length > 0 ? gadgetui.util.textWidth( this.title, this.header.style ) + 50 : 100 );
 	var paddingPx = ( parseInt( gadgetui.util.getNumberValue( this.padding ), 10 ) * 2 );
@@ -24,9 +29,11 @@ function FloatingPane( selector, options ){
 
 	this.relativeOffsetLeft = gadgetui.util.getRelativeParentOffset( this.selector ).left;
 	this.addBindings();
-	this.minimize();
-	this.expand();
-}
+	if( this.enableShrink ){
+		this.minimize();
+		this.expand();
+	}
+};
 
 FloatingPane.prototype.addBindings = function(){
 	var _this = this;
@@ -40,13 +47,22 @@ FloatingPane.prototype.addBindings = function(){
 		console.log( _this );
 	});
 
-	this.maxmin.addEventListener( "click", function( event ){
-		if( _this.minimized ){
-			_this.expand();
-		}else{
-			_this.minimize();
-		}
-	});
+	if( this.enableShrink ){
+		this.maxmin.addEventListener( "click", function( event ){
+			if( _this.minimized ){
+				_this.expand();
+			}else{
+				_this.minimize();
+			}
+		});
+	}
+	if( this.enableClose ){
+		this.closeIcon.addEventListener( "click", function(){ _this.close.apply( _this ) } );
+	}
+};
+
+FloatingPane.prototype.close = function(){
+	this.wrapper.parentNode.removeChild( this.wrapper );
 };
 
 FloatingPane.prototype.addHeader = function(){
@@ -64,17 +80,30 @@ FloatingPane.prototype.addHeader = function(){
 	css( this.header, "font-weight",  "bold" );
 	css( this.header, "font",  this.font );
 
-	this.icon = document.createElement( "div" );
-	gadgetui.util.addClass( this.icon, "oi" );
-	this.header.insertBefore( this.icon, undefined );
-	this.wrapper.insertBefore( this.header, this.selector );
-	this.icon.setAttribute( 'data-glyph', "fullscreen-exit" );
-	this.header.appendChild( this.icon );
+	if( this.enableShrink ){
+		this.icon = document.createElement( "div" );
+		gadgetui.util.addClass( this.icon, "oi" );
+		this.icon.setAttribute( "name", "maxmin" );
+		this.header.insertBefore( this.icon, undefined );
+		this.wrapper.insertBefore( this.header, this.selector );
+		this.icon.setAttribute( 'data-glyph', "fullscreen-exit" );
+		this.header.appendChild( this.icon );
+	}else{
+		this.wrapper.insertBefore( this.header, this.selector );
+	}
 
+	if( this.enableClose ){
+		this.closeIcon = document.createElement( "div" );
+		this.closeIcon.setAttribute( "name", "closeIcon" );
+		gadgetui.util.addClass( this.closeIcon, "oi" );
+		this.header.appendChild( this.closeIcon );
+		this.closeIcon.setAttribute( 'data-glyph', "circle-x" );
+	}
 };
 
 FloatingPane.prototype.addCSS = function(){
 	var css = gadgetui.util.setStyle;
+	css( this.selector, "overflow", this.overflow );
 	//copy width from selector
 	css( this.wrapper, "width",  this.width );
 	//css( this.wrapper, "height",  this.height );
@@ -95,11 +124,11 @@ FloatingPane.prototype.addCSS = function(){
 	css( this.selector, "width", this.interiorWidth );
 	css( this.selector, "padding", this.padding );
 	css( this.selector, "height", this.height );
-	css( this.selector, "overflow", "scroll" );
 	css( this.selector, "border-radius", "0 0 " + this.borderRadius + "px " + this.borderRadius + "px" );
-
-	css( this.maxmin, "float", "left" );
-	css( this.maxmin, "display", "inline" );
+	if( this.enableShrink ){
+		css( this.maxmin, "float", "left" );
+		css( this.maxmin, "display", "inline" );
+	}
 };
 
 FloatingPane.prototype.addControl = function(){
@@ -224,4 +253,7 @@ FloatingPane.prototype.config = function( options ){
 	this.headerColor = ( options.headerColor === undefined ? "black": options.headerColor );
 	this.headerBackgroundColor = ( options.headerBackgroundColor === undefined ? "silver": options.headerBackgroundColor );
 	this.borderRadius = ( options.borderRadius === undefined ? 6 : options.borderRadius );
+	this.enableShrink = ( options.enableShrink !== undefined ? options.enableShrink : true );
+	this.enableClose = ( options.enableClose !== undefined ? options.enableClose : true );
+	this.overflow = ( options.overflow !== undefined ? options.overflow : "hidden" );
 };

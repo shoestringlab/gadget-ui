@@ -2,6 +2,9 @@
 	return{
 		Bubble : Bubble,
 		CollapsiblePane: CollapsiblePane,
-		FloatingPane: FloatingPane
+		Dialog: Dialog,
+		FloatingPane: FloatingPane,
+		FileUploadWrapper: FileUploadWrapper,
+		ProgressBar: ProgressBar
 	};
 }());

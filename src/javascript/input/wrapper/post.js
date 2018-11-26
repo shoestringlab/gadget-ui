@@ -1,5 +1,6 @@
 
 	return{
+		FileUploader: FileUploader,
 		TextInput: TextInput,
 		SelectInput: SelectInput,
 		ComboBox: ComboBox,

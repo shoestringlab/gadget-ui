@@ -19,6 +19,18 @@ gadgetui.util = ( function() {
 			}
 		},
 
+    removeClass: function(sel, className) {
+      if (sel.classList) {
+        sel.classList.remove(className);
+      } else {
+        //sel.className += " " + className;
+        var classes = sel.className;
+        var regex = new RegExp(className,"g");
+        classes.replace( regex, "" );
+        sel.className = classes;
+      }
+    },
+
 		getOffset : function( selector ) {
 			var rect = selector.getBoundingClientRect();
 
