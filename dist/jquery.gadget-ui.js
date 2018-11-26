@@ -1622,29 +1622,9 @@ ComboBox.prototype.config = function( args ){
 		this.animateDelay = (( args.animateDelay === undefined ) ? 500 : args.animateDelay );
 	}
 };
-/*var options = { mode: "messageform",
-							message: _this.message,
-							tabs: [
-								{	id: "filedialog_filebrowser",
-									name: "filebrowser",
-									title: "Attach Files",
-									dblClickEvent: "message.attachFile",
-									dblClickArgs: { message: _this.message }
-								},
-								{ 	id: "filedialog_uploader",
-									name: "uploader",
-									title: "Add Files",
-									onUploadComplete: "message.attachFile",
-									funcArgs: { message: _this.message },
-									tags: "attachment"
-									}
-							]
-			};
 
-			_this.filedialog = new app.ui.FileDialog( "#modalDialog", options );
-			*/
 
-function FileDialog(selector, options) {
+function FileUploader(selector, options) {
   this.selector = selector;
   this.dlg = "";
   this.droppedFiles = [];
@@ -1655,7 +1635,7 @@ function FileDialog(selector, options) {
   this.setDimensions();
 }
 
-FileDialog.prototype.render = function(title) {
+FileUploader.prototype.render = function(title) {
   var self = this,
     data,
     options,
@@ -1780,7 +1760,7 @@ FileDialog.prototype.render = function(title) {
   }
 };
 
-FileDialog.prototype.configure = function(options) {
+FileUploader.prototype.configure = function(options) {
   //this.mode = options.mode === undefined ? "filelocker" : options.mode;
   this.tabs = options.tabs === undefined ? [] : options.tabs;
   // may be undefined
@@ -1791,7 +1771,7 @@ FileDialog.prototype.configure = function(options) {
   this.willGenerateThumbnails = (options.willGenerateThumbnails !== undefined && options.willGenerateThumbnails !== null ? options.willGenerateThumbnails : false );
 };
 
-FileDialog.prototype.setDimensions = function() {
+FileUploader.prototype.setDimensions = function() {
   var dlgHeight = this.selector.height(),
     dlgWidth = this.selector.width(),
     dropzone = $("div[class='gadgetui-filedialog-dropzone']", this.selector),
@@ -1813,7 +1793,7 @@ FileDialog.prototype.setDimensions = function() {
     .css("width", dlgWidth);
 };
 
-FileDialog.prototype.setEventHandlers = function() {
+FileUploader.prototype.setEventHandlers = function() {
   var self = this,
     listeners = function(options) {
       switch (options.name) {
@@ -1857,7 +1837,7 @@ FileDialog.prototype.setEventHandlers = function() {
   });
 };
 
-FileDialog.prototype.renderDropZone = function(options) {
+FileUploader.prototype.renderDropZone = function(options) {
   // if we decide to drop files into a drag/drop zone
 
   var dropzone = $("div[name='dropzone']", this.selector),
@@ -1900,7 +1880,7 @@ FileDialog.prototype.renderDropZone = function(options) {
     });
 };
 
-FileDialog.prototype.processUpload = function(event, files, dropzone, filedisplay, options){
+FileUploader.prototype.processUpload = function(event, files, dropzone, filedisplay, options){
   var self = this,
     wrappedFile;
 
@@ -1934,7 +1914,7 @@ FileDialog.prototype.processUpload = function(event, files, dropzone, filedispla
   self.handleFileSelect( self.uploadingFiles, event );
 };
 
-FileDialog.prototype.handleFileSelect = function( wrappedFiles, evt ){
+FileUploader.prototype.handleFileSelect = function( wrappedFiles, evt ){
   evt.stopPropagation();
   evt.preventDefault();
   var self = this;
@@ -1946,7 +1926,7 @@ FileDialog.prototype.handleFileSelect = function( wrappedFiles, evt ){
   }
 };
 
-FileDialog.prototype.generateThumbnails = function( wrappedFiles ){
+FileUploader.prototype.generateThumbnails = function( wrappedFiles ){
   var self = this;
   var pdfThumbnail = function(wrappedFile, idx) {
       var pdfURL = URL.createObjectURL(wrappedFile.file);
@@ -2029,7 +2009,7 @@ FileDialog.prototype.generateThumbnails = function( wrappedFiles ){
   });
 };
 
-FileDialog.prototype.upload = function( wrappedFiles ) {
+FileUploader.prototype.upload = function( wrappedFiles ) {
   $.each(wrappedFiles, function( ix, wrappedFile ) {
     wrappedFile.progressbar.start();
   });
@@ -2037,7 +2017,7 @@ FileDialog.prototype.upload = function( wrappedFiles ) {
   this.uploadFile( wrappedFiles );
 };
 
-FileDialog.prototype.uploadFile = function( wrappedFiles ) {
+FileUploader.prototype.uploadFile = function( wrappedFiles ) {
   var self = this;
   var process = function() {
     var blob,
@@ -2083,7 +2063,7 @@ FileDialog.prototype.uploadFile = function( wrappedFiles ) {
   process();
 };
 
-FileDialog.prototype.uploadChunk = function( wrappedFile, chunks, filepart, parts ) {
+FileUploader.prototype.uploadChunk = function( wrappedFile, chunks, filepart, parts ) {
   var xhr = new XMLHttpRequest(),
     self = this,
     response,
@@ -2151,7 +2131,7 @@ FileDialog.prototype.uploadChunk = function( wrappedFile, chunks, filepart, part
   xhr.send(chunks[filepart - 1]);
 };
 
-FileDialog.prototype.handleUploadResponse = function(json, wrappedFile ) {
+FileUploader.prototype.handleUploadResponse = function(json, wrappedFile ) {
   var self = this;
   var fileItem = gadgetui.objects.Constructor(
     gadgetui.objects.FileItem, [{
@@ -2176,7 +2156,7 @@ FileDialog.prototype.handleUploadResponse = function(json, wrappedFile ) {
   }
 };
 
-FileDialog.prototype.show = function(name) {
+FileUploader.prototype.show = function(name) {
   var dropzone = $("div[class='gadgetui-filedialog-dropzone']", this.selector),
     filedisplay = $(
       "div[class='gadgetui-filedialog-filedisplay']",
@@ -2191,14 +2171,14 @@ FileDialog.prototype.show = function(name) {
   }
 };
 
-FileDialog.prototype.handleDragOver = function(evt) {
+FileUploader.prototype.handleDragOver = function(evt) {
   evt.stopPropagation();
   evt.preventDefault();
   evt.originalEvent.dataTransfer.dropEffect = "copy";
   // Explicitly show this is a copy.
 };
 
-FileDialog.prototype.close = function() {
+FileUploader.prototype.close = function() {
   this.dlg.dialog("close");
 };
 
@@ -2750,7 +2730,7 @@ TextInput.prototype.config = function( options ){
 
 	return{
 		ComboBox: ComboBox,
-		FileDialog: FileDialog,
+		FileUploader: FileUploader,
 		TextInput: TextInput,
 		SelectInput: SelectInput,
 		LookupListInput: LookupListInput

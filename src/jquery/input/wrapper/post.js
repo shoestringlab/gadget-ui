@@ -1,7 +1,7 @@
 
 	return{
 		ComboBox: ComboBox,
-		FileDialog: FileDialog,
+		FileUploader: FileUploader,
 		TextInput: TextInput,
 		SelectInput: SelectInput,
 		LookupListInput: LookupListInput
