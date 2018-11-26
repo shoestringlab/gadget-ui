@@ -9,10 +9,10 @@ $(document).ready(function() {
       }
     ],
   //  onUploadComplete: refresh,
-    uploadURI: "/test/jquery.filedialog.upload.cfm",
+    uploadURI: "/test/jquery.fileuploader.upload.cfm",
     tags: "file upload",
     willGenerateThumbnails: true
   };
 
-  filedialog = new gadgetui.input.FileDialog($("#modalDialog"), options);
+  filedialog = new gadgetui.input.FileUploader($("#modalDialog"), options);
 });
