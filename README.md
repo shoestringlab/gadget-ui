@@ -5,6 +5,10 @@ Experimental JavaScript UI and data binding library
 
 This library uses [semver](http://semver.org/) version numbering.
 
+v 5.2.1
+
+This release contains a new plain JS control, gadgetui.display.Dialog, plus the plain JS version of FileUploader, ported along with its dependencies from the jQuery version of the library. In addition, the test files have now been modified to use gadgetui.objects.Constructor to instantiate widgets from the library instead of using the "new" keyword.
+
 v 5.1.0
 
 This release contains the first working version of gadgetui.input.FileUploader for multi-part, multi-file upload capability. Please review the example code at /test/jquery.fileuploader.htm for usage.

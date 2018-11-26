@@ -1,6 +1,11 @@
 
 ***Release Notes***
 
+5.2.1
+======
+
+This release contains a new plain JS control, gadgetui.display.Dialog, plus the plain JS version of FileUploader, ported along with its dependencies from the jQuery version of the library. In addition, the test files have now been modified to use gadgetui.objects.Constructor to instantiate widgets from the library instead of using the "new" keyword.
+
 5.1.0
 ======
 
