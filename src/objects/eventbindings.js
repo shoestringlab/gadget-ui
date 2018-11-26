@@ -15,7 +15,7 @@ var EventBindings = {
 
   fireEvent: function(key, args) {
     var self = this;
-    $.each(this.events[key], function(ix, func) {
+    this.events[key].forEach( function( func ) {
       func(self, args);
     });
   },

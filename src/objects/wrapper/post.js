@@ -4,4 +4,4 @@
 	  EventBindings: EventBindings,
     FileItem: FileItem
 	};
-}(jQuery));
+}());

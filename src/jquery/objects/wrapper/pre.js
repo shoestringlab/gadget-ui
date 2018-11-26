@@ -1,1 +1,0 @@
-gadgetui.objects = (function($) {

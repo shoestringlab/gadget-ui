@@ -9,7 +9,7 @@ function FileUploadWrapper(file, selector) {
   options = { id: id, filename: file.name, width: selector.width() };
   this.file = file;
   this.id = id;
-  this.progressbar = new gadgetui.display.ProgressBar(selector, options);
+  this.progressbar = gadgetui.objects.Constructor( gadgetui.display.ProgressBar, [selector, options] );
   this.progressbar.render();
   for (ix = 0; ix < bindings.length; ix++) {
     this[bindings[ix].name] = bindings[ix].func;
