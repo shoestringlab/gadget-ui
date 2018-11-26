@@ -1,6 +1,12 @@
 
 ***Release Notes***
 
+5.1.0
+======
+
+- Working FileDialog under jQuery
+- Re-organized tests under /test with more test files for individual components
+
 5.0.0
 ======
 
