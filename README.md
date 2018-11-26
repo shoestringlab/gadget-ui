@@ -5,13 +5,18 @@ Experimental JavaScript UI and data binding library
 
 This library uses [semver](http://semver.org/) version numbering.
 
+v 5.1.0
+
+This release contains the first working version of gadgetui.input.FileUploader for multi-part, multi-file upload capability. Please review the example code at /test/jquery.fileuploader.htm for usage.
+
+
 v 5.0.0
 
 New development will proceed in 5.0. Previous releases will be limited to bug fixes and possibly backports of enhancements.
 
 **What's New**
 
-This release contains some bug fixes for existing components, including pulling some implementation details from the plain JavaScript version to the jQuery version for consistency. It also contains a significant new component called FileDialog that enables multi-part, multi-file uploads using AJAX.
+This release contains some bug fixes for existing components, including pulling some implementation details from the plain JavaScript version to the jQuery version for consistency. It also contains a significant new component called FileUploader that enables multi-part, multi-file uploads using AJAX.
 
 This library is very much experimental, but semver and release tags are being used faithfully to provide developers with guidance on stability of features and the API.
 
