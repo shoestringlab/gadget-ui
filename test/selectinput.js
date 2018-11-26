@@ -16,30 +16,31 @@ gadgetui.model.set("user2", user2);
 gadgetui.model.set("user3", user3);
 gadgetui.model.set( "roles", roles );
 
-new gadgetui.input.SelectInput(
+gadgetui.objects.Constructor( gadgetui.input.SelectInput, [
 	 document.querySelector( "select[name='role']" ),
 	 {
 		emitEvents : true,
 		model : gadgetui.model
 	}
-);
+]);
 
-new gadgetui.input.SelectInput(
+gadgetui.objects.Constructor( gadgetui.input.SelectInput, [
 	 document.querySelector( "select[name='role2']" ),
 	 {
 		emitEvents : false,
 		model : gadgetui.model
 	}
-);
+]);
 
-new gadgetui.input.SelectInput(
+gadgetui.objects.Constructor( gadgetui.input.SelectInput, [
 	 document.querySelector( "select[name='role3']" ),
 	 {
 		emitEvents : false,
 		model : gadgetui.model,
 		dataProvider: { data: roles }
 	}
-);
+]);
+
 document.querySelector( "select[name='role']" )
 	.addEventListener( "gadgetui-input-change", function( event ){
 		console.log( event.detail );

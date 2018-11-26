@@ -37,7 +37,7 @@
 			email : "dan@dan",
 			value : "102"
 		} ];
-		
+
 		var foods = [ { text: "cereal", id : 1 },
 		               { text: "eggs", id : 2 },
 		               { text: "danish", id : 3 }
@@ -54,7 +54,7 @@
 
 		var textinputs = document.querySelectorAll( "input[gadgetui-textinput='true']" );
 		Array.prototype.forEach.call( textinputs, function( input, ix ){
-			new gadgetui.input.TextInput(
+			gadgetui.objects.Constructor( gadgetui.input.TextInput,[
 				input,
 				{
 					emitEvents : false,
@@ -62,10 +62,10 @@
 					enforceMaxWidth: true,
 					activate : "mouseover"
 				}
-			);
+			]);
 		});
 
-		new gadgetui.input.ComboBox(  document.querySelector( "select[name='food']" ),
+		gadgetui.objects.Constructor( gadgetui.input.ComboBox,[ document.querySelector( "select[name='food']" ),
 			 {
 				id: 2,
 				emitEvents: true,
@@ -86,26 +86,26 @@
 					}
 				}
 			}
-		);
-		
+		]);
+
 		var foodEle = document.querySelector( "select[name='food']" );
-		
+
 		 	foodEle.addEventListener( "gadgetui-combobox-save", function( event, o ){
 		 		console.log( "save: " + o );
 		 	} );
-		
+
 		 	foodEle.addEventListener( "gadgetui-combobox-change", function( event, o ){
 		 		console.log( "change:" + o );
 		 	} );
-		
-		new gadgetui.input.SelectInput(
+
+		gadgetui.objects.Constructor( gadgetui.input.SelectInput,[
 			document.querySelector( "select[name='role']" ),
 			 {
 				emitEvents : false,
 				func : logChanges,
 				model : gadgetui.model
 			}
-		);
+		]);
 		/*	var ll = new gadgetui.input.LookupListInput(
 			document.querySelector( "input[name='friends']" ),
 			{
@@ -116,28 +116,31 @@
 			}
 		);	*/
 
-		new gadgetui.display.CollapsiblePane(
+		gadgetui.objects.Constructor( gadgetui.display.CollapsiblePane,[
 			document.getElementById("InputsDiv"),
 				{
 					title : "Inputs",
 					path : "/dist/"
-				});
-		new gadgetui.display.CollapsiblePane(
+				}]);
+
+		gadgetui.objects.Constructor( gadgetui.display.CollapsiblePane,[
 			document.getElementById("NarrowDiv"),
 			{
 				title : "Nickname",
 				path : "/dist/"
 			}
-		);
-		new gadgetui.display.CollapsiblePane(
+		]);
+
+		gadgetui.objects.Constructor( gadgetui.display.CollapsiblePane,[
 				document.getElementById("modelDiv"),
 			{
 				title : "Model",
 				path : "/dist/",
 				collapse : true
 			}
-		);
-		var fp = new gadgetui.display.FloatingPane(
+		]);
+
+		var fp = gadgetui.objects.Constructor( gadgetui.display.FloatingPane,[
 			document.getElementById("debugDiv"),
 			{
 				title : "Floating debug pane",
@@ -149,10 +152,10 @@
 					of : window
 				}
 			}
-		);
+		]);
 		// no IE 7 support
 		if( !navigator.userAgent.match( /(MSIE 7)/ ) ){
-			new gadgetui.display.Bubble( document.querySelector( "input[name='friends']" ).parentNode,
+			gadgetui.objects.Constructor( gadgetui.display.Bubble, [document.querySelector( "input[name='friends']" ).parentNode,
 				"Start typing to add friends - Abby, Andy, Anne, Bobby, Cara, Dan are the names in the list.",
 				{
 					arrowPosition : "left bottom",
@@ -165,17 +168,17 @@
 					arrowSize: 30,
 					borderRadius: 15,
 					closable : true
-				});
+				}]);
 		}
-		
+
 		gadgetui.model.bind( "user.firstname", document.querySelector( "span[name='firstname']" ) );
-		
+
 		document.addEventListener("gadgetui-input-change", function(evt, obj) {
 			console.log(evt);
 			console.log(obj);
 		});
-		
-		
+
+
 
 		function logChanges(obj) {
 			console.log(obj);

@@ -1,6 +1,6 @@
 
 
-new gadgetui.display.Bubble( document.getElementsByTagName( "select" )[0],
+gadgetui.objects.Constructor( gadgetui.display.Bubble, [document.getElementsByTagName( "select" )[0],
 	"Select Food",
 	{
 		arrowPosition : "left bottom",
@@ -13,4 +13,4 @@ new gadgetui.display.Bubble( document.getElementsByTagName( "select" )[0],
 		arrowSize: 30,
 		borderRadius: 15,
 		closable : true
-	});
+	}]);

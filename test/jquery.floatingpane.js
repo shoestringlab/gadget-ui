@@ -1,5 +1,5 @@
 
-var fp1 = new gadgetui.display.FloatingPane($("#fp1"),
+var fp1 = gadgetui.objects.Constructor( gadgetui.display.FloatingPane, [$("#fp1"),
 		{
 			top: 200,
 			left: 200,
@@ -7,4 +7,4 @@ var fp1 = new gadgetui.display.FloatingPane($("#fp1"),
 			height: 300,
 			title : "Random Text",
 			path : "/dist/",
-		});
+		}]);

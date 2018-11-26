@@ -1,10 +1,10 @@
 <!doctype html>
 <html>
 	<head>
-		<title>gadget-ui FloatingPane Test</title>
+		<title>gadget-ui Dialog Test</title>
 		 <script src='../bower_components/lazyloader/dist/lazy.1.0.0.min.js'></script>
 		 <script>
-		 	lazy.load(['floatingpane.js < ../dist/gadget-ui.js',  "/bower_components/velocity/velocity.js", '../dist/gadget-ui.css', '/bower_components/open-iconic/font/css/open-iconic.css' ], function(){
+		 	lazy.load(['dialog.js < ../dist/gadget-ui.js',  "/bower_components/velocity/velocity.js", '../dist/gadget-ui.css', '/bower_components/open-iconic/font/css/open-iconic.css' ], function(){
   				console.log('All files have been loaded');
 			});
 		 </script>
@@ -17,12 +17,12 @@
 	</head>
 
 	<body>
-		<p>Test the FloatingPane control.</p>
+		<p>Test the Dialog control.</p>
 	<img src="art/avila.jpg">
-	<div name="collapser" id="fp1" style="background-color: rgba( 255,255,255,.7);">
+	<div name="collapser" id="dlg1" style="background-color: rgba( 255,255,255,.7);">
 	The newest possible...
 
-	FloatingPane.prototype.config = function( options ){
+	Dialog.prototype.config = function( options ){
 		options = ( options === undefined ? {} : options );
 		this.title = ( options.title === undefined ? "": options.title );
 		this.path = ( options.path === undefined ? "/bower_components/gadget-ui/dist/": options.path );

@@ -8,7 +8,7 @@ var foods = [ { text: "cereal", id : 1 },
 // set the model first if we're using auto data-binding
 gadgetui.model.set("user", user);
 
-new gadgetui.input.ComboBox(  document.querySelector( "select[name='food']" ),
+gadgetui.objects.Constructor( gadgetui.input.ComboBox,[  document.querySelector( "select[name='food']" ),
 	 {
 		borderWidth: 3,
 		borderRadius: 10,
@@ -36,7 +36,7 @@ new gadgetui.input.ComboBox(  document.querySelector( "select[name='food']" ),
 			}
 		}
 	}
-);
+]);
 
  document.querySelector( "select[name='food']" )
  	.addEventListener( "gadgetui-combobox-change", function( event ){

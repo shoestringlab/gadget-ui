@@ -38,7 +38,7 @@ $(document)
 			email : "dan@dan",
 			value : "102"
 		} ];
-		
+
 		var foods = [ { text: "cereal", id : 1 },
 		               { text: "eggs", id : 2 },
 		               { text: "danish", id : 3 }
@@ -52,7 +52,7 @@ $(document)
 		gadgetui.model.set("user", user);
 
 
-		var ll = new gadgetui.input.LookupListInput(
+		var ll = gadgetui.objects.Constructor( gadgetui.input.LookupListInput, [
 			$( "input[name='friends']" ),
 			{
 				emitEvents : false,
@@ -60,8 +60,8 @@ $(document)
 				model : gadgetui.model,
 				menuItemRenderer : renderLabel
 			}
-		);
-	
+		]);
+
 		function logChanges(obj) {
 			console.log(obj);
 			//showModel();

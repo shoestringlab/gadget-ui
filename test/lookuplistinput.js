@@ -41,8 +41,8 @@
 		// set the model first if we're using auto data-binding
 		gadgetui.model.set("user", user);
 
-		var ll = new gadgetui.input.LookupListInput(
-			document.querySelector( "input[name='friends']" ),
+		var ll = gadgetui.objects.Constructor( gadgetui.input.LookupListInput,
+			[ document.querySelector( "input[name='friends']" ),
 			{
 				emitEvents : false,
 				datasource : lookuplist,
@@ -50,6 +50,7 @@
 				labelRenderer : renderLabel,
 				width: 500
 			}
+		]
 		);
 
 		function logChanges(obj) {

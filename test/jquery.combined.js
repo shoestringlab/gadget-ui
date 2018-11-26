@@ -38,7 +38,7 @@ $(document)
 			email : "dan@dan",
 			value : "102"
 		} ];
-		
+
 		var foods = [ { text: "cereal", id : 1 },
 		               { text: "eggs", id : 2 },
 		               { text: "danish", id : 3 }
@@ -55,7 +55,7 @@ $(document)
 
 		var textinputs = $( "input[gadgetui-textinput='true']" );
 		$.each( textinputs, function( ix, input ){
-			new gadgetui.input.TextInput(
+			gadgetui.objects.Constructor( gadgetui.input.TextInput, [
 				$( input ),
 				{
 					emitEvents : false,
@@ -63,10 +63,10 @@ $(document)
 					enforceMaxWidth: true,
 					activate : "mouseover"
 				}
-			);
+			]);
 		});
 
-		new gadgetui.input.ComboBox(  $( "select[name='food']" ),
+		gadgetui.objects.Constructor( gadgetui.input.ComboBox, [$( "select[name='food']" ),
 			 {
 				id: 2,
 				emitEvents: true,
@@ -86,8 +86,8 @@ $(document)
 					}
 				}
 			}
-		);
-		
+		]);
+
 		 $( "select[name='food']" )
 		 	.on( "gadgetui-combobox-save", function( event, o ){
 		 		console.log( "save: " + o );
@@ -95,16 +95,17 @@ $(document)
 		 	.on( "gadgetui-combobox-change", function( event, o ){
 		 		console.log( "change:" + o );
 		 	} );
-		
-		new gadgetui.input.SelectInput(
+
+		gadgetui.objects.Constructor( gadgetui.input.SelectInput, [
 			 $( "select[name='role']" ),
 			 {
 				emitEvents : false,
 				func : logChanges,
 				model : gadgetui.model
 			}
-		);
-		var ll = new gadgetui.input.LookupListInput(
+		]);
+
+		var ll = gadgetui.objects.Constructor( gadgetui.input.LookupListInput, [
 			$( "input[name='friends']" ),
 			{
 				emitEvents : false,
@@ -112,30 +113,33 @@ $(document)
 				model : gadgetui.model,
 				menuItemRenderer : renderLabel
 			}
-		);
+		]);
 
-		new gadgetui.display.CollapsiblePane(
+		gadgetui.objects.Constructor( gadgetui.display.CollapsiblePane, [
 				$("#InputsDiv"),
 				{
 					title : "Inputs",
 					path : "/dist/"
-				});
-		new gadgetui.display.CollapsiblePane(
+				}]);
+
+		gadgetui.objects.Constructor( gadgetui.display.CollapsiblePane, [
 			$("#NarrowDiv"),
 			{
 				title : "Nickname",
 				path : "/dist/"
 			}
-		);
-		new gadgetui.display.CollapsiblePane(
+		]);
+
+		gadgetui.objects.Constructor( gadgetui.display.CollapsiblePane, [
 			$("#modelDiv"),
 			{
 				title : "Model",
 				path : "/dist/",
 				collapse : true
 			}
-		);
-		var fp = new gadgetui.display.FloatingPane(
+		]);
+
+		var fp = gadgetui.objects.Constructor( gadgetui.display.FloatingPane, [
 			$("#debugDiv"),
 			{
 				title : "Floating debug pane",
@@ -147,10 +151,12 @@ $(document)
 					of : window
 				}
 			}
-		);
+		]);
 		// no IE 7 support
 		if( !navigator.userAgent.match( /(MSIE 7)/ ) ){
-			new gadgetui.display.Bubble( $( "input[name='friends']" ).parent(),
+
+			gadgetui.objects.Constructor( gadgetui.display.Bubble, [
+				$( "input[name='friends']" ).parent(),
 				"Start typing to add friends - Abby, Andy, Anne, Bobby, Cara, Dan are the names in the list.",
 				{
 					arrowPosition : "left bottom",
@@ -163,17 +169,18 @@ $(document)
 					arrowSize: 30,
 					borderRadius: 15,
 					closable : true
-				});
+				}
+			]);
 		}
-		
+
 		gadgetui.model.bind( "user.firstname", $( "span[name='firstname']" ) );
-		
+
 		$(document).on("gadgetui-input-change", function(evt, obj) {
 			console.log(evt);
 			console.log(obj);
 		});
-		
-		
+
+
 
 		function logChanges(obj) {
 			console.log(obj);
