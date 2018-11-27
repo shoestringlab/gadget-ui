@@ -95,6 +95,9 @@ FloatingPane.prototype.addHeader = function(){
 	if( this.enableClose ){
 		this.closeIcon = document.createElement( "div" );
 		this.closeIcon.setAttribute( "name", "closeIcon" );
+		css( this.closeIcon, "float", "right" );
+		css( this.closeIcon, "display", "inline-block" );
+		css( this.closeIcon, "margin-right", "3px" );
 		gadgetui.util.addClass( this.closeIcon, "oi" );
 		this.header.appendChild( this.closeIcon );
 		this.closeIcon.setAttribute( 'data-glyph', "circle-x" );
