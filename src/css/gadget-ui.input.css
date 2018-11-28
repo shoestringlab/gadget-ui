@@ -20,7 +20,7 @@ div .gadget-ui-input-div input{
 }
 
 div .gadget-ui-input-div div{
-	
+
 }
 
 div.gadgetui-lookuplist-input-div, div.gadgetui-lookuplist-input{
@@ -91,7 +91,7 @@ div.gadgetui-selectinput-div{
 select.gadgetui-selectinput{
 	/* hack to allow font-size changes in Safari/Chrome */
 	border-image:0;
-	-webkit-box-shadow: 0 0 0 transparent; 
+	-webkit-box-shadow: 0 0 0 transparent;
 	box-shadow: 0 0 0 transparent;
 }
 
@@ -103,7 +103,7 @@ select.gadgetui-combobox-select::-ms-expand {
     display: none;
 }
 
-select.gadgetui-combobox-select:-moz-focusring { 
+select.gadgetui-combobox-select:-moz-focusring {
 	color: transparent;
 	text-shadow: 0 0 0 #000;
 }
@@ -120,4 +120,14 @@ select.gadgetui-combobox-select option{
 
 div.gadgetui-combobox-selectwrapper{
 	box-shadow: 0px 0px 0px;
+}
+
+.gadgetui-fileuploader-wrapper{
+	border: 1px solid silver;
+
+}
+
+.gadgetui-fileuploader-dropmessage{
+	opacity: .7;
+	position:sticky;
 }

@@ -2,9 +2,9 @@
 <html>
 	<head>
 		<title>gadget-ui File Uploader Test</title>
-		 <script src='../bower_components/lazyloader/dist/lazy.1.0.0.min.js'></script>
+		 <script src='../bower_components/modlazy/dist/modlazy.min.js'></script>
 		 <script>
-		 lazy.load(
+		 modlazy.load(
   [
     "fileuploader.js < ../dist/gadget-ui.js",
     "../dist/gadget-ui.css"
@@ -18,6 +18,13 @@
 		<style>
 			body {font-size: 1em;}
 			input, select, select option{ font-size: 1em;}
+			#fileUploadDiv{
+				height: 500px;
+				width: 500px;
+				text-align: center;
+				margin-top:auto;
+				margin-bottom: auto;
+			}
 		</style>
 
 	</head>
@@ -25,6 +32,6 @@
 	<body>
 		<p>Test the FileUploader control.</p>
 
-		<div id="modalDialog"></div>
+		<div id="fileUploadDiv"></div>
 	</body>
 </html>

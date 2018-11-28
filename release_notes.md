@@ -1,6 +1,11 @@
 
 ***Release Notes***
 
+5.3.0
+======
+
+- Removal of containing dialog for plain Javascript FileUploader. Component now renders into a standard div.
+
 5.2.1
 ======
 
