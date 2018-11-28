@@ -1,37 +1,47 @@
 <!doctype html>
 <html>
-	<head>
-		<title>gadget-ui File Uploader Test</title>
-		 <script src='../bower_components/modlazy/dist/modlazy.min.js'></script>
-		 <script>
-		 modlazy.load(
-  [
-    "fileuploader.js < ../dist/gadget-ui.js",
-    "../dist/gadget-ui.css"
-  ],
-  function() {
-    console.log("All files have been loaded");
-  }
-);
-</script>
 
-		<style>
-			body {font-size: 1em;}
-			input, select, select option{ font-size: 1em;}
-			#fileUploadDiv{
-				height: 500px;
-				width: 500px;
-				text-align: center;
-				margin-top:auto;
-				margin-bottom: auto;
+<head>
+	<title>gadget-ui File Uploader Test</title>
+	<script src='../bower_components/modlazy/dist/modlazy.min.js'></script>
+	<script>
+		modlazy.load(
+			[
+				"fileuploader.js < ../dist/gadget-ui.js",
+				"../dist/gadget-ui.css"
+			],
+			function() {
+				console.log("All files have been loaded");
 			}
-		</style>
+		);
+	</script>
 
-	</head>
+	<style>
+		body {
+			font-size: 1em;
+		}
 
-	<body>
-		<p>Test the FileUploader control.</p>
+		input,
+		select,
+		select option {
+			font-size: 1em;
+		}
 
-		<div id="fileUploadDiv"></div>
-	</body>
+		#fileUploadDiv {
+			height: 500px;
+			width: 500px;
+			text-align: center;
+			margin-top: auto;
+			margin-bottom: auto;
+		}
+	</style>
+
+</head>
+
+<body>
+	<p>Test the FileUploader control.</p>
+
+	<div id="fileUploadDiv"></div>
+</body>
+
 </html>

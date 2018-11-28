@@ -1,10 +1,7 @@
 {
   "name": "gadget-ui",
-  "version": "5.3.0",
+  "version": "5.3.1",
   "description": "JavaScript UI and data binding library",
-  "authors": [
-    "Robert Munn <robertdmunn@gmail.com>"
-  ],
   "repository": {
     "type": "git",
     "url": "https://github.com/robertdmunn/js-name-parser.git"
@@ -31,5 +28,7 @@
   },
   "dependencies": {
     "concat-map": "0.0.1"
-  }
+  },
+  "author": "Robert Munn <robertdmunn@gmail.com>",
+  "license": "Mozilla Public License 2.0"
 }

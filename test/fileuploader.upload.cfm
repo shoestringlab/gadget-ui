@@ -14,9 +14,6 @@
 	args.filesize = gethttprequestdata().headers['x-filesize'];
 	args.part = gethttprequestdata().headers['x-filepart'];
 	args.parts = gethttprequestdata().headers['x-parts'];
-	//args.temp_file = gethttprequestdata().headers['x-client-body-file'];
-	//fileContents = getHttpRequestData().content;
-	//writelog( file="upload", text="file - #args.filename#, part: #args.part#, chunk size: #len(fileContents)#");
 
 	if( args.part eq 1 ){
 		fileId = createUUID();
@@ -24,10 +21,7 @@
 		fileId = args.id;
 	}
 	args.temp_file = chunkPath;
-	//args.temp_file = filePath & "temp" & separator & fileId & "_" & args.part;
-	//fileMove( chunkPath, args.temp_file );
 
-	//fileWrite( args.temp_file, fileContents );
 	args.id = fileId;
 	FilePartDAO = new model.FilePartDAO();
 	FileService = new model.FileService( filePath = filePath, FilePartDAO = FilePartDAO );
