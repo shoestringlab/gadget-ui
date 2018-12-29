@@ -22,15 +22,19 @@
     "WEB-INF"
   ],
   "dependencies": {
+    "binaryajax":"*",
+    "canvasResize": "*",
+    "exif-js-dist":"*",
     "jquery": "jquery#2",
-	"jquery-legacy": "jquery#1.10",
     "jquery-encoder": "*",
+    "jquery-legacy": "jquery#1.10",
     "jquery-ui": "*",
     "jquery.addrule": "*",
-    "jquery-shadow-animation": "*",
     "jquery-placeholder" : "*",
-    "promise-polyfill" : "*",
+    "modlazy":"*",
     "open-iconic" : "*",
+    "pdfjs":"*",
+    "pdfjs-dist":"*",
     "velocity": "*"
 
   }

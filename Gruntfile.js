@@ -1,7 +1,7 @@
 
 module.exports = function(grunt) {
 	var path = require('path');
-	
+
 	require('load-grunt-config')(grunt, {
 		//pkg: grunt.file.readJSON('package.json'),
 	    configPath: path.join(process.cwd(), 'grunt'), //path to task.js files, defaults to grunt dir
@@ -15,5 +15,6 @@ module.exports = function(grunt) {
 	    },
 	    postProcess: function(config) {} //can post process config object before it gets passed to grunt
 	});
-	grunt.registerTask('default', ["newer:concat", "newer:uglify", "qunit", "jshint"]);
+	grunt.registerTask('default', ["newer:concat", "newer:uglify", "jshint"]);
+	grunt.registerTask('clean', ["concat", "uglify", "jshint"]);
 };

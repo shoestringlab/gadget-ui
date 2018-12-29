@@ -3,7 +3,8 @@
 
 <head>
 	<title>gadget-ui File Uploader Test</title>
-	<script src='../bower_components/modlazy/dist/modlazy.min.js'></script>
+	<!--- ES5 style loading --->
+	<!--- 	<script src='../bower_components/modlazy/dist/modlazy.min.js'></script>
 	<script>
 		modlazy.load(
 			[
@@ -14,6 +15,21 @@
 				console.log("All files have been loaded");
 			}
 		);
+	</script> --->
+	<link rel="stylesheet" href="/dist/gadget-ui.css"/>
+	<script type="module">
+	import {fileuploader,constructor} from '/dist/gadget-ui.es6.js';
+
+	var options = {
+	  uploadURI: "/test/fileuploader.upload.cfm",
+	  tags: "file upload",
+	  willGenerateThumbnails: true,
+	  title: "Upload Files",
+	  showUploadButton: false
+	};
+
+	var filedialog = constructor( fileuploader, [ document.querySelector("#fileUploadDiv"), options ]);
+
 	</script>
 
 	<style>

@@ -11,6 +11,17 @@ module.exports = {
 		        'src/javascript/gadget-ui.util.js' ],
 		dest : 'dist/<%= pkg.name %>.js'
 	},
+	javascriptes6 : {
+		options: {
+		      sourceMap: true
+		    },
+		src : [ 'src/gadget-ui.js','src/javascript/gadget-ui.model.js','src/polyfill.js',
+		        'src/javascript/display/wrapper/pre.js', 'src/javascript/display/*.js', 'src/javascript/display/wrapper/post.js',
+			   		'src/javascript/input/wrapper/pre.js', 'src/javascript/input/*.js', 'src/javascript/input/wrapper/post.js',
+						'src/objects/wrapper/pre.js', 'src/objects/*.js', 'src/objects/wrapper/post.js',
+		        'src/javascript/gadget-ui.util.js','src/javascript/gadget-ui.export.js' ],
+		dest : 'dist/<%= pkg.name %>.es6.js'
+	},
 	jquery : {
 		options: {
 		      sourceMap: true
