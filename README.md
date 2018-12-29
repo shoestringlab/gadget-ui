@@ -6,9 +6,9 @@ Experimental JavaScript UI and data binding library
 This library uses [semver](http://semver.org/) version numbering.
 
 
-v 5.3.0
+v 6.0.0
 
-This release adds ES6 module support. Use /dist/gadget-ui.es6.js for ES6 module support. See /test/floatingpane.htm and /test/fileuploader.htm for example usage.
+This release adds ES6 module support. Use /dist/gadget-ui.es6.js for ES6 module support. See /test/floatingpane.htm and /test/fileuploader.htm for example usage. Version has been upped to 6.0.0 to mark the inclusion of ES6 module support.
 
 v 5.2.1
 

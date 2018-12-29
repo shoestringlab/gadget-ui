@@ -1,6 +1,11 @@
 
 ***Release Notes***
 
+6.0.0
+======
+
+This release marks support for ES6, specifically module exports that can be used to import the library in whole or in part. ES6 module support is only available in the plain JavaScript library, as the jQuery-based library is no longer being actively developed.
+
 5.3.0
 ======
 

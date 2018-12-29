@@ -1,6 +1,6 @@
 {
   "name": "gadget-ui",
-  "version": "5.3.2",
+  "version": "6.0.0",
   "description": "JavaScript UI and data binding library",
   "repository": {
     "type": "git",
