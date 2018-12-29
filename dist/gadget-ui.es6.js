@@ -4003,5 +4003,6 @@ export var lookuplistinput = gadgetui.input.LookupListInput;
 export var selectinput = gadgetui.input.SelectInput;
 export var textinput = gadgetui.input.TextInput;
 export var constructor = gadgetui.objects.Constructor;
+export var util = gadgetui.util;
 
 //# sourceMappingURL=gadget-ui.es6.js.map
