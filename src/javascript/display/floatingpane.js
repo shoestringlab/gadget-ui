@@ -15,7 +15,7 @@ FloatingPane.prototype.setup = function( options ){
 	}
 	// need to be computed after header is done
 	this.minWidth = ( this.title.length > 0 ? gadgetui.util.textWidth( this.title, this.header.style ) + 50 : 100 );
-	var paddingPx = ( parseInt( gadgetui.util.getNumberValue( this.padding ), 10 ) * 2 );
+	var paddingPx = ( parseInt( gadgetui.util.getNumberValue( gadgetui.util.getStyle( this.selector, "padding" ) ), 10 ) * 2 );
 	// 6 px is padding + border of header
 	var headerHeight = gadgetui.util.getNumberValue( gadgetui.util.getStyle( this.header, "height" ) ) + 6;
 	//set height by setting width on selector to get content height at that width
@@ -69,17 +69,12 @@ FloatingPane.prototype.addHeader = function(){
 	var css = gadgetui.util.setStyle;
 	this.header = document.createElement( "div" );
 	this.header.innerHTML = this.title;
-	gadgetui.util.addClass( this.header, 'gadget-ui-floatingPane-header' );
+	if( this.headerClass ){
+		gadgetui.util.addClass( header, this.headerClass );
+	}else{
+		gadgetui.util.addClass( this.header, 'gadget-ui-floatingPane-header' );
+	}
 	//this.header.setAttribute( "style",
-	css( this.header, "padding",  "2px 0px 2px .5em" );
-	css( this.header, "text-align",  "left" );
-	css( this.header, "border-radius", this.borderRadius );
-	css( this.header, "border",  "1px solid "  + this.borderColor );
-	css( this.header, "background", this.headerBackgroundColor );
-	css( this.header, "color",  this.headerColor );
-	css( this.header, "font-weight",  "bold" );
-	css( this.header, "font",  this.font );
-
 	if( this.enableShrink ){
 		this.icon = document.createElement( "div" );
 		gadgetui.util.addClass( this.icon, "oi" );
@@ -106,28 +101,8 @@ FloatingPane.prototype.addHeader = function(){
 
 FloatingPane.prototype.addCSS = function(){
 	var css = gadgetui.util.setStyle;
-	css( this.selector, "overflow", this.overflow );
 	//copy width from selector
 	css( this.wrapper, "width",  this.width );
-	//css( this.wrapper, "height",  this.height );
-	css( this.wrapper, "border",  "1px solid "  + this.borderColor );
-	css( this.wrapper, "border-radius", this.borderRadius );
-	css( this.wrapper, "min-width", this.minWidth );
-	css( this.wrapper, "opacity", this.opacity );
-	css( this.wrapper, "z-index", this.zIndex );
-	css( this.wrapper, "position", this.position );
-	css( this.wrapper, "background", gadgetui.util.getStyle( this.selector, "background" ) );
-	css( this.wrapper, "background-color", gadgetui.util.getStyle( this.selector, "background-color" ) );
-	if( this.top !== undefined ) css( this.wrapper, "top", this.top );
-	if( this.left !== undefined )css( this.wrapper, "left", this.left );
-	if( this.bottom !== undefined ) css( this.wrapper, "bottom", this.bottom );
-	if( this.right !== undefined )css( this.wrapper, "right", this.right );
-
-	//now make the width of the selector to fill the wrapper
-	css( this.selector, "width", this.interiorWidth );
-	css( this.selector, "padding", this.padding );
-	css( this.selector, "height", this.height );
-	css( this.selector, "border-radius", "0 0 " + this.borderRadius + "px " + this.borderRadius + "px" );
 	if( this.enableShrink ){
 		css( this.maxmin, "float", "left" );
 		css( this.maxmin, "display", "inline" );
@@ -136,7 +111,11 @@ FloatingPane.prototype.addCSS = function(){
 
 FloatingPane.prototype.addControl = function(){
 	var fp = document.createElement( "div" );
-	gadgetui.util.addClass( fp, "gadget-ui-floatingPane" );
+	if( this.class ){
+		gadgetui.util.addClass( pane, this.class );
+	}else{
+		gadgetui.util.addClass( fp, "gadget-ui-floatingPane" );
+	}
 	fp.draggable = true;
 	this.selector.parentNode.insertBefore( fp, this.selector );
 	this.wrapper = this.selector.previousSibling;
@@ -153,17 +132,11 @@ FloatingPane.prototype.expand = function(){
 		css = gadgetui.util.setStyle,
 		offset = gadgetui.util.getOffset( this.wrapper ),
 		parentPaddingLeft = parseInt( gadgetui.util.getNumberValue( gadgetui.util.getStyle( this.wrapper.parentElement, "padding-left" ) ), 10 ),
-		lx =  parseInt( new Number( offset.left ), 10 ) - this.relativeOffsetLeft - parentPaddingLeft,
-		width = parseInt( gadgetui.util.getNumberValue( this.width ), 10 );
+		lx =  parseInt( new Number( offset.left ), 10 ) - this.relativeOffsetLeft - parentPaddingLeft;
+
+		//width = parseInt( gadgetui.util.getNumberValue( this.width ), 10 );
 
 	if( typeof Velocity != 'undefined' && this.animate ){
-
-		/* Velocity( this.wrapper, {
-			left: lx - width + _this.minWidth
-			//left : this.left
-		},{queue: false, duration: 500}, function() {
-			// Animation complete.
-		}); */
 
 		Velocity( this.wrapper, {
 			width: this.width
@@ -179,8 +152,6 @@ FloatingPane.prototype.expand = function(){
 		}
 		});
 	}else{
-		//css( this.wrapper, "left", ( lx - width + this.minWidth ) );
-		//css( this.wrapper, "left", ( this.left ) );
 		css( this.wrapper, "width", this.width );
 		css( this.selector, "height", this.height );
 		this.icon.setAttribute( "data-glyph", "fullscreen-exit" );
@@ -205,12 +176,6 @@ FloatingPane.prototype.minimize = function(){
 
 	if( typeof Velocity != 'undefined' && this.animate ){
 
-/* 		Velocity( this.wrapper, {
-			left: lx + width - _this.minWidth
-		},{queue: false, duration: 500}, function() {
-
-		}); */
-
 		Velocity( this.wrapper, {
 			width: _this.minWidth
 		},{queue: false, duration: 500, complete: function() {
@@ -233,30 +198,14 @@ FloatingPane.prototype.minimize = function(){
 };
 
 FloatingPane.prototype.config = function( options ){
-	var css = gadgetui.util.setStyle;
 	options = ( options === undefined ? {} : options );
 	this.animate = (( options.animate === undefined) ? true : options.animate );
 	this.title = ( options.title === undefined ? "": options.title );
-	this.path = ( options.path === undefined ? "/bower_components/gadget-ui/dist/": options.path );
-	this.position = ( options.position === undefined ? "absolute" : options.position );
-	this.padding = ( options.padding === undefined ? 15: options.padding );
-	this.paddingTop = ( options.paddingTop === undefined ? ".3em": options.paddingTop );
-	this.width = ( options.width === undefined ? gadgetui.util.getStyle( this.selector, "width" ) : options.width );
-	//this.minWidth = ( this.title.length > 0 ? gadgetui.util.textWidth( this.title ) + 30 : 100 );
-	this.top = ( options.top === undefined ? undefined: options.top );
-	this.left = ( options.left === undefined ? undefined : options.left );
-	this.bottom = ( options.bottom === undefined ? undefined : options.bottom );
-	this.right = ( options.right === undefined ? undefined : options.right );
-	this.interiorWidth = ( options.interiorWidth === undefined ? "": options.interiorWidth );
-	this.opacity = ( ( options.opacity === undefined ? 1 : options.opacity ) );
-	this.zIndex = ( ( options.zIndex === undefined ? gadgetui.util.getMaxZIndex() + 1 : options.zIndex ) );
+	this.width = gadgetui.util.getStyle( this.selector, "width" );
+	this.class = ( ( options.class === undefined ? false : options.class ) );
+	this.headerClass = ( ( options.headerClass === undefined ? false : options.headerClass ) );
 	this.minimized = false;
 	this.relativeOffsetLeft = 0;
-	this.borderColor = ( options.borderColor === undefined ? "silver": options.borderColor );
-	this.headerColor = ( options.headerColor === undefined ? "black": options.headerColor );
-	this.headerBackgroundColor = ( options.headerBackgroundColor === undefined ? "silver": options.headerBackgroundColor );
-	this.borderRadius = ( options.borderRadius === undefined ? 6 : options.borderRadius );
 	this.enableShrink = ( options.enableShrink !== undefined ? options.enableShrink : true );
 	this.enableClose = ( options.enableClose !== undefined ? options.enableClose : true );
-	this.overflow = ( options.overflow !== undefined ? options.overflow : "hidden" );
 };
