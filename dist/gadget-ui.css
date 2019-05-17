@@ -1,9 +1,11 @@
 div.gadgetui-bubble span{
-	font-size:13px;	
+	font-size:13px;
 }
 
 div.gadget-ui-collapsiblePane, div.gadget-ui-floatingPane{
 	padding: 0px;
+	border-radius: 5px;
+	border: 1px solid silver;
 }
 
  div.gadget-ui-floatingPane{
@@ -22,13 +24,19 @@ div.gadget-ui-floatingPane > div:nth-child(2){
 div.gadget-ui-collapsiblePane-header, div.gadget-ui-floatingPane-header{
 	padding: 2px 0px 2px .5em;
 	text-align:left;
+	border-radius: 5px;
+	border: 1px solid transparent;
+	background-color: silver;
+	color: black;
+	font-weight: bold;
+	overflow:hidden;
 }
 
 div.gadget-ui-collapsiblePane-header div, div.gadget-ui-floatingPane-header div{
 	float: right;
 	display:inline;
 	padding-right:.25em;
-	margin-top: 0.1em;	
+	margin-top: 0.1em;
 }
 
 p.gadgetui-bubble-speech
