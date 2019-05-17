@@ -4,8 +4,6 @@ var fp1 = gadgetui.objects.Constructor( gadgetui.display.Dialog,
 		{
 			top: 200,
 			left: 200,
-			width: 500,
-			height: 300,
 			title : "Some Dialog",
 			path : "/dist/",
 			enableShrink : false,

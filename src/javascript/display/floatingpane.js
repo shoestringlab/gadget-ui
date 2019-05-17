@@ -107,6 +107,10 @@ FloatingPane.prototype.addCSS = function(){
 		css( this.maxmin, "float", "left" );
 		css( this.maxmin, "display", "inline" );
 	}
+	if( this.top !== undefined ) css( this.wrapper, "top", this.top );
+	if( this.left !== undefined )css( this.wrapper, "left", this.left );
+	if( this.bottom !== undefined ) css( this.wrapper, "bottom", this.bottom );
+	if( this.right !== undefined )css( this.wrapper, "right", this.right );
 };
 
 FloatingPane.prototype.addControl = function(){
@@ -203,6 +207,10 @@ FloatingPane.prototype.config = function( options ){
 	this.title = ( options.title === undefined ? "": options.title );
 	this.width = gadgetui.util.getStyle( this.selector, "width" );
 	this.class = ( ( options.class === undefined ? false : options.class ) );
+ 	this.top = ( options.top === undefined ? undefined: options.top );
+	this.left = ( options.left === undefined ? undefined : options.left );
+	this.bottom = ( options.bottom === undefined ? undefined : options.bottom );
+	this.right = ( options.right === undefined ? undefined : options.right );
 	this.headerClass = ( ( options.headerClass === undefined ? false : options.headerClass ) );
 	this.minimized = false;
 	this.relativeOffsetLeft = 0;
