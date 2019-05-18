@@ -17,12 +17,12 @@ Bubble.prototype.render = function(){
 	gadgetui.util.addClass( bubbleDiv, "gadgetui-bubble-" + this.bubbleType );
 	bubbleDiv.setAttribute( "id", this.id );
 	bubbleDiv.innerHTML = this.message;
-	
+
 	if( this.closable ){
 		span = document.createElement( "span" );
 		gadgetui.util.addClass( span, "oi" );
 		span.setAttribute( 'data-glyph', "circle-x" );
-		
+
 	}
 	arrowOutside = document.createElement( "div" );
 	gadgetui.util.addClass( arrowOutside, "gadgetui-bubble-arrow-outside" );
@@ -34,7 +34,7 @@ Bubble.prototype.render = function(){
 	}
 	this.bubbleSelector.appendChild( arrowOutside );
 	arrowInside = document.createElement( "div" );
-	gadgetui.util.addClass( arrowInside, "gadgetui-bubble-arrow-inside" );	
+	gadgetui.util.addClass( arrowInside, "gadgetui-bubble-arrow-inside" );
 	this.bubbleSelector.appendChild( arrowInside );
 };
 
@@ -46,23 +46,11 @@ Bubble.prototype.setStyles = function(){
 
 	//console.log( "top: " + this.top + ", left: " + this.left );
 	this.setBubbleStyles();
-	//console.log( "this.setBubbleStyles();" );
-	//console.log( "top: " + this.top + ", left: " + this.left );
 	this.calculateArrowPosition();
-	//console.log( "this.calculateArrowPosition();" );
-	//console.log( "top: " + this.top + ", left: " + this.left );
 	this.calculateArrowStyle();
-	//console.log( "this.calculateArrowStyle();" );
-	//console.log( "top: " + this.top + ", left: " + this.left );
 	this.setBeforeRules();
-	//console.log( "this.setBeforeRules();" );
-	//console.log( "top: " + this.top + ", left: " + this.left );
 	this.setAfterRules();
-	//console.log( "this.setAfterRules();" );
-	//console.log( "top: " + this.top + ", left: " + this.left );
 	this.calculatePosition();
-	//console.log( "this.calculatePosition();" );
-	//console.log( "top: " + this.top + ", left: " + this.left );
 
 	this.bubbleSelector.style.top = this.top + "px";
 	this.bubbleSelector.style.left = this.left + "px";
@@ -85,7 +73,7 @@ Bubble.prototype.setBubbleStyles = function(){
 	css( this.bubbleSelector, "height", this.height + "px" );
 	css( this.bubbleSelector, "line-height", this.lineHeight + "px" );
 	css( this.bubbleSelector, "border-radius", this.borderRadius + "px" );
-	
+
 	css( this.bubbleSelector, "-moz-border-radius", this.borderRadius + "px" );
 	css( this.bubbleSelector, "-webkit-border-radius", this.borderRadius + "px" );
 
@@ -158,16 +146,16 @@ Bubble.prototype.calculatePosition = function(){
 				//console.log( "_this.left + _this.selector.outerWidth() / 2 - _this.relativeOffset.left  " + _this.selector.outerWidth() / 2);
 				break;
 			}
-	});	
+	});
 };
 
 Bubble.prototype.calculateArrowPosition = function(){
-	var doubleArrow = this.arrowSize * 2, 
+	var doubleArrow = this.arrowSize * 2,
 		afterArrowCenter,
 		doublePadding = this.padding * 2,
 		arrowOffset = this.borderWidth + this.borderRadius + this.arrowSize,
 		afterArrowOffset =  Math.floor( Math.sqrt( Math.pow( this.borderWidth, 2 ) + Math.pow( this.borderWidth, 2 ) ) ) - 1;
-		
+
 		this.afterArrowSize = this.arrowSize - afterArrowOffset;
 		afterArrowCenter = ( doubleArrow - this.afterArrowSize * 2) / 2;
 	switch( this.arrowPositionArray[0] ){
@@ -185,7 +173,7 @@ Bubble.prototype.calculateArrowPosition = function(){
 			break;
 		case "top":
 			this.arrowTop = -( doubleArrow );
-			this.afterArrowTop = -( this.afterArrowSize * 2 );			
+			this.afterArrowTop = -( this.afterArrowSize * 2 );
 			this.top = this.top + this.arrowSize - this.borderWidth;
 			//console.log( "this.top + this.arrowSize - this.borderWidth" );
 			break;
@@ -231,12 +219,12 @@ Bubble.prototype.calculateArrowPosition = function(){
 Bubble.prototype.calculateArrowStyle = function(){
 	var colorArray = [], arrowStart = this.arrowPositionArray[0], arrowEnd = this.arrowPositionArray[1] + " " + this.arrowDirection;
 
-	
+
 	if( this.arrowDirection === 'middle' ){
 		switch( this.arrowPositionArray[0] ){
 		case "top":
 			this.beforeBorderColor = "transparent transparent " + this.borderColor + " transparent";
-			this.afterBorderColor = "transparent transparent #fff transparent";	
+			this.afterBorderColor = "transparent transparent #fff transparent";
 			break;
 		case "bottom":
 			this.beforeBorderColor = this.borderColor + " transparent transparent transparent";
@@ -244,11 +232,11 @@ Bubble.prototype.calculateArrowStyle = function(){
 			break;
 		case "right":
 			this.beforeBorderColor = "transparent transparent transparent " + this.borderColor;
-			this.afterBorderColor = "transparent transparent transparent #fff";			
+			this.afterBorderColor = "transparent transparent transparent #fff";
 			break;
 		case "left":
 			this.beforeBorderColor = "transparent " + this.borderColor + " transparent transparent";
-			this.afterBorderColor = "transparent #fff transparent transparent";			
+			this.afterBorderColor = "transparent #fff transparent transparent";
 			break;
 		}
 	}else{
@@ -259,7 +247,7 @@ Bubble.prototype.calculateArrowStyle = function(){
 			colorArray[0] = this.borderColor;
 			colorArray[2] =  'transparent';
 		}
-	
+
 		if( arrowStart === 'right' || arrowEnd === 'left corner' || arrowEnd === 'right center' ){
 			colorArray[1] = 'transparent';
 			colorArray[3] =  this.borderColor;
@@ -273,7 +261,7 @@ Bubble.prototype.calculateArrowStyle = function(){
 		//console.log( this.beforeBorderColor );
 		//console.log( this.afterBorderColor );
 	}
-	
+
 };
 
 Bubble.prototype.setBehaviors = function(){
@@ -312,10 +300,10 @@ Bubble.prototype.config = function( options ){
 	this.left = gadgetui.util.getOffset( this.selector ).left;
 	//console.log( "initial left: " + this.left );
 	this.shadowColor = ( options.shadowColor === undefined ? baseUIColor : options.shadowColor );
-	this.shadowSize = 2; // shadow 
+	this.shadowSize = 2; // shadow
 	this.borderColor = ( options.borderColor === undefined ? baseUIColor : options.borderColor );
 	this.borderWidth = ( options.borderWidth === undefined ? 8 : options.borderWidth ); //	border: 8px solid #CC4B4B; // width of bubble border
-	this.arrowPosition = ( options.arrowPosition === undefined ? "bottom left" : options.arrowPosition ); // location of arrow on bubble - top left | top right | top center | right top | right center | right bottom | bottom right | bottom center | bottom right | left bottom | left center | left top 
+	this.arrowPosition = ( options.arrowPosition === undefined ? "bottom left" : options.arrowPosition ); // location of arrow on bubble - top left | top right | top center | right top | right center | right bottom | bottom right | bottom center | bottom right | left bottom | left center | left top
 	this.arrowDirection =  ( options.arrowDirection === undefined ? "middle" : options.arrowDirection ); // direction arrow points - center | corner | middle
 	this.arrowPositionArray = this.arrowPosition.split( " " );
 	this.bubbleWidth = this.width + (this.padding * 2) + (this.borderWidth * 2); // full width of visible bubble
@@ -323,7 +311,7 @@ Bubble.prototype.config = function( options ){
 	//this.setArrowDirection();
 
 	this.closeIconSize = 13; // ui-icon css
-	this.arrowSize = ( options.arrowSize === undefined ? 25 : options.arrowSize ); // half size of arrow 
+	this.arrowSize = ( options.arrowSize === undefined ? 25 : options.arrowSize ); // half size of arrow
 	this.backgroundColor = ( options.backgroundColor === undefined ? "#FFFFFF" : options.backgroundColor );
 	this.lineHeight = ( options.lineHeight === undefined ? "1.2em" : options.lineHeight ); // line height of text in bubble
 	this.borderRadius = ( options.borderRadius === undefined ? 30 : options.borderRadius );	//border-radius

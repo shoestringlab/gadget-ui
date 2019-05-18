@@ -206,11 +206,11 @@ FloatingPane.prototype.config = function( options ){
 	this.animate = (( options.animate === undefined) ? true : options.animate );
 	this.title = ( options.title === undefined ? "": options.title );
 	this.width = gadgetui.util.getStyle( this.selector, "width" );
-	this.class = ( ( options.class === undefined ? false : options.class ) );
  	this.top = ( options.top === undefined ? undefined: options.top );
 	this.left = ( options.left === undefined ? undefined : options.left );
 	this.bottom = ( options.bottom === undefined ? undefined : options.bottom );
 	this.right = ( options.right === undefined ? undefined : options.right );
+	this.class = ( ( options.class === undefined ? false : options.class ) );
 	this.headerClass = ( ( options.headerClass === undefined ? false : options.headerClass ) );
 	this.minimized = false;
 	this.relativeOffsetLeft = 0;
