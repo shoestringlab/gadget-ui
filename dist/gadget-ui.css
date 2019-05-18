@@ -227,4 +227,10 @@ div.gadgetui-combobox-inputwrapper{
 	position:sticky;
 }
 
+.gadgetui-inputlabelinput{
+	background:none;
+	padding-left: 4px;
+	border: 1px solid transparent;
+}
+
 /*# sourceMappingURL=gadget-ui.css.map */

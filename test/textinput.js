@@ -10,7 +10,7 @@ gadgetui.objects.Constructor( gadgetui.input.TextInput, [
 		{
 			emitEvents : true,
 			enforceMaxWidth: true,
-			activate : "mouseover"
+			maxWidth: 200
 		}
 	]);
 
@@ -19,7 +19,7 @@ gadgetui.objects.Constructor( gadgetui.input.TextInput, [
 		{
 			emitEvents : true,
 			enforceMaxWidth: true,
-			activate : "mouseover"
+			hideable: true
 		}
 	]);
 

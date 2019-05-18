@@ -1153,22 +1153,6 @@ FloatingPane.prototype.config = function( options ){
 	this.enableClose = ( options.enableClose !== undefined ? options.enableClose : true );
 };
 
-function Modal( selector, options ){
-	this.selector = selector;
-	if( options !== undefined ){
-		this.config( options );
-	}
-
-	this.setup( options );
-}
-
-Modal.prototype.config = function( options ){
-  var css = gadgetui.util.setStyle;
-  options = ( options === undefined ? {} : options );
-  this.zIndex = (( options.zIndex === undefined) ? 1 : options.zIndex );
-
-};
-
 
 function ProgressBar(selector, options) {
   this.selector = selector;
@@ -3033,7 +3017,7 @@ function TextInput( selector, options ){
 	this.addControl();
 	this.setLineHeight();
 	this.setFont();
-	this.setMaxWidth();
+	//this.setMaxWidth();
 	this.setWidth();
 	this.addCSS();
 	// bind to the model if binding is specified
@@ -3048,17 +3032,17 @@ TextInput.prototype.addControl = function(){
 	this.labelDiv = document.createElement( "div" );
 	this.inputDiv = document.createElement( "div" );
 	this.label = document.createElement( "input" );
-	
+
 	this.label.setAttribute( "type", "text" );
 	this.label.setAttribute( "data-active", "false" );
 	this.label.setAttribute( "readonly", "true" );
 	this.label.setAttribute( "value", this.value );
 	this.label.setAttribute( "gadgetui-bind", this.selector.getAttribute( "gadgetui-bind" ) );
 	this.labelDiv.appendChild( this.label );
-	
+
 	this.selector.parentNode.insertBefore( this.wrapper, this.selector );
 	this.selector.parentNode.removeChild( this.selector );
-	
+
 	this.inputDiv.appendChild( this.selector );
 	this.wrapper.appendChild( this.inputDiv );
 	this.selector.parentNode.parentNode.insertBefore( this.labelDiv, this.inputDiv );
@@ -3101,10 +3085,10 @@ TextInput.prototype.setWidth = function(){
 	}
 };
 
-TextInput.prototype.setMaxWidth = function(){
+/* TextInput.prototype.setMaxWidth = function(){
 	var parentStyle = gadgetui.util.getStyle( this.selector.parentNode.parentNode );
-	this.maxWidth = gadgetui.util.getNumberValue( parentStyle.width );
-};
+	this.maxWidth = gadgetui.util.getNumberValue( gadgetui.util.getStyle( this.selector.parentNode.parentNode ).width );
+}; */
 
 TextInput.prototype.addCSS = function(){
 	var style = gadgetui.util.getStyle( this.selector ),
@@ -3115,33 +3099,28 @@ TextInput.prototype.addCSS = function(){
 	gadgetui.util.addClass( this.labelDiv, "gadgetui-inputlabel" );
 	gadgetui.util.addClass( this.label, "gadgetui-inputlabelinput" );
 	gadgetui.util.addClass( this.inputDiv, "gadgetui-inputdiv" );
-	css( this.label, "background", "none" );
-	css( this.label, "padding-left", "4px" );
-	css( this.label, "border", " 1px solid transparent" );
+
 	css( this.label, "width", this.width + "px" );
 	css( this.label, "font-family", style.fontFamily );
 	css( this.label, "font-size", style.fontSize );
 	css( this.label, "font-weight", style.fontWeight );
 	css( this.label, "font-variant", style.fontVariant );
-	
+
 	css( this.label, "max-width", "" );
 	css( this.label, "min-width", this.minWidth + "px" );
-	
+
 	if( this.lineHeight > 20 ){
 		// add min height to label div as well so label/input isn't offset vertically
 		css( this.wrapper, "min-height", this.lineHeight + "px" );
 		css( this.labelDiv, "min-height", this.lineHeight + "px" );
 		css( this.inputDiv, "min-height", this.lineHeight + "px" );
-	}	
-	
+	}
+
 	css( this.labelDiv, "height", this.lineHeight + "px" );
 	css( this.labelDiv, "font-size", style.fontSize );
-	css( this.labelDiv, "display", "block" );
-	
+
 	css( this.inputDiv, "height", this.lineHeight + "px" );
 	css( this.inputDiv, "font-size", style.fontSize );
-	css( this.inputDiv, "display", "block" );	
-	
 
 	css( this.selector, "padding-left", "4px" );
 	css( this.selector, "border", "1px solid " + this.borderColor );
@@ -3149,12 +3128,20 @@ TextInput.prototype.addCSS = function(){
 	css( this.selector, "font-size", style.fontSize );
 	css( this.selector, "font-weight", style.fontWeight );
 	css( this.selector, "font-variant", style.fontVariant );
-	
+
 	css( this.selector, "width", this.width + "px" );
-	css( this.selector, "min-width", this.minWidth + "px" );	
+	css( this.selector, "min-width", this.minWidth + "px" );
 
 	this.selector.setAttribute( "placeholder", this.value );
-	css( this.inputDiv, "display", 'none' );
+
+	if( this.hideable ){
+		css( this.labelDiv, "display", "block" );
+		css( this.inputDiv, "display", "none" );
+	}else{
+		css( this.labelDiv, "display", 'none' );
+		css( this.inputDiv, "display", 'block' );
+	}
+
 
 	if( this.maxWidth > 10 && this.enforceMaxWidth === true ){
 		css( this.label, "max-width", this.maxWidth );
@@ -3173,40 +3160,42 @@ TextInput.prototype.setControlWidth = function( text ){
 		textWidth = this.minWidth;
 	}
 	css( this.selector, "width", ( textWidth + 30 ) + "px" );
-	css( this.label, "width", ( textWidth + 30 ) + "px" );	
+	css( this.label, "width", ( textWidth + 30 ) + "px" );
 };
 
 TextInput.prototype.addBindings = function(){
 	var _this = this;
 
-	this.label
-		//.off( _this.activate )
-		.addEventListener( _this.activate, function( ) {
-			if( _this.useActive && ( _this.label.getAttribute( "data-active" ) === "false" || _this.label.getAttribute( "data-active" ) === undefined ) ){
-				_this.label.setAttribute( "data-active", "true" );
-			}else{
-				setTimeout( 
-					function(){
-					var event, css = gadgetui.util.setStyle;
-					if( gadgetui.util.mouseWithin( _this.label, gadgetui.mousePosition ) === true ){
-						// both input and label
-						css( _this.labelDiv, "display", 'none' );
-						css( _this.inputDiv, "display", 'block' );
-						_this.setControlWidth( _this.selector.value );
+	if( this.hideable ){
+		this.label
+			//.off( _this.activate )
+			.addEventListener( _this.activate, function( ) {
+				if( _this.useActive && ( _this.label.getAttribute( "data-active" ) === "false" || _this.label.getAttribute( "data-active" ) === undefined ) ){
+					_this.label.setAttribute( "data-active", "true" );
+				}else{
+					setTimeout(
+						function(){
+						var event, css = gadgetui.util.setStyle;
+						if( gadgetui.util.mouseWithin( _this.label, gadgetui.mousePosition ) === true ){
+							// both input and label
+							css( _this.labelDiv, "display", 'none' );
+							css( _this.inputDiv, "display", 'block' );
+							_this.setControlWidth( _this.selector.value );
 
-						// if we are only showing the input on click, focus on the element immediately
-						if( _this.activate === "click" ){
-							_this.selector.focus();
-						}
-						if( _this.emitEvents === true ){
-							// raise an event _this the input is active
-							
-							event = new Event( "gadgetui-input-show" );
-							_this.selector.dispatchEvent( event );
-						}
-					}}, _this.delay );
-			}
-		});
+							// if we are only showing the input on click, focus on the element immediately
+							if( _this.activate === "click" ){
+								_this.selector.focus();
+							}
+							if( _this.emitEvents === true ){
+								// raise an event _this the input is active
+
+								event = new Event( "gadgetui-input-show" );
+								_this.selector.dispatchEvent( event );
+							}
+						}}, _this.delay );
+				}
+			});
+	}
 
 	this.selector
 		.addEventListener( "focus", function(e){
@@ -3235,7 +3224,7 @@ TextInput.prototype.addBindings = function(){
 					value = gadgetui.util.fitText( value, _this.font, _this.maxWidth );
 				}
 				_this.label.value = value;
-				if( _this.model !== undefined && _this.selector.getAttribute( "gadgetui-bind" ) === undefined ){	
+				if( _this.model !== undefined && _this.selector.getAttribute( "gadgetui-bind" ) === undefined ){
 					// if we have specified a model but no data binding, change the model value
 					_this.model.set( _this.selector.name, event.target.value );
 				}
@@ -3246,31 +3235,32 @@ TextInput.prototype.addBindings = function(){
 
 				if( _this.func !== undefined ){
 					_this.func( { text: event.target.value } );
-				}				
+				}
 			}, 200 );
 		});
-	
-	this.selector
-		//.removeEventListener( "mouseleave" )
-		.addEventListener( "mouseleave", function( ) {
-			var css = gadgetui.util.setStyle;
-			if( this !== document.activeElement ){
-				css( _this.labelDiv, "display", "block" );
-				css( _this.inputDiv, "display", "none" );
-				css( _this.label, "maxWidth", _this.maxWidth );				
-			}
-		});
 
-	this.selector
-		.addEventListener( "blur", function( ) {
-			var css = gadgetui.util.setStyle;
-			css( _this.inputDiv, "display", 'none' );
-			css( _this.labelDiv, "display", 'block' );
-			_this.label.setAttribute( "data-active", "false" );
-			css( _this.selector, "maxWidth", _this.maxWidth );
-			css( _this.label, "maxWidth", _this.maxWidth );
-		});
+	if( this.hideable ){
+		this.selector
+			//.removeEventListener( "mouseleave" )
+			.addEventListener( "mouseleave", function( ) {
+				var css = gadgetui.util.setStyle;
+				if( this !== document.activeElement ){
+					css( _this.labelDiv, "display", "block" );
+					css( _this.inputDiv, "display", "none" );
+					css( _this.label, "maxWidth", _this.maxWidth );
+				}
+			});
 
+		this.selector
+			.addEventListener( "blur", function( ) {
+				var css = gadgetui.util.setStyle;
+				css( _this.inputDiv, "display", 'none' );
+				css( _this.labelDiv, "display", 'block' );
+				_this.label.setAttribute( "data-active", "false" );
+				css( _this.selector, "maxWidth", _this.maxWidth );
+				css( _this.label, "maxWidth", _this.maxWidth );
+			});
+	}
 };
 
 TextInput.prototype.config = function( options ){
@@ -3284,7 +3274,10 @@ TextInput.prototype.config = function( options ){
 	this.delay = (( options.delay === undefined) ? 10 : options.delay );
 	this.minWidth = (( options.minWidth === undefined) ? 100 : options.minWidth );
 	this.enforceMaxWidth = ( options.enforceMaxWidth === undefined ? false : options.enforceMaxWidth );
+	this.hideable = options.hideable || false;
+	this.maxWidth = options.maxWidth || gadgetui.util.getNumberValue( gadgetui.util.getStyle( this.selector.parentNode ).width );
 };
+
 
 	return{
 		FileUploader: FileUploader,

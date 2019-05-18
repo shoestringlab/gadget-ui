@@ -174,3 +174,9 @@ div.gadgetui-combobox-inputwrapper{
 	opacity: .7;
 	position:sticky;
 }
+
+.gadgetui-inputlabelinput{
+	background:none;
+	padding-left: 4px;
+	border: 1px solid transparent;
+}
