@@ -1,10 +1,11 @@
 gadget-ui
 =========
 
-Experimental JavaScript UI and data binding library
+JavaScript UI and data binding library
 
-This library uses [semver](http://semver.org/) version numbering.
+v 6.1.0
 
+This release removes inline styling options for many controls, adds optional CSS class overrides, and improves controls like the ComboBox with better styling. See the release notes for details. This version represents work in progress that will ultimately lead to in a v 7.0.0 release.
 
 v 6.0.0
 

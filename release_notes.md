@@ -1,6 +1,20 @@
 
 ***Release Notes***
 
+6.1.0
+======
+
+This release simplifies the code for several of the components in the library and adds some new options to a few of them. According to semver it could be a new major release, but I am releasing it as a minor upgrade since it represents work in progress. Major features of this release:
+
+- Remove many of the inline style options for FloatingPane, CollapsiblePane, and other components.
+- Add class and headerClass options for FloatingPane and CollapsiblePane to enable easy overriding of default styles and more flexible styling via CSS classes. Note that you can also use the pre-defined styles and override with !important, which is easier for making minimal changes.
+- Add hideable option to ComboBox, SelectInput, TextInput to make hiding the control when not is use optional and false by default.
+ - Improve ComboBox control
+ 		- Fix styling issues with borders and input control.
+		- Add new down chevron SVG as dropdown indicator. By default requires feather-icons to be accessible from the client in /node_modules/feather-icons. Change the CSS to pick a different location as needed.
+		- Fix combobox export for es6, which was misspelled.
+- Upgrade various reported vulnerable devDependencies through npm.
+
 6.0.0
 ======
 
