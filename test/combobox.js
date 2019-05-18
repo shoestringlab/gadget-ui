@@ -1,3 +1,4 @@
+import {gadgetui,combobox,constructor,model} from '/dist/gadget-ui.es6.js';
 
 var user = { food : "" };
 var foods = [ { text: "cereal", id : 1 },
@@ -6,13 +7,12 @@ var foods = [ { text: "cereal", id : 1 },
               ];
 
 // set the model first if we're using auto data-binding
-gadgetui.model.set("user", user);
+model.set("user", user);
 
-gadgetui.objects.Constructor( gadgetui.input.ComboBox,[  document.querySelector( "select[name='food']" ),
+constructor( combobox,[  document.querySelector( "select[name='food']" ),
 	 {
-		borderWidth: 3,
-		borderRadius: 10,
-		arrowIcon: '/dist/img/arrow.png',
+    animate: true,
+    glowColor: 'gold',
 		save : function( text, resolve, reject ){
 				console.log( "saving new value" );
 				if( foods.constructor === Array ){

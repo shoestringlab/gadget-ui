@@ -166,12 +166,55 @@ div.gadgetui-combobox{
 	-webkit-box-sizing: initial;
 	-moz-box-sizing: initial;
 }
+
+select.gadgetui-combobox-select{
+	margin-left: 1px;
+	background-color: #fff;
+}
+
 select.gadgetui-combobox-select option{
 	padding-left: 0px;
+	margin-left: 1px;
 }
 
 div.gadgetui-combobox-selectwrapper{
 	box-shadow: 0px 0px 0px;
+	border: 1px solid silver;
+	border-radius: 5px;
+
+	display: inline;
+	position: absolute;
+	padding-bottom: 1px;
+	left:0;
+}
+
+div.gadgetui-combobox-selectwrapper:after {
+    content: url( /node_modules/feather-icons/dist/icons/chevron-down.svg );
+		right: 0px;
+    height: 1.25em;
+    border-left: 1px solid silver;
+    position: absolute;
+    pointer-events: none;
+		width:24px;
+}
+
+input.gadgetui-combobox-input{
+	margin-left: 1px;
+	border-radius: 5px 0 0 5px;
+	padding-left: 5px;
+	border:0;
+	display:inline;
+	background-color: #fff;
+}
+
+div.gadgetui-combobox-label{
+	position:absolute;
+	padding-top: 2px;
+	margin-left: 1px;
+}
+
+div.gadgetui-combobox-inputwrapper{
+	position:absolute;
 }
 
 .gadgetui-fileuploader-wrapper{

@@ -1278,7 +1278,7 @@ function ComboBox( selector, options ){
 	this.setSaveFunc();
 	this.setDataProviderRefresh();
 	this.addControl();
-	this.setCSS();
+	this.addCSS();
 	// bind to the model if binding is specified
 	gadgetui.util.bind( this.selector, this.model );
 	// bind to the model if binding is specified
@@ -1295,7 +1295,7 @@ ComboBox.prototype.addControl = function(){
 	this.inputWrapper = gadgetui.util.createElement( "div" );
 	this.selectWrapper = gadgetui.util.createElement( "div" );
 
-	gadgetui.util.addClass( this.comboBox, "gadgetui-combobox" );	
+	gadgetui.util.addClass( this.comboBox, "gadgetui-combobox" );
 	gadgetui.util.addClass( this.input, "gadgetui-combobox-input" );
 	gadgetui.util.addClass( this.label, "gadgetui-combobox-label" );
 	gadgetui.util.addClass( this.inputWrapper, "gadgetui-combobox-inputwrapper" );
@@ -1304,60 +1304,27 @@ ComboBox.prototype.addControl = function(){
 	this.selector.parentNode.insertBefore( this.comboBox, this.selector );
 	this.selector.parentNode.removeChild( this.selector );
 	this.comboBox.appendChild( this.label );
-
 	this.selectWrapper.appendChild( this.selector );
 	this.comboBox.appendChild( this.selectWrapper );
 	this.inputWrapper.appendChild( this.input );
 	this.comboBox.appendChild( this.inputWrapper );
 	this.label.setAttribute( "data-id", this.id );
-	this.label.setAttribute( "gadgetui-bind", this.selector.getAttribute( "gadgetui-bind" ) );	
+	this.label.setAttribute( "gadgetui-bind", this.selector.getAttribute( "gadgetui-bind" ) );
 	this.label.innerHTML = this.text;
 	this.input.setAttribute( "placeholder", this.newOption.text );
 	this.input.setAttribute( "type", "text" );
 	this.input.setAttribute( "name", "custom" );
-	
+
 	css( this.comboBox, "opacity", ".0" );
-};
-
-ComboBox.prototype.setCSS = function(){
-	var _this = this,
-
-	promise = new Promise(
-		function( resolve, reject ){
-			_this.getArrowWidth( resolve, reject );
-		});
-	promise
-		.then( function(){
-			_this.addCSS();
-		});
-	promise['catch']( function( message ){
-			// use width of default icon
-			_this.arrowWidth = 22;
-			console.log( message );
-			_this.addCSS();
-		});
-};
-
-ComboBox.prototype.getArrowWidth = function( resolve, reject ){
-	var _this = this, 
-		img = new Image();
-		img.onload = function() {
-			_this.arrowWidth = this.width;
-			resolve();
-		};
-		img.onerror = function(){
-			reject( "Icon was not loaded." );
-		};
-		img.src = this.arrowIcon;
 };
 
 ComboBox.prototype.addCSS = function(){
 	var css = gadgetui.util.setStyle;
 	gadgetui.util.addClass( this.selector, "gadgetui-combobox-select" );
-	css( this.selector, "width", this.width ); 
-	css( this.selector, "border",  0 ); 
-	css( this.selector, "display",  "inline" ); 
-	css( this.comboBox, "position",  "relative" ); 
+	css( this.selector, "width", this.width );
+	css( this.selector, "border",  0 );
+	css( this.selector, "display",  "inline" );
+	css( this.comboBox, "position",  "relative" );
 
 	var styles = gadgetui.util.getStyle( this.selector ),
 		inputWidth = this.selector.clientWidth,
@@ -1369,15 +1336,15 @@ ComboBox.prototype.addCSS = function(){
 		inputWrapperTop = this.borderWidth,
 		inputLeftMargin,
 		leftPosition;
-  
-	leftPosition = this.borderWidth + 4;
+
+	leftPosition = gadgetui.util.getNumberValue( this.borderWidth ) + 4;
 
 	if( this.borderRadius > 5 ){
 		selectLeftPadding = this.borderRadius - 5;
-		leftPosition = leftPosition + selectLeftPadding;
+		leftPosition = gadgetui.util.getNumberValue( leftPosition ) + gadgetui.util.getNumberValue( selectLeftPadding );
 	}
 	inputLeftMargin = leftPosition;
-	inputWidthAdjusted = inputWidth - this.arrowWidth - this.borderRadius - 4;
+	inputWidthAdjusted = inputWidth - this.arrowWidth - gadgetui.util.getNumberValue( this.borderRadius ) - 4;
 	console.log( navigator.userAgent );
 	if( navigator.userAgent.match( /(Safari)/ ) && !navigator.userAgent.match( /(Chrome)/ )){
 		inputWrapperTop = this.borderWidth - 2;
@@ -1394,82 +1361,59 @@ ComboBox.prototype.addCSS = function(){
 		selectLeftPadding = (selectLeftPadding < 4 ) ? 4 : this.borderRadius - 1;
 		selectMarginTop = 1;
 	}
-	
-	// positioning 
-	css( this.selector, "margin-top", selectMarginTop ); 
-	css( this.selector, "padding-left", selectLeftPadding ); 
-	
-	
-	css( this.inputWrapper, "position",  "absolute" ); 
+
+	// positioning
+	css( this.selector, "margin-top", selectMarginTop );
+	css( this.selector, "padding-left", selectLeftPadding );
+
 	css( this.inputWrapper, "top", inputWrapperTop );
 	css( this.inputWrapper,"left",leftOffset );
 
-	css( this.input, "display",  "inline" ); 
-	css( this.input,"padding-left",inputLeftOffset );
-	css( this.input,"margin-left",inputLeftMargin );
-	css( this.input, "width", inputWidthAdjusted ); 
-
-	css( this.label, "position",  "absolute" ); 
-	css( this.label,"left",leftPosition );
-	css( this.label,"top",( this.borderWidth + 1 ) );
-	css( this.label, "margin-left", 0 );
-
-	css( this.selectWrapper, "display",  "inline" ); 
-	css( this.selectWrapper, "position",  "absolute" ); 
-	css( this.selectWrapper, "padding-bottom",  "1px" ); 
-	css( this.selectWrapper, "left", 0 );
-
-	//appearance 
-	css( this.comboBox, "font-size", styles.fontSize );	
-
-	css( this.selectWrapper, "background-color", this.backgroundColor );
-	css( this.selectWrapper, "border-color", this.borderColor ); 
-	css( this.selectWrapper, "border-style", this.borderStyle ); 
-	css( this.selectWrapper, "border-width", this.borderWidth ); 
-	css( this.selectWrapper, "border-radius", this.borderRadius ); 
-
-	css( this.input, "border", 0 );
+	css( this.input, "width", inputWidthAdjusted );
 	css( this.input, "font-size", styles.fontSize );
-	css( this.input, "background-color", this.inputBackground );
 
+	//appearance
+	css( this.comboBox, "font-size", styles.fontSize );
 
+	css( this.label,"left",leftPosition );
 	css( this.label, "font-family", styles.fontFamily );
 	css( this.label, "font-size", styles.fontSize );
 	css( this.label, "font-weight", styles.fontWeight );
 	// add rules for arrow Icon
 	//we're doing this programmatically so we can skin our arrow icon
 	if( navigator.userAgent.match( /Firefox/) ){
-		
-		css( this.selectWrapper, "background-image",  "url('" + this.arrowIcon + "')" ); 
-		css( this.selectWrapper, "background-repeat",  "no-repeat" ); 
-		css( this.selectWrapper, "background-position",  "right center" ); 
-
 		if( this.scaleIconHeight === true ){
-			css( this.selectWrapper, "background-size",  this.arrowWidth + "px " + inputHeight + "px" ); 
+			css( this.selectWrapper, "background-size",  this.arrowWidth + "px " + inputHeight + "px" );
 		}
 	}
-	css( this.selector, "-webkit-appearance",  "none" ); 
-	css( this.selector, "-moz-appearance",  "window" ); 
-	css( this.selector, "background-image",  "url('" + this.arrowIcon + "')" ); 
-	css( this.selector, "background-repeat",  "no-repeat" ); 
-	css( this.selector, "background-position",  "right center" ); 
+	css( this.selector, "-webkit-appearance",  "none" );
+	css( this.selector, "-moz-appearance",  "window" );
 
 	if( this.scaleIconHeight === true ){
-		css( this.selector, "background-size",  this.arrowWidth + "px " + inputHeight + "px" ); 
+		css( this.selector, "background-size",  this.arrowWidth + "px " + inputHeight + "px" );
 	}
 
-	css( this.inputWrapper, "display", 'none' );
-	css( this.selectWrapper, "display", 'none' );
-	css( this.comboBox, "opacity",  1 ); 
+	css( this.comboBox, "opacity",  1 );
+
+	if( this.hideable ){
+		css( this.inputWrapper, "display", 'none' );
+		css( this.selectWrapper, "display", 'none' );
+	}else{
+		css( this.selectWrapper, "display", 'inline' );
+				css( this.label, "display", 'none' );
+		if( this.selector.selectedIndex <= 0 ) {
+			css( this.inputWrapper, "display", 'inline' );
+		}
+	}
 };
 
 ComboBox.prototype.setSelectOptions = function(){
 	var _this = this, id, text, option;
 
-	
-	while (_this.selector.options.length > 0) {                
+
+	while (_this.selector.options.length > 0) {
 		_this.selector.remove(0);
-    }      
+    }
 	//console.log( "append new option" );
 	option = gadgetui.util.createElement( "option" );
 	option.value = _this.newOption.id;
@@ -1479,8 +1423,8 @@ ComboBox.prototype.setSelectOptions = function(){
 	this.dataProvider.data.forEach( function( obj ){
 		id = obj.id;
 		text = obj.text;
-		if( text === undefined ){ 
-			text = id; 
+		if( text === undefined ){
+			text = id;
 		}
 		option = gadgetui.util.createElement( "option" );
 		option.value = id;
@@ -1501,7 +1445,7 @@ ComboBox.prototype.find = function( text ){
 };
 
 ComboBox.prototype.getText = function( id ){
-	var ix, 
+	var ix,
 		compId = parseInt( id, 10 );
 	if( isNaN( compId ) === true ){
 		compId = id;
@@ -1522,29 +1466,29 @@ ComboBox.prototype.showLabel = function(){
 
 ComboBox.prototype.addBehaviors = function( obj ) {
 	var _this = this;
-
-	this.comboBox
-		.addEventListener( this.activate, function( ) {
-			setTimeout( function( ) {
-				if( _this.label.style.display != "none" ){
-					console.log( "combo mouseenter ");
-					//_this.label.style.display = "none" );
-					_this.selectWrapper.style.display = "inline";
-					_this.label.style.display = "none";
-					if( _this.selector.selectedIndex <= 0 ) {
-						_this.inputWrapper.style.display = "inline";
+	if( this.hideable ){
+		this.comboBox
+			.addEventListener( this.activate, function( ) {
+				setTimeout( function( ) {
+					if( _this.label.style.display != "none" ){
+						console.log( "combo mouseenter ");
+						//_this.label.style.display = "none" );
+						_this.selectWrapper.style.display = "inline";
+						_this.label.style.display = "none";
+						if( _this.selector.selectedIndex <= 0 ) {
+							_this.inputWrapper.style.display = "inline";
+						}
 					}
+				}, _this.delay );
+			});
+		this.comboBox
+			.addEventListener( "mouseleave", function( ) {
+				console.log( "combo mouseleave ");
+				if ( _this.selector != document.activeElement && _this.input != document.activeElement ) {
+					_this.showLabel();
 				}
-			}, _this.delay );
-		});
-	this.comboBox
-		.addEventListener( "mouseleave", function( ) {
-			console.log( "combo mouseleave ");
-			if ( _this.selector != document.activeElement && _this.input != document.activeElement ) {
-				_this.showLabel();
-			}
-		});
-
+			});
+	}
 	_this.input
 		.addEventListener( "click", function( e ){
 			console.log( "input click ");
@@ -1557,22 +1501,25 @@ ComboBox.prototype.addBehaviors = function( obj ) {
 				_this.handleInput( inputText );
 			}
 		});
-	_this.input
-		.addEventListener( "blur", function( ) {
-			console.log( "input blur" );
+	if( this.hideable ){
+		_this.input
+			.addEventListener( "blur", function( ) {
+				console.log( "input blur" );
 
-			if( gadgetui.util.mouseWithin( _this.selector, gadgetui.mousePosition ) === true ){
-				_this.inputWrapper.style.display = 'none';
-				_this.selector.focus();
-			}else{
-				_this.showLabel();
-			}
-		});
-
-	this.selector
-		.addEventListener( "mouseenter", function( ev ){
-			_this.selector.style.display = "inline";
-		});
+				if( gadgetui.util.mouseWithin( _this.selector, gadgetui.mousePosition ) === true ){
+					_this.inputWrapper.style.display = 'none';
+					_this.selector.focus();
+				}else{
+					_this.showLabel();
+				}
+			});
+	}
+	if( this.hideable ){
+		this.selector
+			.addEventListener( "mouseenter", function( ev ){
+				_this.selector.style.display = "inline";
+			});
+	}
 	this.selector
 		.addEventListener( "click", function( ev ){
 			console.log( "select click");
@@ -1594,26 +1541,20 @@ ComboBox.prototype.addBehaviors = function( obj ) {
 				gadgetui.util.trigger( _this.selector, "gadgetui-combobox-change", { id: event.target[ event.target.selectedIndex ].value, text: event.target[ event.target.selectedIndex ].innerHTML } );
 			}
 		});
-	this.selector
-		.addEventListener( "blur", function( event ) {
-			console.log( "select blur ");
-			event.stopPropagation();
-			setTimeout( function( ) {
-				//if( _this.emitEvents === true ){
+	if( this.hideable ){
+		this.selector
+			.addEventListener( "blur", function( event ) {
+				console.log( "select blur ");
+				event.stopPropagation();
+				setTimeout( function( ) {
+					//if( _this.emitEvents === true ){
 
-				if( _this.input !== document.activeElement ){
-					_this.showLabel();
-				}
-			}, 200 );
-		});
-	
-/*		$( "option", this.selector
-		.on( "mouseenter", function( ev ){
-			console.log( "option mouseenter" );
-			if( _this.selector.css( "display" ) !== "inline" ){
-				_this.selector.style.display = "inline";
-			}
-		});	*/
+					if( _this.input !== document.activeElement ){
+						_this.showLabel();
+					}
+				}, 200 );
+			});
+	}
 };
 
 ComboBox.prototype.handleInput = function( inputText ){
@@ -1648,11 +1589,11 @@ ComboBox.prototype.setSaveFunc = function(){
 		var save = this.save;
 		this.save = function( text ) {
 			var _this = this,
-				func,  
-				promise, 
+				func,
+				promise,
 				args = [ text ],
 				value = this.find( text );
-			if( value === undefined ){	
+			if( value === undefined ){
 				console.log( "save: " + text );
 
 				promise = new Promise(
@@ -1665,7 +1606,7 @@ ComboBox.prototype.setSaveFunc = function(){
 				promise.then(
 						function( value ){
 							function callback(){
-								// trigger save event if we're triggering events 
+								// trigger save event if we're triggering events
 								//if( _this.emitEvents === true ){
 								gadgetui.util.trigger( _this.selector, "gadgetui-combobox-save", { id: value, text: text } );
 									//_this.selector.dispatchEvent( new Event( "gadgetui-combobox-save" ), { id: value, text: text } );
@@ -1677,11 +1618,11 @@ ComboBox.prototype.setSaveFunc = function(){
 							}
 							if( _this.animate === true && typeof Velocity !== "undefined" ){
 								Velocity( _this.selectWrapper, {
-									boxShadow: '0 0 5px ' + _this.glowColor,
+									boxShadow: '0 0 15px ' + _this.glowColor,
 									borderColor: _this.glowColor
 								  }, _this.animateDelay / 2, function(){
 									 _this.selectWrapper.style.borderColor = _this.glowColor;
-								  } );							
+								  } );
 								Velocity( _this.selectWrapper, {
 									boxShadow: 0,
 									borderColor: _this.borderColor
@@ -1710,7 +1651,7 @@ ComboBox.prototype.setStartingValues = function(){
 ComboBox.prototype.setControls = function(){
 	console.log( this );
 	this.setSelectOptions();
-	this.setValue( this.id );	
+	this.setValue( this.id );
 	this.triggerSelectChange();
 };
 
@@ -1762,22 +1703,22 @@ ComboBox.prototype.config = function( options ){
 	this.save = (( options.save === undefined) ? undefined : options.save );
 	this.activate = (( options.activate === undefined) ? "mouseenter" : options.activate );
 	this.delay = (( options.delay === undefined) ? 10 : options.delay );
-	this.inputBackground = (( options.inputBackground === undefined) ? "#ffffff" : options.inputBackground );
-	this.borderWidth = (( options.borderWidth === undefined) ? 1 : options.borderWidth );
-	this.borderColor = (( options.borderColor === undefined) ? "#d0d0d0" : options.borderColor );
-	this.borderStyle = (( options.borderStyle === undefined) ? "solid" : options.borderStyle );
-	this.borderRadius = (( options.borderRadius === undefined) ? 5 : options.borderRadius );
+	this.borderWidth = gadgetui.util.getStyle( this.selector, "border-width" ) || 1;
+	this.borderRadius = gadgetui.util.getStyle( this.selector, "border-radius" ) || 5;
+	this.borderColor = gadgetui.util.getStyle( this.selector, "border-color" ) || "silver";
+	this.arrowWidth = options.arrowWidth || 25;
 	this.width = (( options.width === undefined) ? 150 : options.width );
 	this.newOption = (( options.newOption === undefined) ? { text: "...", id: 0 } : options.newOption );
 	this.id = (( options.id === undefined) ? this.newOption.id : options.id );
-	this.arrowIcon = (( options.arrowIcon === undefined) ? "/bower_components/gadget-ui/dist/img/arrow.png" : options.arrowIcon );
 	this.scaleIconHeight = (( options.scaleIconHeight === undefined) ? false : options.scaleIconHeight );
 	this.animate = (( options.animate === undefined) ? true : options.animate );
 	this.glowColor = (( options.glowColor === undefined ) ? 'rgb(82, 168, 236)' : options.glowColor );
 	this.animateDelay = (( options.animateDelay === undefined ) ? 500 : options.animateDelay );
 	this.border = this.borderWidth + "px " + this.borderStyle + " " + this.borderColor;
 	this.saveBorder = this.borderWidth + "px " + this.borderStyle + " " + this.glowColor;
+	this.hideable = options.hideable || false;
 };
+
 function FileUploader(selector, options) {
   this.selector = selector;
   //this.dlg = "";
