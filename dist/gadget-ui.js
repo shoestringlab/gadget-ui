@@ -2163,13 +2163,9 @@ FileUploader.prototype.handleDragOver = function(evt) {
   // Explicitly show this is a copy.
 };
 
-
-
 //author - Robert Munn <robertdmunn@gmail.com>
 
-// significant portions of code from jQuery UI
-//adapted from jQuery UI autocomplete. modified and re-distributed per MIT License.
-
+//adapted from jQuery UI autocomplete.
 
 function LookupListInput( selector, options ){
 	this.selector = selector;
@@ -2438,17 +2434,6 @@ LookupListInput.prototype.addBindings = function(){
 		// so we have to track the next mousedown and close the menu if
 		// the user clicks somewhere outside of the autocomplete
 		var menuElement = _this.menu.element;
-		/*if ( !event.target.classList.contains( "gadgetui-lookuplist-item" ) ) {
-			gadgetui.util.delay(function() {
-				 document.addEventListener( "mousedown", function( event ) {
-					if ( event.target !== _this.menu.element &&
-							event.target !== menuElement &&
-							!gadgetui.util.contains( menuElement, event.target ) ) {
-						_this.close();
-					}
-				});
-			});
-		}*/
 	});
 
 	this.menu.element.addEventListener( "menuselect", function( event ) {
@@ -2867,7 +2852,13 @@ function SelectInput( selector, options ){
 
 	this.addControl();
 	this.addCSS();
-	this.selector.style.display = 'none';
+	var css = gadgetui.util.setStyle;
+	if( this.hideable ){
+		css( this.selector, "display", "none" );
+	}else{
+		css( this.label, "display", 'none' );
+		css( this.selector, "display", "inline-block" );
+	}
 
 	// bind to the model if binding is specified
 	gadgetui.util.bind( this.selector, this.model );
@@ -2965,20 +2956,22 @@ SelectInput.prototype.addBindings = function() {
 	var _this = this,
 		css = gadgetui.util.setStyle;
 
-	this.label
-		.addEventListener( this.activate, function( event ) {
-			css( _this.label, "display", 'none' );
-			css( _this.selector, "display", "inline-block" );
-			event.preventDefault();
-		});
+	if( this.hideable ){
+		this.label
+			.addEventListener( this.activate, function( event ) {
+				css( _this.label, "display", 'none' );
+				css( _this.selector, "display", "inline-block" );
+				event.preventDefault();
+			});
 
-	this.selector
-		.addEventListener( "blur", function( ev ) {
-			//setTimeout( function() {
-				css( _this.label, "display", "inline-block" );
-				css( _this.selector, "display", 'none' );
-			//}, 100 );
-		});
+		this.selector
+			.addEventListener( "blur", function( ev ) {
+				//setTimeout( function() {
+					css( _this.label, "display", "inline-block" );
+					css( _this.selector, "display", 'none' );
+				//}, 100 );
+			});
+	}
 
 	this.selector
 		.addEventListener( "change", function( ev ) {
@@ -3006,32 +2999,15 @@ SelectInput.prototype.addBindings = function() {
 			}, 100 );
 		});
 
-	this.selector
-		.addEventListener( "mouseleave", function( ) {
-			if ( _this.selector !== document.activeElement ) {
-				css( _this.label, "display", 'inline-block' );
-				css( _this.selector, "display", 'none' );
-			}
-		});
-
-
-/*		function detectLeftButton(evt) {
-	    evt = evt || window.event;
-	    var button = evt.which || evt.button;
-	    return button == 1;
+	if( this.hideable ){
+		this.selector
+			.addEventListener( "mouseleave", function( ) {
+				if ( _this.selector !== document.activeElement ) {
+					css( _this.label, "display", 'inline-block' );
+					css( _this.selector, "display", 'none' );
+				}
+			});
 	}
-
-	document.onmouseup = function( event ){
-		var isLeftClick = detectLeftButton( event );
-		if( isLeftClick === true ){
-			if ( $( _this.selector ).is( ":focus" ) === false ) {
-				label
-					.css( "display", "inline-block" );
-				$( _this.selector )
-					.hide( );
-			}
-		}
-	};	*/
 };
 
 SelectInput.prototype.config = function( options ){
@@ -3041,6 +3017,7 @@ SelectInput.prototype.config = function( options ){
 	this.func = (( options.func === undefined) ? undefined : options.func );
 	this.emitEvents = (( options.emitEvents === undefined) ? true : options.emitEvents );
 	this.activate = (( options.activate === undefined) ? "mouseenter" : options.activate );
+	this.hideable = options.hideable || false;
 };
 
 function TextInput( selector, options ){

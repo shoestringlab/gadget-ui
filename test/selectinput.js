@@ -37,7 +37,8 @@ gadgetui.objects.Constructor( gadgetui.input.SelectInput, [
 	 {
 		emitEvents : false,
 		model : gadgetui.model,
-		dataProvider: { data: roles }
+		dataProvider: { data: roles },
+		hideable: true
 	}
 ]);
 
