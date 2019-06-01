@@ -1,6 +1,19 @@
 
 ***Release Notes***
 
+6.2.0
+======
+
+Release highlights. The Bubble component has been greatly simplified by removing arrows from the component. The arrows have proved unreliable to display correctly outside of controlled conditions, so they have been removed. A future effort may be made to create new Bubble components with arrows using Canvas controls and 2D drawing, but this is by no means certain.
+
+Other highlights:
+
+- Many inline styles have been removed from the Bubble component in favor of CSS classes using options.class.
+- class and headerClass in FloatingPane and CollapsiblePane are no longer alternates to the standard CSS classes but rather additive. This changes has been made to minimize the necessary rules in custom classes.
+- Bubble now uses Velocity (when available) when closing a bubble element.
+- Max/min functions improved in FloatingPane
+
+
 6.1.0
 ======
 

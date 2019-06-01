@@ -3,6 +3,10 @@ gadget-ui
 
 JavaScript UI and data binding library
 
+v 6.2.0
+
+This release continues the process of cleaning up inline styling in the display components, reducing legacy code and overall code size, and converting icons to use the feather icons library. See the release notes for details. This version represents work in progress that will ultimately lead to in a v 7.0.0 release.
+
 v 6.1.0
 
 This release removes inline styling options for many controls, adds optional CSS class overrides, and improves controls like the ComboBox with better styling. See the release notes for details. This version represents work in progress that will ultimately lead to in a v 7.0.0 release.

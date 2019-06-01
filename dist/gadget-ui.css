@@ -24,7 +24,7 @@ div.gadget-ui-floatingPane > div:nth-child(2){
 div.gadget-ui-collapsiblePane-header, div.gadget-ui-floatingPane-header{
 	padding: 2px 0px 2px .5em;
 	text-align:left;
-	border-radius: 5px;
+	border-radius: 5px 5px 0 0;
 	border: 1px solid transparent;
 	background-color: silver;
 	color: black;
@@ -48,6 +48,16 @@ div.gadgetui-bubble{
 	-webkit-box-sizing: initial;
 	-moz-box-sizing: initial;
 	box-sizing: initial;
+}
+
+.feather{
+	width: 1.2em;
+  height: 1.2em;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  fill: none;
 }
 
 div .gadget-ui-input-div{

@@ -14,7 +14,7 @@ FloatingPane.prototype.setup = function( options ){
 		this.maxmin = this.wrapper.querySelector( "div.oi[name='maxmin']" );
 	}
 	// need to be computed after header is done
-	this.minWidth = ( this.title.length > 0 ? gadgetui.util.textWidth( this.title, this.header.style ) + 50 : 100 );
+	this.minWidth = ( this.title.length > 0 ? gadgetui.util.textWidth( this.title, this.header.style ) + 80 : 100 );
 	var paddingPx = ( parseInt( gadgetui.util.getNumberValue( gadgetui.util.getStyle( this.selector, "padding" ) ), 10 ) * 2 );
 	// 6 px is padding + border of header
 	var headerHeight = gadgetui.util.getNumberValue( gadgetui.util.getStyle( this.header, "height" ) ) + 6;
@@ -48,7 +48,7 @@ FloatingPane.prototype.addBindings = function(){
 	});
 
 	if( this.enableShrink ){
-		this.maxmin.addEventListener( "click", function( event ){
+		this.shrinker.addEventListener( "click", function( event ){
 			if( _this.minimized ){
 				_this.expand();
 			}else{
@@ -57,7 +57,7 @@ FloatingPane.prototype.addBindings = function(){
 		});
 	}
 	if( this.enableClose ){
-		this.closeIcon.addEventListener( "click", function(){ _this.close.apply( _this ) } );
+		this.closer.addEventListener( "click", function(){ _this.close.apply( _this ) } );
 	}
 };
 
@@ -74,28 +74,37 @@ FloatingPane.prototype.addHeader = function(){
 	}else{
 		gadgetui.util.addClass( this.header, 'gadget-ui-floatingPane-header' );
 	}
-	//this.header.setAttribute( "style",
+
 	if( this.enableShrink ){
-		this.icon = document.createElement( "div" );
-		gadgetui.util.addClass( this.icon, "oi" );
-		this.icon.setAttribute( "name", "maxmin" );
-		this.header.insertBefore( this.icon, undefined );
+		this.shrinker = document.createElement( "span" );
+		this.shrinker.setAttribute( "name", "maxmin" );
+		css( this.shrinker, "float", "left" );
+		css( this.shrinker, "margin-right", ".5em" );
+		var shrinkIcon = `<svg class="feather">
+								<use xlink:href="${this.featherPath}/dist/feather-sprite.svg#minimize"/>
+								</svg>`;
+		this.shrinker.innerHTML = shrinkIcon;
+		this.header.insertBefore( this.shrinker, undefined );
 		this.wrapper.insertBefore( this.header, this.selector );
-		this.icon.setAttribute( 'data-glyph', "fullscreen-exit" );
-		this.header.appendChild( this.icon );
+		this.header.appendChild( this.shrinker );
 	}else{
 		this.wrapper.insertBefore( this.header, this.selector );
 	}
 
 	if( this.enableClose ){
-		this.closeIcon = document.createElement( "div" );
-		this.closeIcon.setAttribute( "name", "closeIcon" );
-		css( this.closeIcon, "float", "right" );
-		css( this.closeIcon, "display", "inline-block" );
-		css( this.closeIcon, "margin-right", "3px" );
-		gadgetui.util.addClass( this.closeIcon, "oi" );
-		this.header.appendChild( this.closeIcon );
-		this.closeIcon.setAttribute( 'data-glyph', "circle-x" );
+		var span = document.createElement( "span" );
+		span.setAttribute( "name", "closeIcon" );
+		css( span, "float", "right" );
+		var icon = `<svg class="feather">
+								<use xlink:href="${this.featherPath}/dist/feather-sprite.svg#x-circle"/>
+								</svg>`;
+		span.innerHTML = icon;
+		this.header.appendChild( span );
+		css( span, "right", "3px" );
+		css( span, "position", "absolute" );
+		css( span, "cursor", "pointer"  );
+		css( span, "top", "3px" );
+		this.closer = span;
 	}
 };
 
@@ -103,10 +112,6 @@ FloatingPane.prototype.addCSS = function(){
 	var css = gadgetui.util.setStyle;
 	//copy width from selector
 	css( this.wrapper, "width",  this.width );
-	if( this.enableShrink ){
-		css( this.maxmin, "float", "left" );
-		css( this.maxmin, "display", "inline" );
-	}
 	if( this.top !== undefined ) css( this.wrapper, "top", this.top );
 	if( this.left !== undefined )css( this.wrapper, "left", this.left );
 	if( this.bottom !== undefined ) css( this.wrapper, "bottom", this.bottom );
@@ -117,9 +122,9 @@ FloatingPane.prototype.addControl = function(){
 	var fp = document.createElement( "div" );
 	if( this.class ){
 		gadgetui.util.addClass( pane, this.class );
-	}else{
-		gadgetui.util.addClass( fp, "gadget-ui-floatingPane" );
 	}
+	gadgetui.util.addClass( fp, "gadget-ui-floatingPane" );
+
 	fp.draggable = true;
 	this.selector.parentNode.insertBefore( fp, this.selector );
 	this.wrapper = this.selector.previousSibling;
@@ -139,7 +144,9 @@ FloatingPane.prototype.expand = function(){
 		lx =  parseInt( new Number( offset.left ), 10 ) - this.relativeOffsetLeft - parentPaddingLeft;
 
 		//width = parseInt( gadgetui.util.getNumberValue( this.width ), 10 );
-
+	var icon = `<svg class="feather">
+								<use xlink:href="${this.featherPath}/dist/feather-sprite.svg#minimize"/>
+								</svg>`;
 	if( typeof Velocity != 'undefined' && this.animate ){
 
 		Velocity( this.wrapper, {
@@ -151,14 +158,14 @@ FloatingPane.prototype.expand = function(){
 		Velocity( this.selector, {
 			height: this.height
 		},{queue: false, duration: 500, complete: function() {
-			_this.icon.setAttribute( "data-glyph", "fullscreen-exit" );
+			_this.shrinker.innerHTML = icon;
 			css( _this.selector, "overflow", "scroll" );
 		}
 		});
 	}else{
 		css( this.wrapper, "width", this.width );
 		css( this.selector, "height", this.height );
-		this.icon.setAttribute( "data-glyph", "fullscreen-exit" );
+		_this.shrinker.innerHTML = icon;
 		css( this.selector, "overflow", "scroll" );
 	}
 
@@ -177,13 +184,16 @@ FloatingPane.prototype.minimize = function(){
 		width = parseInt( gadgetui.util.getNumberValue( this.width ), 10 );
 
 	css( this.selector, "overflow", "hidden" );
-
+	var icon = `<svg class="feather">
+							<use xlink:href="${this.featherPath}/dist/feather-sprite.svg#maximize"/>
+							</svg>`;
 	if( typeof Velocity != 'undefined' && this.animate ){
 
 		Velocity( this.wrapper, {
 			width: _this.minWidth
 		},{queue: false, duration: 500, complete: function() {
-			_this.icon.setAttribute( "data-glyph", "fullscreen-enter" );
+			//_this.icon.setAttribute( "data-glyph", "fullscreen-enter" );
+			_this.shrinker.innerHTML = icon;
 			}
 		});
 
@@ -193,10 +203,9 @@ FloatingPane.prototype.minimize = function(){
 			// Animation complete.
 		});
 	}else{
-		//css( this.wrapper, "left", ( lx + width - this.minWidth ) );
 		css( this.wrapper, "width", this.minWidth );
 		css( this.selector, "height", "50px" );
-		this.icon.setAttribute( "data-glyph", "fullscreen-enter" );
+		_this.shrinker.innerHTML = icon;
 	}
 	this.minimized = true;
 };
@@ -212,6 +221,7 @@ FloatingPane.prototype.config = function( options ){
 	this.right = ( options.right === undefined ? undefined : options.right );
 	this.class = ( ( options.class === undefined ? false : options.class ) );
 	this.headerClass = ( ( options.headerClass === undefined ? false : options.headerClass ) );
+	this.featherPath = options.featherPath || "/node_modules/feather-icons";
 	this.minimized = false;
 	this.relativeOffsetLeft = 0;
 	this.enableShrink = ( options.enableShrink !== undefined ? options.enableShrink : true );

@@ -25,9 +25,9 @@ CollapsiblePane.prototype.addControl = function(){
 
 	if( this.class ){
 		gadgetui.util.addClass( pane, this.class );
-	}else{
-		gadgetui.util.addClass( pane, "gadget-ui-collapsiblePane" );
 	}
+	gadgetui.util.addClass( pane, "gadget-ui-collapsiblePane" );
+
 	this.selector.parentNode.insertBefore( pane, this.selector );
 	this.wrapper = this.selector.previousSibling;
 	this.selector.parentNode.removeChild( this.selector );
@@ -39,10 +39,9 @@ CollapsiblePane.prototype.addHeader = function(){
 	css = gadgetui.util.setStyle,
 		header = document.createElement( "div" );
 
+	gadgetui.util.addClass( header, "gadget-ui-collapsiblePane-header" );
 	if( this.headerClass ){
 		gadgetui.util.addClass( header, this.headerClass );
-	}else{
-		gadgetui.util.addClass( header, "gadget-ui-collapsiblePane-header" );
 	}
 	header.innerHTML = this.title;
 	this.wrapper.insertBefore( header, this.selector );
