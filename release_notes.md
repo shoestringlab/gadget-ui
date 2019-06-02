@@ -1,6 +1,14 @@
 
 ***Release Notes***
 
+6.3.0
+======
+
+- make FloatingPane class additive, not alternate CSS
+- make message undefined if not present in options so content in div will be preserved
+- make default location of bubble 0,0
+- fix center location setting of bubble
+
 6.2.0
 ======
 
@@ -11,7 +19,7 @@ Other highlights:
 - Many inline styles have been removed from the Bubble component in favor of CSS classes using options.class.
 - class and headerClass in FloatingPane and CollapsiblePane are no longer alternates to the standard CSS classes but rather additive. This changes has been made to minimize the necessary rules in custom classes.
 - Bubble now uses Velocity (when available) when closing a bubble element.
-- Max/min functions improved in FloatingPane
+- Max/min functions improved in FloatingPane.
 
 
 6.1.0

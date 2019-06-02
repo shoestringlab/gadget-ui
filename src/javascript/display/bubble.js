@@ -72,6 +72,8 @@ Bubble.prototype.setBubbleStyles = function(){
 
 Bubble.prototype.calculatePosition = function(){
 	var _this = this;
+	this.top = 0;
+	this.left = 0;
 	var relativeOffset = this.selector.getBoundingClientRect();
 	var bubbleCoords = this.bubbleElement.getBoundingClientRect();
 	this.position.split( " " ).forEach( function( ele ){
@@ -92,7 +94,7 @@ Bubble.prototype.calculatePosition = function(){
 				_this.left = relativeOffset.width + relativeOffset.left;
 				break;
 			case "center":
-				_this.left = relativeOffset.width / 2  - relativeOffset.left;
+				_this.left = relativeOffset.width / 2  + relativeOffset.left;
 				break;
 			}
 	});

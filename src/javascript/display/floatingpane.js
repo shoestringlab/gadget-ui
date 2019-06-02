@@ -8,6 +8,7 @@ function FloatingPane( selector, options ){
 }
 
 FloatingPane.prototype.setup = function( options ){
+	this.setMessage();
 	this.addControl();
 	this.addHeader();
 	if( this.enableShrink ){
@@ -34,6 +35,12 @@ FloatingPane.prototype.setup = function( options ){
 		this.expand();
 	}
 };
+
+FloatingPane.prototype.setMessage = function(){
+	if( this.message !== undefined ){
+		this.selector.innerText = this.message;
+	}
+}
 
 FloatingPane.prototype.addBindings = function(){
 	var _this = this;
@@ -71,9 +78,9 @@ FloatingPane.prototype.addHeader = function(){
 	this.header.innerHTML = this.title;
 	if( this.headerClass ){
 		gadgetui.util.addClass( header, this.headerClass );
-	}else{
-		gadgetui.util.addClass( this.header, 'gadget-ui-floatingPane-header' );
 	}
+	gadgetui.util.addClass( this.header, 'gadget-ui-floatingPane-header' );
+
 
 	if( this.enableShrink ){
 		this.shrinker = document.createElement( "span" );
@@ -112,6 +119,7 @@ FloatingPane.prototype.addCSS = function(){
 	var css = gadgetui.util.setStyle;
 	//copy width from selector
 	css( this.wrapper, "width",  this.width );
+	css( this.wrapper, "z-index",  this.zIndex );
 	if( this.top !== undefined ) css( this.wrapper, "top", this.top );
 	if( this.left !== undefined )css( this.wrapper, "left", this.left );
 	if( this.bottom !== undefined ) css( this.wrapper, "bottom", this.bottom );
@@ -121,7 +129,7 @@ FloatingPane.prototype.addCSS = function(){
 FloatingPane.prototype.addControl = function(){
 	var fp = document.createElement( "div" );
 	if( this.class ){
-		gadgetui.util.addClass( pane, this.class );
+		gadgetui.util.addClass( fp, this.class );
 	}
 	gadgetui.util.addClass( fp, "gadget-ui-floatingPane" );
 
@@ -212,8 +220,10 @@ FloatingPane.prototype.minimize = function(){
 
 FloatingPane.prototype.config = function( options ){
 	options = ( options === undefined ? {} : options );
+	this.message = ( options.message === undefined ? undefined: options.message );
 	this.animate = (( options.animate === undefined) ? true : options.animate );
 	this.title = ( options.title === undefined ? "": options.title );
+	this.zIndex = ( options.zIndex === undefined ? gadgetui.util.getMaxZIndex() + 1: options.zIndex );
 	this.width = gadgetui.util.getStyle( this.selector, "width" );
  	this.top = ( options.top === undefined ? undefined: options.top );
 	this.left = ( options.left === undefined ? undefined : options.left );
