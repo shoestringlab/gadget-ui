@@ -60,6 +60,41 @@ div.gadgetui-bubble{
   fill: none;
 }
 
+
+div.gadgetui-modal {
+    position: fixed;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    opacity: 0;
+    visibility: hidden;
+    transform: scale(1.1);
+    transition: visibility 0s linear 0.25s, opacity 0.25s 0s, transform 0.25s;
+}
+
+div.gadgetui-modalWindow {
+  padding: 1em;
+  border-radius: .25em;
+	background: #fff;
+	border: 1px solid silver;
+	margin-left:auto;
+	margin-right:auto;
+	margin-top: 100px;
+}
+
+div.gadgetui-showModal {
+    opacity: 1;
+    visibility: visible;
+    transform: scale(1.0);
+    transition: visibility 0s linear 0s, opacity 0.25s 0s, transform 0.25s;
+}
+
+.right-align{
+	float:right;
+}
+
 div .gadget-ui-input-div{
 	display:inline;
 	font-size: 1.1em;

@@ -3,6 +3,10 @@ gadget-ui
 
 JavaScript UI and data binding library
 
+v 6.4.0
+
+This release adds a Modal window control, gadgetui.display.Modal. The modal control creates a window with a close icon in the upper right corner.
+
 v 6.3.0
 
 This release continues the process of cleaning up inline styling in the display components, reducing legacy code and overall code size, and converting icons to use the feather icons library. See the release notes for details. This version represents work in progress that will ultimately lead to in a v 7.0.0 release.
