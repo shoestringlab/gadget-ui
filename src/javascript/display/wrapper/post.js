@@ -6,6 +6,7 @@
 		FloatingPane: FloatingPane,
 		FileUploadWrapper: FileUploadWrapper,
 		Modal: Modal,
-		ProgressBar: ProgressBar
+		ProgressBar: ProgressBar,
+		Sidebar: Sidebar
 	};
 }());

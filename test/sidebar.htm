@@ -1,0 +1,55 @@
+<!doctype html>
+<html>
+	<head>
+		<title>gadget-ui Sidebar Test</title>
+		<link rel="stylesheet" href="/dist/gadget-ui.css"/>
+		<link rel="stylesheet" href="/bower_components/open-iconic/font/css/open-iconic.css"/>
+		 <script type="module">
+			import {sidebar,constructor} from '/dist/gadget-ui.es6.js';
+
+			var sb = constructor( sidebar,
+				[ document.querySelector("#sidebar"),
+					{}] ) ;
+
+		 </script>
+
+		<style>
+			body {font-size: 1em;}
+			input, select, select option{ font-size: 1em;}
+      #appWrapper{
+        display: flex;
+        height:97vh;
+				width:98vw;
+        background-color: #fff;
+      }
+			.sidebar{
+				display:inline-block;
+        height:100%;
+				width:25em;
+			}
+      .app{
+				display:inline-block;
+        height:100%;
+      }
+		</style>
+
+	</head>
+
+	<body>
+
+    <div id="appWrapper">
+    	<div id="sidebar" class="sidebar">
+
+        <h3>Item 1</h3>
+        <h3>Item 2</h3>
+        <h3>Item 3</h3>
+    	</div>
+      <div class="app">
+			<p>Test the Sidebar control.</p>
+
+      This is the main application space.
+      </div>
+    </div>
+
+	</body>
+</html>

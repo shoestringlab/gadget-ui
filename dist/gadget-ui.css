@@ -95,6 +95,34 @@ div.gadgetui-showModal {
 	float:right;
 }
 
+div.gadgetui-sidebar{
+ border: 1px solid silver;
+ position:relative;
+ top:0;
+ bottom:0;
+}
+
+div.gadgetui-sidebar-minimized{
+	width:25px !important;
+}
+
+div.gadgetui-sidebarContent-minimized{
+	opacity:0;
+	overflow: hidden;
+	width:0px !important;
+}
+
+span.gadgetui-sidebar-toggle{
+	position: relative;
+	right: 0;
+	top: 48%;
+	border-left: 1px solid silver;
+	border-top: 1px solid silver;
+	border-bottom: 1px solid silver;
+	padding-top: 4px;
+	border-radius: .25em 0 0 .25em;
+}
+
 div .gadget-ui-input-div{
 	display:inline;
 	font-size: 1.1em;

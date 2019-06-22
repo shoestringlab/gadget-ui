@@ -1,6 +1,16 @@
 
 ***Release Notes***
 
+6.5.0
+======
+
+- Add Sidebar control.
+
+6.4.0
+======
+
+- Add Modal control.
+
 6.3.0
 ======
 
