@@ -91,7 +91,7 @@ div.gadgetui-showModal {
     transition: visibility 0s linear 0s, opacity 0.25s 0s, transform 0.25s;
 }
 
-.right-align{
+.gadgetui-right-align{
 	float:right;
 }
 

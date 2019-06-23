@@ -1153,7 +1153,7 @@ Sidebar.prototype.addControl = function(){
   gadgetui.util.addClass( this.wrapper, "gadgetui-sidebar" );
 
   this.span = document.createElement( "span" );
-  gadgetui.util.addClass( this.span, "right-align" );
+  gadgetui.util.addClass( this.span, "gadgetui-right-align" );
   gadgetui.util.addClass( this.span, "gadgetui-sidebar-toggle" );
   this.span.innerHTML = `<svg class="feather" name="chevron">
       <use xlink:href="${this.featherPath}/dist/feather-sprite.svg#chevron-left"/>

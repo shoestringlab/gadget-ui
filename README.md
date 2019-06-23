@@ -3,7 +3,7 @@ gadget-ui
 
 JavaScript UI and data binding library
 
-v 6.5.0
+v 6.5.1
 
 This release adds a Sidebar control, gadgetui.display.Sidebar. This control wraps a left-side menu with a div that enables collapsing the menu to the left side of the screen to save space.
 
