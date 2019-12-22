@@ -122,3 +122,38 @@ span.gadgetui-sidebar-toggle{
 	padding-top: 4px;
 	border-radius: .25em 0 0 .25em;
 }
+
+div.gadget-ui-menu{
+	display:inline-block;
+}
+
+.gadget-ui-menu-menuItem{
+  display:none;
+  border: 1px solid #77f;
+	background: #fff;
+}
+
+.gadget-ui-menu-menuItem > div {
+  padding-top: .5em;
+}
+
+.gadget-ui-menu-hovering{
+  display:block;
+  position:fixed;
+}
+
+.gadget-ui-menu-item > .gadget-ui-menu-menuItem {
+	position:absolute;
+	margin-left:90%;
+	margin-top: -1.3em;
+	float: right;
+}
+
+.gadget-ui-menu-item{
+	white-space: nowrap;
+	padding: 0 1em .5em .25em;
+}
+
+.gadget-ui-menu-item:hover{
+	background:#ccf;
+}

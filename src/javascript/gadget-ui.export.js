@@ -7,6 +7,7 @@ export var collapsiblepane = gadgetui.display.CollapsiblePane;
 export var dialog = gadgetui.display.Dialog;
 export var fileuploadwrapper = gadgetui.display.FileUploadWrapper;
 export var floatingpane = gadgetui.display.FloatingPane;
+export var menu = gadgetui.display.Menu;
 export var modal = gadgetui.display.Modal;
 export var overlay = gadgetui.display.Overlay;
 export var progressbar = gadgetui.display.ProgressBar;

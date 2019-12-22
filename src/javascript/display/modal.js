@@ -18,7 +18,7 @@ Modal.prototype.addControl = function(){
   this.selector.parentNode.removeChild( this.selector );
   this.wrapper.appendChild( this.selector );
   gadgetui.util.addClass( this.selector, "gadgetui-modalWindow" );
-  this.selector.innerHTML = `<span name="close" class="right-align">
+  this.selector.innerHTML = `<span name="close" class="gadgetui-right-align">
               <a name="close">
               <svg class="feather">
                 <use xlink:href="${this.featherPath}/dist/feather-sprite.svg#x-circle"/>

@@ -1,0 +1,104 @@
+<!doctype html>
+<html>
+	<head>
+		<title>gadget-ui Menu Test</title>
+		<link rel="stylesheet" href="/dist/gadget-ui.css"/>
+		<link rel="stylesheet" href="/bower_components/open-iconic/font/css/open-iconic.css"/>
+
+		<script type="module">
+			import {menu,constructor} from '/dist/gadget-ui.es6.js';
+
+			let menus = [
+				{ label: "User",
+					menuItem:{
+						items:[
+							{ label: "Profile",
+								link: "" },
+							{ label: "Logout",
+								link: "" }
+						]
+					}},
+				{ label: "Options",
+					menuItem: {
+						items:[ { label: "Files",
+											menuItem:{
+												items:[
+													{	label: "Saving ...",
+														link: "" },
+													{	label: "Loading ...",
+														link: "" }
+												]
+											}
+										},
+										{
+											label: "Logs",
+											menuItem: {
+												items:[
+													{ label: "Auth ...",
+														link: "" },
+													{ label: "System",
+														menuItem:{
+															items:[
+																{	label: "Saving ...",
+																	link: "" },
+																{	label: "Loading ...",
+																	link: "" }
+															]
+														}
+													}
+												]
+											}
+										}
+							]
+					}}
+			];
+			var md = constructor( menu, [ document.querySelector("#menu"), { datasource: menus } ] );
+		</script>
+
+		<style>
+			body {font-size: 1em;}
+			input, select, select option{ font-size: 1em;}
+      #header{
+        display: flex;
+				padding: .5em .25em .25em .25em;
+        background: #77f;
+      }
+		</style>
+	</head>
+
+	<body>
+    <div id="header">
+      <div id="menu">
+        <!-- <div class="gadget-ui-menu">
+					User
+	        <div class="gadget-ui-menu-menuItem">
+	          <div class="gadget-ui-menu-item">Profile</div>
+	          <div class="gadget-ui-menu-item">Logout</div>
+	        </div>
+				</div>
+				<div class="gadget-ui-menu">
+					Options
+					<div class="gadget-ui-menu-menuItem">
+						<div class="gadget-ui-menu-item">Files
+							<div class="gadget-ui-menu-menuItem">
+								<div class="gadget-ui-menu-item">Saving ...</div>
+								<div class="gadget-ui-menu-item">Loading ...</div>
+							</div>
+						</div>
+						<div class="gadget-ui-menu-item">Logs
+							<div class="gadget-ui-menu-menuItem">
+								<div class="gadget-ui-menu-item">Auth ...</div>
+								<div class="gadget-ui-menu-item">System ...
+									<div class="gadget-ui-menu-menuItem">
+										<div class="gadget-ui-menu-item">Saving ...</div>
+										<div class="gadget-ui-menu-item">Loading ...</div>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div> -->
+      </div>
+    </div>
+	</body>
+</html>

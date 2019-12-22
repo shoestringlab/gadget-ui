@@ -1003,6 +1003,79 @@ FloatingPane.prototype.config = function( options ){
 	this.enableClose = ( options.enableClose !== undefined ? options.enableClose : true );
 };
 
+function Menu( selector, options ){
+  this.selector = selector;
+  this.config( options );
+  this.addBindings();
+}
+
+Menu.prototype.addBindings = function(){
+
+	let menus = this.selector.querySelectorAll(".gadget-ui-menu");
+	// each menu needs to be initialized
+	menus.forEach( function( mu ){
+		let menuItem = mu.querySelector( "div[class='gadget-ui-menu-menuItem']" );
+
+		let items = menuItem.querySelectorAll( "div[class='gadget-ui-menu-item']" );
+
+		// get the menuItems inside the root
+		let menuItems = menuItem.querySelectorAll( "div[class='gadget-ui-menu-menuItem']" );
+
+		// loop over the items
+		items.forEach( function( item ){
+			// find if there is a menuItem inside the item class
+			let mItem = item.querySelector( "div[class='gadget-ui-menu-menuItem']");
+
+			// add a hover event listener for each item
+			item.addEventListener( "mouseenter", function( evt ){
+				if( mItem !== null){
+					mItem.classList.add( "gadget-ui-menu-hovering" );
+				}
+        item.classList.add( "gadget-ui-menu-selected" );
+        let children = item.parentNode.children;
+        for( var ix = 0; ix < children.length; ix++ ){
+          if( children[ix] !== item ){
+            children[ix].classList.remove( "gadget-ui-menu-selected" );
+          }
+        }
+
+				evt.preventDefault();
+			});
+
+			item.addEventListener( "mouseleave", function( evt ){
+				if( mItem !== null){
+					mItem.classList.remove( "gadget-ui-menu-hovering" );
+				}
+			});
+		});
+
+		// add hover event listener to the root menuItem
+		mu.addEventListener( "mouseenter", function(event){
+			menuItem.classList.add( "gadget-ui-menu-hovering" );
+		});
+		// add mouseleave event listener to root menuItem
+		mu.addEventListener( "mouseleave", function( event ){
+			menuItem.classList.remove( "gadget-ui-menu-hovering" );
+		});
+
+    // add listeners to the menu items under the root
+		menuItems.forEach( function( mItem ){
+			mItem.addEventListener( "mouseenter", function( ev ){
+				mItem.classList.add( "gadget-ui-menu-hovering" );
+			});
+			mItem.addEventListener( "mouseleave", function( evt ){
+        if( mItem.parentNode.classList.toString().indexOf( "selected" ) < 0 ){
+			    mItem.classList.remove( "gadget-ui-menu-hovering" );
+        }
+			});
+		});
+	});
+};
+
+Menu.prototype.config = function( options ){
+
+};
+
 function Modal( selector, options ){
   this.selector = selector;
   this.config( options );
@@ -1023,7 +1096,7 @@ Modal.prototype.addControl = function(){
   this.selector.parentNode.removeChild( this.selector );
   this.wrapper.appendChild( this.selector );
   gadgetui.util.addClass( this.selector, "gadgetui-modalWindow" );
-  this.selector.innerHTML = `<span name="close" class="right-align">
+  this.selector.innerHTML = `<span name="close" class="gadgetui-right-align">
               <a name="close">
               <svg class="feather">
                 <use xlink:href="${this.featherPath}/dist/feather-sprite.svg#x-circle"/>
@@ -1194,6 +1267,7 @@ Sidebar.prototype.setChevron = function( minimized ){
 		Dialog: Dialog,
 		FloatingPane: FloatingPane,
 		FileUploadWrapper: FileUploadWrapper,
+		Menu: Menu,
 		Modal: Modal,
 		ProgressBar: ProgressBar,
 		Sidebar: Sidebar
