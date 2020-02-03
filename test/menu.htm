@@ -8,6 +8,10 @@
 		<script type="module">
 			import {menu,constructor} from '/dist/gadget-ui.es6.js';
 
+			let authAlert = function(){
+				alert("Auth option selected.");
+			}
+
 			let menus = [
 				{ label: "User",
 					menuItem:{
@@ -26,7 +30,7 @@
 													{	label: "Saving ...",
 														link: "" },
 													{	label: "Loading ...",
-														link: "/test/" }
+														link: "" }
 												]
 											}
 										},
@@ -35,7 +39,7 @@
 											menuItem: {
 												items:[
 													{ label: "Auth ...",
-														link: "" },
+														link: authAlert },
 													{ label: "System",
 														menuItem:{
 															items:[

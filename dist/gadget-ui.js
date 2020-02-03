@@ -1033,7 +1033,7 @@ Menu.prototype.addControl = function(){
     let element = document.createElement( "div" );
     element.classList.add( "gadget-ui-menu-item" );
     element.innerText = label;
-    if( item.link !== undefined && item.link !== null && item.link.length > 0 ){
+    if( item.link !== undefined && item.link !== null && ( item.link.length > 0 || typeof item.link === 'function' ) ){
       //element.removeEventListener( "click" );
       element.style.cursor = 'pointer';
       element.addEventListener( "click", function( evt ){
