@@ -10,6 +10,8 @@ function Sidebar( selector, options ){
 Sidebar.prototype.config = function( options ){
   this.class = ( ( options.class === undefined ? false : options.class ) );
 	this.featherPath = options.featherPath || "/node_modules/feather-icons";
+  this.animate = (( options.animate === undefined) ? true : options.animate );
+  this.delay = ( ( options.delay === undefined ? 300 : options.delay ) );
 };
 
 Sidebar.prototype.addControl = function(){
@@ -30,6 +32,7 @@ Sidebar.prototype.addControl = function(){
   this.selector.parentNode.removeChild( this.selector );
   this.wrapper.appendChild( this.selector );
   this.wrapper.insertBefore( this.span, this.selector );
+  this.width = this.wrapper.offsetWidth;
 };
 
 Sidebar.prototype.addBindings = function(){
@@ -37,12 +40,36 @@ Sidebar.prototype.addBindings = function(){
 
   this.span.addEventListener( "click", function( event ){
     self.minimized = !self.minimized;
+
     if( self.minimized ){
-      gadgetui.util.addClass( self.wrapper, "gadgetui-sidebar-minimized" );
       gadgetui.util.addClass( self.selector, "gadgetui-sidebarContent-minimized" );
+      if( typeof Velocity != 'undefined' && this.animate ){
+
+        Velocity( self.wrapper, {
+          width: 25
+        },{ queue: false, duration: self.delay, complete: function() {
+          //_this.icon.setAttribute( "data-glyph", icon );
+          gadgetui.util.addClass( self.wrapper, "gadgetui-sidebar-minimized" );
+          }
+        });
+      }else{
+        gadgetui.util.addClass( self.wrapper, "gadgetui-sidebar-minimized" );
+      }
+
     }else{
       gadgetui.util.removeClass( self.wrapper, "gadgetui-sidebar-minimized" );
-      gadgetui.util.removeClass( self.selector, "gadgetui-sidebarContent-minimized" );
+
+      if( typeof Velocity != 'undefined' && this.animate ){
+        Velocity( self.wrapper, {
+          width: self.width
+        },{ queue: false, duration: self.delay, complete: function() {
+          //_this.icon.setAttribute( "data-glyph", icon );
+          gadgetui.util.removeClass( self.selector, "gadgetui-sidebarContent-minimized" );
+          }
+        });
+      }else{
+        gadgetui.util.removeClass( self.selector, "gadgetui-sidebarContent-minimized" );
+      }
     }
     self.setChevron( self.minimized );
   });

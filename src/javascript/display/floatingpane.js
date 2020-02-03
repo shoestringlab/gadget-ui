@@ -199,7 +199,7 @@ FloatingPane.prototype.minimize = function(){
 
 		Velocity( this.wrapper, {
 			width: _this.minWidth
-		},{queue: false, duration: 500, complete: function() {
+		},{queue: false, duration: _this.delay, complete: function() {
 			//_this.icon.setAttribute( "data-glyph", "fullscreen-enter" );
 			_this.shrinker.innerHTML = icon;
 			}
@@ -207,7 +207,7 @@ FloatingPane.prototype.minimize = function(){
 
 		Velocity( this.selector, {
 			height: "50px"
-		},{queue: false, duration: 500}, function() {
+		},{queue: false, duration: _this.delay}, function() {
 			// Animation complete.
 		});
 	}else{
@@ -222,6 +222,7 @@ FloatingPane.prototype.config = function( options ){
 	options = ( options === undefined ? {} : options );
 	this.message = ( options.message === undefined ? undefined: options.message );
 	this.animate = (( options.animate === undefined) ? true : options.animate );
+	this.delay = ( ( options.delay === undefined ? 500 : options.delay ) );
 	this.title = ( options.title === undefined ? "": options.title );
 	this.zIndex = ( options.zIndex === undefined ? gadgetui.util.getMaxZIndex() + 1: options.zIndex );
 	this.width = gadgetui.util.getStyle( this.selector, "width" );

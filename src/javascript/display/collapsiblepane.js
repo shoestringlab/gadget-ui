@@ -102,13 +102,13 @@ CollapsiblePane.prototype.toggle = function(){
 
 		Velocity( this.wrapper, {
 			height: myHeight
-		},{ queue: false, duration: 300, complete: function() {
+		},{ queue: false, duration: _this.delay, complete: function() {
 			//_this.icon.setAttribute( "data-glyph", icon );
 			}
 		});
 		Velocity( this.selector, {
 			height: selectorHeight
-		},{ queue: false, duration: 300, complete: function() {
+		},{ queue: false, duration: _this.delay, complete: function() {
 
 			}
 		});
@@ -121,6 +121,7 @@ CollapsiblePane.prototype.toggle = function(){
 CollapsiblePane.prototype.config = function( options ){
 	options = ( options === undefined ? {} : options );
 	this.animate = (( options.animate === undefined) ? true : options.animate );
+	this.delay = ( ( options.delay === undefined ? 300 : options.delay ) );
 	this.title = ( options.title === undefined ? "": options.title );
 	this.width = gadgetui.util.getStyle( this.selector, "width" );
 	this.collapse = ( ( options.collapse === undefined ? false : options.collapse ) );

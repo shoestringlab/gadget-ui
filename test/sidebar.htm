@@ -4,12 +4,13 @@
 		<title>gadget-ui Sidebar Test</title>
 		<link rel="stylesheet" href="/dist/gadget-ui.css"/>
 		<link rel="stylesheet" href="/bower_components/open-iconic/font/css/open-iconic.css"/>
+		<script src='/bower_components/velocity/velocity.js'></script>
 		 <script type="module">
 			import {sidebar,constructor} from '/dist/gadget-ui.es6.js';
 
 			var sb = constructor( sidebar,
 				[ document.querySelector("#sidebar"),
-					{}] ) ;
+					{animationMS: 200}] ) ;
 
 		 </script>
 

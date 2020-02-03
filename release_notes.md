@@ -1,6 +1,14 @@
 
 ***Release Notes***
 
+6.6.0
+======
+
+- Add Menu control
+- Add animate option to Sidebar control
+- Add delay option to CollapsiblePane, FloatingPane controls
+
+
 6.5.0
 ======
 

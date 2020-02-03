@@ -3,6 +3,10 @@ gadget-ui
 
 JavaScript UI and data binding library
 
+v 6.6.0
+
+This release adds the Menu control, adds animation options to the Sidebar control, and adds a custom animation delay option to CollapsiblePane and FloatingPane.
+
 v 6.5.1
 
 This release adds a Sidebar control, gadgetui.display.Sidebar. This control wraps a left-side menu with a div that enables collapsing the menu to the left side of the screen to save space.

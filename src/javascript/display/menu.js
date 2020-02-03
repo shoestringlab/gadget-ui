@@ -5,7 +5,7 @@ function Menu( selector, options ){
     this.retrieveData();
   }else{
     if( this.data !== undefined ) this.addControl();
-    this.addBindingss();
+    this.addBindings();
   }
 }
 
@@ -18,8 +18,57 @@ Menu.prototype.retrieveData = function(){
 };
 
 Menu.prototype.addControl = function(){
+
+  let processItem = function( item, parent ){
+    // if there is a label, add the label
+    let label = ( item.label !== undefined ? item.label : "" );
+    //let element = `<div class="gadget-ui-menu-item">{label}</div>`;
+    let element = document.createElement( "div" );
+    element.classList.add( "gadget-ui-menu-item" );
+    element.innerText = label;
+    if( item.link !== undefined && item.link !== null && item.link.length > 0 ){
+      //element.removeEventListener( "click" );
+      element.style.cursor = 'pointer';
+      element.addEventListener( "click", function( evt ){
+        if( typeof item.link === 'function'){
+          item.link();
+        }else{
+          window.open( item.link );
+        }
+      });
+    }
+    // if there is a menuItem, add it
+    if( item.menuItem !== undefined ){
+      element.appendChild( processMenuItem( item.menuItem, element ) );
+    }
+    return element;
+  };
+
+  let processMenuItem = function( menuItemData, parent ){
+    // add <div class="gadget-ui-menu-menuItem"> as child of menu
+    let element = document.createElement( "div" );
+    element.classList.add( "gadget-ui-menu-menuItem" );
+    menuItemData.items.forEach( function( item ){
+      element.appendChild( processItem( item, element ) );
+    });
+
+    return element;
+  };
+
+  let generateMenu = function( menuData ){
+    //let element = `<div class="gadget-ui-menu">{menuData.label}</div>`;
+    let element = document.createElement( "div" );
+    element.classList.add( "gadget-ui-menu" );
+    element.innerText = menuData.label;
+    // process the menuItem
+    element.appendChild( processMenuItem( menuData.menuItem, element ) );
+    return element;
+  };
+  let self = this;
   this.data.forEach( function( menu ){
-    
+    // for each menu, generate the items and sub-menus
+    self.selector.appendChild( generateMenu( menu ) );
+
   });
 };
 

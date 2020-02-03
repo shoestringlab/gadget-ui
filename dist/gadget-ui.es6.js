@@ -679,13 +679,13 @@ CollapsiblePane.prototype.toggle = function(){
 
 		Velocity( this.wrapper, {
 			height: myHeight
-		},{ queue: false, duration: 300, complete: function() {
+		},{ queue: false, duration: _this.delay, complete: function() {
 			//_this.icon.setAttribute( "data-glyph", icon );
 			}
 		});
 		Velocity( this.selector, {
 			height: selectorHeight
-		},{ queue: false, duration: 300, complete: function() {
+		},{ queue: false, duration: _this.delay, complete: function() {
 
 			}
 		});
@@ -698,6 +698,7 @@ CollapsiblePane.prototype.toggle = function(){
 CollapsiblePane.prototype.config = function( options ){
 	options = ( options === undefined ? {} : options );
 	this.animate = (( options.animate === undefined) ? true : options.animate );
+	this.delay = ( ( options.delay === undefined ? 300 : options.delay ) );
 	this.title = ( options.title === undefined ? "": options.title );
 	this.width = gadgetui.util.getStyle( this.selector, "width" );
 	this.collapse = ( ( options.collapse === undefined ? false : options.collapse ) );
@@ -964,7 +965,7 @@ FloatingPane.prototype.minimize = function(){
 
 		Velocity( this.wrapper, {
 			width: _this.minWidth
-		},{queue: false, duration: 500, complete: function() {
+		},{queue: false, duration: _this.delay, complete: function() {
 			//_this.icon.setAttribute( "data-glyph", "fullscreen-enter" );
 			_this.shrinker.innerHTML = icon;
 			}
@@ -972,7 +973,7 @@ FloatingPane.prototype.minimize = function(){
 
 		Velocity( this.selector, {
 			height: "50px"
-		},{queue: false, duration: 500}, function() {
+		},{queue: false, duration: _this.delay}, function() {
 			// Animation complete.
 		});
 	}else{
@@ -987,6 +988,7 @@ FloatingPane.prototype.config = function( options ){
 	options = ( options === undefined ? {} : options );
 	this.message = ( options.message === undefined ? undefined: options.message );
 	this.animate = (( options.animate === undefined) ? true : options.animate );
+	this.delay = ( ( options.delay === undefined ? 500 : options.delay ) );
 	this.title = ( options.title === undefined ? "": options.title );
 	this.zIndex = ( options.zIndex === undefined ? gadgetui.util.getMaxZIndex() + 1: options.zIndex );
 	this.width = gadgetui.util.getStyle( this.selector, "width" );
@@ -1006,8 +1008,76 @@ FloatingPane.prototype.config = function( options ){
 function Menu( selector, options ){
   this.selector = selector;
   this.config( options );
-  this.addBindings();
+  if( this.datasource !== undefined ){
+    this.retrieveData();
+  }else{
+    if( this.data !== undefined ) this.addControl();
+    this.addBindings();
+  }
 }
+
+Menu.prototype.retrieveData = function(){
+  this.datasource()
+    .then( function( data ){
+      this.data = data;
+      this.addControl();
+    }).bind( this );
+};
+
+Menu.prototype.addControl = function(){
+
+  let processItem = function( item, parent ){
+    // if there is a label, add the label
+    let label = ( item.label !== undefined ? item.label : "" );
+    //let element = `<div class="gadget-ui-menu-item">{label}</div>`;
+    let element = document.createElement( "div" );
+    element.classList.add( "gadget-ui-menu-item" );
+    element.innerText = label;
+    if( item.link !== undefined && item.link !== null && item.link.length > 0 ){
+      //element.removeEventListener( "click" );
+      element.style.cursor = 'pointer';
+      element.addEventListener( "click", function( evt ){
+        if( typeof item.link === 'function'){
+          item.link();
+        }else{
+          window.open( item.link );
+        }
+      });
+    }
+    // if there is a menuItem, add it
+    if( item.menuItem !== undefined ){
+      element.appendChild( processMenuItem( item.menuItem, element ) );
+    }
+    return element;
+  };
+
+  let processMenuItem = function( menuItemData, parent ){
+    // add <div class="gadget-ui-menu-menuItem"> as child of menu
+    let element = document.createElement( "div" );
+    element.classList.add( "gadget-ui-menu-menuItem" );
+    menuItemData.items.forEach( function( item ){
+      element.appendChild( processItem( item, element ) );
+    });
+
+    return element;
+  };
+
+  let generateMenu = function( menuData ){
+    //let element = `<div class="gadget-ui-menu">{menuData.label}</div>`;
+    let element = document.createElement( "div" );
+    element.classList.add( "gadget-ui-menu" );
+    element.innerText = menuData.label;
+    // process the menuItem
+    element.appendChild( processMenuItem( menuData.menuItem, element ) );
+    return element;
+  };
+  let self = this;
+  this.data.forEach( function( menu ){
+    // for each menu, generate the items and sub-menus
+    self.selector.appendChild( generateMenu( menu ) );
+
+  });
+};
 
 Menu.prototype.addBindings = function(){
 
@@ -1073,7 +1143,8 @@ Menu.prototype.addBindings = function(){
 };
 
 Menu.prototype.config = function( options ){
-
+  this.data = ( options.data !== undefined ? options.data : undefined );
+  this.datasource = ( options.datasource !== undefined ? options.datasource : undefined );
 };
 
 function Modal( selector, options ){
@@ -1216,6 +1287,8 @@ function Sidebar( selector, options ){
 Sidebar.prototype.config = function( options ){
   this.class = ( ( options.class === undefined ? false : options.class ) );
 	this.featherPath = options.featherPath || "/node_modules/feather-icons";
+  this.animate = (( options.animate === undefined) ? true : options.animate );
+  this.delay = ( ( options.delay === undefined ? 300 : options.delay ) );
 };
 
 Sidebar.prototype.addControl = function(){
@@ -1236,6 +1309,7 @@ Sidebar.prototype.addControl = function(){
   this.selector.parentNode.removeChild( this.selector );
   this.wrapper.appendChild( this.selector );
   this.wrapper.insertBefore( this.span, this.selector );
+  this.width = this.wrapper.offsetWidth;
 };
 
 Sidebar.prototype.addBindings = function(){
@@ -1243,12 +1317,36 @@ Sidebar.prototype.addBindings = function(){
 
   this.span.addEventListener( "click", function( event ){
     self.minimized = !self.minimized;
+
     if( self.minimized ){
-      gadgetui.util.addClass( self.wrapper, "gadgetui-sidebar-minimized" );
       gadgetui.util.addClass( self.selector, "gadgetui-sidebarContent-minimized" );
+      if( typeof Velocity != 'undefined' && this.animate ){
+
+        Velocity( self.wrapper, {
+          width: 25
+        },{ queue: false, duration: self.delay, complete: function() {
+          //_this.icon.setAttribute( "data-glyph", icon );
+          gadgetui.util.addClass( self.wrapper, "gadgetui-sidebar-minimized" );
+          }
+        });
+      }else{
+        gadgetui.util.addClass( self.wrapper, "gadgetui-sidebar-minimized" );
+      }
+
     }else{
       gadgetui.util.removeClass( self.wrapper, "gadgetui-sidebar-minimized" );
-      gadgetui.util.removeClass( self.selector, "gadgetui-sidebarContent-minimized" );
+
+      if( typeof Velocity != 'undefined' && this.animate ){
+        Velocity( self.wrapper, {
+          width: self.width
+        },{ queue: false, duration: self.delay, complete: function() {
+          //_this.icon.setAttribute( "data-glyph", icon );
+          gadgetui.util.removeClass( self.selector, "gadgetui-sidebarContent-minimized" );
+          }
+        });
+      }else{
+        gadgetui.util.removeClass( self.selector, "gadgetui-sidebarContent-minimized" );
+      }
     }
     self.setChevron( self.minimized );
   });

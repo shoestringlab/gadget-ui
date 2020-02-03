@@ -26,7 +26,7 @@
 													{	label: "Saving ...",
 														link: "" },
 													{	label: "Loading ...",
-														link: "" }
+														link: "/test/" }
 												]
 											}
 										},
@@ -52,7 +52,7 @@
 							]
 					}}
 			];
-			var md = constructor( menu, [ document.querySelector("#menu"), { datasource: menus } ] );
+			var md = constructor( menu, [ document.querySelector("#menu"), { data: menus } ] );
 		</script>
 
 		<style>
@@ -69,36 +69,38 @@
 	<body>
     <div id="header">
       <div id="menu">
-        <!-- <div class="gadget-ui-menu">
-					User
-	        <div class="gadget-ui-menu-menuItem">
-	          <div class="gadget-ui-menu-item">Profile</div>
-	          <div class="gadget-ui-menu-item">Logout</div>
-	        </div>
-				</div>
-				<div class="gadget-ui-menu">
-					Options
-					<div class="gadget-ui-menu-menuItem">
-						<div class="gadget-ui-menu-item">Files
-							<div class="gadget-ui-menu-menuItem">
-								<div class="gadget-ui-menu-item">Saving ...</div>
-								<div class="gadget-ui-menu-item">Loading ...</div>
-							</div>
-						</div>
-						<div class="gadget-ui-menu-item">Logs
-							<div class="gadget-ui-menu-menuItem">
-								<div class="gadget-ui-menu-item">Auth ...</div>
-								<div class="gadget-ui-menu-item">System ...
-									<div class="gadget-ui-menu-menuItem">
-										<div class="gadget-ui-menu-item">Saving ...</div>
-										<div class="gadget-ui-menu-item">Loading ...</div>
-									</div>
-								</div>
-							</div>
-						</div>
-					</div>
-				</div> -->
+
       </div>
     </div>
 	</body>
 </html>
+
+<!-- <div class="gadget-ui-menu">
+	User
+	<div class="gadget-ui-menu-menuItem">
+		<div class="gadget-ui-menu-item">Profile</div>
+		<div class="gadget-ui-menu-item">Logout</div>
+	</div>
+</div>
+<div class="gadget-ui-menu">
+	Options
+	<div class="gadget-ui-menu-menuItem">
+		<div class="gadget-ui-menu-item">Files
+			<div class="gadget-ui-menu-menuItem">
+				<div class="gadget-ui-menu-item">Saving ...</div>
+				<div class="gadget-ui-menu-item">Loading ...</div>
+			</div>
+		</div>
+		<div class="gadget-ui-menu-item">Logs
+			<div class="gadget-ui-menu-menuItem">
+				<div class="gadget-ui-menu-item">Auth ...</div>
+				<div class="gadget-ui-menu-item">System ...
+					<div class="gadget-ui-menu-menuItem">
+						<div class="gadget-ui-menu-item">Saving ...</div>
+						<div class="gadget-ui-menu-item">Loading ...</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div> -->
