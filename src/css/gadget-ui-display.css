@@ -159,3 +159,9 @@ div.gadget-ui-menu{
 .gadget-ui-menu-item:hover{
 	background:#ccf;
 }
+
+.gadget-ui-menu-icon{
+	width: 2em;
+	display:inline;
+  margin-right: .25em;
+}

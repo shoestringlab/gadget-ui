@@ -1,6 +1,12 @@
 
 ***Release Notes***
 
+6.7.0
+======
+
+- Adds an autoOpen option for the Modal control
+- Adds an image option for the Menu control
+
 6.6.0
 ======
 

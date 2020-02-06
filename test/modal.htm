@@ -9,7 +9,7 @@
 
 			var md = constructor( modal,
 				[ document.querySelector("#modal"),
-					{}] ) ;
+					{autoOpen: false}] ) ;
 
 		 </script>
 
@@ -27,6 +27,7 @@
 
 	<body>
 		<p>Test the Modal control.</p>
+		<button onclick="document.querySelector('#modal').parentElement.classList.add( 'gadgetui-showModal' )">Show</button>
 
 	<div id="modal">
 	Hi@

@@ -1033,6 +1033,13 @@ Menu.prototype.addControl = function(){
     let element = document.createElement( "div" );
     element.classList.add( "gadget-ui-menu-item" );
     element.innerText = label;
+    let image = ( item.image !== undefined ? item.image : "" );
+    if( image.length ){
+      let imgEl = document.createElement( "img" );
+      imgEl.src = image;
+      imgEl.classList.add( "gadget-ui-menu-icon" );
+      element.appendChild( imgEl );
+    }
     if( item.link !== undefined && item.link !== null && ( item.link.length > 0 || typeof item.link === 'function' ) ){
       //element.removeEventListener( "click" );
       element.style.cursor = 'pointer';
@@ -1066,7 +1073,15 @@ Menu.prototype.addControl = function(){
     //let element = `<div class="gadget-ui-menu">{menuData.label}</div>`;
     let element = document.createElement( "div" );
     element.classList.add( "gadget-ui-menu" );
-    element.innerText = menuData.label;
+    let label = ( menuData.label !== undefined ? menuData.label : "" );
+    element.innerText = label;
+    let image = ( menuData.image !== undefined ? menuData.image : "" );
+    if( image.length ){
+      let imgEl = document.createElement( "img" );
+      imgEl.src = image;
+      imgEl.classList.add( "gadget-ui-menu-icon" );
+      element.appendChild( imgEl );
+    }
     // process the menuItem
     element.appendChild( processMenuItem( menuData.menuItem, element ) );
     return element;
@@ -1174,7 +1189,9 @@ Modal.prototype.addControl = function(){
               </svg>
               </a>
               </span>` + this.selector.innerHTML;
-  gadgetui.util.addClass( this.wrapper, "gadgetui-showModal" );
+  if( this.autoOpen ){
+    gadgetui.util.addClass( this.wrapper, "gadgetui-showModal" );
+  }
 };
 
 Modal.prototype.addBindings = function(){
@@ -1188,6 +1205,7 @@ Modal.prototype.addBindings = function(){
 Modal.prototype.config = function( options ){
   this.class = ( ( options.class === undefined ? false : options.class ) );
 	this.featherPath = options.featherPath || "/node_modules/feather-icons";
+  this.autoOpen = ( options.autoOpen === false ? false : true );
 };
 
 

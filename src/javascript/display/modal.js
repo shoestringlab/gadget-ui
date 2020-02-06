@@ -25,7 +25,9 @@ Modal.prototype.addControl = function(){
               </svg>
               </a>
               </span>` + this.selector.innerHTML;
-  gadgetui.util.addClass( this.wrapper, "gadgetui-showModal" );
+  if( this.autoOpen ){
+    gadgetui.util.addClass( this.wrapper, "gadgetui-showModal" );
+  }
 };
 
 Modal.prototype.addBindings = function(){
@@ -39,4 +41,5 @@ Modal.prototype.addBindings = function(){
 Modal.prototype.config = function( options ){
   this.class = ( ( options.class === undefined ? false : options.class ) );
 	this.featherPath = options.featherPath || "/node_modules/feather-icons";
+  this.autoOpen = ( options.autoOpen === false ? false : true );
 };

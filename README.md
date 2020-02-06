@@ -3,6 +3,10 @@ gadget-ui
 
 JavaScript UI and data binding library
 
+v 6.7.0
+
+This release adds an autoOpen option for the Modal control and an image option for the Menu control.
+
 v 6.6.0
 
 This release adds the Menu control, adds animation options to the Sidebar control, and adds a custom animation delay option to CollapsiblePane and FloatingPane.

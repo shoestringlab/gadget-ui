@@ -160,6 +160,12 @@ div.gadget-ui-menu{
 	background:#ccf;
 }
 
+.gadget-ui-menu-icon{
+	width: 2em;
+	display:inline;
+  margin-right: .25em;
+}
+
 div .gadget-ui-input-div{
 	display:inline;
 	font-size: 1.1em;
