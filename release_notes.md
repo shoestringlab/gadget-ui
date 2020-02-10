@@ -1,6 +1,11 @@
 
 ***Release Notes***
 
+6.8.0
+======
+
+- This release adds a Tabs control for vertical and horizontal tabs.
+
 6.7.0
 ======
 

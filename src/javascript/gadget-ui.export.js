@@ -12,6 +12,7 @@ export var modal = gadgetui.display.Modal;
 export var overlay = gadgetui.display.Overlay;
 export var progressbar = gadgetui.display.ProgressBar;
 export var sidebar = gadgetui.display.Sidebar;
+export var tabs = gadgetui.display.Tabs;
 export var combobox = gadgetui.input.ComboBox;
 export var fileuploader = gadgetui.input.FileUploader;
 export var lookuplistinput = gadgetui.input.LookupListInput;

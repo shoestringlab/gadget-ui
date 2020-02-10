@@ -1376,17 +1376,67 @@ Sidebar.prototype.setChevron = function( minimized ){
   svg.innerHTML = `<use xlink:href="${this.featherPath}/dist/feather-sprite.svg#${chevron}"/>`;
 }
 
+function Tabs( selector, options ){
+  this.selector = selector;
+  this.config( options );
+  this.addControl();
+}
+
+Tabs.prototype.config = function( options ){
+  this.direction = ( options.direction === undefined ? "horizontal" : options.direction );
+  this.tabContentDivIds = [];
+  this.tabs = [];
+};
+
+Tabs.prototype.addControl = function(){
+  let dir = ( this.direction === "vertical" ? "v" : "h" );
+  this.selector.classList.add( "gadget-ui-tabs-" + dir );
+  this.tabs = this.selector.querySelectorAll( "div" );
+  let activeSet = false;
+  this.tabs.forEach( function( tab ){
+    tab.classList.add( "gadget-ui-tab-" + dir );
+    // set the first tab active
+    if( ! activeSet ){
+      tab.classList.add( "gadget-ui-tab-" + dir + "-active" );
+      activeSet = true;
+    }
+    this.tabContentDivIds.push( tab.attributes['data-tab'].value );
+    document.querySelector( "#" + tab.attributes['data-tab'].value ).style.display = 'none';
+    tab.addEventListener( "click", function(){
+      this.setActiveTab( tab.attributes['data-tab'].value, dir );
+    }.bind( this ));
+  }.bind( this ));
+  document.querySelector( "#" + this.tabContentDivIds[0] ).style.display = 'block';
+};
+
+Tabs.prototype.setActiveTab = function( activeTab, dir ){
+  this.tabContentDivIds.forEach( function( tab ){
+    let dsp = ( tab === activeTab ? "block" : "none" );
+    document.querySelector( "#" + tab ).style.display = dsp;
+  });
+
+  this.tabs.forEach( function( tab ){
+    if( tab.attributes['data-tab'].value === activeTab ){
+      tab.classList.add( "gadget-ui-tab-" + dir + "-active" );
+    }else{
+      tab.classList.remove( "gadget-ui-tab-" + dir + "-active" );
+    }
+  }.bind( this ));
+
+};
+
 
 	return{
 		Bubble : Bubble,
 		CollapsiblePane: CollapsiblePane,
 		Dialog: Dialog,
-		FloatingPane: FloatingPane,
 		FileUploadWrapper: FileUploadWrapper,
+		FloatingPane: FloatingPane,
 		Menu: Menu,
 		Modal: Modal,
 		ProgressBar: ProgressBar,
-		Sidebar: Sidebar
+		Sidebar: Sidebar,
+		Tabs: Tabs
 	};
 }());
 
@@ -3993,6 +4043,7 @@ export var modal = gadgetui.display.Modal;
 export var overlay = gadgetui.display.Overlay;
 export var progressbar = gadgetui.display.ProgressBar;
 export var sidebar = gadgetui.display.Sidebar;
+export var tabs = gadgetui.display.Tabs;
 export var combobox = gadgetui.input.ComboBox;
 export var fileuploader = gadgetui.input.FileUploader;
 export var lookuplistinput = gadgetui.input.LookupListInput;

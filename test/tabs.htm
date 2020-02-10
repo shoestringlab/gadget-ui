@@ -1,0 +1,85 @@
+<!doctype html>
+<html>
+	<head>
+		<title>gadget-ui Tabs Test</title>
+		<link rel="stylesheet" href="/dist/gadget-ui.css"/>
+		<link rel="stylesheet" href="/bower_components/open-iconic/font/css/open-iconic.css"/>
+
+ 		<script type="module">
+			import {tabs,constructor} from '/dist/gadget-ui.es6.js';
+
+			var tbs = constructor( tabs, [ document.querySelector("#tabs-h"), { } ] );
+			var tbs3 = constructor( tabs, [ document.querySelector("#tabs-v"), { direction: 'vertical' } ] );
+		</script>
+
+		<style>
+			body {font-size: 1em;}
+			input, select, select option{ font-size: 1em;}
+      #header{
+        display: flex;
+				padding: .5em .25em .25em .25em;
+        background: #777;
+      }
+
+      #tabs-h{
+        width:500px;
+      }
+
+			#vertTabContainer{
+			/* 	display: grid;
+				grid-template-columns: 10em auto; */
+				border:1px solid silver;
+				width: 50%;
+			}
+
+			#tabs-v{
+				width: 10em;
+				display:inline-block;
+				height: 320px;
+			}
+
+			.vtabContent{
+				display:inline;
+				width:auto;
+			}
+
+			.vcontentContainer{
+				height: 300px;
+
+				display: inline-block;
+				vertical-align: top;
+				padding-left: 1em;
+				padding-top: 1em;
+			}
+		</style>
+	</head>
+
+	<body>
+	<div style="width: 515px;">
+    <div id="tabs-h">
+      <div data-tab="tab-h1">One</div>
+      <div data-tab="tab-h2">Two</div>
+      <div data-tab="tab-h3">Three</div>
+    </div>
+		<div style="border:1px solid silver; height: 300px; padding: 1em;">
+	    <div id="tab-h1">Content One</div>
+	    <div id="tab-h2">Content Two</div>
+	    <div id="tab-h3">Content Three</div>
+		</div>
+	</div>
+	<br><br>
+	<div id="vertTabContainer">
+		<div id="tabs-v">
+			<div data-tab="tab-v1">One</div>
+			<div data-tab="tab-v2">Two</div>
+			<div data-tab="tab-v3">Three</div>
+		</div>
+		<div class="vcontentContainer">
+			<div id="tab-v1" class="vtabContent">Content One</div>
+			<div id="tab-v2" class="vtabContent">Content Two</div>
+			<div id="tab-v3" class="vtabContent">Content Three</div>
+		</div>
+	</div>
+
+	</body>
+</html>

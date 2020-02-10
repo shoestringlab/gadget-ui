@@ -3,6 +3,10 @@ gadget-ui
 
 JavaScript UI and data binding library
 
+v 6.8.0
+
+This release adds a Tabs control for vertical and horizontal tabs.
+
 v 6.7.0
 
 This release adds an autoOpen option for the Modal control and an image option for the Menu control.
