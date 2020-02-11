@@ -23,6 +23,15 @@ gadgetui.objects.Constructor( gadgetui.input.TextInput, [
 		}
 	]);
 
+	gadgetui.objects.Constructor( gadgetui.input.TextInput, [
+			document.querySelector( "input[name='nickname']" ),
+			{
+				emitEvents : true,
+				enforceMaxWidth: true,
+				hideable: false
+			}
+		]);
+
 
 document.querySelector( "input[name='firstname']" )
 	.addEventListener( "gadgetui-input-change", function( event ){

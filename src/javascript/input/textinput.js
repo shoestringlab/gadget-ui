@@ -16,35 +16,42 @@ function TextInput( selector, options ){
 	this.addCSS();
 	// bind to the model if binding is specified
 	gadgetui.util.bind( this.selector, this.model );
-	// bind to the model if binding is specified
-	gadgetui.util.bind( this.label, this.model );
+	if( this.hideable ){
+		// bind to the model if binding is specified
+		gadgetui.util.bind( this.label, this.model );
+	}
 	this.addBindings();
 }
 
 TextInput.prototype.addControl = function(){
 	this.wrapper = document.createElement( "div" );
-	this.labelDiv = document.createElement( "div" );
 	this.inputDiv = document.createElement( "div" );
-	this.label = document.createElement( "input" );
 
-	this.label.setAttribute( "type", "text" );
-	this.label.setAttribute( "data-active", "false" );
-	this.label.setAttribute( "readonly", "true" );
-	this.label.setAttribute( "value", this.value );
-	this.label.setAttribute( "gadgetui-bind", this.selector.getAttribute( "gadgetui-bind" ) );
-	this.labelDiv.appendChild( this.label );
+	if( this.hideable ){
+		this.labelDiv = document.createElement( "div" );
+		this.label = document.createElement( "input" );
+		this.label.setAttribute( "type", "text" );
+		this.label.setAttribute( "data-active", "false" );
+		this.label.setAttribute( "readonly", "true" );
+		this.label.setAttribute( "value", this.value );
+		this.label.setAttribute( "gadgetui-bind", this.selector.getAttribute( "gadgetui-bind" ) );
+		this.labelDiv.appendChild( this.label );
+	}
 
 	this.selector.parentNode.insertBefore( this.wrapper, this.selector );
 	this.selector.parentNode.removeChild( this.selector );
 
 	this.inputDiv.appendChild( this.selector );
 	this.wrapper.appendChild( this.inputDiv );
-	this.selector.parentNode.parentNode.insertBefore( this.labelDiv, this.inputDiv );
-
+	if( this.hideable ){
+		this.selector.parentNode.parentNode.insertBefore( this.labelDiv, this.inputDiv );
+		this.labelDiv = this.wrapper.childNodes[0];
+		this.label = this.labelDiv.childNodes[0];
+		this.inputDiv = this.wrapper.childNodes[1];
+	}else{
+		this.inputDiv = this.wrapper.childNodes[0];
+	}
 	this.wrapper = this.selector.parentNode.parentNode;
-	this.labelDiv = this.wrapper.childNodes[0];
-	this.label = this.labelDiv.childNodes[0];
-	this.inputDiv = this.wrapper.childNodes[1];
 };
 
 TextInput.prototype.setInitialValue = function(){
@@ -90,29 +97,32 @@ TextInput.prototype.addCSS = function(){
 	// add CSS classes
 	gadgetui.util.addClass( this.selector, "gadgetui-textinput" );
 	gadgetui.util.addClass( this.wrapper, "gadgetui-textinput-div" );
-	gadgetui.util.addClass( this.labelDiv, "gadgetui-inputlabel" );
-	gadgetui.util.addClass( this.label, "gadgetui-inputlabelinput" );
 	gadgetui.util.addClass( this.inputDiv, "gadgetui-inputdiv" );
 
-	css( this.label, "width", this.width + "px" );
-	css( this.label, "font-family", style.fontFamily );
-	css( this.label, "font-size", style.fontSize );
-	css( this.label, "font-weight", style.fontWeight );
-	css( this.label, "font-variant", style.fontVariant );
+	if( this.hideable ){
+		gadgetui.util.addClass( this.labelDiv, "gadgetui-inputlabel" );
+		gadgetui.util.addClass( this.label, "gadgetui-inputlabelinput" );
 
-	css( this.label, "max-width", "" );
-	css( this.label, "min-width", this.minWidth + "px" );
+		css( this.label, "width", this.width + "px" );
+		css( this.label, "font-family", style.fontFamily );
+		css( this.label, "font-size", style.fontSize );
+		css( this.label, "font-weight", style.fontWeight );
+		css( this.label, "font-variant", style.fontVariant );
+
+		css( this.label, "max-width", "" );
+		css( this.label, "min-width", this.minWidth + "px" );
+	}
 
 	if( this.lineHeight > 20 ){
 		// add min height to label div as well so label/input isn't offset vertically
 		css( this.wrapper, "min-height", this.lineHeight + "px" );
-		css( this.labelDiv, "min-height", this.lineHeight + "px" );
+		if( this.hideable ) css( this.labelDiv, "min-height", this.lineHeight + "px" );
 		css( this.inputDiv, "min-height", this.lineHeight + "px" );
 	}
-
-	css( this.labelDiv, "height", this.lineHeight + "px" );
-	css( this.labelDiv, "font-size", style.fontSize );
-
+	if( this.hideable ){
+		css( this.labelDiv, "height", this.lineHeight + "px" );
+		css( this.labelDiv, "font-size", style.fontSize );
+	}
 	css( this.inputDiv, "height", this.lineHeight + "px" );
 	css( this.inputDiv, "font-size", style.fontSize );
 
@@ -132,17 +142,17 @@ TextInput.prototype.addCSS = function(){
 		css( this.labelDiv, "display", "block" );
 		css( this.inputDiv, "display", "none" );
 	}else{
-		css( this.labelDiv, "display", 'none' );
+		//css( this.labelDiv, "display", 'none' );
 		css( this.inputDiv, "display", 'block' );
 	}
 
 
 	if( this.maxWidth > 10 && this.enforceMaxWidth === true ){
-		css( this.label, "max-width", this.maxWidth );
+		if( this.hideable ) css( this.label, "max-width", this.maxWidth );
 		css( this.selector, "max-width", this.maxWidth );
 
 		if( this.maxWidth < this.width ){
-			this.label.value = gadgetui.util.fitText( this.value, this.font, this.maxWidth );
+			if( this.hideable ) this.label.value = gadgetui.util.fitText( this.value, this.font, this.maxWidth );
 		}
 	}
 };
@@ -154,7 +164,7 @@ TextInput.prototype.setControlWidth = function( text ){
 		textWidth = this.minWidth;
 	}
 	css( this.selector, "width", ( textWidth + 30 ) + "px" );
-	css( this.label, "width", ( textWidth + 30 ) + "px" );
+	if( this.hideable ) css( this.label, "width", ( textWidth + 30 ) + "px" );
 };
 
 TextInput.prototype.addBindings = function(){
@@ -217,7 +227,7 @@ TextInput.prototype.addBindings = function(){
 				if( _this.maxWidth < txtWidth ){
 					value = gadgetui.util.fitText( value, _this.font, _this.maxWidth );
 				}
-				_this.label.value = value;
+				if( this.hideable ) _this.label.value = value;
 				if( _this.model !== undefined && _this.selector.getAttribute( "gadgetui-bind" ) === undefined ){
 					// if we have specified a model but no data binding, change the model value
 					_this.model.set( _this.selector.name, event.target.value );
