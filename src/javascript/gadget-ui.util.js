@@ -158,7 +158,7 @@ gadgetui.util = ( function() {
 			var bindVar = selector.getAttribute( "gadgetui-bind" );
 
 			// if binding was specified, make it so
-			if ( bindVar !== undefined && model !== undefined ) {
+			if ( bindVar !== undefined && bindVar !== null && model !== undefined ) {
 				model.bind( bindVar, selector );
 			}
 		},
