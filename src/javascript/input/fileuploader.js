@@ -25,7 +25,7 @@ FileUploader.prototype.render = function(title) {
     };
     //var tabDiv = document.querySelector("div[name='" + tab.name + "']", self.selector);
     self.selector.innerHTML =
-      '<div style="padding:10px;" class="gadgetui-fileuploader-wrapper"><div name="dropzone" class="gadgetui-fileuploader-dropzone" id="dropzone"><div class="gadgetui-fileuploader-dropmessage" name="dropMessageDiv">' +
+      '<div class="gadgetui-fileuploader-wrapper"><div name="dropzone" class="gadgetui-fileuploader-dropzone"><div class="gadgetui-fileuploader-dropmessage" name="dropMessageDiv">' +
       options.dropMessage +
       '</span></div></div><div name="filedisplay" class="gadgetui-fileuploader-filedisplay" style="display:none;"></div><div class="buttons full"><div class="fileUpload" name="fileUpload"><input type="file" name="fileselect" class="upload" title="' +
       options.fileSelectLbl +
@@ -69,9 +69,6 @@ FileUploader.prototype.setDimensions = function() {
       this.selector
     ),
     buttons = document.querySelector("div[class~='buttons']", this.selector);
-
-  css(dropzone, "height", uHeight - gadgetui.util.getNumberValue(gadgetui.util.getStyle(buttons, "height")) - 100);
-  css(dropzone, "width", uWidth);
 
   css(filedisplay, "height", uHeight - gadgetui.util.getNumberValue(gadgetui.util.getStyle(buttons, "height")) - 100);
   css(filedisplay, "width", uWidth);
@@ -186,91 +183,6 @@ FileUploader.prototype.generateThumbnails = function(wrappedFiles) {
   // not going to convert this functionality right now
   this.upload(wrappedFiles);
 };
-
-/*
-FileUploader.prototype.generateThumbnails = function( wrappedFiles ){
-  var self = this;
-  var pdfThumbnail = function(wrappedFile, idx) {
-      var pdfURL = URL.createObjectURL(wrappedFile.file);
-      wrappedFile.progressbar.update(" - generating thumbnail");
-      PDFJS.getDocument(pdfURL).then(function(pdf) {
-        pdf.getPage(1).then(function(page) {
-          var renderContext,
-            viewport = page.getViewport(0.5),
-            canvas = document.createElement("canvas"),
-            ctx = canvas.getContext("2d");
-          canvas.height = viewport.height;
-          canvas.width = viewport.width;
-
-          renderContext = {
-            canvasContext: ctx,
-            viewport: viewport
-          };
-
-          page.render(renderContext).then(function() {
-            //set to draw behind current content
-            ctx.globalCompositeOperation = "destination-over";
-
-            //set background color
-            ctx.fillStyle = "#ffffff";
-
-            //draw background / rect on entire canvas
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
-            var img = canvas.toDataURL();
-            wrappedFile = $.extend(wrappedFile, { tile: img });
-            if (idx === wrappedFiles.length - 1) {
-              self.upload( wrappedFiles );
-            }
-          });
-        });
-      });
-    },
-    imageThumbnail = function(wrappedFile, idx) {
-      try {
-        wrappedFile.progressbar.update(" - generating thumbnail");
-        $.canvasResize(wrappedFile.file, {
-          width: 200,
-          height: 0,
-          crop: false,
-          quality: 80,
-          callback: function(data, width, height) {
-            //file.progressbar.update( " - generated thumbnail" );
-            wrappedFile = $.extend(wrappedFile, { tile: data });
-            if (idx === wrappedFiles.length - 1) {
-              self.upload( wrappedFiles );
-            }
-          }
-        });
-      } catch (ev) {
-        //could not parse image
-      }
-    };
-
-  $.each(wrappedFiles, function(ix, wrappedFile) {
-    switch (wrappedFile.file.type) {
-      case "application/pdf":
-        pdfThumbnail(wrappedFile, ix);
-        break;
-      case "image/jpg":
-      case "image/jpeg":
-      case "image/png":
-      case "image/gif":
-        imageThumbnail(wrappedFile, ix);
-        break;
-      default:
-        //console.log( "Could not generate tile on client." );
-        wrappedFile.progressbar.update(
-          "Could not generate thumbnail on client"
-        );
-        wrappedFile = $.extend(wrappedFile, { tile: "" });
-        if (ix === wrappedFiles.length - 1) {
-          self.upload( wrappedFiles );
-        }
-        break;
-    }
-  });
-};
- */
 
 FileUploader.prototype.upload = function(wrappedFiles) {
   wrappedFiles.forEach(function(wrappedFile) {
