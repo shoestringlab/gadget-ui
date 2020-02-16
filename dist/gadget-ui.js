@@ -757,11 +757,22 @@ function FileUploadWrapper(file, selector) {
   }
 }
 
-FileUploadWrapper.prototype.events = ["uploadComplete"];
+FileUploadWrapper.prototype.events = ["uploadComplete","uploadAborted"];
 
 FileUploadWrapper.prototype.completeUpload = function(fileItem) {
-  this.progressbar.destroy();
-  this.fireEvent("uploadComplete", fileItem);
+  let finish = function() {
+    this.progressbar.destroy();
+    this.fireEvent("uploadComplete", fileItem);
+  }.bind(this);
+  setTimeout( finish, 1000);
+};
+
+FileUploadWrapper.prototype.abortUpload = function(fileItem) {
+  let aborted = function() {
+    this.progressbar.destroy();
+    this.fireEvent("uploadAborted", fileItem);
+  }.bind(this);
+  setTimeout( aborted, 1000);
 };
 
 function FloatingPane( selector, options ){
@@ -1222,28 +1233,19 @@ ProgressBar.prototype.configure = function(options) {
 
 ProgressBar.prototype.render = function() {
   var css = gadgetui.util.setStyle;
-/*   document.querySelector(this.selector).append(
-    '<div class="gadgetui-progressbar-progressbox" name="progressbox_' +
-      this.id +
-      '" style="display:none;"><div name="filename" class="gadgetui-progressbar-filename">' +
-      this.filename +
-      '</div><div class="progressbar" name="progressbar_' +
-      this.id +
-      '"></div ><div name="statustxt" class="statustxt">0%</div></div>'
-  ); */
+
   var pbDiv = document.createElement( "div" );
   pbDiv.setAttribute( "name", "progressbox_" + this.id );
   gadgetui.util.addClass( pbDiv, "gadgetui-progressbar-progressbox" );
-  css( pbDiv, "display", "none" );
 
   var fileDiv = document.createElement( "div" );
   fileDiv.setAttribute( "name", "filename" );
   gadgetui.util.addClass( fileDiv, "gadgetui-progressbar-filename" );
-  fileDiv.innerText = this.filename;
+  fileDiv.innerText = " " + this.filename + " ";
   pbDiv.appendChild( fileDiv );
 
   var pbarDiv = document.createElement( "div" );
-  gadgetui.util.addClass( pbarDiv, "progressbar" );
+  gadgetui.util.addClass( pbarDiv, "gadget-ui-progressbar" );
   pbarDiv.setAttribute( "name", "progressbar_" + this.id );
   pbDiv.appendChild( pbarDiv );
 
@@ -1255,17 +1257,9 @@ ProgressBar.prototype.render = function() {
 
   this.selector.appendChild( pbDiv );
 
-  this.progressbox = document.querySelector(
-    "div[name='progressbox_" + this.id + "']",
-    this.selector
-  );
-  this.progressbar = document.querySelector(
-    "div[name='progressbar_" + this.id + "']",
-    this.selector
-  );
-  this.statustxt = document.querySelector( "div[name='statustxt']", document.querySelector("div[name='progressbox_" + this.id + "']", this.selector) );
-  css( this.progressbox, "display", "inline-block" );
-  css( this.progressbox, "width", this.width );
+  this.progressbox = this.selector.querySelector( "div[name='progressbox_" + this.id + "']" );
+  this.progressbar = this.selector.querySelector( "div[name='progressbar_" + this.id + "']" );
+  this.statustxt = this.selector.querySelector( "div[name='progressbox_" + this.id + "'] div[name='statustxt']" );
 };
 
 ProgressBar.prototype.start = function() {
@@ -1280,9 +1274,6 @@ ProgressBar.prototype.updatePercent = function(percent) {
   this.percent = percent;
   css( this.progressbar, "width", percentage);
   this.statustxt.innerHTML = percentage;
-  if (percent > 50) {
-    css(this.statustxt,"color", "#fff");
-  }
 };
 
 ProgressBar.prototype.update = function(text) {
@@ -1905,8 +1896,7 @@ function FileUploader(selector, options) {
 }
 
 FileUploader.prototype.render = function(title) {
-  var self = this,
-    data,
+  var data,
     options,
     title = title,
     files;
@@ -1915,29 +1905,23 @@ FileUploader.prototype.render = function(title) {
     var css = gadgetui.util.setStyle;
     var options = {
       title: title,
-      addFile: self.addFileMessage,
-      dropMessage: self.dropMessage,
+      addFile: this.addFileMessage,
+      dropMessage: this.dropMessage,
       fileSelectLbl: ""
     };
-    //var tabDiv = document.querySelector("div[name='" + tab.name + "']", self.selector);
-    self.selector.innerHTML =
-      '<div style="padding:10px;" class="gadgetui-fileuploader-wrapper"><div name="dropzone" class="gadgetui-fileuploader-dropzone" id="dropzone"><div class="gadgetui-fileuploader-dropmessage" name="dropMessageDiv">' +
+    this.selector.innerHTML =
+      '<div class="gadgetui-fileuploader-wrapper"><div name="dropzone" class="gadgetui-fileuploader-dropzone"><div name="filedisplay" class="gadgetui-fileuploader-filedisplay" style="display:none;"></div><div class="gadgetui-fileuploader-dropmessage" name="dropMessageDiv">' +
       options.dropMessage +
-      '</span></div></div><div name="filedisplay" class="gadgetui-fileuploader-filedisplay" style="display:none;"></div><div class="buttons full"><div class="fileUpload" name="fileUpload"><input type="file" name="fileselect" class="upload" title="' +
+      '</span></div><div class="buttons full"><div class="fileUpload" name="fileUpload"><input type="file" name="fileselect" class="upload" title="' +
       options.fileSelectLbl +
-      '"></div></div>';
+      '"></div></div></div>';
 
-      if( self.showUploadButton === false ){
-        css( document.querySelector( "div[name='fileUpload']", self.selector ), "display", "none" );
+      if( this.showUploadButton === false ){
+        css( this.selector.querySelector( "div[name='fileUpload']" ), "display", "none" );
       }
 
-      var left = gadgetui.util.getNumberValue( gadgetui.util.getStyle( self.selector, "width" ) ) - ( gadgetui.util.textWidth( document.querySelector( "div[name='dropMessageDiv']", self.selector ).innerText, self.selector.style ) );
-      var top = gadgetui.util.getNumberValue( gadgetui.util.getStyle( self.selector, "height" ) ) / 2;
-      css( document.querySelector( "div[name='dropMessageDiv']", self.selector ), "left", left );
-      css( document.querySelector( "div[name='dropMessageDiv']", self.selector ), "top", top );
-
-    self.renderDropZone();
-  };
+    this.renderDropZone();
+  }.bind(this);
 
   renderUploader();
 };
@@ -1952,50 +1936,39 @@ FileUploader.prototype.configure = function(options) {
   this.showUploadButton = ( options.showUploadButton !== undefined ? options.showUploadButton : true );
   this.addFileMessage = ( options.addFileMessage !== undefined ? options.addFileMessage : "Add a File" );
   this.dropMessage = ( options.dropMessage !== undefined ? options.dropMessage : "Drop Files Here" );
-
+  this.uploadErrorMessage = ( options.uploadErrorMessage !== undefined ? options.uploadErrorMessage : "Upload error." );
 };
 
 FileUploader.prototype.setDimensions = function() {
   var css = gadgetui.util.setStyle;
   var uHeight = gadgetui.util.getNumberValue(gadgetui.util.getStyle(this.selector, "height")),
     uWidth = gadgetui.util.getNumberValue(gadgetui.util.getStyle(this.selector, "width")),
-    dropzone = document.querySelector("div[class='gadgetui-fileuploader-dropzone']", this.selector),
-    filedisplay = document.querySelector(
-      "div[class='gadgetui-fileuploader-filedisplay']",
-      this.selector
-    ),
-    buttons = document.querySelector("div[class~='buttons']", this.selector);
-
-  css(dropzone, "height", uHeight - gadgetui.util.getNumberValue(gadgetui.util.getStyle(buttons, "height")) - 100);
-  css(dropzone, "width", uWidth);
-
-  css(filedisplay, "height", uHeight - gadgetui.util.getNumberValue(gadgetui.util.getStyle(buttons, "height")) - 100);
-  css(filedisplay, "width", uWidth);
+    dropzone = this.selector.querySelector( "div[class='gadgetui-fileuploader-dropzone']" ),
+    filedisplay = this.selector.querySelector( "div[class='gadgetui-fileuploader-filedisplay']" ),
+    buttons = this.selector.querySelector( "div[class~='buttons']" );
 };
 
 FileUploader.prototype.setEventHandlers = function() {
-  var self = this;
-  document.querySelector("input[name='fileselect']", self.selector).addEventListener("change", function(evt) {
-    var dropzone = document.querySelector("div[name='dropzone']", self.selector),
-      filedisplay = document.querySelector("div[name='filedisplay']", self.selector);
+  this.selector.querySelector("input[name='fileselect']").addEventListener("change", function(evt) {
+    var dropzone = this.selector.querySelector("div[name='dropzone']"),
+      filedisplay = this.selector.querySelector("div[name='filedisplay']");
 
-    self.processUpload(
+    this.processUpload(
       evt,
       evt.target.files,
       dropzone,
       filedisplay
     );
-  });
+  }.bind(this));
 };
 
 FileUploader.prototype.renderDropZone = function() {
   // if we decide to drop files into a drag/drop zone
 
-  var dropzone = document.querySelector("div[name='dropzone']", this.selector),
-    filedisplay = document.querySelector("div[name='filedisplay']", this.selector),
-    self = this;
+  var dropzone = this.selector.querySelector("div[name='dropzone']"),
+    filedisplay = this.selector.querySelector("div[name='filedisplay']");
 
-    document.addEventListener( "dragstart", function( ev ){
+    this.selector.addEventListener( "dragstart", function( ev ){
       ev.dataTransfer.setData("text",  "data");
       ev.dataTransfer.effectAllowed = "copy";
     });
@@ -2014,28 +1987,28 @@ FileUploader.prototype.renderDropZone = function() {
   });
 
   dropzone.addEventListener("dragover", function(ev) {
-    self.handleDragOver(ev);
+    this.handleDragOver(ev);
     ev.dataTransfer.dropEffect = "copy";
-  });
+  }.bind(this));
 
   dropzone.addEventListener("drop", function(ev) {
     ev.stopPropagation();
     ev.preventDefault();
 
-    self.processUpload(
+    this.processUpload(
       ev,
       ev.dataTransfer.files,
       dropzone,
       filedisplay
     );
-  });
+  }.bind(this));
 };
 
 FileUploader.prototype.processUpload = function(event, files, dropzone, filedisplay) {
-  var self = this,
-    wrappedFile;
+  var wrappedFile;
   var css = gadgetui.util.setStyle;
-  self.uploadingFiles = [];
+  this.uploadingFiles = [];
+  css(filedisplay, "display", "inline");
 
   for (var idx = 0; idx < files.length; idx++) {
     wrappedFile = gadgetui.objects.Constructor(
@@ -2043,38 +2016,34 @@ FileUploader.prototype.processUpload = function(event, files, dropzone, filedisp
         true
       ]);
 
-    self.uploadingFiles.push(wrappedFile);
+    this.uploadingFiles.push(wrappedFile);
     wrappedFile.on("uploadComplete", function(fileWrapper) {
       var ix;
-      for (ix = 0; ix < self.uploadingFiles.length; ix++) {
-        if (self.uploadingFiles[ix].id === fileWrapper.id) {
-          self.uploadingFiles.splice(ix, 1);
+      for (ix = 0; ix < this.uploadingFiles.length; ix++) {
+        if (this.uploadingFiles[ix].id === fileWrapper.id) {
+          this.uploadingFiles.splice(ix, 1);
         }
       }
-      if (self.uploadingFiles.length === 0) {
-        self.show("dropzone");
-        self.setDimensions();
+      if (this.uploadingFiles.length === 0) {
+        this.show("dropzone");
+        this.setDimensions();
       }
-    });
+    }.bind(this));
   }
 
   gadgetui.util.removeClass(dropzone, "highlighted");
 
-  css(dropzone, "display", "none");
-  css(filedisplay, "display", "table-cell");
-
-  self.handleFileSelect(self.uploadingFiles, event);
+  this.handleFileSelect(this.uploadingFiles, event);
 };
 
 FileUploader.prototype.handleFileSelect = function(wrappedFiles, evt) {
   evt.stopPropagation();
   evt.preventDefault();
-  var self = this;
 
-  if (self.willGenerateThumbnails) {
-    self.generateThumbnails(wrappedFiles);
+  if (this.willGenerateThumbnails) {
+    this.generateThumbnails(wrappedFiles);
   } else {
-    self.upload(wrappedFiles);
+    this.upload(wrappedFiles);
   }
 };
 
@@ -2082,91 +2051,6 @@ FileUploader.prototype.generateThumbnails = function(wrappedFiles) {
   // not going to convert this functionality right now
   this.upload(wrappedFiles);
 };
-
-/*
-FileUploader.prototype.generateThumbnails = function( wrappedFiles ){
-  var self = this;
-  var pdfThumbnail = function(wrappedFile, idx) {
-      var pdfURL = URL.createObjectURL(wrappedFile.file);
-      wrappedFile.progressbar.update(" - generating thumbnail");
-      PDFJS.getDocument(pdfURL).then(function(pdf) {
-        pdf.getPage(1).then(function(page) {
-          var renderContext,
-            viewport = page.getViewport(0.5),
-            canvas = document.createElement("canvas"),
-            ctx = canvas.getContext("2d");
-          canvas.height = viewport.height;
-          canvas.width = viewport.width;
-
-          renderContext = {
-            canvasContext: ctx,
-            viewport: viewport
-          };
-
-          page.render(renderContext).then(function() {
-            //set to draw behind current content
-            ctx.globalCompositeOperation = "destination-over";
-
-            //set background color
-            ctx.fillStyle = "#ffffff";
-
-            //draw background / rect on entire canvas
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
-            var img = canvas.toDataURL();
-            wrappedFile = $.extend(wrappedFile, { tile: img });
-            if (idx === wrappedFiles.length - 1) {
-              self.upload( wrappedFiles );
-            }
-          });
-        });
-      });
-    },
-    imageThumbnail = function(wrappedFile, idx) {
-      try {
-        wrappedFile.progressbar.update(" - generating thumbnail");
-        $.canvasResize(wrappedFile.file, {
-          width: 200,
-          height: 0,
-          crop: false,
-          quality: 80,
-          callback: function(data, width, height) {
-            //file.progressbar.update( " - generated thumbnail" );
-            wrappedFile = $.extend(wrappedFile, { tile: data });
-            if (idx === wrappedFiles.length - 1) {
-              self.upload( wrappedFiles );
-            }
-          }
-        });
-      } catch (ev) {
-        //could not parse image
-      }
-    };
-
-  $.each(wrappedFiles, function(ix, wrappedFile) {
-    switch (wrappedFile.file.type) {
-      case "application/pdf":
-        pdfThumbnail(wrappedFile, ix);
-        break;
-      case "image/jpg":
-      case "image/jpeg":
-      case "image/png":
-      case "image/gif":
-        imageThumbnail(wrappedFile, ix);
-        break;
-      default:
-        //console.log( "Could not generate tile on client." );
-        wrappedFile.progressbar.update(
-          "Could not generate thumbnail on client"
-        );
-        wrappedFile = $.extend(wrappedFile, { tile: "" });
-        if (ix === wrappedFiles.length - 1) {
-          self.upload( wrappedFiles );
-        }
-        break;
-    }
-  });
-};
- */
 
 FileUploader.prototype.upload = function(wrappedFiles) {
   wrappedFiles.forEach(function(wrappedFile) {
@@ -2177,7 +2061,7 @@ FileUploader.prototype.upload = function(wrappedFiles) {
 };
 
 FileUploader.prototype.uploadFile = function(wrappedFiles) {
-  var self = this;
+
   var process = function() {
     var blob,
       chunks = [],
@@ -2215,18 +2099,17 @@ FileUploader.prototype.uploadFile = function(wrappedFiles) {
       }
 
       // start the upload process
-      self.uploadChunk(wrappedFiles[j], chunks, 1, parts);
+      this.uploadChunk(wrappedFiles[j], chunks, 1, parts);
     }
-  };
+  }.bind(this);
   // process files
   process();
 };
 
 FileUploader.prototype.uploadChunk = function(wrappedFile, chunks, filepart, parts) {
   var xhr = new XMLHttpRequest(),
-    self = this,
     response,
-    tags = self.tags === undefined ? "" : self.tags;
+    tags = this.tags === undefined ? "" : this.tags;
 
   if (wrappedFile.file.type.substr(0, 5) === "image") {
     tags = "image " + tags;
@@ -2236,37 +2119,49 @@ FileUploader.prototype.uploadChunk = function(wrappedFile, chunks, filepart, par
     var json;
 
     if (xhr.readyState === 4) {
-      response = xhr.response;
+      if( parseInt( xhr.status, 10 ) !== 200 ){
+        this.handleUploadError(xhr,{},wrappedFile);
+      }else{
+        response = xhr.response;
 
-      if (filepart <= parts) {
-        wrappedFile.progressbar.updatePercent(
-          parseInt(filepart / parts * 100, 10)
-        );
-      }
-      if (filepart < parts) {
-        wrappedFile.id = xhr.getResponseHeader("X-Id");
-        filepart++;
-        self.uploadChunk(
-          wrappedFile,
-          chunks,
-          filepart,
-          parts
-        );
-      } else {
-        try {
-          json = {
-            data: JSON.parse(response)
-          };
-        } catch (e) {
-          json = {};
+        if (filepart <= parts) {
+          wrappedFile.progressbar.updatePercent(
+            parseInt(filepart / parts * 100, 10)
+          );
         }
+        if (filepart < parts) {
+          wrappedFile.id = xhr.getResponseHeader("X-Id");
 
-        self.handleUploadResponse(json, wrappedFile);
+          filepart++;
+          this.uploadChunk(
+            wrappedFile,
+            chunks,
+            filepart,
+            parts
+          );
+        } else {
+          try {
+            json = {
+              data: JSON.parse(response)
+            };
+          } catch (e) {
+            json = {};
+            this.handleUploadError(xhr,json,wrappedFile);
+          }
+
+          if( json.data !== null && json.data !== undefined ){
+            this.handleUploadResponse(json, wrappedFile);
+          }else{
+            this.handleUploadError(xhr,json,wrappedFile);
+          }
+
+        }
       }
-    }
-  };
 
-  xhr.open("POST", self.uploadURI, true);
+    }
+  }.bind(this);
+
+  xhr.open("POST", this.uploadURI, true);
   if (filepart === 1) {
     xhr.setRequestHeader("X-Tags", tags);
   }
@@ -2291,7 +2186,7 @@ FileUploader.prototype.uploadChunk = function(wrappedFile, chunks, filepart, par
 };
 
 FileUploader.prototype.handleUploadResponse = function(json, wrappedFile) {
-  var self = this;
+
   var fileItem = gadgetui.objects.Constructor(
     gadgetui.objects.FileItem, [{
       mimetype: json.data.mimetype,
@@ -2310,18 +2205,20 @@ FileUploader.prototype.handleUploadResponse = function(json, wrappedFile) {
   // fire completeUpload event so upload dialog can clean itself up
   wrappedFile.completeUpload(fileItem);
 
-  if (self.onUploadComplete !== undefined) {
-    self.onUploadComplete(fileItem);
+  if (this.onUploadComplete !== undefined) {
+    this.onUploadComplete(fileItem);
   }
+};
+
+FileUploader.prototype.handleUploadError = function( xhr, json, wrappedFile ){
+  wrappedFile.progressbar.progressbox.innerText = this.uploadErrorMessage;
+  wrappedFile.abortUpload(wrappedFile);
 };
 
 FileUploader.prototype.show = function(name) {
   var css = gadgetui.util.setStyle;
-  var dropzone = document.querySelector("div[class='gadgetui-fileuploader-dropzone']", this.selector),
-    filedisplay = document.querySelector(
-      "div[class='gadgetui-fileuploader-filedisplay']",
-      this.selector
-    );
+  var dropzone = this.selector.querySelector( "div[class='gadgetui-fileuploader-dropzone']" ),
+    filedisplay = this.selector.querySelector( "div[class='gadgetui-fileuploader-filedisplay']" );
   if (name === "dropzone") {
     css(dropzone, "display", "table-cell");
     css(filedisplay, "display", "none");

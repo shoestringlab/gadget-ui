@@ -9,8 +9,7 @@ function FileUploader(selector, options) {
 }
 
 FileUploader.prototype.render = function(title) {
-  var self = this,
-    data,
+  var data,
     options,
     title = title,
     files;
@@ -19,29 +18,23 @@ FileUploader.prototype.render = function(title) {
     var css = gadgetui.util.setStyle;
     var options = {
       title: title,
-      addFile: self.addFileMessage,
-      dropMessage: self.dropMessage,
+      addFile: this.addFileMessage,
+      dropMessage: this.dropMessage,
       fileSelectLbl: ""
     };
-    //var tabDiv = document.querySelector("div[name='" + tab.name + "']", self.selector);
-    self.selector.innerHTML =
-      '<div class="gadgetui-fileuploader-wrapper"><div name="dropzone" class="gadgetui-fileuploader-dropzone"><div class="gadgetui-fileuploader-dropmessage" name="dropMessageDiv">' +
+    this.selector.innerHTML =
+      '<div class="gadgetui-fileuploader-wrapper"><div name="dropzone" class="gadgetui-fileuploader-dropzone"><div name="filedisplay" class="gadgetui-fileuploader-filedisplay" style="display:none;"></div><div class="gadgetui-fileuploader-dropmessage" name="dropMessageDiv">' +
       options.dropMessage +
-      '</span></div></div><div name="filedisplay" class="gadgetui-fileuploader-filedisplay" style="display:none;"></div><div class="buttons full"><div class="fileUpload" name="fileUpload"><input type="file" name="fileselect" class="upload" title="' +
+      '</span></div><div class="buttons full"><div class="fileUpload" name="fileUpload"><input type="file" name="fileselect" class="upload" title="' +
       options.fileSelectLbl +
-      '"></div></div>';
+      '"></div></div></div>';
 
-      if( self.showUploadButton === false ){
-        css( document.querySelector( "div[name='fileUpload']", self.selector ), "display", "none" );
+      if( this.showUploadButton === false ){
+        css( this.selector.querySelector( "div[name='fileUpload']" ), "display", "none" );
       }
 
-      var left = gadgetui.util.getNumberValue( gadgetui.util.getStyle( self.selector, "width" ) ) - ( gadgetui.util.textWidth( document.querySelector( "div[name='dropMessageDiv']", self.selector ).innerText, self.selector.style ) );
-      var top = gadgetui.util.getNumberValue( gadgetui.util.getStyle( self.selector, "height" ) ) / 2;
-      css( document.querySelector( "div[name='dropMessageDiv']", self.selector ), "left", left );
-      css( document.querySelector( "div[name='dropMessageDiv']", self.selector ), "top", top );
-
-    self.renderDropZone();
-  };
+    this.renderDropZone();
+  }.bind(this);
 
   renderUploader();
 };
@@ -56,47 +49,39 @@ FileUploader.prototype.configure = function(options) {
   this.showUploadButton = ( options.showUploadButton !== undefined ? options.showUploadButton : true );
   this.addFileMessage = ( options.addFileMessage !== undefined ? options.addFileMessage : "Add a File" );
   this.dropMessage = ( options.dropMessage !== undefined ? options.dropMessage : "Drop Files Here" );
-
+  this.uploadErrorMessage = ( options.uploadErrorMessage !== undefined ? options.uploadErrorMessage : "Upload error." );
 };
 
 FileUploader.prototype.setDimensions = function() {
   var css = gadgetui.util.setStyle;
   var uHeight = gadgetui.util.getNumberValue(gadgetui.util.getStyle(this.selector, "height")),
     uWidth = gadgetui.util.getNumberValue(gadgetui.util.getStyle(this.selector, "width")),
-    dropzone = document.querySelector("div[class='gadgetui-fileuploader-dropzone']", this.selector),
-    filedisplay = document.querySelector(
-      "div[class='gadgetui-fileuploader-filedisplay']",
-      this.selector
-    ),
-    buttons = document.querySelector("div[class~='buttons']", this.selector);
-
-  css(filedisplay, "height", uHeight - gadgetui.util.getNumberValue(gadgetui.util.getStyle(buttons, "height")) - 100);
-  css(filedisplay, "width", uWidth);
+    dropzone = this.selector.querySelector( "div[class='gadgetui-fileuploader-dropzone']" ),
+    filedisplay = this.selector.querySelector( "div[class='gadgetui-fileuploader-filedisplay']" ),
+    buttons = this.selector.querySelector( "div[class~='buttons']" );
 };
 
 FileUploader.prototype.setEventHandlers = function() {
-  var self = this;
-  document.querySelector("input[name='fileselect']", self.selector).addEventListener("change", function(evt) {
-    var dropzone = document.querySelector("div[name='dropzone']", self.selector),
-      filedisplay = document.querySelector("div[name='filedisplay']", self.selector);
+  this.selector.querySelector("input[name='fileselect']").addEventListener("change", function(evt) {
+    var dropzone = this.selector.querySelector("div[name='dropzone']"),
+      filedisplay = this.selector.querySelector("div[name='filedisplay']");
 
-    self.processUpload(
+    this.processUpload(
       evt,
       evt.target.files,
       dropzone,
       filedisplay
     );
-  });
+  }.bind(this));
 };
 
 FileUploader.prototype.renderDropZone = function() {
   // if we decide to drop files into a drag/drop zone
 
-  var dropzone = document.querySelector("div[name='dropzone']", this.selector),
-    filedisplay = document.querySelector("div[name='filedisplay']", this.selector),
-    self = this;
+  var dropzone = this.selector.querySelector("div[name='dropzone']"),
+    filedisplay = this.selector.querySelector("div[name='filedisplay']");
 
-    document.addEventListener( "dragstart", function( ev ){
+    this.selector.addEventListener( "dragstart", function( ev ){
       ev.dataTransfer.setData("text",  "data");
       ev.dataTransfer.effectAllowed = "copy";
     });
@@ -115,28 +100,28 @@ FileUploader.prototype.renderDropZone = function() {
   });
 
   dropzone.addEventListener("dragover", function(ev) {
-    self.handleDragOver(ev);
+    this.handleDragOver(ev);
     ev.dataTransfer.dropEffect = "copy";
-  });
+  }.bind(this));
 
   dropzone.addEventListener("drop", function(ev) {
     ev.stopPropagation();
     ev.preventDefault();
 
-    self.processUpload(
+    this.processUpload(
       ev,
       ev.dataTransfer.files,
       dropzone,
       filedisplay
     );
-  });
+  }.bind(this));
 };
 
 FileUploader.prototype.processUpload = function(event, files, dropzone, filedisplay) {
-  var self = this,
-    wrappedFile;
+  var wrappedFile;
   var css = gadgetui.util.setStyle;
-  self.uploadingFiles = [];
+  this.uploadingFiles = [];
+  css(filedisplay, "display", "inline");
 
   for (var idx = 0; idx < files.length; idx++) {
     wrappedFile = gadgetui.objects.Constructor(
@@ -144,38 +129,34 @@ FileUploader.prototype.processUpload = function(event, files, dropzone, filedisp
         true
       ]);
 
-    self.uploadingFiles.push(wrappedFile);
+    this.uploadingFiles.push(wrappedFile);
     wrappedFile.on("uploadComplete", function(fileWrapper) {
       var ix;
-      for (ix = 0; ix < self.uploadingFiles.length; ix++) {
-        if (self.uploadingFiles[ix].id === fileWrapper.id) {
-          self.uploadingFiles.splice(ix, 1);
+      for (ix = 0; ix < this.uploadingFiles.length; ix++) {
+        if (this.uploadingFiles[ix].id === fileWrapper.id) {
+          this.uploadingFiles.splice(ix, 1);
         }
       }
-      if (self.uploadingFiles.length === 0) {
-        self.show("dropzone");
-        self.setDimensions();
+      if (this.uploadingFiles.length === 0) {
+        this.show("dropzone");
+        this.setDimensions();
       }
-    });
+    }.bind(this));
   }
 
   gadgetui.util.removeClass(dropzone, "highlighted");
 
-  css(dropzone, "display", "none");
-  css(filedisplay, "display", "table-cell");
-
-  self.handleFileSelect(self.uploadingFiles, event);
+  this.handleFileSelect(this.uploadingFiles, event);
 };
 
 FileUploader.prototype.handleFileSelect = function(wrappedFiles, evt) {
   evt.stopPropagation();
   evt.preventDefault();
-  var self = this;
 
-  if (self.willGenerateThumbnails) {
-    self.generateThumbnails(wrappedFiles);
+  if (this.willGenerateThumbnails) {
+    this.generateThumbnails(wrappedFiles);
   } else {
-    self.upload(wrappedFiles);
+    this.upload(wrappedFiles);
   }
 };
 
@@ -193,7 +174,7 @@ FileUploader.prototype.upload = function(wrappedFiles) {
 };
 
 FileUploader.prototype.uploadFile = function(wrappedFiles) {
-  var self = this;
+
   var process = function() {
     var blob,
       chunks = [],
@@ -231,18 +212,17 @@ FileUploader.prototype.uploadFile = function(wrappedFiles) {
       }
 
       // start the upload process
-      self.uploadChunk(wrappedFiles[j], chunks, 1, parts);
+      this.uploadChunk(wrappedFiles[j], chunks, 1, parts);
     }
-  };
+  }.bind(this);
   // process files
   process();
 };
 
 FileUploader.prototype.uploadChunk = function(wrappedFile, chunks, filepart, parts) {
   var xhr = new XMLHttpRequest(),
-    self = this,
     response,
-    tags = self.tags === undefined ? "" : self.tags;
+    tags = this.tags === undefined ? "" : this.tags;
 
   if (wrappedFile.file.type.substr(0, 5) === "image") {
     tags = "image " + tags;
@@ -252,37 +232,49 @@ FileUploader.prototype.uploadChunk = function(wrappedFile, chunks, filepart, par
     var json;
 
     if (xhr.readyState === 4) {
-      response = xhr.response;
+      if( parseInt( xhr.status, 10 ) !== 200 ){
+        this.handleUploadError(xhr,{},wrappedFile);
+      }else{
+        response = xhr.response;
 
-      if (filepart <= parts) {
-        wrappedFile.progressbar.updatePercent(
-          parseInt(filepart / parts * 100, 10)
-        );
-      }
-      if (filepart < parts) {
-        wrappedFile.id = xhr.getResponseHeader("X-Id");
-        filepart++;
-        self.uploadChunk(
-          wrappedFile,
-          chunks,
-          filepart,
-          parts
-        );
-      } else {
-        try {
-          json = {
-            data: JSON.parse(response)
-          };
-        } catch (e) {
-          json = {};
+        if (filepart <= parts) {
+          wrappedFile.progressbar.updatePercent(
+            parseInt(filepart / parts * 100, 10)
+          );
         }
+        if (filepart < parts) {
+          wrappedFile.id = xhr.getResponseHeader("X-Id");
 
-        self.handleUploadResponse(json, wrappedFile);
+          filepart++;
+          this.uploadChunk(
+            wrappedFile,
+            chunks,
+            filepart,
+            parts
+          );
+        } else {
+          try {
+            json = {
+              data: JSON.parse(response)
+            };
+          } catch (e) {
+            json = {};
+            this.handleUploadError(xhr,json,wrappedFile);
+          }
+
+          if( json.data !== null && json.data !== undefined ){
+            this.handleUploadResponse(json, wrappedFile);
+          }else{
+            this.handleUploadError(xhr,json,wrappedFile);
+          }
+
+        }
       }
-    }
-  };
 
-  xhr.open("POST", self.uploadURI, true);
+    }
+  }.bind(this);
+
+  xhr.open("POST", this.uploadURI, true);
   if (filepart === 1) {
     xhr.setRequestHeader("X-Tags", tags);
   }
@@ -307,7 +299,7 @@ FileUploader.prototype.uploadChunk = function(wrappedFile, chunks, filepart, par
 };
 
 FileUploader.prototype.handleUploadResponse = function(json, wrappedFile) {
-  var self = this;
+
   var fileItem = gadgetui.objects.Constructor(
     gadgetui.objects.FileItem, [{
       mimetype: json.data.mimetype,
@@ -326,18 +318,20 @@ FileUploader.prototype.handleUploadResponse = function(json, wrappedFile) {
   // fire completeUpload event so upload dialog can clean itself up
   wrappedFile.completeUpload(fileItem);
 
-  if (self.onUploadComplete !== undefined) {
-    self.onUploadComplete(fileItem);
+  if (this.onUploadComplete !== undefined) {
+    this.onUploadComplete(fileItem);
   }
+};
+
+FileUploader.prototype.handleUploadError = function( xhr, json, wrappedFile ){
+  wrappedFile.progressbar.progressbox.innerText = this.uploadErrorMessage;
+  wrappedFile.abortUpload(wrappedFile);
 };
 
 FileUploader.prototype.show = function(name) {
   var css = gadgetui.util.setStyle;
-  var dropzone = document.querySelector("div[class='gadgetui-fileuploader-dropzone']", this.selector),
-    filedisplay = document.querySelector(
-      "div[class='gadgetui-fileuploader-filedisplay']",
-      this.selector
-    );
+  var dropzone = this.selector.querySelector( "div[class='gadgetui-fileuploader-dropzone']" ),
+    filedisplay = this.selector.querySelector( "div[class='gadgetui-fileuploader-filedisplay']" );
   if (name === "dropzone") {
     css(dropzone, "display", "table-cell");
     css(filedisplay, "display", "none");

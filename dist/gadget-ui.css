@@ -219,6 +219,22 @@ div.gadget-ui-menu{
 	background-color: #999;
 }
 
+.gadgetui-progressbar-progressbox{
+	display:flex;
+	padding: .25em .5em;
+	background:#999;
+	color:#fff;
+}
+
+.gadget-ui-progressbar{
+	background:#444;
+	font-size: smaller;
+}
+
+.gadget-ui-progressbar-filename{
+	padding: 0 .25em;
+}
+
 div .gadget-ui-input-div{
 	display:inline;
 	font-size: 1.1em;
@@ -387,13 +403,14 @@ div.gadgetui-combobox-inputwrapper{
 }
 
 .gadgetui-fileuploader-wrapper{
-	border: 1px solid silver;
+	/* border: 1px solid silver; */
 
 }
 
 .gadgetui-fileuploader-dropmessage{
 	opacity: .7;
 	position:sticky;
+	margin-top:45%;
 }
 
 .gadgetui-inputlabelinput{

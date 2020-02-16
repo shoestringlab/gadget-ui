@@ -4,11 +4,11 @@
 <head>
 	<title>gadget-ui File Uploader Test</title>
 
-	<link rel="stylesheet" href="/dist/gadget-ui.css"/>
+	<link rel="stylesheet" href="/lib/gadget-ui/gadget-ui.css"/>
 	<script type="module">
-		import {fileuploader,constructor} from '/dist/gadget-ui.es6.js';
+		import {fileuploader,constructor} from '/lib/gadget-ui/gadget-ui.es6.js';
 
-		var showFile = function( fileItem, div ){
+		var showFile = function( fileItem ){
 			var dsp = document.querySelector( "#display" );
 			dsp.innerHTML = '';
 			var img = document.createElement( "img" );
@@ -31,8 +31,7 @@
 			tags: "file upload",
 			willGenerateThumbnails: true,
 			title: "Upload Files",
-			showUploadButton: false,
-			onUploadComplete: showFile
+			showUploadButton: false
 		};
 
 		var filedialog = constructor( fileuploader, [ document.querySelector("#fileUploadDiv"), options ]);

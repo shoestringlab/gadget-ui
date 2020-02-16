@@ -166,13 +166,14 @@ div.gadgetui-combobox-inputwrapper{
 }
 
 .gadgetui-fileuploader-wrapper{
-	border: 1px solid silver;
+	/* border: 1px solid silver; */
 
 }
 
 .gadgetui-fileuploader-dropmessage{
 	opacity: .7;
 	position:sticky;
+	margin-top:45%;
 }
 
 .gadgetui-inputlabelinput{

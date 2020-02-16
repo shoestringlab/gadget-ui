@@ -16,9 +16,20 @@ function FileUploadWrapper(file, selector) {
   }
 }
 
-FileUploadWrapper.prototype.events = ["uploadComplete"];
+FileUploadWrapper.prototype.events = ["uploadComplete","uploadAborted"];
 
 FileUploadWrapper.prototype.completeUpload = function(fileItem) {
-  this.progressbar.destroy();
-  this.fireEvent("uploadComplete", fileItem);
+  let finish = function() {
+    this.progressbar.destroy();
+    this.fireEvent("uploadComplete", fileItem);
+  }.bind(this);
+  setTimeout( finish, 1000);
+};
+
+FileUploadWrapper.prototype.abortUpload = function(fileItem) {
+  let aborted = function() {
+    this.progressbar.destroy();
+    this.fireEvent("uploadAborted", fileItem);
+  }.bind(this);
+  setTimeout( aborted, 1000);
 };

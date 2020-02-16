@@ -218,3 +218,19 @@ div.gadget-ui-menu{
 .gadget-ui-tabs-v div.gadget-ui-tab-v-active{
 	background-color: #999;
 }
+
+.gadgetui-progressbar-progressbox{
+	display:flex;
+	padding: .25em .5em;
+	background:#999;
+	color:#fff;
+}
+
+.gadget-ui-progressbar{
+	background:#444;
+	font-size: smaller;
+}
+
+.gadget-ui-progressbar-filename{
+	padding: 0 .25em;
+}
