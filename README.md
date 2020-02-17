@@ -3,6 +3,25 @@ gadget-ui
 
 JavaScript UI and data binding library
 
+v 7.0.0
+
+This release represents a significant step forward for the gadget-ui library. Among the major changes:
+  - a NodeJS package for tests has been created so developers who want to run tests on the package without installing a CFML engine may do so easily. Simply run:
+        $ node index.js
+    from the root of the project, then access the test home at http://127.0.0.1:8000/index.htm
+
+  - significant upgrades to the FileUploader component:
+    - properly reset the control after an upload or error.
+    - better sizing and positioning for the dropzone of the uploader
+    - clearer positioning and styling for the progress bar
+    - addition of abortUpload method and uploadAborted event that can be listened to
+
+  - a much simplified TextInput control that is more reliable in styling and positioning, lighter in weight without losing any functionality
+  - a NodeJS test for the FileUploader component demonstrating how to save a file from the FileUploader on the server filesystem using NodeJS and MariaDB.
+
+  - Change to npm publish that publishes just the /dist folder to npm. This is a breaking change for existing implementations, so if you upgrade, update your package
+    references. 
+
 v 6.8.0
 
 This release adds a Tabs control for vertical and horizontal tabs.

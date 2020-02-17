@@ -40,14 +40,20 @@ app.post( "/upload", function( req, res){
     wstream.write( req.body );
     wstream.end();
 
-    let file = fileService.upload( args.id, (tempPath + tempFile), args.part, args.parts, args.filename, args.filesize );
+    fileService.upload( args.id, (tempPath + tempFile), args.part, args.parts, args.filename, args.filesize )
+      .then( function( file ){
+        if( args.part === args.parts ){
+          res.send( JSON.stringify( file ) );
+        }else{
+          res.set("x-Id", args.id );
+          res.end("");
+        }
+      })
+      .catch( function( error ){
+        res.set( "Status-Code", 500 );
+        res.send( error );
+      });
 
-    if( args.part === args.parts ){
-      res.send( JSON.stringify( file ) );
-    }else{
-      res.set("x-Id", args.id );
-      res.end("");
-    }
 });
 
 // set our listener

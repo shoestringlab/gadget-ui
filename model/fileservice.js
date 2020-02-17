@@ -31,52 +31,58 @@ module.exports = {
     return( dao.delete( fileId ) );
   },
   upload: function( id, tempFile, part, parts, filename, filesize ){
-    let addedPart = dao.create( id, tempFile, part, parts );
+    return new Promise( function( resolve, reject ){
+      let addedPart = dao.create( id, tempFile, part, parts );
 
-    if( part === parts ){
-      dao.read( id )
-      .then( function( fileparts ){
 
-        let files = fileparts.map( filepart => filepart.filepath );
+      let result = {
+        fileId: id,
+        path: "/test/upload/",
+        filename: filename,
+        disabled: 0,
+        filesize: filesize,
+        tags:'',
+        mimetype: 'application/octect-stream',
+        created: new Date()
+      };
 
-        concat(files, uploadPath + filename, function(err) {
-          if (err) throw err
+      if( part === parts ){
+        dao.read( id )
+        .then( function( fileparts ){
 
-          console.log('file uploaded');
+          let files = fileparts.map( filepart => filepart.filepath );
 
-          // clean up
-          dao.delete( id )
-          .then( function( success ){
-            deleteFiles( files, function(err){
-              if (err) {
-                console.log(err);
-              } else {
-                console.log('all temp files removed');
-              }
+          concat(files, uploadPath + filename, function(err) {
+            if (err) throw err
+
+            console.log('file uploaded');
+
+            // clean up
+            dao.delete( id )
+            .then( function( success ){
+              deleteFiles( files, function(err){
+                if (err) {
+                  console.log(err);
+                } else {
+                  console.log('all temp files removed');
+                }
+              });
+            })
+            .catch( function( error ){
+              console.log( error );
             });
-          })
-          .catch( function( error ){
-            console.log( error );
+
+            resolve( result );
           });
+        })
+        .catch( function( error ){
+          console.log( error );
+          reject( error );
         });
-      })
-      .catch( function( error ){
-        console.log( error );
-      });
 
-    }
-
-    let result = {
-      fileId: id,
-      path: "/test/upload/",
-      filename: filename,
-      disabled: 0,
-      filesize: filesize,
-      tags:'',
-      mimetype: 'application/octect-stream',
-      created: new Date()
-    };
-
-    return result;
+      }else{
+        resolve( result );
+      }
+    });
   }
 };
