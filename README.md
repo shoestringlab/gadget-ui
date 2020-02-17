@@ -19,8 +19,7 @@ This release represents a significant step forward for the gadget-ui library. Am
   - a much simplified TextInput control that is more reliable in styling and positioning, lighter in weight without losing any functionality
   - a NodeJS test for the FileUploader component demonstrating how to save a file from the FileUploader on the server filesystem using NodeJS and MariaDB.
 
-  - Change to npm publish that publishes just the /dist folder to npm. This is a breaking change for existing implementations, so if you upgrade, update your package
-    references. 
+  - Change to npm publish that publishes just the /dist folder to npm. 
 
 v 6.8.0
 
