@@ -181,3 +181,21 @@ div.gadgetui-combobox-inputwrapper{
 	padding-left: 4px;
 	border: 1px solid transparent;
 }
+
+.gadget-ui-textinput-hideBorder-firefox{
+	border-inline-end-width: 8px;
+	border-inline-start-width: 8px;
+	border-left-width: 8px;
+	border-right-width: 8px;
+	border-image-width: 1;
+	border-top-width:0px;
+	border-bottom-width: 0px;
+	border-color:transparent;
+}
+
+.gadget-ui-textinput-hideBorder-chrome, .gadget-ui-textinput-hideBorder-generic{
+	border-inline-end-width: 8px;
+	border-right-width: 8px;
+	border-image-width: 1;
+	border-color:transparent;
+}
