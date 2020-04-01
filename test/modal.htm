@@ -4,14 +4,27 @@
 		<title>gadget-ui Modal Test</title>
 		<link rel="stylesheet" href="/dist/gadget-ui.css"/>
 		<link rel="stylesheet" href="/bower_components/open-iconic/font/css/open-iconic.css"/>
-		 <script type="module">
-			import {modal,constructor} from '/dist/gadget-ui.es6.js';
+	 <script type="module">
+		import {modal,constructor} from '/dist/gadget-ui.es6.js';
 
-			var md = constructor( modal,
-				[ document.querySelector("#modal"),
-					{autoOpen: false}] ) ;
+		var md = constructor( modal,
+			[ document.querySelector("#modal"),
+				{autoOpen: false}], true ) ;
 
-		 </script>
+		md.on( "opened", function(obj){
+			console.log( "opened" );
+			console.log( obj );
+		});
+
+		md.on( "closed", function(obj){
+			console.log( "closed" );
+			console.log( obj );
+		});
+
+		document.querySelector( "button[name='show']" ).addEventListener( "click", function(){
+			md.open();
+		});
+	 </script>
 
 		<style>
 			body {font-size: 1em;}
@@ -27,7 +40,7 @@
 
 	<body>
 		<p>Test the Modal control.</p>
-		<button onclick="document.querySelector('#modal').parentElement.classList.add( 'gadgetui-showModal' )">Show</button>
+		<button name="show">Show</button>
 
 	<div id="modal">
 	Hi@

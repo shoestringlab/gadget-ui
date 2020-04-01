@@ -11,9 +11,28 @@
 				[ document.querySelector("#fp1"),
 					{
 						title : "Random Text",
-						enableShrink : false
-					}] ) ;
+						enableShrink : true
+					}], true ) ;
 
+					fp1.on( "closed", function( obj ){
+						console.log( "closed" );
+						console.log( obj );
+					});
+
+					fp1.on( "moved", function( obj ){
+						console.log( "moved" );
+						console.log( obj );
+					});
+
+					fp1.on( "maximized", function( obj ){
+						console.log( "maximized" );
+						console.log( obj );
+					});
+
+					fp1.on( "minimized", function( obj ){
+						console.log( "minimized" );
+						console.log( obj );
+					});
 		 </script>
 
 		<style>

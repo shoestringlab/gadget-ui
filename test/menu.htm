@@ -54,7 +54,13 @@
 							]
 					}}
 			];
-			var md = constructor( menu, [ document.querySelector("#menu"), { data: menus } ] );
+			var md = constructor( menu, [ document.querySelector("#menu"), { data: menus } ], true );
+
+			md.on( "clicked", function( obj, item ){
+				console.log( "clicked" );
+				console.log( obj );
+				console.log( item );
+			});
 		</script>
 
 		<style>

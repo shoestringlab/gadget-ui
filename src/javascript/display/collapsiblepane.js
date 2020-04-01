@@ -19,6 +19,9 @@ function CollapsiblePane( selector, options ){
 	//}
 }
 
+CollapsiblePane.prototype.events = ['minimized','maximized'];
+
+
 CollapsiblePane.prototype.addControl = function(){
 	var pane = document.createElement( "div" );
 
@@ -94,7 +97,7 @@ CollapsiblePane.prototype.toggle = function(){
 	}
 
 	this.eventName = ( this.collapsed ? "collapse" : "expand" );
-
+	this.newEventName = ( this.collapsed ? "minimized" : "maximized" );
 	var ev = new Event( this.eventName );
 	this.selector.dispatchEvent( ev );
 
@@ -109,7 +112,9 @@ CollapsiblePane.prototype.toggle = function(){
 		Velocity( this.selector, {
 			height: selectorHeight
 		},{ queue: false, duration: _this.delay, complete: function() {
-
+			if( typeof _this.fireEvent === 'function' ){
+				_this.fireEvent( _this.newEventName );
+			}
 			}
 		});
 	}else{

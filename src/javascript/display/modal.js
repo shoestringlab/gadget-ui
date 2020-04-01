@@ -6,6 +6,8 @@ function Modal( selector, options ){
   this.addBindings();
 }
 
+Modal.prototype.events = ['opened','closed'];
+
 Modal.prototype.addControl = function(){
   this.wrapper = document.createElement( "div" );
   if( this.class ){
@@ -26,7 +28,7 @@ Modal.prototype.addControl = function(){
               </a>
               </span>` + this.selector.innerHTML;
   if( this.autoOpen ){
-    gadgetui.util.addClass( this.wrapper, "gadgetui-showModal" );
+    this.open();
   }
 };
 
@@ -34,9 +36,23 @@ Modal.prototype.addBindings = function(){
   let self = this;
   let close = this.selector.querySelector( " a[name='close']" );
   close.addEventListener( "click", function( event ){
-    gadgetui.util.removeClass( self.wrapper, "gadgetui-showModal" );
+    self.close();
   });
-}
+};
+
+Modal.prototype.open = function(){
+  gadgetui.util.addClass( this.wrapper, "gadgetui-showModal" );
+  if( typeof this.fireEvent === 'function' ){
+    this.fireEvent( 'opened');
+  }
+};
+
+Modal.prototype.close = function(){
+  gadgetui.util.removeClass( this.wrapper, "gadgetui-showModal" );
+  if( typeof this.fireEvent === 'function' ){
+    this.fireEvent( 'closed');
+  }
+};
 
 Modal.prototype.config = function( options ){
   this.class = ( ( options.class === undefined ? false : options.class ) );

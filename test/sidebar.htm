@@ -10,8 +10,15 @@
 
 			var sb = constructor( sidebar,
 				[ document.querySelector("#sidebar"),
-					{animationMS: 200}] ) ;
-
+					{animationMS: 200}], true ) ;
+			sb.on( "maximized", function( obj ){
+				console.log( "maximized" );
+				console.log( obj );
+			});
+			sb.on( "minimized", function( obj ){
+				console.log( "minimized" );
+				console.log( obj );
+			});
 		 </script>
 
 		<style>

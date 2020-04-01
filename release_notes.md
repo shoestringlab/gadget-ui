@@ -1,6 +1,13 @@
 
 ***Release Notes***
 
+7.1.0
+======
+
+This release adds custom binding events for the display widgets. It also adds open and close methods for the Modal display.
+
+
+
 7.0.0
 ======
 
@@ -19,7 +26,7 @@ This release represents a significant step forward for the gadget-ui library. Am
   - a NodeJS test for the FileUploader component demonstrating how to save a file from the FileUploader on the server filesystem using NodeJS and MariaDB.
 
   - Change to npm publish that publishes just the /dist folder to npm. This is a breaking change for existing implementations, so if you upgrade, update your package
-    references. 
+    references.
 
 6.8.0
 ======

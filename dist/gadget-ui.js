@@ -596,6 +596,9 @@ function CollapsiblePane( selector, options ){
 	//}
 }
 
+CollapsiblePane.prototype.events = ['minimized','maximized'];
+
+
 CollapsiblePane.prototype.addControl = function(){
 	var pane = document.createElement( "div" );
 
@@ -671,7 +674,7 @@ CollapsiblePane.prototype.toggle = function(){
 	}
 
 	this.eventName = ( this.collapsed ? "collapse" : "expand" );
-
+	this.newEventName = ( this.collapsed ? "minimized" : "maximized" );
 	var ev = new Event( this.eventName );
 	this.selector.dispatchEvent( ev );
 
@@ -686,7 +689,9 @@ CollapsiblePane.prototype.toggle = function(){
 		Velocity( this.selector, {
 			height: selectorHeight
 		},{ queue: false, duration: _this.delay, complete: function() {
-
+			if( typeof _this.fireEvent === 'function' ){
+				_this.fireEvent( _this.newEventName );
+			}
 			}
 		});
 	}else{
@@ -784,6 +789,8 @@ function FloatingPane( selector, options ){
 	this.setup( options );
 }
 
+FloatingPane.prototype.events = ['minimized','maximized','moved','closed'];
+
 FloatingPane.prototype.setup = function( options ){
 	this.setMessage();
 	this.addControl();
@@ -807,10 +814,10 @@ FloatingPane.prototype.setup = function( options ){
 
 	this.relativeOffsetLeft = gadgetui.util.getRelativeParentOffset( this.selector ).left;
 	this.addBindings();
-	if( this.enableShrink ){
+/* 	if( this.enableShrink ){
 		this.minimize();
 		this.expand();
-	}
+	} */
 };
 
 FloatingPane.prototype.setMessage = function(){
@@ -820,33 +827,42 @@ FloatingPane.prototype.setMessage = function(){
 }
 
 FloatingPane.prototype.addBindings = function(){
-	var _this = this;
-
 	var dragger = gadgetui.util.draggable( this.wrapper );
 
 	this.wrapper.addEventListener( "drag_end", function( event ){
-		_this.top = event.detail.top;
-		_this.left = event.detail.left;
-		_this.relativeOffsetLeft = gadgetui.util.getRelativeParentOffset( _this.selector ).left;
-		console.log( _this );
-	});
+		this.top = event.detail.top;
+		this.left = event.detail.left;
+		this.relativeOffsetLeft = gadgetui.util.getRelativeParentOffset( this.selector ).left;
+
+		if( typeof this.fireEvent === 'function' ){
+			this.fireEvent( 'moved' );
+		}
+	}.bind( this ));
 
 	if( this.enableShrink ){
 		this.shrinker.addEventListener( "click", function( event ){
-			if( _this.minimized ){
-				_this.expand();
+			event.stopPropagation();
+			if( this.minimized ){
+				this.expand();
 			}else{
-				_this.minimize();
+				this.minimize();
 			}
-		});
+		}.bind( this ));
 	}
 	if( this.enableClose ){
-		this.closer.addEventListener( "click", function(){ _this.close.apply( _this ) } );
+		this.closer.addEventListener( "click", function(event){
+			event.stopPropagation();
+			this.close();
+		}.bind(this) );
 	}
 };
 
 FloatingPane.prototype.close = function(){
+	if( typeof this.fireEvent === 'function' ){
+		this.fireEvent( 'closed' );
+	}
 	this.wrapper.parentNode.removeChild( this.wrapper );
+
 };
 
 FloatingPane.prototype.addHeader = function(){
@@ -945,13 +961,19 @@ FloatingPane.prototype.expand = function(){
 		},{queue: false, duration: 500, complete: function() {
 			_this.shrinker.innerHTML = icon;
 			css( _this.selector, "overflow", "scroll" );
+			if( typeof _this.fireEvent === 'function' ){
+				_this.fireEvent( 'maximized' );
+			}
 		}
 		});
 	}else{
 		css( this.wrapper, "width", this.width );
 		css( this.selector, "height", this.height );
-		_this.shrinker.innerHTML = icon;
+		this.shrinker.innerHTML = icon;
 		css( this.selector, "overflow", "scroll" );
+		if( typeof this.fireEvent === 'function' ){
+			this.fireEvent( 'maximized' );
+		}
 	}
 
 	this.minimized = false;
@@ -986,11 +1008,17 @@ FloatingPane.prototype.minimize = function(){
 			height: "50px"
 		},{queue: false, duration: _this.delay}, function() {
 			// Animation complete.
+			if( typeof _this.fireEvent === 'function' ){
+				_this.fireEvent( 'minimized' );
+			}
 		});
 	}else{
 		css( this.wrapper, "width", this.minWidth );
 		css( this.selector, "height", "50px" );
-		_this.shrinker.innerHTML = icon;
+		this.shrinker.innerHTML = icon;
+		if( typeof this.fireEvent === 'function' ){
+			this.fireEvent( 'minimized' );
+		}
 	}
 	this.minimized = true;
 };
@@ -1027,6 +1055,8 @@ function Menu( selector, options ){
   }
 }
 
+Menu.prototype.events = ['clicked'];
+
 Menu.prototype.retrieveData = function(){
   this.datasource()
     .then( function( data ){
@@ -1054,20 +1084,23 @@ Menu.prototype.addControl = function(){
     if( item.link !== undefined && item.link !== null && ( item.link.length > 0 || typeof item.link === 'function' ) ){
       //element.removeEventListener( "click" );
       element.style.cursor = 'pointer';
-      element.addEventListener( "click", function( evt ){
+      element.addEventListener( "click", function(){
+        if( typeof this.fireEvent === 'function' ){
+          this.fireEvent( 'clicked', item );
+        }
         if( typeof item.link === 'function'){
           item.link();
         }else{
           window.open( item.link );
         }
-      });
+      }.bind(this));
     }
     // if there is a menuItem, add it
     if( item.menuItem !== undefined ){
       element.appendChild( processMenuItem( item.menuItem, element ) );
     }
     return element;
-  };
+  }.bind(this);
 
   let processMenuItem = function( menuItemData, parent ){
     // add <div class="gadget-ui-menu-menuItem"> as child of menu
@@ -1181,6 +1214,8 @@ function Modal( selector, options ){
   this.addBindings();
 }
 
+Modal.prototype.events = ['opened','closed'];
+
 Modal.prototype.addControl = function(){
   this.wrapper = document.createElement( "div" );
   if( this.class ){
@@ -1201,7 +1236,7 @@ Modal.prototype.addControl = function(){
               </a>
               </span>` + this.selector.innerHTML;
   if( this.autoOpen ){
-    gadgetui.util.addClass( this.wrapper, "gadgetui-showModal" );
+    this.open();
   }
 };
 
@@ -1209,9 +1244,23 @@ Modal.prototype.addBindings = function(){
   let self = this;
   let close = this.selector.querySelector( " a[name='close']" );
   close.addEventListener( "click", function( event ){
-    gadgetui.util.removeClass( self.wrapper, "gadgetui-showModal" );
+    self.close();
   });
-}
+};
+
+Modal.prototype.open = function(){
+  gadgetui.util.addClass( this.wrapper, "gadgetui-showModal" );
+  if( typeof this.fireEvent === 'function' ){
+    this.fireEvent( 'opened');
+  }
+};
+
+Modal.prototype.close = function(){
+  gadgetui.util.removeClass( this.wrapper, "gadgetui-showModal" );
+  if( typeof this.fireEvent === 'function' ){
+    this.fireEvent( 'closed');
+  }
+};
 
 Modal.prototype.config = function( options ){
   this.class = ( ( options.class === undefined ? false : options.class ) );
@@ -1293,6 +1342,8 @@ function Sidebar( selector, options ){
   this.addBindings();
 }
 
+Sidebar.prototype.events = ['maximized','minimized'];
+
 Sidebar.prototype.config = function( options ){
   this.class = ( ( options.class === undefined ? false : options.class ) );
 	this.featherPath = options.featherPath || "/node_modules/feather-icons";
@@ -1336,10 +1387,16 @@ Sidebar.prototype.addBindings = function(){
         },{ queue: false, duration: self.delay, complete: function() {
           //_this.icon.setAttribute( "data-glyph", icon );
           gadgetui.util.addClass( self.wrapper, "gadgetui-sidebar-minimized" );
+          if( typeof self.fireEvent === 'function' ){
+            self.fireEvent( 'minimized' );
+          }
           }
         });
       }else{
         gadgetui.util.addClass( self.wrapper, "gadgetui-sidebar-minimized" );
+        if( typeof self.fireEvent === 'function' ){
+          self.fireEvent( 'minimized');
+        }
       }
 
     }else{
@@ -1351,10 +1408,16 @@ Sidebar.prototype.addBindings = function(){
         },{ queue: false, duration: self.delay, complete: function() {
           //_this.icon.setAttribute( "data-glyph", icon );
           gadgetui.util.removeClass( self.selector, "gadgetui-sidebarContent-minimized" );
+          if( typeof self.fireEvent === 'function' ){
+            self.fireEvent( 'maximized');
+          }
           }
         });
       }else{
         gadgetui.util.removeClass( self.selector, "gadgetui-sidebarContent-minimized" );
+        if( typeof self.fireEvent === 'function' ){
+          self.fireEvent( 'maximized');
+        }
       }
     }
     self.setChevron( self.minimized );

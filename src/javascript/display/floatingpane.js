@@ -7,6 +7,8 @@ function FloatingPane( selector, options ){
 	this.setup( options );
 }
 
+FloatingPane.prototype.events = ['minimized','maximized','moved','closed'];
+
 FloatingPane.prototype.setup = function( options ){
 	this.setMessage();
 	this.addControl();
@@ -30,10 +32,10 @@ FloatingPane.prototype.setup = function( options ){
 
 	this.relativeOffsetLeft = gadgetui.util.getRelativeParentOffset( this.selector ).left;
 	this.addBindings();
-	if( this.enableShrink ){
+/* 	if( this.enableShrink ){
 		this.minimize();
 		this.expand();
-	}
+	} */
 };
 
 FloatingPane.prototype.setMessage = function(){
@@ -43,33 +45,42 @@ FloatingPane.prototype.setMessage = function(){
 }
 
 FloatingPane.prototype.addBindings = function(){
-	var _this = this;
-
 	var dragger = gadgetui.util.draggable( this.wrapper );
 
 	this.wrapper.addEventListener( "drag_end", function( event ){
-		_this.top = event.detail.top;
-		_this.left = event.detail.left;
-		_this.relativeOffsetLeft = gadgetui.util.getRelativeParentOffset( _this.selector ).left;
-		console.log( _this );
-	});
+		this.top = event.detail.top;
+		this.left = event.detail.left;
+		this.relativeOffsetLeft = gadgetui.util.getRelativeParentOffset( this.selector ).left;
+
+		if( typeof this.fireEvent === 'function' ){
+			this.fireEvent( 'moved' );
+		}
+	}.bind( this ));
 
 	if( this.enableShrink ){
 		this.shrinker.addEventListener( "click", function( event ){
-			if( _this.minimized ){
-				_this.expand();
+			event.stopPropagation();
+			if( this.minimized ){
+				this.expand();
 			}else{
-				_this.minimize();
+				this.minimize();
 			}
-		});
+		}.bind( this ));
 	}
 	if( this.enableClose ){
-		this.closer.addEventListener( "click", function(){ _this.close.apply( _this ) } );
+		this.closer.addEventListener( "click", function(event){
+			event.stopPropagation();
+			this.close();
+		}.bind(this) );
 	}
 };
 
 FloatingPane.prototype.close = function(){
+	if( typeof this.fireEvent === 'function' ){
+		this.fireEvent( 'closed' );
+	}
 	this.wrapper.parentNode.removeChild( this.wrapper );
+
 };
 
 FloatingPane.prototype.addHeader = function(){
@@ -168,13 +179,19 @@ FloatingPane.prototype.expand = function(){
 		},{queue: false, duration: 500, complete: function() {
 			_this.shrinker.innerHTML = icon;
 			css( _this.selector, "overflow", "scroll" );
+			if( typeof _this.fireEvent === 'function' ){
+				_this.fireEvent( 'maximized' );
+			}
 		}
 		});
 	}else{
 		css( this.wrapper, "width", this.width );
 		css( this.selector, "height", this.height );
-		_this.shrinker.innerHTML = icon;
+		this.shrinker.innerHTML = icon;
 		css( this.selector, "overflow", "scroll" );
+		if( typeof this.fireEvent === 'function' ){
+			this.fireEvent( 'maximized' );
+		}
 	}
 
 	this.minimized = false;
@@ -209,11 +226,17 @@ FloatingPane.prototype.minimize = function(){
 			height: "50px"
 		},{queue: false, duration: _this.delay}, function() {
 			// Animation complete.
+			if( typeof _this.fireEvent === 'function' ){
+				_this.fireEvent( 'minimized' );
+			}
 		});
 	}else{
 		css( this.wrapper, "width", this.minWidth );
 		css( this.selector, "height", "50px" );
-		_this.shrinker.innerHTML = icon;
+		this.shrinker.innerHTML = icon;
+		if( typeof this.fireEvent === 'function' ){
+			this.fireEvent( 'minimized' );
+		}
 	}
 	this.minimized = true;
 };

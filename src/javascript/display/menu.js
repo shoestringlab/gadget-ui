@@ -9,6 +9,8 @@ function Menu( selector, options ){
   }
 }
 
+Menu.prototype.events = ['clicked'];
+
 Menu.prototype.retrieveData = function(){
   this.datasource()
     .then( function( data ){
@@ -36,20 +38,23 @@ Menu.prototype.addControl = function(){
     if( item.link !== undefined && item.link !== null && ( item.link.length > 0 || typeof item.link === 'function' ) ){
       //element.removeEventListener( "click" );
       element.style.cursor = 'pointer';
-      element.addEventListener( "click", function( evt ){
+      element.addEventListener( "click", function(){
+        if( typeof this.fireEvent === 'function' ){
+          this.fireEvent( 'clicked', item );
+        }
         if( typeof item.link === 'function'){
           item.link();
         }else{
           window.open( item.link );
         }
-      });
+      }.bind(this));
     }
     // if there is a menuItem, add it
     if( item.menuItem !== undefined ){
       element.appendChild( processMenuItem( item.menuItem, element ) );
     }
     return element;
-  };
+  }.bind(this);
 
   let processMenuItem = function( menuItemData, parent ){
     // add <div class="gadget-ui-menu-menuItem"> as child of menu

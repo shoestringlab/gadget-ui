@@ -12,4 +12,9 @@ var fp1 = gadgetui.objects.Constructor( gadgetui.display.Dialog,
 				{ label: 'Save', click: function(){ console.log( 'Saved')}},
 				{ label: 'Cancel', click: function(){ console.log( 'Cancelled' )}}
 			]
-		}] );
+		}], true );
+
+fp1.on( "closed", function( obj ){
+	console.log( "closed" );
+	console.log( obj );
+});

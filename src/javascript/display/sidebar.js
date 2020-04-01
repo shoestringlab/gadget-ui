@@ -7,6 +7,8 @@ function Sidebar( selector, options ){
   this.addBindings();
 }
 
+Sidebar.prototype.events = ['maximized','minimized'];
+
 Sidebar.prototype.config = function( options ){
   this.class = ( ( options.class === undefined ? false : options.class ) );
 	this.featherPath = options.featherPath || "/node_modules/feather-icons";
@@ -50,10 +52,16 @@ Sidebar.prototype.addBindings = function(){
         },{ queue: false, duration: self.delay, complete: function() {
           //_this.icon.setAttribute( "data-glyph", icon );
           gadgetui.util.addClass( self.wrapper, "gadgetui-sidebar-minimized" );
+          if( typeof self.fireEvent === 'function' ){
+            self.fireEvent( 'minimized' );
+          }
           }
         });
       }else{
         gadgetui.util.addClass( self.wrapper, "gadgetui-sidebar-minimized" );
+        if( typeof self.fireEvent === 'function' ){
+          self.fireEvent( 'minimized');
+        }
       }
 
     }else{
@@ -65,10 +73,16 @@ Sidebar.prototype.addBindings = function(){
         },{ queue: false, duration: self.delay, complete: function() {
           //_this.icon.setAttribute( "data-glyph", icon );
           gadgetui.util.removeClass( self.selector, "gadgetui-sidebarContent-minimized" );
+          if( typeof self.fireEvent === 'function' ){
+            self.fireEvent( 'maximized');
+          }
           }
         });
       }else{
         gadgetui.util.removeClass( self.selector, "gadgetui-sidebarContent-minimized" );
+        if( typeof self.fireEvent === 'function' ){
+          self.fireEvent( 'maximized');
+        }
       }
     }
     self.setChevron( self.minimized );
