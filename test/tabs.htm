@@ -12,8 +12,6 @@
 			// show bindings
 			var tbs3 = constructor( tabs, [ document.querySelector("#tabs-v"), { direction: 'vertical' } ], true );
 
-	tbs3.setActiveTab( "tab-v2")
-
 			tbs3.on("tabSelected", function( event, tab ){
 				console.log( event );
 				console.log( tab );
@@ -23,6 +21,9 @@
 				console.log( "tabSelected" );
 				console.log( obj );
 			});
+
+			tbs3.setActiveTab( "tab-v2");
+
 		</script>
 
 		<style>

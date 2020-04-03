@@ -22,9 +22,11 @@ Tabs.prototype.addControl = function(){
     tab.classList.add( "gadget-ui-tab-" + dir );
     // set the first tab active
     if( ! activeSet ){
-      tab.classList.add( "gadget-ui-tab-" + dir + "-active" );
       activeSet = true;
-      this.activeTab = tab.id;
+      this.setActiveTab( tab.attributes['data-tab'].value );
+      //tab.classList.add( "gadget-ui-tab-" + dir + "-active" );
+
+      //this.activeTab = tab.id;
     }
     this.tabContentDivIds.push( tab.attributes['data-tab'].value );
     document.querySelector( "#" + tab.attributes['data-tab'].value ).style.display = 'none';
