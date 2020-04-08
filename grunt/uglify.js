@@ -13,11 +13,11 @@ module.exports = {
 	javascriptes6 : {
 		options:{
 			sourceMap: true,
-			sourceMapName: '<%= pkg.name %>.es6.min.js.map',
+			sourceMapName: '<%= pkg.name %>.min.mjs.map',
 			mangle: true
 			},
 		files : {
-			'dist/<%= pkg.name %>.es6.min.js' : [ '<%= concat.javascriptes6.dest %>' ]
+			'dist/<%= pkg.name %>.min.mjs' : [ '<%= concat.javascriptes6.dest %>' ]
 		}
 	},
 	jquery : {

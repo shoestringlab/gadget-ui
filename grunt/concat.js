@@ -20,7 +20,7 @@ module.exports = {
 			   		'src/javascript/input/wrapper/pre.js', 'src/javascript/input/*.js', 'src/javascript/input/wrapper/post.js',
 						'src/objects/wrapper/pre.js', 'src/objects/*.js', 'src/objects/wrapper/post.js',
 		        'src/javascript/gadget-ui.util.js','src/javascript/gadget-ui.export.js' ],
-		dest : 'dist/<%= pkg.name %>.es6.js'
+		dest : 'dist/<%= pkg.name %>.mjs'
 	},
 	jquery : {
 		options: {
