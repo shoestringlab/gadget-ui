@@ -1983,15 +1983,35 @@ FileUploader.prototype.render = function(title) {
       dropMessage: this.dropMessage,
       fileSelectLbl: ""
     };
+
+    var uploadClass = "gadgetui-fileuploader-uploadIcon";
+    if( this.uploadClass.length ){
+      uploadClass +=" " + this.uploadClass;
+    }
+    var icon = '<img name="uploadIcon" class="' + uploadClass + '" src="' + this.uploadIcon + '">';
+    if( this.uploadIcon.indexOf( ".svg" ) ){
+      icon = '<svg name="uploadIcon" class="' + uploadClass + '"><use xlink:href="' + this.uploadIcon + '"/></svg>'
+    }
+    
     this.selector.innerHTML =
       '<div class="gadgetui-fileuploader-wrapper"><div name="dropzone" class="gadgetui-fileuploader-dropzone"><div name="filedisplay" class="gadgetui-fileuploader-filedisplay" style="display:none;"></div><div class="gadgetui-fileuploader-dropmessage" name="dropMessageDiv">' +
       options.dropMessage +
-      '</span></div><div class="buttons full"><div class="fileUpload" name="fileUpload"><input type="file" name="fileselect" class="upload" title="' +
+      '</span></div></div><div class="buttons full"><div class="fileUpload" name="fileUpload"><label>' + icon + '<input type="file" name="fileselect" class="upload" title="' +
       options.fileSelectLbl +
-      '"></div></div></div>';
+      '"></label></div></div></div>';
 
       if( this.showUploadButton === false ){
-        css( this.selector.querySelector( "div[name='fileUpload']" ), "display", "none" );
+        css( this.selector.querySelector( "input[name='fileselect']" ), "display", "none" );
+      }
+      if( this.showDropZone === false ){
+        css( this.selector.querySelector( "div[name='dropzone']" ), "display", "none" );
+      }
+      if( this.showUploadIcon === false ){
+        let iconSelector = this.selector.querySelector( "img[name='uploadIcon']" );
+        if( iconSelector === null ){
+          iconSelector = this.selector.querySelector( "svg[name='uploadIcon']" );
+        }
+        css( iconSelector, "display", "none" );
       }
 
     this.renderDropZone();
@@ -2008,6 +2028,10 @@ FileUploader.prototype.configure = function(options) {
   this.onUploadComplete = options.onUploadComplete;
   this.willGenerateThumbnails = (options.willGenerateThumbnails !== undefined && options.willGenerateThumbnails !== null ? options.willGenerateThumbnails : false);
   this.showUploadButton = ( options.showUploadButton !== undefined ? options.showUploadButton : true );
+  this.showDropZone = ( options.showDropZone !== undefined ? options.showDropZone : true );
+	this.uploadIcon = ( options.uploadIcon !== undefined ? options.uploadIcon : '/bower_components/gadget-ui/dist/img/icons8-file-upload-66.png');
+  this.uploadClass = ( options.uploadClass !== undefined ? options.uploadClass : "");
+  this.showUploadIcon = ( options.uploadIcon !== undefined && options.showUploadIcon !== undefined && options.showUploadIcon ? true : false );
   this.addFileMessage = ( options.addFileMessage !== undefined ? options.addFileMessage : "Add a File" );
   this.dropMessage = ( options.dropMessage !== undefined ? options.dropMessage : "Drop Files Here" );
   this.uploadErrorMessage = ( options.uploadErrorMessage !== undefined ? options.uploadErrorMessage : "Upload error." );
@@ -2099,7 +2123,7 @@ FileUploader.prototype.processUpload = function(event, files, dropzone, filedisp
         }
       }
       if (this.uploadingFiles.length === 0) {
-        this.show("dropzone");
+        if( this.showDropZone ) this.show("dropzone");
         this.setDimensions();
       }
     }.bind(this));

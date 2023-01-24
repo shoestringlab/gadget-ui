@@ -9,6 +9,7 @@ const tempPath = './test/upload/temp/';
 const {resolve} = require("path");
 
 app.use( express.static( './' ) );
+app.use( "/lib/feather-icons", express.static( 'node_modules/feather-icons' ) );
 //app.use( "/dist", express.static( '../dist' ) );
 //app.use( "/", express.static( './' ) );
 

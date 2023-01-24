@@ -3,6 +3,10 @@ gadget-ui
 
 JavaScript UI and data binding library
 
+v 8.1.0
+
+This release adds oiptions for the FileUploader component to display an image rather than a dropzone or file input.
+
 v 7.1.0
 
 This release adds custom binding events for the display widgets. It also adds open and close methods for the Modal display.

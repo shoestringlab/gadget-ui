@@ -1,6 +1,6 @@
 module.exports = {
 	dist : {
-		files : [ 'Gruntfile.js', 'src/**/*.js' ],
+		files :{ src: [ 'Gruntfile.js', 'src/**/*.js' ]},
 		options : {
 			// options here to override JSHint defaults
 			globals : {

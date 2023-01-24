@@ -1,6 +1,11 @@
 
 ***Release Notes***
 
+8.1.0
+======
+
+This release adds oiptions for the FileUploader component to display an image rather than a dropzone or file input.
+
 7.1.0
 ======
 

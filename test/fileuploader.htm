@@ -32,12 +32,27 @@
 			willGenerateThumbnails: true,
 			title: "Upload Files",
 			showUploadButton: false,
+			showDropZone: true,
 			onUploadComplete: showFile
+		};
+
+		var options3 = {
+			uploadURI: "/upload",
+			tags: "file upload",
+			willGenerateThumbnails: true,
+			title: "Upload Files",
+			showUploadButton: false,
+			showDropZone: false,
+			showUploadIcon: true,
+			uploadIcon: '/lib/feather-icons/dist/feather-sprite.svg#image',
+			onUploadComplete: showFile,
+			uploadClass: 'feather'
 		};
 
 		var filedialog = constructor( fileuploader, [ document.querySelector("#fileUploadDiv"), options ]);
 
 		var filedialog2 = constructor( fileuploader, [ document.querySelector("#fileUploadDiv2"), options2 ]);
+		var filedialog3 = constructor( fileuploader, [ document.querySelector("#fileUploadDiv3"), options3 ]);
 	</script>
 
 	<style>
@@ -52,8 +67,8 @@
 		}
 
 		div[name='dropzone']{
-			height: 500px;
-			width: 500px;
+			height: 300px;
+			width: 300px;
 			text-align: center;
 			margin-top: auto;
 			margin-bottom: auto;
@@ -61,11 +76,16 @@
 		}
 
 		.gadgetui-fileuploader-wrapper{
-			height:500px;
+			height:300px;
 		}
 
 		#fileUploadDiv, #display,	#fileUploadDiv{
 			display:inline-block;
+		}
+
+		.gadgetui-fileuploader-uploadIcon{
+			height: 40px;
+			width: 40px;
 		}
 	</style>
 
@@ -81,6 +101,10 @@
 	<br>
 	This uploader works under NodeJS and fails under the CFML engine so you can test both success and failure.
 	<div id="fileUploadDiv2"></div>
+	<br>
+	<br>
+	This uploader works under NodeJS and uses the file upload icon rather than a dropzone or file input.
+	<div id="fileUploadDiv3"></div>
 </body>
 
 </html>

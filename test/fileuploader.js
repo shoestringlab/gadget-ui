@@ -4,7 +4,7 @@ var options = {
   tags: "file upload",
   willGenerateThumbnails: true,
   title: "Upload Files",
-  showUploadButton: false
+  showUploadButton: true
 };
 
 filedialog = gadgetui.objects.Constructor( gadgetui.input.FileUploader, [ document.querySelector("#fileUploadDiv"), options ]);
