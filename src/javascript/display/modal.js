@@ -19,12 +19,16 @@ Modal.prototype.addControl = function(){
   //this.wrapper = this.selector.previousSibling;
   this.selector.parentNode.removeChild( this.selector );
   this.wrapper.appendChild( this.selector );
+  var icon = "";
+  if( this.closeIcon.indexOf( 'svg' ) > 0 ){
+    icon = '<svg class="' + this.featherClass + '"><use xlink:href="' + this.closeIcon + '"/></svg>';
+  }else{
+    icon = '<img src="' + this.closeIcon + '"/>';
+  }
   gadgetui.util.addClass( this.selector, "gadgetui-modalWindow" );
   this.selector.innerHTML = `<span name="close" class="gadgetui-right-align">
               <a name="close">
-              <svg class="feather">
-                <use xlink:href="${this.featherPath}/dist/feather-sprite.svg#x-circle"/>
-              </svg>
+              ${icon}
               </a>
               </span>` + this.selector.innerHTML;
   if( this.autoOpen ){
@@ -56,6 +60,8 @@ Modal.prototype.close = function(){
 
 Modal.prototype.config = function( options ){
   this.class = ( ( options.class === undefined ? false : options.class ) );
-	this.featherPath = options.featherPath || "/node_modules/feather-icons";
+  this.featherClass = ( ( options.featherClass === undefined ? 'feather' : options.featherClass ) );
+	//this.featherPath = options.featherPath || "/node_modules/feather-icons";
+  this.closeIcon = ( ( options.closeIcon === undefined ? '/node_modules/feather-icons/dist/feather-sprite.svg#x-circle' : options.closeIcon ) );
   this.autoOpen = ( options.autoOpen === false ? false : true );
 };

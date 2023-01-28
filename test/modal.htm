@@ -3,13 +3,15 @@
 	<head>
 		<title>gadget-ui Modal Test</title>
 		<link rel="stylesheet" href="/dist/gadget-ui.css"/>
-		<link rel="stylesheet" href="/bower_components/open-iconic/font/css/open-iconic.css"/>
+		
 	 <script type="module">
 		import {modal,constructor} from '/dist/gadget-ui.mjs';
 
 		var md = constructor( modal,
 			[ document.querySelector("#modal"),
-				{autoOpen: false}], true ) ;
+				{autoOpen: false,
+				 closeIcon: '/node_modules/feather-icons/dist/feather-sprite.svg#x-circle',
+				featherClass: 'feather_biggest'}], true ) ;
 
 		md.on( "opened", function(obj){
 			console.log( "opened" );

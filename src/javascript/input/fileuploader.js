@@ -27,28 +27,31 @@ FileUploader.prototype.render = function(title) {
     if( this.uploadClass.length ){
       uploadClass +=" " + this.uploadClass;
     }
-    var icon = '<img name="uploadIcon" class="' + uploadClass + '" src="' + this.uploadIcon + '">';
+
+    var icon = "";
     if( this.uploadIcon.indexOf( ".svg" ) ){
-      icon = '<svg name="uploadIcon" class="' + uploadClass + '"><use xlink:href="' + this.uploadIcon + '"/></svg>'
+      icon = '<svg name="gadgetui-fileuploader-uploadIcon" class="' + uploadClass + '"><use xlink:href="' + this.uploadIcon + '"/></svg>'
+    }else{
+      icon = '<img name="gadgetui-fileuploader-uploadIcon" class="' + uploadClass + '" src="' + this.uploadIcon + '">';
     }
     
     this.selector.innerHTML =
-      '<div class="gadgetui-fileuploader-wrapper"><div name="dropzone" class="gadgetui-fileuploader-dropzone"><div name="filedisplay" class="gadgetui-fileuploader-filedisplay" style="display:none;"></div><div class="gadgetui-fileuploader-dropmessage" name="dropMessageDiv">' +
+      '<div class="gadgetui-fileuploader-wrapper"><div name="gadgetui-fileuploader-dropzone" class="gadgetui-fileuploader-dropzone"><div name="gadgetui-fileuploader-filedisplay" class="gadgetui-fileuploader-filedisplay" style="display:none;"></div><div class="gadgetui-fileuploader-dropmessage" name="gadgetui-fileuploader-dropMessageDiv">' +
       options.dropMessage +
-      '</span></div></div><div class="buttons full"><div class="fileUpload" name="fileUpload"><label>' + icon + '<input type="file" name="fileselect" class="upload" title="' +
+      '</span></div></div><div class="buttons full"><div class="gadgetui-fileuploader-fileUpload" name="gadgetui-fileuploader-fileUpload"><label>' + icon + '<input type="file" name="gadgetui-fileuploader-fileselect" class="gadgetui-fileuploader-upload" title="' +
       options.fileSelectLbl +
       '"></label></div></div></div>';
 
       if( this.showUploadButton === false ){
-        css( this.selector.querySelector( "input[name='fileselect']" ), "display", "none" );
+        css( this.selector.querySelector( "input[name='gadgetui-fileuploader-fileselect']" ), "display", "none" );
       }
       if( this.showDropZone === false ){
-        css( this.selector.querySelector( "div[name='dropzone']" ), "display", "none" );
+        css( this.selector.querySelector( "div[name='gadgetui-fileuploader-dropzone']" ), "display", "none" );
       }
       if( this.showUploadIcon === false ){
-        let iconSelector = this.selector.querySelector( "img[name='uploadIcon']" );
+        let iconSelector = this.selector.querySelector( "img[name='gadgetui-fileuploader-uploadIcon']" );
         if( iconSelector === null ){
-          iconSelector = this.selector.querySelector( "svg[name='uploadIcon']" );
+          iconSelector = this.selector.querySelector( "svg[name='gadgetui-fileuploader-uploadIcon']" );
         }
         css( iconSelector, "display", "none" );
       }
@@ -68,7 +71,7 @@ FileUploader.prototype.configure = function(options) {
   this.willGenerateThumbnails = (options.willGenerateThumbnails !== undefined && options.willGenerateThumbnails !== null ? options.willGenerateThumbnails : false);
   this.showUploadButton = ( options.showUploadButton !== undefined ? options.showUploadButton : true );
   this.showDropZone = ( options.showDropZone !== undefined ? options.showDropZone : true );
-	this.uploadIcon = ( options.uploadIcon !== undefined ? options.uploadIcon : '/bower_components/gadget-ui/dist/img/icons8-file-upload-66.png');
+	this.uploadIcon = ( options.uploadIcon !== undefined ? options.uploadIcon : '/node_modules/feather-icons/dist/feather-sprite.svg#image');
   this.uploadClass = ( options.uploadClass !== undefined ? options.uploadClass : "");
   this.showUploadIcon = ( options.uploadIcon !== undefined && options.showUploadIcon !== undefined && options.showUploadIcon ? true : false );
   this.addFileMessage = ( options.addFileMessage !== undefined ? options.addFileMessage : "Add a File" );
@@ -86,9 +89,9 @@ FileUploader.prototype.setDimensions = function() {
 };
 
 FileUploader.prototype.setEventHandlers = function() {
-  this.selector.querySelector("input[name='fileselect']").addEventListener("change", function(evt) {
-    var dropzone = this.selector.querySelector("div[name='dropzone']"),
-      filedisplay = this.selector.querySelector("div[name='filedisplay']");
+  this.selector.querySelector("input[name='gadgetui-fileuploader-fileselect']").addEventListener("change", function(evt) {
+    var dropzone = this.selector.querySelector("div[name='gadgetui-fileuploader-dropzone']"),
+      filedisplay = this.selector.querySelector("div[name='gadgetui-fileuploader-filedisplay']");
 
     this.processUpload(
       evt,
@@ -102,8 +105,8 @@ FileUploader.prototype.setEventHandlers = function() {
 FileUploader.prototype.renderDropZone = function() {
   // if we decide to drop files into a drag/drop zone
 
-  var dropzone = this.selector.querySelector("div[name='dropzone']"),
-    filedisplay = this.selector.querySelector("div[name='filedisplay']");
+  var dropzone = this.selector.querySelector("div[name='gadgetui-fileuploader-dropzone']"),
+    filedisplay = this.selector.querySelector("div[name='gadgetui-fileuploader-filedisplay']");
 
     this.selector.addEventListener( "dragstart", function( ev ){
       ev.dataTransfer.setData("text",  "data");
@@ -248,9 +251,9 @@ FileUploader.prototype.uploadChunk = function(wrappedFile, chunks, filepart, par
     response,
     tags = this.tags === undefined ? "" : this.tags;
 
-  if (wrappedFile.file.type.substr(0, 5) === "image") {
+/*   if (wrappedFile.file.type.substr(0, 5) === "image") {
     tags = "image " + tags;
-  }
+  } */
 
   xhr.onreadystatechange = function() {
     var json;
@@ -299,9 +302,7 @@ FileUploader.prototype.uploadChunk = function(wrappedFile, chunks, filepart, par
   }.bind(this);
 
   xhr.open("POST", this.uploadURI, true);
-  if (filepart === 1) {
-    xhr.setRequestHeader("X-Tags", tags);
-  }
+  xhr.setRequestHeader("X-Tags", tags);
   xhr.setRequestHeader("X-Id", wrappedFile.id);
   xhr.setRequestHeader("X-FileName", wrappedFile.file.name);
   xhr.setRequestHeader("X-FileSize", wrappedFile.file.size);
