@@ -3,6 +3,10 @@ gadget-ui
 
 JavaScript UI and data binding library
 
+v 8.2.1
+
+This release adds options for the FileUploader to hide the dropzone and use a selected icon for the file input. It also adds the option for a user-specified close icon for the Modal component.
+
 v 8.1.0
 
 This release adds oiptions for the FileUploader component to display an image rather than a dropzone or file input.

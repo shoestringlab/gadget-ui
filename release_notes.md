@@ -1,6 +1,11 @@
 
 ***Release Notes***
 
+8.2.1
+======
+
+This release adds options for the FileUploader to hide the dropzone and use a selected icon for the file input. It also adds the option for a user-specified close icon for the Modal component.
+
 8.1.0
 ======
 
