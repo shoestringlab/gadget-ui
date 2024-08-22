@@ -575,81 +575,81 @@ Bubble.prototype.config = function( options ){
 	this.class = options.class;
 	};
 
-function CollapsiblePane( selector, options ){
+function CollapsiblePane(selector, options) {
 
 	this.selector = selector;
-	this.config( options );
+	this.config(options);
 
 	this.addControl();
 
 	this.addCSS();
 	this.addHeader();
 
-	this.icon = this.wrapper.querySelector( "div.oi" );
+	this.icon = this.wrapper.querySelector("div.oi");
 
 	this.addBindings();
 	this.height = this.wrapper.offsetHeight;
 	this.headerHeight = this.header.offsetHeight;
 	this.selectorHeight = this.selector.offsetHeight;
 	//if( this.collapse === true ){
-		this.toggle();
+	this.toggle();
 	//}
 }
 
-CollapsiblePane.prototype.events = ['minimized','maximized'];
+CollapsiblePane.prototype.events = ['minimized', 'maximized'];
 
 
-CollapsiblePane.prototype.addControl = function(){
-	var pane = document.createElement( "div" );
+CollapsiblePane.prototype.addControl = function () {
+	var pane = document.createElement("div");
 
 
-	if( this.class ){
-		gadgetui.util.addClass( pane, this.class );
+	if (this.class) {
+		gadgetui.util.addClass(pane, this.class);
 	}
-	gadgetui.util.addClass( pane, "gadget-ui-collapsiblePane" );
+	gadgetui.util.addClass(pane, "gadget-ui-collapsiblePane");
 
-	this.selector.parentNode.insertBefore( pane, this.selector );
+	this.selector.parentNode.insertBefore(pane, this.selector);
 	this.wrapper = this.selector.previousSibling;
-	this.selector.parentNode.removeChild( this.selector );
-	pane.appendChild( this.selector );
+	this.selector.parentNode.removeChild(this.selector);
+	pane.appendChild(this.selector);
 };
 
-CollapsiblePane.prototype.addHeader = function(){
+CollapsiblePane.prototype.addHeader = function () {
 	var div,
-	css = gadgetui.util.setStyle,
-		header = document.createElement( "div" );
+		css = gadgetui.util.setStyle,
+		header = document.createElement("div");
 
-	gadgetui.util.addClass( header, "gadget-ui-collapsiblePane-header" );
-	if( this.headerClass ){
-		gadgetui.util.addClass( header, this.headerClass );
+	gadgetui.util.addClass(header, "gadget-ui-collapsiblePane-header");
+	if (this.headerClass) {
+		gadgetui.util.addClass(header, this.headerClass);
 	}
 	header.innerHTML = this.title;
-	this.wrapper.insertBefore( header, this.selector );
-	this.header = ( this.headerClass ? this.wrapper.querySelector( "div." + this.headerClass ) : this.wrapper.querySelector( "div.gadget-ui-collapsiblePane-header" ) ) ;
-	div = document.createElement( "div" );
+	this.wrapper.insertBefore(header, this.selector);
+	this.header = (this.headerClass ? this.wrapper.querySelector("div." + this.headerClass) : this.wrapper.querySelector("div.gadget-ui-collapsiblePane-header"));
+	div = document.createElement("div");
 	//gadgetui.util.addClass( div, "oi" );
 	//div.setAttribute( 'data-glyph', "chevron-top" );
-	this.header.appendChild( div );
+	this.header.appendChild(div);
 };
 
-CollapsiblePane.prototype.addCSS = function(){
+CollapsiblePane.prototype.addCSS = function () {
 	var theWidth = this.width,
 		css = gadgetui.util.setStyle;
-	css( this.wrapper, "width", theWidth );
-	css( this.wrapper, "overflow",  "hidden" );
+	css(this.wrapper, "width", theWidth);
+	css(this.wrapper, "overflow", "hidden");
 };
 
-CollapsiblePane.prototype.addBindings = function(){
+CollapsiblePane.prototype.addBindings = function () {
 	var _this = this,
-	header = ( this.headerClass ? this.wrapper.querySelector( "div." + this.headerClass ) : this.wrapper.querySelector( "div.gadget-ui-collapsiblePane-header" ) ) ;
+		header = (this.headerClass ? this.wrapper.querySelector("div." + this.headerClass) : this.wrapper.querySelector("div.gadget-ui-collapsiblePane-header"));
 
 	header
-		.addEventListener( "click", function(){
+		.addEventListener("click", function () {
 			_this.toggle();
 		});
 };
 
-CollapsiblePane.prototype.toggle = function(){
+CollapsiblePane.prototype.toggle = function () {
 	var _this = this,
 		css = gadgetui.util.setStyle,
 		icon,
@@ -659,13 +659,13 @@ CollapsiblePane.prototype.toggle = function(){
 		selectorHeight,
 		expandClass = "",
 		collapseClass = "";
-	if( this.collapsed === true ){
+	if (this.collapsed === true) {
 		icon = collapseClass;
 		display = "block";
 		myHeight = this.height;
 		selectorHeight = this.selectorHeight;
 		this.collapsed = false;
-	}else{
+	} else {
 		icon = expandClass;
 		display = "none";
 		myHeight = this.headerHeight;
@@ -673,375 +673,379 @@ CollapsiblePane.prototype.toggle = function(){
 		this.collapsed = true;
 	}
 
-	this.eventName = ( this.collapsed ? "collapse" : "expand" );
-	this.newEventName = ( this.collapsed ? "minimized" : "maximized" );
-	var ev = new Event( this.eventName );
-	this.selector.dispatchEvent( ev );
+	this.eventName = (this.collapsed ? "collapse" : "expand");
+	this.newEventName = (this.collapsed ? "minimized" : "maximized");
+	var ev = new Event(this.eventName);
+	this.selector.dispatchEvent(ev);
 
-	if( typeof Velocity != 'undefined' && this.animate ){
+	if (typeof Velocity != 'undefined' && this.animate) {
 
-		Velocity( this.wrapper, {
+		Velocity(this.wrapper, {
 			height: myHeight
-		},{ queue: false, duration: _this.delay, complete: function() {
-			//_this.icon.setAttribute( "data-glyph", icon );
+		}, {
+			queue: false, duration: _this.delay, complete: function () {
+				//_this.icon.setAttribute( "data-glyph", icon );
 			}
 		});
-		Velocity( this.selector, {
+		Velocity(this.selector, {
 			height: selectorHeight
-		},{ queue: false, duration: _this.delay, complete: function() {
-			if( typeof _this.fireEvent === 'function' ){
-				_this.fireEvent( _this.newEventName );
-			}
+		}, {
+			queue: false, duration: _this.delay, complete: function () {
+				if (typeof _this.fireEvent === 'function') {
+					_this.fireEvent(_this.newEventName);
+				}
 			}
 		});
-	}else{
-		css( this.selector, "display", display );
+	} else {
+		css(this.selector, "display", display);
 		//this.icon.setAttribute( "data-glyph", icon );
 	}
 };
 
-CollapsiblePane.prototype.config = function( options ){
-	options = ( options === undefined ? {} : options );
-	this.animate = (( options.animate === undefined) ? true : options.animate );
-	this.delay = ( ( options.delay === undefined ? 300 : options.delay ) );
-	this.title = ( options.title === undefined ? "": options.title );
-	this.width = gadgetui.util.getStyle( this.selector, "width" );
-	this.collapse = ( ( options.collapse === undefined ? false : options.collapse ) );
-	this.collapsed = ( ( options.collapse === undefined ? true :!  options.collapse ) );
-	this.class = ( ( options.class === undefined ? false : options.class ) );
-	this.headerClass = ( ( options.headerClass === undefined ? false : options.headerClass ) );
+CollapsiblePane.prototype.config = function (options) {
+	options = (options === undefined ? {} : options);
+	this.animate = ((options.animate === undefined) ? true : options.animate);
+	this.delay = ((options.delay === undefined ? 300 : options.delay));
+	this.title = (options.title === undefined ? "" : options.title);
+	this.width = gadgetui.util.getStyle(this.selector, "width");
+	this.collapse = ((options.collapse === undefined ? false : options.collapse));
+	this.collapsed = ((options.collapse === undefined ? true : !options.collapse));
+	this.class = ((options.class === undefined ? false : options.class));
+	this.headerClass = ((options.headerClass === undefined ? false : options.headerClass));
 };
 
 
-function Dialog( selector, options ){
+function Dialog(selector, options) {
 
-  this.selector = selector;
-	if( options !== undefined ){
-		this.config( options );
-    this.buttons = ( options.buttons !== undefined ? options.buttons : [] );
+	this.selector = selector;
+	if (options !== undefined) {
+		this.config(options);
+		this.buttons = (options.buttons !== undefined ? options.buttons : []);
 	}
 
-	this.setup( options );
+	this.setup(options);
 
-  this.addButtons();
+	this.addButtons();
 }
 
 Dialog.prototype = FloatingPane.prototype;
 
-Dialog.prototype.addButtons = function(){
-  var self = this;
-  var css = gadgetui.util.setStyle;
-  this.buttonDiv = document.createElement( "div" );
-  css( this.buttonDiv, "text-align", "center" );
-  css( this.buttonDiv, "padding", ".5em" );
-  this.buttons.forEach( function( button ){
-    var btn = document.createElement( "button" );
-    btn.innerText = button.label;
-    css( btn, "margin", ".5em" );
-    btn.addEventListener( "click", button.click );
-    self.buttonDiv.appendChild( btn );
-  });
-  this.wrapper.appendChild( this.buttonDiv );
+Dialog.prototype.addButtons = function () {
+	var self = this;
+	var css = gadgetui.util.setStyle;
+	this.buttonDiv = document.createElement("div");
+	css(this.buttonDiv, "text-align", "center");
+	css(this.buttonDiv, "padding", ".5em");
+	this.buttons.forEach(function (button) {
+		var btn = document.createElement("button");
+		btn.innerText = button.label;
+		css(btn, "margin", ".5em");
+		btn.addEventListener("click", button.click);
+		self.buttonDiv.appendChild(btn);
+	});
+	this.wrapper.appendChild(this.buttonDiv);
 }
 
 
 function FileUploadWrapper(file, selector) {
-  var ix,
-    id,
-    options,
-    bindings = gadgetui.objects.EventBindings.getAll();
+	var ix,
+		id,
+		options,
+		bindings = gadgetui.objects.EventBindings.getAll();
 
-  id = gadgetui.util.Id();
-  options = { id: id, filename: file.name, width: gadgetui.util.getStyle( selector, "width" )};
-  this.file = file;
-  this.id = id;
-  this.progressbar = new gadgetui.display.ProgressBar(selector, options);
-  this.progressbar.render();
-  for (ix = 0; ix < bindings.length; ix++) {
-    this[bindings[ix].name] = bindings[ix].func;
-  }
+	id = gadgetui.util.Id();
+	options = { id: id, filename: file.name, width: gadgetui.util.getStyle(selector, "width") };
+	this.file = file;
+	this.id = id;
+	this.progressbar = new gadgetui.display.ProgressBar(selector, options);
+	this.progressbar.render();
+	for (ix = 0; ix < bindings.length; ix++) {
+		this[bindings[ix].name] = bindings[ix].func;
+	}
 }
 
-FileUploadWrapper.prototype.events = ["uploadComplete","uploadAborted"];
+FileUploadWrapper.prototype.events = ["uploadComplete", "uploadAborted"];
 
-FileUploadWrapper.prototype.completeUpload = function(fileItem) {
-  let finish = function() {
-    this.progressbar.destroy();
-    this.fireEvent("uploadComplete", fileItem);
-  }.bind(this);
-  setTimeout( finish, 1000);
+FileUploadWrapper.prototype.completeUpload = function (fileItem) {
+	let finish = function () {
+		this.progressbar.destroy();
+		this.fireEvent("uploadComplete", fileItem);
+	}.bind(this);
+	setTimeout(finish, 1000);
 };
 
-FileUploadWrapper.prototype.abortUpload = function(fileItem) {
-  let aborted = function() {
-    this.progressbar.destroy();
-    this.fireEvent("uploadAborted", fileItem);
-  }.bind(this);
-  setTimeout( aborted, 1000);
+FileUploadWrapper.prototype.abortUpload = function (fileItem) {
+	let aborted = function () {
+		this.progressbar.destroy();
+		this.fireEvent("uploadAborted", fileItem);
+	}.bind(this);
+	setTimeout(aborted, 1000);
 };
 
-function FloatingPane( selector, options ){
+function FloatingPane(selector, options) {
 	this.selector = selector;
-	if( options !== undefined ){
-		this.config( options );
+	if (options !== undefined) {
+		this.config(options);
 	}
 
-	this.setup( options );
+	this.setup(options);
 }
 
-FloatingPane.prototype.events = ['minimized','maximized','moved','closed'];
+FloatingPane.prototype.events = ['minimized', 'maximized', 'moved', 'closed'];
 
-FloatingPane.prototype.setup = function( options ){
+FloatingPane.prototype.setup = function (options) {
 	this.setMessage();
 	this.addControl();
 	this.addHeader();
-	if( this.enableShrink ){
-		this.maxmin = this.wrapper.querySelector( "div.oi[name='maxmin']" );
+	if (this.enableShrink) {
+		this.maxmin = this.wrapper.querySelector("div.oi[name='maxmin']");
 	}
 	// need to be computed after header is done
-	this.minWidth = ( this.title.length > 0 ? gadgetui.util.textWidth( this.title, this.header.style ) + 80 : 100 );
-	var paddingPx = ( parseInt( gadgetui.util.getNumberValue( gadgetui.util.getStyle( this.selector, "padding" ) ), 10 ) * 2 );
+	this.minWidth = (this.title.length > 0 ? gadgetui.util.textWidth(this.title, this.header.style) + 80 : 100);
+	var paddingPx = (parseInt(gadgetui.util.getNumberValue(gadgetui.util.getStyle(this.selector, "padding")), 10) * 2);
 	// 6 px is padding + border of header
-	var headerHeight = gadgetui.util.getNumberValue( gadgetui.util.getStyle( this.header, "height" ) ) + 6;
+	var headerHeight = gadgetui.util.getNumberValue(gadgetui.util.getStyle(this.header, "height")) + 6;
 	//set height by setting width on selector to get content height at that width
-	gadgetui.util.setStyle( this.selector, "width", this.width - paddingPx );
-	this.height = ( options.height === undefined ? gadgetui.util.getNumberValue( gadgetui.util.getStyle( this.selector, "height" ) ) + paddingPx + headerHeight + 10 : options.height );
+	gadgetui.util.setStyle(this.selector, "width", this.width - paddingPx);
+	this.height = (options.height === undefined ? gadgetui.util.getNumberValue(gadgetui.util.getStyle(this.selector, "height")) + paddingPx + headerHeight + 10 : options.height);
 
 	this.addCSS();
 
 	// now set height to computed height of control _this has been created
-	this.height = gadgetui.util.getStyle( this.wrapper, "height" );
+	this.height = gadgetui.util.getStyle(this.wrapper, "height");
 
-	this.relativeOffsetLeft = gadgetui.util.getRelativeParentOffset( this.selector ).left;
+	this.relativeOffsetLeft = gadgetui.util.getRelativeParentOffset(this.selector).left;
 	this.addBindings();
-/* 	if( this.enableShrink ){
-		this.minimize();
-		this.expand();
-	} */
+	/* 	if( this.enableShrink ){
+			this.minimize();
+			this.expand();
+		} */
 };
 
-FloatingPane.prototype.setMessage = function(){
-	if( this.message !== undefined ){
+FloatingPane.prototype.setMessage = function () {
+	if (this.message !== undefined) {
 		this.selector.innerText = this.message;
 	}
 }
 
-FloatingPane.prototype.addBindings = function(){
-	var dragger = gadgetui.util.draggable( this.wrapper );
+FloatingPane.prototype.addBindings = function () {
+	var dragger = gadgetui.util.draggable(this.wrapper);
 
-	this.wrapper.addEventListener( "drag_end", function( event ){
+	this.wrapper.addEventListener("drag_end", function (event) {
 		this.top = event.detail.top;
 		this.left = event.detail.left;
-		this.relativeOffsetLeft = gadgetui.util.getRelativeParentOffset( this.selector ).left;
+		this.relativeOffsetLeft = gadgetui.util.getRelativeParentOffset(this.selector).left;
 
-		if( typeof this.fireEvent === 'function' ){
-			this.fireEvent( 'moved' );
+		if (typeof this.fireEvent === 'function') {
+			this.fireEvent('moved');
 		}
-	}.bind( this ));
+	}.bind(this));
 
-	if( this.enableShrink ){
-		this.shrinker.addEventListener( "click", function( event ){
+	if (this.enableShrink) {
+		this.shrinker.addEventListener("click", function (event) {
 			event.stopPropagation();
-			if( this.minimized ){
+			if (this.minimized) {
 				this.expand();
-			}else{
+			} else {
 				this.minimize();
 			}
-		}.bind( this ));
+		}.bind(this));
 	}
-	if( this.enableClose ){
-		this.closer.addEventListener( "click", function(event){
+	if (this.enableClose) {
+		this.closer.addEventListener("click", function (event) {
 			event.stopPropagation();
 			this.close();
-		}.bind(this) );
+		}.bind(this));
 	}
 };
 
-FloatingPane.prototype.close = function(){
-	if( typeof this.fireEvent === 'function' ){
-		this.fireEvent( 'closed' );
+FloatingPane.prototype.close = function () {
+	if (typeof this.fireEvent === 'function') {
+		this.fireEvent('closed');
 	}
-	this.wrapper.parentNode.removeChild( this.wrapper );
+	this.wrapper.parentNode.removeChild(this.wrapper);
 
 };
 
-FloatingPane.prototype.addHeader = function(){
+FloatingPane.prototype.addHeader = function () {
 	var css = gadgetui.util.setStyle;
-	this.header = document.createElement( "div" );
+	this.header = document.createElement("div");
 	this.header.innerHTML = this.title;
-	if( this.headerClass ){
-		gadgetui.util.addClass( header, this.headerClass );
+	if (this.headerClass) {
+		gadgetui.util.addClass(header, this.headerClass);
 	}
-	gadgetui.util.addClass( this.header, 'gadget-ui-floatingPane-header' );
+	gadgetui.util.addClass(this.header, 'gadget-ui-floatingPane-header');
 
 
-	if( this.enableShrink ){
-		this.shrinker = document.createElement( "span" );
-		this.shrinker.setAttribute( "name", "maxmin" );
-		css( this.shrinker, "float", "left" );
-		css( this.shrinker, "margin-right", ".5em" );
+	if (this.enableShrink) {
+		this.shrinker = document.createElement("span");
+		this.shrinker.setAttribute("name", "maxmin");
+		css(this.shrinker, "float", "left");
+		css(this.shrinker, "margin-right", ".5em");
 		var shrinkIcon = `<svg class="feather">
 								<use xlink:href="${this.featherPath}/dist/feather-sprite.svg#minimize"/>
 								</svg>`;
 		this.shrinker.innerHTML = shrinkIcon;
-		this.header.insertBefore( this.shrinker, undefined );
-		this.wrapper.insertBefore( this.header, this.selector );
-		this.header.appendChild( this.shrinker );
-	}else{
-		this.wrapper.insertBefore( this.header, this.selector );
+		this.header.insertBefore(this.shrinker, undefined);
+		this.wrapper.insertBefore(this.header, this.selector);
+		this.header.appendChild(this.shrinker);
+	} else {
+		this.wrapper.insertBefore(this.header, this.selector);
 	}
 
-	if( this.enableClose ){
-		var span = document.createElement( "span" );
-		span.setAttribute( "name", "closeIcon" );
-		css( span, "float", "right" );
+	if (this.enableClose) {
+		var span = document.createElement("span");
+		span.setAttribute("name", "closeIcon");
+		css(span, "float", "right");
 		var icon = `<svg class="feather">
 								<use xlink:href="${this.featherPath}/dist/feather-sprite.svg#x-circle"/>
 								</svg>`;
 		span.innerHTML = icon;
-		this.header.appendChild( span );
-		css( span, "right", "3px" );
-		css( span, "position", "absolute" );
-		css( span, "cursor", "pointer"  );
-		css( span, "top", "3px" );
+		this.header.appendChild(span);
+		css(span, "right", "3px");
+		css(span, "position", "absolute");
+		css(span, "cursor", "pointer");
+		css(span, "top", "3px");
 		this.closer = span;
 	}
 };
 
-FloatingPane.prototype.addCSS = function(){
+FloatingPane.prototype.addCSS = function () {
 	var css = gadgetui.util.setStyle;
 	//copy width from selector
-	css( this.wrapper, "width",  this.width );
-	css( this.wrapper, "z-index",  this.zIndex );
-	if( this.top !== undefined ) css( this.wrapper, "top", this.top );
-	if( this.left !== undefined )css( this.wrapper, "left", this.left );
-	if( this.bottom !== undefined ) css( this.wrapper, "bottom", this.bottom );
-	if( this.right !== undefined )css( this.wrapper, "right", this.right );
+	css(this.wrapper, "width", this.width);
+	css(this.wrapper, "z-index", this.zIndex);
+	if (this.top !== undefined) css(this.wrapper, "top", this.top);
+	if (this.left !== undefined) css(this.wrapper, "left", this.left);
+	if (this.bottom !== undefined) css(this.wrapper, "bottom", this.bottom);
+	if (this.right !== undefined) css(this.wrapper, "right", this.right);
 };
 
-FloatingPane.prototype.addControl = function(){
-	var fp = document.createElement( "div" );
-	if( this.class ){
-		gadgetui.util.addClass( fp, this.class );
+FloatingPane.prototype.addControl = function () {
+	var fp = document.createElement("div");
+	if (this.class) {
+		gadgetui.util.addClass(fp, this.class);
 	}
-	gadgetui.util.addClass( fp, "gadget-ui-floatingPane" );
+	gadgetui.util.addClass(fp, "gadget-ui-floatingPane");
 
 	fp.draggable = true;
-	this.selector.parentNode.insertBefore( fp, this.selector );
+	this.selector.parentNode.insertBefore(fp, this.selector);
 	this.wrapper = this.selector.previousSibling;
-	this.selector.parentNode.removeChild( this.selector );
-	fp.appendChild( this.selector );
+	this.selector.parentNode.removeChild(this.selector);
+	fp.appendChild(this.selector);
 
 };
 
-FloatingPane.prototype.expand = function(){
+FloatingPane.prototype.expand = function () {
 	// when minimizing and expanding, we must look up the ancestor chain to see if there are position: relative elements.
 	// if so, we must subtract the offset left of the ancestor to get the pane back to its original position
 
 	var _this = this,
 		css = gadgetui.util.setStyle,
-		offset = gadgetui.util.getOffset( this.wrapper ),
-		parentPaddingLeft = parseInt( gadgetui.util.getNumberValue( gadgetui.util.getStyle( this.wrapper.parentElement, "padding-left" ) ), 10 ),
-		lx =  parseInt( new Number( offset.left ), 10 ) - this.relativeOffsetLeft - parentPaddingLeft;
+		offset = gadgetui.util.getOffset(this.wrapper),
+		parentPaddingLeft = parseInt(gadgetui.util.getNumberValue(gadgetui.util.getStyle(this.wrapper.parentElement, "padding-left")), 10),
+		lx = parseInt(new Number(offset.left), 10) - this.relativeOffsetLeft - parentPaddingLeft;
 
-		//width = parseInt( gadgetui.util.getNumberValue( this.width ), 10 );
+	//width = parseInt( gadgetui.util.getNumberValue( this.width ), 10 );
 	var icon = `<svg class="feather">
 								<use xlink:href="${this.featherPath}/dist/feather-sprite.svg#minimize"/>
 								</svg>`;
-	if( typeof Velocity != 'undefined' && this.animate ){
+	if (typeof Velocity != 'undefined' && this.animate) {
 
-		Velocity( this.wrapper, {
+		Velocity(this.wrapper, {
 			width: this.width
-		},{queue: false, duration: 500}, function() {
+		}, { queue: false, duration: 500 }, function () {
 			// Animation complete.
 		});
 
-		Velocity( this.selector, {
+		Velocity(this.selector, {
 			height: this.height
-		},{queue: false, duration: 500, complete: function() {
-			_this.shrinker.innerHTML = icon;
-			css( _this.selector, "overflow", "scroll" );
-			if( typeof _this.fireEvent === 'function' ){
-				_this.fireEvent( 'maximized' );
+		}, {
+			queue: false, duration: 500, complete: function () {
+				_this.shrinker.innerHTML = icon;
+				css(_this.selector, "overflow", "scroll");
+				if (typeof _this.fireEvent === 'function') {
+					_this.fireEvent('maximized');
+				}
 			}
-		}
 		});
-	}else{
-		css( this.wrapper, "width", this.width );
-		css( this.selector, "height", this.height );
+	} else {
+		css(this.wrapper, "width", this.width);
+		css(this.selector, "height", this.height);
 		this.shrinker.innerHTML = icon;
-		css( this.selector, "overflow", "scroll" );
-		if( typeof this.fireEvent === 'function' ){
-			this.fireEvent( 'maximized' );
+		css(this.selector, "overflow", "scroll");
+		if (typeof this.fireEvent === 'function') {
+			this.fireEvent('maximized');
 		}
 	}
 
 	this.minimized = false;
 };
 
-FloatingPane.prototype.minimize = function(){
+FloatingPane.prototype.minimize = function () {
 	// when minimizing and maximizing, we must look up the ancestor chain to see if there are position: relative elements.
 	// if so, we must subtract the offset left of the ancestor to get the pane back to its original position
 
 	var _this = this,
 		css = gadgetui.util.setStyle,
-		offset = gadgetui.util.getOffset( this.wrapper ),
-		parentPaddingLeft = parseInt( gadgetui.util.getNumberValue( gadgetui.util.getStyle( this.wrapper.parentElement, "padding-left" ) ), 10 ),
-		lx =  parseInt( new Number( offset.left ), 10 ) - this.relativeOffsetLeft - parentPaddingLeft,
-		width = parseInt( gadgetui.util.getNumberValue( this.width ), 10 );
+		offset = gadgetui.util.getOffset(this.wrapper),
+		parentPaddingLeft = parseInt(gadgetui.util.getNumberValue(gadgetui.util.getStyle(this.wrapper.parentElement, "padding-left")), 10),
+		lx = parseInt(new Number(offset.left), 10) - this.relativeOffsetLeft - parentPaddingLeft,
+		width = parseInt(gadgetui.util.getNumberValue(this.width), 10);
 
-	css( this.selector, "overflow", "hidden" );
+	css(this.selector, "overflow", "hidden");
 	var icon = `<svg class="feather">
 							<use xlink:href="${this.featherPath}/dist/feather-sprite.svg#maximize"/>
 							</svg>`;
-	if( typeof Velocity != 'undefined' && this.animate ){
+	if (typeof Velocity != 'undefined' && this.animate) {
 
-		Velocity( this.wrapper, {
+		Velocity(this.wrapper, {
 			width: _this.minWidth
-		},{queue: false, duration: _this.delay, complete: function() {
-			//_this.icon.setAttribute( "data-glyph", "fullscreen-enter" );
-			_this.shrinker.innerHTML = icon;
+		}, {
+			queue: false, duration: _this.delay, complete: function () {
+				//_this.icon.setAttribute( "data-glyph", "fullscreen-enter" );
+				_this.shrinker.innerHTML = icon;
 			}
 		});
 
-		Velocity( this.selector, {
+		Velocity(this.selector, {
 			height: "50px"
-		},{queue: false, duration: _this.delay}, function() {
+		}, { queue: false, duration: _this.delay }, function () {
 			// Animation complete.
-			if( typeof _this.fireEvent === 'function' ){
-				_this.fireEvent( 'minimized' );
+			if (typeof _this.fireEvent === 'function') {
+				_this.fireEvent('minimized');
 			}
 		});
-	}else{
-		css( this.wrapper, "width", this.minWidth );
-		css( this.selector, "height", "50px" );
+	} else {
+		css(this.wrapper, "width", this.minWidth);
+		css(this.selector, "height", "50px");
 		this.shrinker.innerHTML = icon;
-		if( typeof this.fireEvent === 'function' ){
-			this.fireEvent( 'minimized' );
+		if (typeof this.fireEvent === 'function') {
+			this.fireEvent('minimized');
 		}
 	}
 	this.minimized = true;
 };
 
-FloatingPane.prototype.config = function( options ){
-	options = ( options === undefined ? {} : options );
-	this.message = ( options.message === undefined ? undefined: options.message );
-	this.animate = (( options.animate === undefined) ? true : options.animate );
-	this.delay = ( ( options.delay === undefined ? 500 : options.delay ) );
-	this.title = ( options.title === undefined ? "": options.title );
-	this.zIndex = ( options.zIndex === undefined ? gadgetui.util.getMaxZIndex() + 1: options.zIndex );
-	this.width = gadgetui.util.getStyle( this.selector, "width" );
- 	this.top = ( options.top === undefined ? undefined: options.top );
-	this.left = ( options.left === undefined ? undefined : options.left );
-	this.bottom = ( options.bottom === undefined ? undefined : options.bottom );
-	this.right = ( options.right === undefined ? undefined : options.right );
-	this.class = ( ( options.class === undefined ? false : options.class ) );
-	this.headerClass = ( ( options.headerClass === undefined ? false : options.headerClass ) );
+FloatingPane.prototype.config = function (options) {
+	options = (options === undefined ? {} : options);
+	this.message = (options.message === undefined ? undefined : options.message);
+	this.animate = ((options.animate === undefined) ? true : options.animate);
+	this.delay = ((options.delay === undefined ? 500 : options.delay));
+	this.title = (options.title === undefined ? "" : options.title);
+	this.zIndex = (options.zIndex === undefined ? gadgetui.util.getMaxZIndex() + 1 : options.zIndex);
+	this.width = gadgetui.util.getStyle(this.selector, "width");
+	this.top = (options.top === undefined ? undefined : options.top);
+	this.left = (options.left === undefined ? undefined : options.left);
+	this.bottom = (options.bottom === undefined ? undefined : options.bottom);
+	this.right = (options.right === undefined ? undefined : options.right);
+	this.class = ((options.class === undefined ? false : options.class));
+	this.headerClass = ((options.headerClass === undefined ? false : options.headerClass));
 	this.featherPath = options.featherPath || "/node_modules/feather-icons";
 	this.minimized = false;
 	this.relativeOffsetLeft = 0;
-	this.enableShrink = ( options.enableShrink !== undefined ? options.enableShrink : true );
-	this.enableClose = ( options.enableClose !== undefined ? options.enableClose : true );
+	this.enableShrink = (options.enableShrink !== undefined ? options.enableShrink : true);
+	this.enableClose = (options.enableClose !== undefined ? options.enableClose : true);
 };
 
 function Menu(selector, options) {
@@ -1206,8 +1210,8 @@ Menu.prototype.addBindings = function () {
 Menu.prototype.destroy = function () {
 	let menus = this.selector.querySelectorAll("div.gadget-ui-menu");
 	// remove the menus
-	for( var idx = 0; idx < menus.length; idx++ ){
-		document.querySelector( this.selector ).removeChild( menus[idx] );
+	for (var idx = 0; idx < menus.length; idx++) {
+		document.querySelector(this.selector).removeChild(menus[idx]);
 	}
 };
 
@@ -1216,146 +1220,146 @@ Menu.prototype.config = function (options) {
 	this.datasource = (options.datasource !== undefined ? options.datasource : undefined);
 };
 
-function Modal( selector, options ){
-  this.selector = selector;
-  this.config( options );
+function Modal(selector, options) {
+	this.selector = selector;
+	this.config(options);
 
-  this.addControl();
-  this.addBindings();
+	this.addControl();
+	this.addBindings();
 }
 
-Modal.prototype.events = ['opened','closed'];
+Modal.prototype.events = ['opened', 'closed'];
 
-Modal.prototype.addControl = function(){
-  this.wrapper = document.createElement( "div" );
-  if( this.class ){
-    gadgetui.util.addClass( this.wrapper, this.class );
-  }
-  gadgetui.util.addClass( this.wrapper, "gadgetui-modal" );
+Modal.prototype.addControl = function () {
+	this.wrapper = document.createElement("div");
+	if (this.class) {
+		gadgetui.util.addClass(this.wrapper, this.class);
+	}
+	gadgetui.util.addClass(this.wrapper, "gadgetui-modal");
 
-  this.selector.parentNode.insertBefore( this.wrapper, this.selector );
-  //this.wrapper = this.selector.previousSibling;
-  this.selector.parentNode.removeChild( this.selector );
-  this.wrapper.appendChild( this.selector );
-  var icon = "";
-  if( this.closeIcon.indexOf( 'svg' ) > 0 ){
-    icon = '<svg class="' + this.featherClass + '"><use xlink:href="' + this.closeIcon + '"/></svg>';
-  }else{
-    icon = '<img src="' + this.closeIcon + '"/>';
-  }
-  gadgetui.util.addClass( this.selector, "gadgetui-modalWindow" );
-  this.selector.innerHTML = `<span name="close" class="gadgetui-right-align">
+	this.selector.parentNode.insertBefore(this.wrapper, this.selector);
+	//this.wrapper = this.selector.previousSibling;
+	this.selector.parentNode.removeChild(this.selector);
+	this.wrapper.appendChild(this.selector);
+	var icon = "";
+	if (this.closeIcon.indexOf('svg') > 0) {
+		icon = '<svg class="' + this.featherClass + '"><use xlink:href="' + this.closeIcon + '"/></svg>';
+	} else {
+		icon = '<img src="' + this.closeIcon + '"/>';
+	}
+	gadgetui.util.addClass(this.selector, "gadgetui-modalWindow");
+	this.selector.innerHTML = `<span name="close" class="gadgetui-right-align">
               <a name="close">
               ${icon}
               </a>
               </span>` + this.selector.innerHTML;
-  if( this.autoOpen ){
-    this.open();
-  }
+	if (this.autoOpen) {
+		this.open();
+	}
 };
 
-Modal.prototype.addBindings = function(){
-  let self = this;
-  let close = this.selector.querySelector( " a[name='close']" );
-  close.addEventListener( "click", function( event ){
-    self.close();
-  });
+Modal.prototype.addBindings = function () {
+	let self = this;
+	let close = this.selector.querySelector(" a[name='close']");
+	close.addEventListener("click", function (event) {
+		self.close();
+	});
 };
 
-Modal.prototype.open = function(){
-  gadgetui.util.addClass( this.wrapper, "gadgetui-showModal" );
-  if( typeof this.fireEvent === 'function' ){
-    this.fireEvent( 'opened');
-  }
+Modal.prototype.open = function () {
+	gadgetui.util.addClass(this.wrapper, "gadgetui-showModal");
+	if (typeof this.fireEvent === 'function') {
+		this.fireEvent('opened');
+	}
 };
 
-Modal.prototype.close = function(){
-  gadgetui.util.removeClass( this.wrapper, "gadgetui-showModal" );
-  if( typeof this.fireEvent === 'function' ){
-    this.fireEvent( 'closed');
-  }
+Modal.prototype.close = function () {
+	gadgetui.util.removeClass(this.wrapper, "gadgetui-showModal");
+	if (typeof this.fireEvent === 'function') {
+		this.fireEvent('closed');
+	}
 };
 
-Modal.prototype.destroy = function(){
+Modal.prototype.destroy = function () {
 	// remove the wrapper
-	this.selector.parentNode.removeChild( this.selector );
-	this.wrapper.parentNode.insertBefore( this.selector, this.wrapper );
-	this.wrapper.parentNode.removeChild( this.wrapper );
+	this.selector.parentNode.removeChild(this.selector);
+	this.wrapper.parentNode.insertBefore(this.selector, this.wrapper);
+	this.wrapper.parentNode.removeChild(this.wrapper);
 	// remove the close span
-	this.selector.removeChild(this.selector.querySelector( ".gadgetui-right-align" ));
+	this.selector.removeChild(this.selector.querySelector(".gadgetui-right-align"));
 };
 
-Modal.prototype.config = function( options ){
-  this.class = ( ( options.class === undefined ? false : options.class ) );
-  this.featherClass = ( ( options.featherClass === undefined ? 'feather' : options.featherClass ) );
+Modal.prototype.config = function (options) {
+	this.class = ((options.class === undefined ? false : options.class));
+	this.featherClass = ((options.featherClass === undefined ? 'feather' : options.featherClass));
 	//this.featherPath = options.featherPath || "/node_modules/feather-icons";
-  this.closeIcon = ( ( options.closeIcon === undefined ? '/node_modules/feather-icons/dist/feather-sprite.svg#x-circle' : options.closeIcon ) );
-  this.autoOpen = ( options.autoOpen === false ? false : true );
+	this.closeIcon = ((options.closeIcon === undefined ? '/node_modules/feather-icons/dist/feather-sprite.svg#x-circle' : options.closeIcon));
+	this.autoOpen = (options.autoOpen === false ? false : true);
 };
 
 
 function ProgressBar(selector, options) {
-  this.selector = selector;
-  this.configure(options);
+	this.selector = selector;
+	this.configure(options);
 }
 
-ProgressBar.prototype.configure = function(options) {
-  this.id = options.id;
-  this.filename = options.filename;
-  this.width = options.width;
+ProgressBar.prototype.configure = function (options) {
+	this.id = options.id;
+	this.filename = options.filename;
+	this.width = options.width;
 };
 
-ProgressBar.prototype.render = function() {
-  var css = gadgetui.util.setStyle;
+ProgressBar.prototype.render = function () {
+	var css = gadgetui.util.setStyle;
 
-  var pbDiv = document.createElement( "div" );
-  pbDiv.setAttribute( "name", "progressbox_" + this.id );
-  gadgetui.util.addClass( pbDiv, "gadgetui-progressbar-progressbox" );
+	var pbDiv = document.createElement("div");
+	pbDiv.setAttribute("name", "progressbox_" + this.id);
+	gadgetui.util.addClass(pbDiv, "gadgetui-progressbar-progressbox");
 
-  var fileDiv = document.createElement( "div" );
-  fileDiv.setAttribute( "name", "filename" );
-  gadgetui.util.addClass( fileDiv, "gadgetui-progressbar-filename" );
-  fileDiv.innerText = " " + this.filename + " ";
-  pbDiv.appendChild( fileDiv );
+	var fileDiv = document.createElement("div");
+	fileDiv.setAttribute("name", "filename");
+	gadgetui.util.addClass(fileDiv, "gadgetui-progressbar-filename");
+	fileDiv.innerText = " " + this.filename + " ";
+	pbDiv.appendChild(fileDiv);
 
-  var pbarDiv = document.createElement( "div" );
-  gadgetui.util.addClass( pbarDiv, "gadget-ui-progressbar" );
-  pbarDiv.setAttribute( "name", "progressbar_" + this.id );
-  pbDiv.appendChild( pbarDiv );
+	var pbarDiv = document.createElement("div");
+	gadgetui.util.addClass(pbarDiv, "gadget-ui-progressbar");
+	pbarDiv.setAttribute("name", "progressbar_" + this.id);
+	pbDiv.appendChild(pbarDiv);
 
-  var statusDiv = document.createElement( "div" );
-  statusDiv.setAttribute( "name", "statustxt" );
-  gadgetui.util.addClass( statusDiv, "statustxt" );
-  statusDiv.innertText = "0%";
-  pbDiv.appendChild( statusDiv );
+	var statusDiv = document.createElement("div");
+	statusDiv.setAttribute("name", "statustxt");
+	gadgetui.util.addClass(statusDiv, "statustxt");
+	statusDiv.innertText = "0%";
+	pbDiv.appendChild(statusDiv);
 
-  this.selector.appendChild( pbDiv );
+	this.selector.appendChild(pbDiv);
 
-  this.progressbox = this.selector.querySelector( "div[name='progressbox_" + this.id + "']" );
-  this.progressbar = this.selector.querySelector( "div[name='progressbar_" + this.id + "']" );
-  this.statustxt = this.selector.querySelector( "div[name='progressbox_" + this.id + "'] div[name='statustxt']" );
+	this.progressbox = this.selector.querySelector("div[name='progressbox_" + this.id + "']");
+	this.progressbar = this.selector.querySelector("div[name='progressbar_" + this.id + "']");
+	this.statustxt = this.selector.querySelector("div[name='progressbox_" + this.id + "'] div[name='statustxt']");
 };
 
-ProgressBar.prototype.start = function() {
-  var css = gadgetui.util.setStyle;
-  css( this.progressbar, "width", "0" );
-  this.statustxt.innerHTML = "0%";
+ProgressBar.prototype.start = function () {
+	var css = gadgetui.util.setStyle;
+	css(this.progressbar, "width", "0");
+	this.statustxt.innerHTML = "0%";
 };
 
-ProgressBar.prototype.updatePercent = function(percent) {
-  var css = gadgetui.util.setStyle;
-  var percentage = percent + "%";
-  this.percent = percent;
-  css( this.progressbar, "width", percentage);
-  this.statustxt.innerHTML = percentage;
+ProgressBar.prototype.updatePercent = function (percent) {
+	var css = gadgetui.util.setStyle;
+	var percentage = percent + "%";
+	this.percent = percent;
+	css(this.progressbar, "width", percentage);
+	this.statustxt.innerHTML = percentage;
 };
 
-ProgressBar.prototype.update = function(text) {
-  this.statustxt.innerHTML = text;
+ProgressBar.prototype.update = function (text) {
+	this.statustxt.innerHTML = text;
 };
 
-ProgressBar.prototype.destroy = function() {
-  this.progressbox.parentNode.removeChild( this.progressbox );
+ProgressBar.prototype.destroy = function () {
+	this.progressbox.parentNode.removeChild(this.progressbox);
 };
 
 
@@ -1397,7 +1401,7 @@ Sidebar.prototype.addControl = function () {
 	this.width = this.wrapper.offsetWidth;
 };
 
-Sidebar.prototype.maximize = function(){
+Sidebar.prototype.maximize = function () {
 	let self = this;
 	self.minimized = false;
 	self.setChevron(self.minimized);
@@ -1421,10 +1425,10 @@ Sidebar.prototype.maximize = function(){
 			self.fireEvent('maximized');
 		}
 	}
-	
+
 }
 
-Sidebar.prototype.minimize = function(){
+Sidebar.prototype.minimize = function () {
 	let self = this;
 	self.minimized = true;
 	self.setChevron(self.minimized);
@@ -1462,7 +1466,7 @@ Sidebar.prototype.addBindings = function (options) {
 		}
 	});
 
-	if(options.minimized){
+	if (options.minimized) {
 		self.minimize();
 	}
 };
@@ -1473,64 +1477,64 @@ Sidebar.prototype.setChevron = function (minimized) {
 	svg.innerHTML = `<use xlink:href="${this.featherPath}/dist/feather-sprite.svg#${chevron}"/>`;
 }
 
-function Tabs( selector, options ){
-  this.selector = selector;
-  this.config( options );
-  this.addControl();
+function Tabs(selector, options) {
+	this.selector = selector;
+	this.config(options);
+	this.addControl();
 }
 
-Tabs.prototype.config = function( options ){
-  this.direction = ( options.direction === undefined ? "horizontal" : options.direction );
-  this.tabContentDivIds = [];
-  this.tabs = [];
-  this.activeTab;
+Tabs.prototype.config = function (options) {
+	this.direction = (options.direction === undefined ? "horizontal" : options.direction);
+	this.tabContentDivIds = [];
+	this.tabs = [];
+	this.activeTab;
 };
 
 Tabs.prototype.events = ["tabSelected"];
 
-Tabs.prototype.addControl = function(){
-  let dir = ( this.direction === "vertical" ? "v" : "h" );
-  this.selector.classList.add( "gadget-ui-tabs-" + dir );
-  this.tabs = this.selector.querySelectorAll( "div" );
-  let activeSet = false;
-  this.tabs.forEach( function( tab ){
-    tab.classList.add( "gadget-ui-tab-" + dir );
-    // set the first tab active
-    if( ! activeSet ){
-      activeSet = true;
-      this.setActiveTab( tab.attributes['data-tab'].value );
-      //tab.classList.add( "gadget-ui-tab-" + dir + "-active" );
+Tabs.prototype.addControl = function () {
+	let dir = (this.direction === "vertical" ? "v" : "h");
+	this.selector.classList.add("gadget-ui-tabs-" + dir);
+	this.tabs = this.selector.querySelectorAll("div");
+	let activeSet = false;
+	this.tabs.forEach(function (tab) {
+		tab.classList.add("gadget-ui-tab-" + dir);
+		// set the first tab active
+		if (!activeSet) {
+			activeSet = true;
+			this.setActiveTab(tab.attributes['data-tab'].value);
+			//tab.classList.add( "gadget-ui-tab-" + dir + "-active" );
 
-      //this.activeTab = tab.id;
-    }
-    this.tabContentDivIds.push( tab.attributes['data-tab'].value );
-    document.querySelector( "#" + tab.attributes['data-tab'].value ).style.display = 'none';
-    tab.addEventListener( "click", function(){
-      this.setActiveTab( tab.attributes['data-tab'].value );
-    }.bind( this ));
-  }.bind( this ));
-  document.querySelector( "#" + this.tabContentDivIds[0] ).style.display = 'block';
+			//this.activeTab = tab.id;
+		}
+		this.tabContentDivIds.push(tab.attributes['data-tab'].value);
+		document.querySelector("#" + tab.attributes['data-tab'].value).style.display = 'none';
+		tab.addEventListener("click", function () {
+			this.setActiveTab(tab.attributes['data-tab'].value);
+		}.bind(this));
+	}.bind(this));
+	document.querySelector("#" + this.tabContentDivIds[0]).style.display = 'block';
 };
 
-Tabs.prototype.setActiveTab = function( activeTab ){
-  let dir = ( this.direction === "vertical" ? "v" : "h" );
-  this.tabContentDivIds.forEach( function( tab ){
-    let dsp = ( tab === activeTab ? "block" : "none" );
-    document.querySelector( "#" + tab ).style.display = dsp;
-  });
+Tabs.prototype.setActiveTab = function (activeTab) {
+	let dir = (this.direction === "vertical" ? "v" : "h");
+	this.tabContentDivIds.forEach(function (tab) {
+		let dsp = (tab === activeTab ? "block" : "none");
+		document.querySelector("#" + tab).style.display = dsp;
+	});
 
-  this.tabs.forEach( function( tab ){
-    if( tab.attributes['data-tab'].value === activeTab ){
-      tab.classList.add( "gadget-ui-tab-" + dir + "-active" );
-    }else{
-      tab.classList.remove( "gadget-ui-tab-" + dir + "-active" );
-    }
-  }.bind( this ));
-  this.activeTab = activeTab;
-  // if events were called for
-  if( this.events['tabSelected'] !== undefined ){
-    this.fireEvent( "tabSelected", activeTab );
-  }
+	this.tabs.forEach(function (tab) {
+		if (tab.attributes['data-tab'].value === activeTab) {
+			tab.classList.add("gadget-ui-tab-" + dir + "-active");
+		} else {
+			tab.classList.remove("gadget-ui-tab-" + dir + "-active");
+		}
+	}.bind(this));
+	this.activeTab = activeTab;
+	// if events were called for
+	if (this.events['tabSelected'] !== undefined) {
+		this.fireEvent("tabSelected", activeTab);
+	}
 };
 
 
@@ -1551,65 +1555,65 @@ Tabs.prototype.setActiveTab = function( activeTab ){
 gadgetui.input = (function() {
 	
 	
-function ComboBox( selector, options ){
+function ComboBox(selector, options) {
 	this.emitEvents = true;
 	this.model = gadgetui.model;
 	this.func;
 
 	this.selector = selector;
-	this.config( options );
+	this.config(options);
 	this.setSaveFunc();
 	this.setDataProviderRefresh();
 	this.addControl();
 	this.addCSS();
 	// bind to the model if binding is specified
-	gadgetui.util.bind( this.selector, this.model );
+	gadgetui.util.bind(this.selector, this.model);
 	// bind to the model if binding is specified
-	gadgetui.util.bind( this.label, this.model );
+	gadgetui.util.bind(this.label, this.model);
 	this.addBehaviors();
 	this.setStartingValues();
 }
 
-ComboBox.prototype.addControl = function(){
+ComboBox.prototype.addControl = function () {
 	var css = gadgetui.util.setStyle;
-	this.comboBox = gadgetui.util.createElement( "div" );
-	this.input = gadgetui.util.createElement( "input" );
-	this.label = gadgetui.util.createElement( "div" );
-	this.inputWrapper = gadgetui.util.createElement( "div" );
-	this.selectWrapper = gadgetui.util.createElement( "div" );
+	this.comboBox = gadgetui.util.createElement("div");
+	this.input = gadgetui.util.createElement("input");
+	this.label = gadgetui.util.createElement("div");
+	this.inputWrapper = gadgetui.util.createElement("div");
+	this.selectWrapper = gadgetui.util.createElement("div");
 
-	gadgetui.util.addClass( this.comboBox, "gadgetui-combobox" );
-	gadgetui.util.addClass( this.input, "gadgetui-combobox-input" );
-	gadgetui.util.addClass( this.label, "gadgetui-combobox-label" );
-	gadgetui.util.addClass( this.inputWrapper, "gadgetui-combobox-inputwrapper" );
-	gadgetui.util.addClass( this.selectWrapper,"gadgetui-combobox-selectwrapper" );
+	gadgetui.util.addClass(this.comboBox, "gadgetui-combobox");
+	gadgetui.util.addClass(this.input, "gadgetui-combobox-input");
+	gadgetui.util.addClass(this.label, "gadgetui-combobox-label");
+	gadgetui.util.addClass(this.inputWrapper, "gadgetui-combobox-inputwrapper");
+	gadgetui.util.addClass(this.selectWrapper, "gadgetui-combobox-selectwrapper");
 
-	this.selector.parentNode.insertBefore( this.comboBox, this.selector );
-	this.selector.parentNode.removeChild( this.selector );
-	this.comboBox.appendChild( this.label );
-	this.selectWrapper.appendChild( this.selector );
-	this.comboBox.appendChild( this.selectWrapper );
-	this.inputWrapper.appendChild( this.input );
-	this.comboBox.appendChild( this.inputWrapper );
-	this.label.setAttribute( "data-id", this.id );
-	this.label.setAttribute( "gadgetui-bind", this.selector.getAttribute( "gadgetui-bind" ) );
+	this.selector.parentNode.insertBefore(this.comboBox, this.selector);
+	this.selector.parentNode.removeChild(this.selector);
+	this.comboBox.appendChild(this.label);
+	this.selectWrapper.appendChild(this.selector);
+	this.comboBox.appendChild(this.selectWrapper);
+	this.inputWrapper.appendChild(this.input);
+	this.comboBox.appendChild(this.inputWrapper);
+	this.label.setAttribute("data-id", this.id);
+	this.label.setAttribute("gadgetui-bind", this.selector.getAttribute("gadgetui-bind"));
 	this.label.innerHTML = this.text;
-	this.input.setAttribute( "placeholder", this.newOption.text );
-	this.input.setAttribute( "type", "text" );
-	this.input.setAttribute( "name", "custom" );
+	this.input.setAttribute("placeholder", this.newOption.text);
+	this.input.setAttribute("type", "text");
+	this.input.setAttribute("name", "custom");
 
-	css( this.comboBox, "opacity", ".0" );
+	css(this.comboBox, "opacity", ".0");
 };
 
-ComboBox.prototype.addCSS = function(){
+ComboBox.prototype.addCSS = function () {
 	var css = gadgetui.util.setStyle;
-	gadgetui.util.addClass( this.selector, "gadgetui-combobox-select" );
-	css( this.selector, "width", this.width );
-	css( this.selector, "border",  0 );
-	css( this.selector, "display",  "inline" );
-	css( this.comboBox, "position",  "relative" );
+	gadgetui.util.addClass(this.selector, "gadgetui-combobox-select");
+	css(this.selector, "width", this.width);
+	css(this.selector, "border", 0);
+	css(this.selector, "display", "inline");
+	css(this.comboBox, "position", "relative");
 
-	var styles = gadgetui.util.getStyle( this.selector ),
+	var styles = gadgetui.util.getStyle(this.selector),
 		inputWidth = this.selector.clientWidth,
 		inputWidthAdjusted,
 		inputLeftOffset = 0,
@@ -1620,771 +1624,771 @@ ComboBox.prototype.addCSS = function(){
 		inputLeftMargin,
 		leftPosition;
 
-	leftPosition = gadgetui.util.getNumberValue( this.borderWidth ) + 4;
+	leftPosition = gadgetui.util.getNumberValue(this.borderWidth) + 4;
 
-	if( this.borderRadius > 5 ){
+	if (this.borderRadius > 5) {
 		selectLeftPadding = this.borderRadius - 5;
-		leftPosition = gadgetui.util.getNumberValue( leftPosition ) + gadgetui.util.getNumberValue( selectLeftPadding );
+		leftPosition = gadgetui.util.getNumberValue(leftPosition) + gadgetui.util.getNumberValue(selectLeftPadding);
 	}
 	inputLeftMargin = leftPosition;
-	inputWidthAdjusted = inputWidth - this.arrowWidth - gadgetui.util.getNumberValue( this.borderRadius ) - 4;
-	console.log( navigator.userAgent );
-	if( navigator.userAgent.match( /(Safari)/ ) && !navigator.userAgent.match( /(Chrome)/ )){
+	inputWidthAdjusted = inputWidth - this.arrowWidth - gadgetui.util.getNumberValue(this.borderRadius) - 4;
+	console.log(navigator.userAgent);
+	if (navigator.userAgent.match(/(Safari)/) && !navigator.userAgent.match(/(Chrome)/)) {
 		inputWrapperTop = this.borderWidth - 2;
-		selectLeftPadding = (selectLeftPadding < 4 ) ? 4 : this.borderRadius - 1;
+		selectLeftPadding = (selectLeftPadding < 4) ? 4 : this.borderRadius - 1;
 		selectMarginTop = 1;
-	}else if( navigator.userAgent.match( /Edge/ ) ){
-		selectLeftPadding = (selectLeftPadding < 1 ) ? 1 : this.borderRadius - 4;
+	} else if (navigator.userAgent.match(/Edge/)) {
+		selectLeftPadding = (selectLeftPadding < 1) ? 1 : this.borderRadius - 4;
 		inputLeftMargin--;
-	}else if( navigator.userAgent.match( /MSIE/) ){
-		selectLeftPadding = (selectLeftPadding < 1 ) ? 1 : this.borderRadius - 4;
-	}else if( navigator.userAgent.match( /Trident/ ) ){
-		selectLeftPadding = (selectLeftPadding < 2 ) ? 2 : this.borderRadius - 3;
-	}else if( navigator.userAgent.match( /Chrome/ ) ){
-		selectLeftPadding = (selectLeftPadding < 4 ) ? 4 : this.borderRadius - 1;
+	} else if (navigator.userAgent.match(/MSIE/)) {
+		selectLeftPadding = (selectLeftPadding < 1) ? 1 : this.borderRadius - 4;
+	} else if (navigator.userAgent.match(/Trident/)) {
+		selectLeftPadding = (selectLeftPadding < 2) ? 2 : this.borderRadius - 3;
+	} else if (navigator.userAgent.match(/Chrome/)) {
+		selectLeftPadding = (selectLeftPadding < 4) ? 4 : this.borderRadius - 1;
 		selectMarginTop = 1;
 	}
 
 	// positioning
-	css( this.selector, "margin-top", selectMarginTop );
-	css( this.selector, "padding-left", selectLeftPadding );
+	css(this.selector, "margin-top", selectMarginTop);
+	css(this.selector, "padding-left", selectLeftPadding);
 
-	css( this.inputWrapper, "top", inputWrapperTop );
-	css( this.inputWrapper,"left",leftOffset );
+	css(this.inputWrapper, "top", inputWrapperTop);
+	css(this.inputWrapper, "left", leftOffset);
 
-	css( this.input, "width", inputWidthAdjusted );
-	css( this.input, "font-size", styles.fontSize );
+	css(this.input, "width", inputWidthAdjusted);
+	css(this.input, "font-size", styles.fontSize);
 
 	//appearance
-	css( this.comboBox, "font-size", styles.fontSize );
+	css(this.comboBox, "font-size", styles.fontSize);
 
-	css( this.label,"left",leftPosition );
-	css( this.label, "font-family", styles.fontFamily );
-	css( this.label, "font-size", styles.fontSize );
-	css( this.label, "font-weight", styles.fontWeight );
+	css(this.label, "left", leftPosition);
+	css(this.label, "font-family", styles.fontFamily);
+	css(this.label, "font-size", styles.fontSize);
+	css(this.label, "font-weight", styles.fontWeight);
 	// add rules for arrow Icon
 	//we're doing this programmatically so we can skin our arrow icon
-	if( navigator.userAgent.match( /Firefox/) ){
-		if( this.scaleIconHeight === true ){
-			css( this.selectWrapper, "background-size",  this.arrowWidth + "px " + inputHeight + "px" );
+	if (navigator.userAgent.match(/Firefox/)) {
+		if (this.scaleIconHeight === true) {
+			css(this.selectWrapper, "background-size", this.arrowWidth + "px " + inputHeight + "px");
 		}
 	}
-	css( this.selector, "-webkit-appearance",  "none" );
-	css( this.selector, "-moz-appearance",  "window" );
+	css(this.selector, "-webkit-appearance", "none");
+	css(this.selector, "-moz-appearance", "window");
 
-	if( this.scaleIconHeight === true ){
-		css( this.selector, "background-size",  this.arrowWidth + "px " + inputHeight + "px" );
+	if (this.scaleIconHeight === true) {
+		css(this.selector, "background-size", this.arrowWidth + "px " + inputHeight + "px");
 	}
 
-	css( this.comboBox, "opacity",  1 );
+	css(this.comboBox, "opacity", 1);
 
-	if( this.hideable ){
-		css( this.inputWrapper, "display", 'none' );
-		css( this.selectWrapper, "display", 'none' );
-	}else{
-		css( this.selectWrapper, "display", 'inline' );
-				css( this.label, "display", 'none' );
-		if( this.selector.selectedIndex <= 0 ) {
-			css( this.inputWrapper, "display", 'inline' );
+	if (this.hideable) {
+		css(this.inputWrapper, "display", 'none');
+		css(this.selectWrapper, "display", 'none');
+	} else {
+		css(this.selectWrapper, "display", 'inline');
+		css(this.label, "display", 'none');
+		if (this.selector.selectedIndex <= 0) {
+			css(this.inputWrapper, "display", 'inline');
 		}
 	}
 };
 
-ComboBox.prototype.setSelectOptions = function(){
+ComboBox.prototype.setSelectOptions = function () {
 	var _this = this, id, text, option;
 
 
 	while (_this.selector.options.length > 0) {
 		_this.selector.remove(0);
-    }
+	}
 	//console.log( "append new option" );
-	option = gadgetui.util.createElement( "option" );
+	option = gadgetui.util.createElement("option");
 	option.value = _this.newOption.id;
 	option.text = _this.newOption.text;
-	_this.selector.add( option );
+	_this.selector.add(option);
 
-	this.dataProvider.data.forEach( function( obj ){
+	this.dataProvider.data.forEach(function (obj) {
 		id = obj.id;
 		text = obj.text;
-		if( text === undefined ){
+		if (text === undefined) {
 			text = id;
 		}
-		option = gadgetui.util.createElement( "option" );
+		option = gadgetui.util.createElement("option");
 		option.value = id;
 		option.text = text;
 
-		_this.selector.add( option );
+		_this.selector.add(option);
 	});
 };
 
-ComboBox.prototype.find = function( text ){
+ComboBox.prototype.find = function (text) {
 	var ix;
-	for( ix = 0; ix < this.dataProvider.data.length; ix++ ){
-		if( this.dataProvider.data[ix].text === text ){
+	for (ix = 0; ix < this.dataProvider.data.length; ix++) {
+		if (this.dataProvider.data[ix].text === text) {
 			return this.dataProvider.data[ix].id;
 		}
 	}
 	return;
 };
 
-ComboBox.prototype.getText = function( id ){
+ComboBox.prototype.getText = function (id) {
 	var ix,
-		compId = parseInt( id, 10 );
-	if( isNaN( compId ) === true ){
+		compId = parseInt(id, 10);
+	if (isNaN(compId) === true) {
 		compId = id;
 	}
-	for( ix = 0; ix < this.dataProvider.data.length; ix++ ){
-		if( this.dataProvider.data[ix].id === compId ){
+	for (ix = 0; ix < this.dataProvider.data.length; ix++) {
+		if (this.dataProvider.data[ix].id === compId) {
 			return this.dataProvider.data[ix].text;
 		}
 	}
 	return;
 };
-ComboBox.prototype.showLabel = function(){
+ComboBox.prototype.showLabel = function () {
 	var css = gadgetui.util.setStyle;
-	css( this.label, "display", "inline-block" );
-	css( this.selectWrapper, "display", 'none' );
-	css( this.inputWrapper, "display", 'none' );
+	css(this.label, "display", "inline-block");
+	css(this.selectWrapper, "display", 'none');
+	css(this.inputWrapper, "display", 'none');
 };
 
-ComboBox.prototype.addBehaviors = function( obj ) {
+ComboBox.prototype.addBehaviors = function (obj) {
 	var _this = this;
-	if( this.hideable ){
+	if (this.hideable) {
 		this.comboBox
-			.addEventListener( this.activate, function( ) {
-				setTimeout( function( ) {
-					if( _this.label.style.display != "none" ){
-						console.log( "combo mouseenter ");
+			.addEventListener(this.activate, function () {
+				setTimeout(function () {
+					if (_this.label.style.display != "none") {
+						console.log("combo mouseenter ");
 						//_this.label.style.display = "none" );
 						_this.selectWrapper.style.display = "inline";
 						_this.label.style.display = "none";
-						if( _this.selector.selectedIndex <= 0 ) {
+						if (_this.selector.selectedIndex <= 0) {
 							_this.inputWrapper.style.display = "inline";
 						}
 					}
-				}, _this.delay );
+				}, _this.delay);
 			});
 		this.comboBox
-			.addEventListener( "mouseleave", function( ) {
-				console.log( "combo mouseleave ");
-				if ( _this.selector != document.activeElement && _this.input != document.activeElement ) {
+			.addEventListener("mouseleave", function () {
+				console.log("combo mouseleave ");
+				if (_this.selector != document.activeElement && _this.input != document.activeElement) {
 					_this.showLabel();
 				}
 			});
 	}
 	_this.input
-		.addEventListener( "click", function( e ){
-			console.log( "input click ");
+		.addEventListener("click", function (e) {
+			console.log("input click ");
 		});
 	_this.input
-		.addEventListener( "keyup", function( event ) {
-			console.log( "input keyup");
-			if ( event.which === 13 ) {
-				var inputText =  gadgetui.util.encode( _this.input.value );
-				_this.handleInput( inputText );
+		.addEventListener("keyup", function (event) {
+			console.log("input keyup");
+			if (event.which === 13) {
+				var inputText = gadgetui.util.encode(_this.input.value);
+				_this.handleInput(inputText);
 			}
 		});
-	if( this.hideable ){
+	if (this.hideable) {
 		_this.input
-			.addEventListener( "blur", function( ) {
-				console.log( "input blur" );
+			.addEventListener("blur", function () {
+				console.log("input blur");
 
-				if( gadgetui.util.mouseWithin( _this.selector, gadgetui.mousePosition ) === true ){
+				if (gadgetui.util.mouseWithin(_this.selector, gadgetui.mousePosition) === true) {
 					_this.inputWrapper.style.display = 'none';
 					_this.selector.focus();
-				}else{
+				} else {
 					_this.showLabel();
 				}
 			});
 	}
-	if( this.hideable ){
+	if (this.hideable) {
 		this.selector
-			.addEventListener( "mouseenter", function( ev ){
+			.addEventListener("mouseenter", function (ev) {
 				_this.selector.style.display = "inline";
 			});
 	}
 	this.selector
-		.addEventListener( "click", function( ev ){
-			console.log( "select click");
+		.addEventListener("click", function (ev) {
+			console.log("select click");
 			ev.stopPropagation();
 		});
 	this.selector
-		.addEventListener( "change", function( event ) {
-			var idx = ( event.target.selectedIndex >= 0 ) ? event.target.selectedIndex : 0;
-			if( parseInt( event.target[ idx ].value, 10 ) !== parseInt( _this.id, 10 ) ){
-				console.log( "select change");
-				if( event.target.selectedIndex > 0 ){
+		.addEventListener("change", function (event) {
+			var idx = (event.target.selectedIndex >= 0) ? event.target.selectedIndex : 0;
+			if (parseInt(event.target[idx].value, 10) !== parseInt(_this.id, 10)) {
+				console.log("select change");
+				if (event.target.selectedIndex > 0) {
 					_this.inputWrapper.style.display = 'none';
-					_this.setValue( event.target[ event.target.selectedIndex ].value );
-				}else{
+					_this.setValue(event.target[event.target.selectedIndex].value);
+				} else {
 					_this.inputWrapper.style.display = 'block';
-					_this.setValue( _this.newOption.value );
+					_this.setValue(_this.newOption.value);
 					_this.input.focus();
 				}
-				gadgetui.util.trigger( _this.selector, "gadgetui-combobox-change", { id: event.target[ event.target.selectedIndex ].value, text: event.target[ event.target.selectedIndex ].innerHTML } );
+				gadgetui.util.trigger(_this.selector, "gadgetui-combobox-change", { id: event.target[event.target.selectedIndex].value, text: event.target[event.target.selectedIndex].innerHTML });
 			}
 		});
-	if( this.hideable ){
+	if (this.hideable) {
 		this.selector
-			.addEventListener( "blur", function( event ) {
-				console.log( "select blur ");
+			.addEventListener("blur", function (event) {
+				console.log("select blur ");
 				event.stopPropagation();
-				setTimeout( function( ) {
+				setTimeout(function () {
 					//if( _this.emitEvents === true ){
 
-					if( _this.input !== document.activeElement ){
+					if (_this.input !== document.activeElement) {
 						_this.showLabel();
 					}
-				}, 200 );
+				}, 200);
 			});
 	}
 };
 
-ComboBox.prototype.handleInput = function( inputText ){
-	var id = this.find( inputText ),
+ComboBox.prototype.handleInput = function (inputText) {
+	var id = this.find(inputText),
 		css = gadgetui.util.setStyle;
-	if( id !== undefined ){
+	if (id !== undefined) {
 		this.selector.value = id;
 		this.label.innerText = inputText;
 		this.selector.focus();
 		this.input.value = '';
-		css( this.inputWrapper, "display", 'none' );
+		css(this.inputWrapper, "display", 'none');
 	}
-	else if ( id === undefined && inputText.length > 0 ) {
-		this.save( inputText );
+	else if (id === undefined && inputText.length > 0) {
+		this.save(inputText);
 	}
 };
 
-ComboBox.prototype.triggerSelectChange = function(){
+ComboBox.prototype.triggerSelectChange = function () {
 	console.log("select change");
-	var ev = new Event( "change", {
-	    view: window,
-	    bubbles: true,
-	    cancelable: true
-	  });
-	this.selector.dispatchEvent( ev );
+	var ev = new Event("change", {
+		view: window,
+		bubbles: true,
+		cancelable: true
+	});
+	this.selector.dispatchEvent(ev);
 };
 
-ComboBox.prototype.setSaveFunc = function(){
+ComboBox.prototype.setSaveFunc = function () {
 	var _this = this;
 
-	if( this.save !== undefined ){
+	if (this.save !== undefined) {
 		var save = this.save;
-		this.save = function( text ) {
+		this.save = function (text) {
 			var _this = this,
 				func,
 				promise,
-				args = [ text ],
-				value = this.find( text );
-			if( value === undefined ){
-				console.log( "save: " + text );
+				args = [text],
+				value = this.find(text);
+			if (value === undefined) {
+				console.log("save: " + text);
 
 				promise = new Promise(
-						function( resolve, reject ){
-							args.push( resolve );
-							args.push( reject );
-							func = save.apply(_this, args);
-							console.log( func );
-						});
+					function (resolve, reject) {
+						args.push(resolve);
+						args.push(reject);
+						func = save.apply(_this, args);
+						console.log(func);
+					});
 				promise.then(
-						function( value ){
-							function callback(){
-								// trigger save event if we're triggering events
-								//if( _this.emitEvents === true ){
-								gadgetui.util.trigger( _this.selector, "gadgetui-combobox-save", { id: value, text: text } );
-									//_this.selector.dispatchEvent( new Event( "gadgetui-combobox-save" ), { id: value, text: text } );
-								//}
-								_this.input.value = '';
-								_this.inputWrapper.style.display = 'none';
-								_this.id = value;
-								_this.dataProvider.refresh();
-							}
-							if( _this.animate === true && typeof Velocity !== "undefined" ){
-								Velocity( _this.selectWrapper, {
-									boxShadow: '0 0 15px ' + _this.glowColor,
-									borderColor: _this.glowColor
-								  }, _this.animateDelay / 2, function(){
-									 _this.selectWrapper.style.borderColor = _this.glowColor;
-								  } );
-								Velocity( _this.selectWrapper, {
-									boxShadow: 0,
-									borderColor: _this.borderColor
-								  }, _this.animateDelay / 2, callback );
-							}else{
-								callback();
-							}
-						});
-				promise['catch']( function( message ){
-					_this.input.value= '';
+					function (value) {
+						function callback() {
+							// trigger save event if we're triggering events
+							//if( _this.emitEvents === true ){
+							gadgetui.util.trigger(_this.selector, "gadgetui-combobox-save", { id: value, text: text });
+							//_this.selector.dispatchEvent( new Event( "gadgetui-combobox-save" ), { id: value, text: text } );
+							//}
+							_this.input.value = '';
+							_this.inputWrapper.style.display = 'none';
+							_this.id = value;
+							_this.dataProvider.refresh();
+						}
+						if (_this.animate === true && typeof Velocity !== "undefined") {
+							Velocity(_this.selectWrapper, {
+								boxShadow: '0 0 15px ' + _this.glowColor,
+								borderColor: _this.glowColor
+							}, _this.animateDelay / 2, function () {
+								_this.selectWrapper.style.borderColor = _this.glowColor;
+							});
+							Velocity(_this.selectWrapper, {
+								boxShadow: 0,
+								borderColor: _this.borderColor
+							}, _this.animateDelay / 2, callback);
+						} else {
+							callback();
+						}
+					});
+				promise['catch'](function (message) {
+					_this.input.value = '';
 					_this.inputWrapper.hide();
-					console.log( message );
+					console.log(message);
 					_this.dataProvider.refresh();
 
 				});
 			}
-		    return func;
+			return func;
 		};
 	}
 };
 
-ComboBox.prototype.setStartingValues = function(){
-	( this.dataProvider.data === undefined ) ? this.dataProvider.refresh() : this.setControls();
+ComboBox.prototype.setStartingValues = function () {
+	(this.dataProvider.data === undefined) ? this.dataProvider.refresh() : this.setControls();
 };
 
-ComboBox.prototype.setControls = function(){
-	console.log( this );
+ComboBox.prototype.setControls = function () {
+	console.log(this);
 	this.setSelectOptions();
-	this.setValue( this.id );
+	this.setValue(this.id);
 	this.triggerSelectChange();
 };
 
-ComboBox.prototype.setValue = function( id ){
-	var text = this.getText( id );
-	console.log( "setting id:" + id );
+ComboBox.prototype.setValue = function (id) {
+	var text = this.getText(id);
+	console.log("setting id:" + id);
 	// value and text can only be set to current values in this.dataProvider.data, or to "New" value
-	this.id = ( text === undefined ? this.newOption.id : id );
-	text = ( text === undefined ? this.newOption.text : text );
+	this.id = (text === undefined ? this.newOption.id : id);
+	text = (text === undefined ? this.newOption.text : text);
 
 	this.text = text;
 	this.label.innerText = this.text;
 	this.selector.value = this.id;
 };
 
-ComboBox.prototype.setDataProviderRefresh = function(){
+ComboBox.prototype.setDataProviderRefresh = function () {
 	var _this = this,
 		promise,
 		refresh = this.dataProvider.refresh,
 		func;
-	this.dataProvider.refresh = function(){
+	this.dataProvider.refresh = function () {
 		var scope = this;
-		if( refresh !== undefined ){
+		if (refresh !== undefined) {
 			promise = new Promise(
-					function( resolve, reject ){
-						var args = [ scope, resolve, reject ];
-						func = refresh.apply( this, args );
-					});
+				function (resolve, reject) {
+					var args = [scope, resolve, reject];
+					func = refresh.apply(this, args);
+				});
 			promise
-				.then( function(){
-					gadgetui.util.trigger( _this.selector, "gadgetui-combobox-refresh" );
+				.then(function () {
+					gadgetui.util.trigger(_this.selector, "gadgetui-combobox-refresh");
 					//_this.selector.dispatchEvent( new Event( "gadgetui-combobox-refresh" ) );
 					_this.setControls();
 				});
-			promise['catch']( function( message ){
-					console.log( "message" );
-					_this.setControls();
-				});
+			promise['catch'](function (message) {
+				console.log("message");
+				_this.setControls();
+			});
 		}
 		return func;
 	};
 };
 
-ComboBox.prototype.config = function( options ){
-	options = ( options === undefined ? {} : options );
-	this.model =  (( options.model === undefined) ? this.model : options.model );
-	this.emitEvents = (( options.emitEvents === undefined) ? true : options.emitEvents );
-	this.dataProvider = (( options.dataProvider === undefined) ? undefined : options.dataProvider );
-	this.save = (( options.save === undefined) ? undefined : options.save );
-	this.activate = (( options.activate === undefined) ? "mouseenter" : options.activate );
-	this.delay = (( options.delay === undefined) ? 10 : options.delay );
-	this.borderWidth = gadgetui.util.getStyle( this.selector, "border-width" ) || 1;
-	this.borderRadius = gadgetui.util.getStyle( this.selector, "border-radius" ) || 5;
-	this.borderColor = gadgetui.util.getStyle( this.selector, "border-color" ) || "silver";
+ComboBox.prototype.config = function (options) {
+	options = (options === undefined ? {} : options);
+	this.model = ((options.model === undefined) ? this.model : options.model);
+	this.emitEvents = ((options.emitEvents === undefined) ? true : options.emitEvents);
+	this.dataProvider = ((options.dataProvider === undefined) ? undefined : options.dataProvider);
+	this.save = ((options.save === undefined) ? undefined : options.save);
+	this.activate = ((options.activate === undefined) ? "mouseenter" : options.activate);
+	this.delay = ((options.delay === undefined) ? 10 : options.delay);
+	this.borderWidth = gadgetui.util.getStyle(this.selector, "border-width") || 1;
+	this.borderRadius = gadgetui.util.getStyle(this.selector, "border-radius") || 5;
+	this.borderColor = gadgetui.util.getStyle(this.selector, "border-color") || "silver";
 	this.arrowWidth = options.arrowWidth || 25;
-	this.width = (( options.width === undefined) ? 150 : options.width );
-	this.newOption = (( options.newOption === undefined) ? { text: "...", id: 0 } : options.newOption );
-	this.id = (( options.id === undefined) ? this.newOption.id : options.id );
-	this.scaleIconHeight = (( options.scaleIconHeight === undefined) ? false : options.scaleIconHeight );
-	this.animate = (( options.animate === undefined) ? true : options.animate );
-	this.glowColor = (( options.glowColor === undefined ) ? 'rgb(82, 168, 236)' : options.glowColor );
-	this.animateDelay = (( options.animateDelay === undefined ) ? 500 : options.animateDelay );
+	this.width = ((options.width === undefined) ? 150 : options.width);
+	this.newOption = ((options.newOption === undefined) ? { text: "...", id: 0 } : options.newOption);
+	this.id = ((options.id === undefined) ? this.newOption.id : options.id);
+	this.scaleIconHeight = ((options.scaleIconHeight === undefined) ? false : options.scaleIconHeight);
+	this.animate = ((options.animate === undefined) ? true : options.animate);
+	this.glowColor = ((options.glowColor === undefined) ? 'rgb(82, 168, 236)' : options.glowColor);
+	this.animateDelay = ((options.animateDelay === undefined) ? 500 : options.animateDelay);
 	this.border = this.borderWidth + "px " + this.borderStyle + " " + this.borderColor;
 	this.saveBorder = this.borderWidth + "px " + this.borderStyle + " " + this.glowColor;
 	this.hideable = options.hideable || false;
 };
 
 function FileUploader(selector, options) {
-  this.selector = selector;
-  //this.dlg = "";
-  this.droppedFiles = [];
-  this.configure(options);
-  this.render(options.title);
-  this.setEventHandlers();
-  this.setDimensions();
+	this.selector = selector;
+	//this.dlg = "";
+	this.droppedFiles = [];
+	this.configure(options);
+	this.render(options.title);
+	this.setEventHandlers();
+	this.setDimensions();
 }
 
-FileUploader.prototype.render = function(title) {
-  var data,
-    options,
-    title = title,
-    files;
+FileUploader.prototype.render = function (title) {
+	var data,
+		options,
+		title = title,
+		files;
 
-  var renderUploader = function() {
-    var css = gadgetui.util.setStyle;
-    var options = {
-      title: title,
-      addFile: this.addFileMessage,
-      dropMessage: this.dropMessage,
-      fileSelectLbl: ""
-    };
+	var renderUploader = function () {
+		var css = gadgetui.util.setStyle;
+		var options = {
+			title: title,
+			addFile: this.addFileMessage,
+			dropMessage: this.dropMessage,
+			fileSelectLbl: ""
+		};
 
-    var uploadClass = "gadgetui-fileuploader-uploadIcon";
-    if( this.uploadClass.length ){
-      uploadClass +=" " + this.uploadClass;
-    }
+		var uploadClass = "gadgetui-fileuploader-uploadIcon";
+		if (this.uploadClass.length) {
+			uploadClass += " " + this.uploadClass;
+		}
 
-    var icon = "";
-    if( this.uploadIcon.indexOf( ".svg" ) ){
-      icon = '<svg name="gadgetui-fileuploader-uploadIcon" class="' + uploadClass + '"><use xlink:href="' + this.uploadIcon + '"/></svg>'
-    }else{
-      icon = '<img name="gadgetui-fileuploader-uploadIcon" class="' + uploadClass + '" src="' + this.uploadIcon + '">';
-    }
-    
-    this.selector.innerHTML =
-      '<div class="gadgetui-fileuploader-wrapper"><div name="gadgetui-fileuploader-dropzone" class="gadgetui-fileuploader-dropzone"><div name="gadgetui-fileuploader-filedisplay" class="gadgetui-fileuploader-filedisplay" style="display:none;"></div><div class="gadgetui-fileuploader-dropmessage" name="gadgetui-fileuploader-dropMessageDiv">' +
-      options.dropMessage +
-      '</span></div></div><div class="buttons full"><div class="gadgetui-fileuploader-fileUpload" name="gadgetui-fileuploader-fileUpload"><label>' + icon + '<input type="file" name="gadgetui-fileuploader-fileselect" class="gadgetui-fileuploader-upload" title="' +
-      options.fileSelectLbl +
-      '"></label></div></div></div>';
+		var icon = "";
+		if (this.uploadIcon.indexOf(".svg")) {
+			icon = '<svg name="gadgetui-fileuploader-uploadIcon" class="' + uploadClass + '"><use xlink:href="' + this.uploadIcon + '"/></svg>'
+		} else {
+			icon = '<img name="gadgetui-fileuploader-uploadIcon" class="' + uploadClass + '" src="' + this.uploadIcon + '">';
+		}
 
-      if( this.showUploadButton === false ){
-        css( this.selector.querySelector( "input[name='gadgetui-fileuploader-fileselect']" ), "display", "none" );
-      }
-      if( this.showDropZone === false ){
-        css( this.selector.querySelector( "div[name='gadgetui-fileuploader-dropzone']" ), "display", "none" );
-      }
-      if( this.showUploadIcon === false ){
-        let iconSelector = this.selector.querySelector( "img[name='gadgetui-fileuploader-uploadIcon']" );
-        if( iconSelector === null ){
-          iconSelector = this.selector.querySelector( "svg[name='gadgetui-fileuploader-uploadIcon']" );
-        }
-        css( iconSelector, "display", "none" );
-      }
+		this.selector.innerHTML =
+			'<div class="gadgetui-fileuploader-wrapper"><div name="gadgetui-fileuploader-dropzone" class="gadgetui-fileuploader-dropzone"><div name="gadgetui-fileuploader-filedisplay" class="gadgetui-fileuploader-filedisplay" style="display:none;"></div><div class="gadgetui-fileuploader-dropmessage" name="gadgetui-fileuploader-dropMessageDiv">' +
+			options.dropMessage +
+			'</span></div></div><div class="buttons full"><div class="gadgetui-fileuploader-fileUpload" name="gadgetui-fileuploader-fileUpload"><label>' + icon + '<input type="file" name="gadgetui-fileuploader-fileselect" class="gadgetui-fileuploader-upload" title="' +
+			options.fileSelectLbl +
+			'"></label></div></div></div>';
 
-    this.renderDropZone();
-  }.bind(this);
+		if (this.showUploadButton === false) {
+			css(this.selector.querySelector("input[name='gadgetui-fileuploader-fileselect']"), "display", "none");
+		}
+		if (this.showDropZone === false) {
+			css(this.selector.querySelector("div[name='gadgetui-fileuploader-dropzone']"), "display", "none");
+		}
+		if (this.showUploadIcon === false) {
+			let iconSelector = this.selector.querySelector("img[name='gadgetui-fileuploader-uploadIcon']");
+			if (iconSelector === null) {
+				iconSelector = this.selector.querySelector("svg[name='gadgetui-fileuploader-uploadIcon']");
+			}
+			css(iconSelector, "display", "none");
+		}
 
-  renderUploader();
+		this.renderDropZone();
+	}.bind(this);
+
+	renderUploader();
 };
 
-FileUploader.prototype.configure = function(options) {
-  // may be undefined
-  this.message = options.message;
-  this.tags = options.tags;
-  this.uploadURI = options.uploadURI;
-  this.onUploadComplete = options.onUploadComplete;
-  this.willGenerateThumbnails = (options.willGenerateThumbnails !== undefined && options.willGenerateThumbnails !== null ? options.willGenerateThumbnails : false);
-  this.showUploadButton = ( options.showUploadButton !== undefined ? options.showUploadButton : true );
-  this.showDropZone = ( options.showDropZone !== undefined ? options.showDropZone : true );
-	this.uploadIcon = ( options.uploadIcon !== undefined ? options.uploadIcon : '/node_modules/feather-icons/dist/feather-sprite.svg#image');
-  this.uploadClass = ( options.uploadClass !== undefined ? options.uploadClass : "");
-  this.showUploadIcon = ( options.uploadIcon !== undefined && options.showUploadIcon !== undefined && options.showUploadIcon ? true : false );
-  this.addFileMessage = ( options.addFileMessage !== undefined ? options.addFileMessage : "Add a File" );
-  this.dropMessage = ( options.dropMessage !== undefined ? options.dropMessage : "Drop Files Here" );
-  this.uploadErrorMessage = ( options.uploadErrorMessage !== undefined ? options.uploadErrorMessage : "Upload error." );
+FileUploader.prototype.configure = function (options) {
+	// may be undefined
+	this.message = options.message;
+	this.tags = options.tags;
+	this.uploadURI = options.uploadURI;
+	this.onUploadComplete = options.onUploadComplete;
+	this.willGenerateThumbnails = (options.willGenerateThumbnails !== undefined && options.willGenerateThumbnails !== null ? options.willGenerateThumbnails : false);
+	this.showUploadButton = (options.showUploadButton !== undefined ? options.showUploadButton : true);
+	this.showDropZone = (options.showDropZone !== undefined ? options.showDropZone : true);
+	this.uploadIcon = (options.uploadIcon !== undefined ? options.uploadIcon : '/node_modules/feather-icons/dist/feather-sprite.svg#image');
+	this.uploadClass = (options.uploadClass !== undefined ? options.uploadClass : "");
+	this.showUploadIcon = (options.uploadIcon !== undefined && options.showUploadIcon !== undefined && options.showUploadIcon ? true : false);
+	this.addFileMessage = (options.addFileMessage !== undefined ? options.addFileMessage : "Add a File");
+	this.dropMessage = (options.dropMessage !== undefined ? options.dropMessage : "Drop Files Here");
+	this.uploadErrorMessage = (options.uploadErrorMessage !== undefined ? options.uploadErrorMessage : "Upload error.");
 };
 
-FileUploader.prototype.setDimensions = function() {
-  var css = gadgetui.util.setStyle;
-  var uHeight = gadgetui.util.getNumberValue(gadgetui.util.getStyle(this.selector, "height")),
-    uWidth = gadgetui.util.getNumberValue(gadgetui.util.getStyle(this.selector, "width")),
-    dropzone = this.selector.querySelector( "div[class='gadgetui-fileuploader-dropzone']" ),
-    filedisplay = this.selector.querySelector( "div[class='gadgetui-fileuploader-filedisplay']" ),
-    buttons = this.selector.querySelector( "div[class~='buttons']" );
+FileUploader.prototype.setDimensions = function () {
+	var css = gadgetui.util.setStyle;
+	var uHeight = gadgetui.util.getNumberValue(gadgetui.util.getStyle(this.selector, "height")),
+		uWidth = gadgetui.util.getNumberValue(gadgetui.util.getStyle(this.selector, "width")),
+		dropzone = this.selector.querySelector("div[class='gadgetui-fileuploader-dropzone']"),
+		filedisplay = this.selector.querySelector("div[class='gadgetui-fileuploader-filedisplay']"),
+		buttons = this.selector.querySelector("div[class~='buttons']");
 };
 
-FileUploader.prototype.setEventHandlers = function() {
-  this.selector.querySelector("input[name='gadgetui-fileuploader-fileselect']").addEventListener("change", function(evt) {
-    var dropzone = this.selector.querySelector("div[name='gadgetui-fileuploader-dropzone']"),
-      filedisplay = this.selector.querySelector("div[name='gadgetui-fileuploader-filedisplay']");
+FileUploader.prototype.setEventHandlers = function () {
+	this.selector.querySelector("input[name='gadgetui-fileuploader-fileselect']").addEventListener("change", function (evt) {
+		var dropzone = this.selector.querySelector("div[name='gadgetui-fileuploader-dropzone']"),
+			filedisplay = this.selector.querySelector("div[name='gadgetui-fileuploader-filedisplay']");
 
-    this.processUpload(
-      evt,
-      evt.target.files,
-      dropzone,
-      filedisplay
-    );
-  }.bind(this));
+		this.processUpload(
+			evt,
+			evt.target.files,
+			dropzone,
+			filedisplay
+		);
+	}.bind(this));
 };
 
-FileUploader.prototype.renderDropZone = function() {
-  // if we decide to drop files into a drag/drop zone
+FileUploader.prototype.renderDropZone = function () {
+	// if we decide to drop files into a drag/drop zone
 
-  var dropzone = this.selector.querySelector("div[name='gadgetui-fileuploader-dropzone']"),
-    filedisplay = this.selector.querySelector("div[name='gadgetui-fileuploader-filedisplay']");
+	var dropzone = this.selector.querySelector("div[name='gadgetui-fileuploader-dropzone']"),
+		filedisplay = this.selector.querySelector("div[name='gadgetui-fileuploader-filedisplay']");
 
-    this.selector.addEventListener( "dragstart", function( ev ){
-      ev.dataTransfer.setData("text",  "data");
-      ev.dataTransfer.effectAllowed = "copy";
-    });
+	this.selector.addEventListener("dragstart", function (ev) {
+		ev.dataTransfer.setData("text", "data");
+		ev.dataTransfer.effectAllowed = "copy";
+	});
 
-  dropzone.addEventListener("dragenter", function(ev) {
-    gadgetui.util.addClass( dropzone, "highlighted");
+	dropzone.addEventListener("dragenter", function (ev) {
+		gadgetui.util.addClass(dropzone, "highlighted");
 
-    ev.preventDefault();
-    ev.stopPropagation();
-  });
+		ev.preventDefault();
+		ev.stopPropagation();
+	});
 
-  dropzone.addEventListener("dragleave", function(ev) {
-    ev.stopPropagation();
-    ev.preventDefault();
-    gadgetui.util.removeClass( dropzone,"highlighted");
-  });
+	dropzone.addEventListener("dragleave", function (ev) {
+		ev.stopPropagation();
+		ev.preventDefault();
+		gadgetui.util.removeClass(dropzone, "highlighted");
+	});
 
-  dropzone.addEventListener("dragover", function(ev) {
-    this.handleDragOver(ev);
-    ev.dataTransfer.dropEffect = "copy";
-  }.bind(this));
+	dropzone.addEventListener("dragover", function (ev) {
+		this.handleDragOver(ev);
+		ev.dataTransfer.dropEffect = "copy";
+	}.bind(this));
 
-  dropzone.addEventListener("drop", function(ev) {
-    ev.stopPropagation();
-    ev.preventDefault();
+	dropzone.addEventListener("drop", function (ev) {
+		ev.stopPropagation();
+		ev.preventDefault();
 
-    this.processUpload(
-      ev,
-      ev.dataTransfer.files,
-      dropzone,
-      filedisplay
-    );
-  }.bind(this));
+		this.processUpload(
+			ev,
+			ev.dataTransfer.files,
+			dropzone,
+			filedisplay
+		);
+	}.bind(this));
 };
 
-FileUploader.prototype.processUpload = function(event, files, dropzone, filedisplay) {
-  var wrappedFile;
-  var css = gadgetui.util.setStyle;
-  this.uploadingFiles = [];
-  css(filedisplay, "display", "inline");
+FileUploader.prototype.processUpload = function (event, files, dropzone, filedisplay) {
+	var wrappedFile;
+	var css = gadgetui.util.setStyle;
+	this.uploadingFiles = [];
+	css(filedisplay, "display", "inline");
 
-  for (var idx = 0; idx < files.length; idx++) {
-    wrappedFile = gadgetui.objects.Constructor(
-      gadgetui.display.FileUploadWrapper, [files[idx], filedisplay,
-        true
-      ]);
+	for (var idx = 0; idx < files.length; idx++) {
+		wrappedFile = gadgetui.objects.Constructor(
+			gadgetui.display.FileUploadWrapper, [files[idx], filedisplay,
+			true
+		]);
 
-    this.uploadingFiles.push(wrappedFile);
-    wrappedFile.on("uploadComplete", function(fileWrapper) {
-      var ix;
-      for (ix = 0; ix < this.uploadingFiles.length; ix++) {
-        if (this.uploadingFiles[ix].id === fileWrapper.id) {
-          this.uploadingFiles.splice(ix, 1);
-        }
-      }
-      if (this.uploadingFiles.length === 0) {
-        if( this.showDropZone ) this.show("dropzone");
-        this.setDimensions();
-      }
-    }.bind(this));
-  }
+		this.uploadingFiles.push(wrappedFile);
+		wrappedFile.on("uploadComplete", function (fileWrapper) {
+			var ix;
+			for (ix = 0; ix < this.uploadingFiles.length; ix++) {
+				if (this.uploadingFiles[ix].id === fileWrapper.id) {
+					this.uploadingFiles.splice(ix, 1);
+				}
+			}
+			if (this.uploadingFiles.length === 0) {
+				if (this.showDropZone) this.show("dropzone");
+				this.setDimensions();
+			}
+		}.bind(this));
+	}
 
-  gadgetui.util.removeClass(dropzone, "highlighted");
+	gadgetui.util.removeClass(dropzone, "highlighted");
 
-  this.handleFileSelect(this.uploadingFiles, event);
+	this.handleFileSelect(this.uploadingFiles, event);
 };
 
-FileUploader.prototype.handleFileSelect = function(wrappedFiles, evt) {
-  evt.stopPropagation();
-  evt.preventDefault();
+FileUploader.prototype.handleFileSelect = function (wrappedFiles, evt) {
+	evt.stopPropagation();
+	evt.preventDefault();
 
-  if (this.willGenerateThumbnails) {
-    this.generateThumbnails(wrappedFiles);
-  } else {
-    this.upload(wrappedFiles);
-  }
+	if (this.willGenerateThumbnails) {
+		this.generateThumbnails(wrappedFiles);
+	} else {
+		this.upload(wrappedFiles);
+	}
 };
 
-FileUploader.prototype.generateThumbnails = function(wrappedFiles) {
-  // not going to convert this functionality right now
-  this.upload(wrappedFiles);
+FileUploader.prototype.generateThumbnails = function (wrappedFiles) {
+	// not going to convert this functionality right now
+	this.upload(wrappedFiles);
 };
 
-FileUploader.prototype.upload = function(wrappedFiles) {
-  wrappedFiles.forEach(function(wrappedFile) {
-    wrappedFile.progressbar.start();
-  });
+FileUploader.prototype.upload = function (wrappedFiles) {
+	wrappedFiles.forEach(function (wrappedFile) {
+		wrappedFile.progressbar.start();
+	});
 
-  this.uploadFile(wrappedFiles);
+	this.uploadFile(wrappedFiles);
 };
 
-FileUploader.prototype.uploadFile = function(wrappedFiles) {
+FileUploader.prototype.uploadFile = function (wrappedFiles) {
 
-  var process = function() {
-    var blob,
-      chunks = [],
-      BYTES_PER_CHUNK,
-      SIZE,
-      parts,
-      start,
-      end,
-      chunk,
-      j;
+	var process = function () {
+		var blob,
+			chunks = [],
+			BYTES_PER_CHUNK,
+			SIZE,
+			parts,
+			start,
+			end,
+			chunk,
+			j;
 
-    for (j = 0; j < wrappedFiles.length; j++) {
-      blob = wrappedFiles[j].file;
-      chunks = [];
-      BYTES_PER_CHUNK = 1024 * 1024;
-      // 1MB chunk sizes.
-      SIZE = blob.size;
-      parts = Math.ceil(SIZE / BYTES_PER_CHUNK);
-      start = 0;
-      end = BYTES_PER_CHUNK;
+		for (j = 0; j < wrappedFiles.length; j++) {
+			blob = wrappedFiles[j].file;
+			chunks = [];
+			BYTES_PER_CHUNK = 1024 * 1024;
+			// 1MB chunk sizes.
+			SIZE = blob.size;
+			parts = Math.ceil(SIZE / BYTES_PER_CHUNK);
+			start = 0;
+			end = BYTES_PER_CHUNK;
 
-      while (start < SIZE) {
-        if (blob.hasOwnProperty("mozSlice")) {
-          chunk = blob.mozSlice(start, end);
-        } else if (blob.hasOwnProperty("webkitSlice")) {
-          chunk = blob.webkitSlice(start, end);
-        } else {
-          chunk = blob.slice(start, end);
-        }
+			while (start < SIZE) {
+				if (blob.hasOwnProperty("mozSlice")) {
+					chunk = blob.mozSlice(start, end);
+				} else if (blob.hasOwnProperty("webkitSlice")) {
+					chunk = blob.webkitSlice(start, end);
+				} else {
+					chunk = blob.slice(start, end);
+				}
 
-        chunks.push(chunk);
+				chunks.push(chunk);
 
-        start = end;
-        end = start + BYTES_PER_CHUNK;
-      }
+				start = end;
+				end = start + BYTES_PER_CHUNK;
+			}
 
-      // start the upload process
-      this.uploadChunk(wrappedFiles[j], chunks, 1, parts);
-    }
-  }.bind(this);
-  // process files
-  process();
+			// start the upload process
+			this.uploadChunk(wrappedFiles[j], chunks, 1, parts);
+		}
+	}.bind(this);
+	// process files
+	process();
 };
 
-FileUploader.prototype.uploadChunk = function(wrappedFile, chunks, filepart, parts) {
-  var xhr = new XMLHttpRequest(),
-    response,
-    tags = this.tags === undefined ? "" : this.tags;
+FileUploader.prototype.uploadChunk = function (wrappedFile, chunks, filepart, parts) {
+	var xhr = new XMLHttpRequest(),
+		response,
+		tags = this.tags === undefined ? "" : this.tags;
 
-/*   if (wrappedFile.file.type.substr(0, 5) === "image") {
-    tags = "image " + tags;
-  } */
+	/*   if (wrappedFile.file.type.substr(0, 5) === "image") {
+		tags = "image " + tags;
+	  } */
 
-  xhr.onreadystatechange = function() {
-    var json;
+	xhr.onreadystatechange = function () {
+		var json;
 
-    if (xhr.readyState === 4) {
-      if( parseInt( xhr.status, 10 ) !== 200 ){
-        this.handleUploadError(xhr,{},wrappedFile);
-      }else{
-        response = xhr.response;
+		if (xhr.readyState === 4) {
+			if (parseInt(xhr.status, 10) !== 200) {
+				this.handleUploadError(xhr, {}, wrappedFile);
+			} else {
+				response = xhr.response;
 
-        if (filepart <= parts) {
-          wrappedFile.progressbar.updatePercent(
-            parseInt(filepart / parts * 100, 10)
-          );
-        }
-        if (filepart < parts) {
-          wrappedFile.id = xhr.getResponseHeader("X-Id");
+				if (filepart <= parts) {
+					wrappedFile.progressbar.updatePercent(
+						parseInt(filepart / parts * 100, 10)
+					);
+				}
+				if (filepart < parts) {
+					wrappedFile.id = xhr.getResponseHeader("X-Id");
 
-          filepart++;
-          this.uploadChunk(
-            wrappedFile,
-            chunks,
-            filepart,
-            parts
-          );
-        } else {
-          try {
-            json = {
-              data: JSON.parse(response)
-            };
-          } catch (e) {
-            json = {};
-            this.handleUploadError(xhr,json,wrappedFile);
-          }
+					filepart++;
+					this.uploadChunk(
+						wrappedFile,
+						chunks,
+						filepart,
+						parts
+					);
+				} else {
+					try {
+						json = {
+							data: JSON.parse(response)
+						};
+					} catch (e) {
+						json = {};
+						this.handleUploadError(xhr, json, wrappedFile);
+					}
 
-          if( json.data !== null && json.data !== undefined ){
-            this.handleUploadResponse(json, wrappedFile);
-          }else{
-            this.handleUploadError(xhr,json,wrappedFile);
-          }
+					if (json.data !== null && json.data !== undefined) {
+						this.handleUploadResponse(json, wrappedFile);
+					} else {
+						this.handleUploadError(xhr, json, wrappedFile);
+					}
 
-        }
-      }
+				}
+			}
 
-    }
-  }.bind(this);
+		}
+	}.bind(this);
 
-  xhr.open("POST", this.uploadURI, true);
-  xhr.setRequestHeader("X-Tags", tags);
-  xhr.setRequestHeader("X-Id", wrappedFile.id);
-  xhr.setRequestHeader("X-FileName", wrappedFile.file.name);
-  xhr.setRequestHeader("X-FileSize", wrappedFile.file.size);
-  xhr.setRequestHeader("X-FilePart", filepart);
-  xhr.setRequestHeader("X-Parts", parts);
-  xhr.setRequestHeader(
-    "X-MimeType",
-    wrappedFile.file.type || "application/octet-stream"
-  );
-  xhr.setRequestHeader(
-    "X-HasTile",
-    wrappedFile.tile !== undefined && wrappedFile.tile.length > 0 ?
-    true :
-    false
-  );
-  xhr.setRequestHeader("Content-Type", "application/octet-stream");
+	xhr.open("POST", this.uploadURI, true);
+	xhr.setRequestHeader("X-Tags", tags);
+	xhr.setRequestHeader("X-Id", wrappedFile.id);
+	xhr.setRequestHeader("X-FileName", wrappedFile.file.name);
+	xhr.setRequestHeader("X-FileSize", wrappedFile.file.size);
+	xhr.setRequestHeader("X-FilePart", filepart);
+	xhr.setRequestHeader("X-Parts", parts);
+	xhr.setRequestHeader(
+		"X-MimeType",
+		wrappedFile.file.type || "application/octet-stream"
+	);
+	xhr.setRequestHeader(
+		"X-HasTile",
+		wrappedFile.tile !== undefined && wrappedFile.tile.length > 0 ?
+			true :
+			false
+	);
+	xhr.setRequestHeader("Content-Type", "application/octet-stream");
 
-  xhr.send(chunks[filepart - 1]);
+	xhr.send(chunks[filepart - 1]);
 };
 
-FileUploader.prototype.handleUploadResponse = function(json, wrappedFile) {
+FileUploader.prototype.handleUploadResponse = function (json, wrappedFile) {
 
-  var fileItem = gadgetui.objects.Constructor(
-    gadgetui.objects.FileItem, [{
-      mimetype: json.data.mimetype,
-      fileid: json.data.fileId,
-      filename: json.data.filename,
-      filesize: json.data.filesize,
-      tags: json.data.tags,
-      created: json.data.created,
-      createdStr: json.data.created,
-      disabled: json.data.disabled,
-      path: json.data.path
-    }],
-    false
-  );
+	var fileItem = gadgetui.objects.Constructor(
+		gadgetui.objects.FileItem, [{
+			mimetype: json.data.mimetype,
+			fileid: json.data.fileId,
+			filename: json.data.filename,
+			filesize: json.data.filesize,
+			tags: json.data.tags,
+			created: json.data.created,
+			createdStr: json.data.created,
+			disabled: json.data.disabled,
+			path: json.data.path
+		}],
+		false
+	);
 
-  // fire completeUpload event so upload dialog can clean itself up
-  wrappedFile.completeUpload(fileItem);
+	// fire completeUpload event so upload dialog can clean itself up
+	wrappedFile.completeUpload(fileItem);
 
-  if (this.onUploadComplete !== undefined) {
-    this.onUploadComplete(fileItem);
-  }
+	if (this.onUploadComplete !== undefined) {
+		this.onUploadComplete(fileItem);
+	}
 };
 
-FileUploader.prototype.handleUploadError = function( xhr, json, wrappedFile ){
-  wrappedFile.progressbar.progressbox.innerText = this.uploadErrorMessage;
-  wrappedFile.abortUpload(wrappedFile);
+FileUploader.prototype.handleUploadError = function (xhr, json, wrappedFile) {
+	wrappedFile.progressbar.progressbox.innerText = this.uploadErrorMessage;
+	wrappedFile.abortUpload(wrappedFile);
 };
 
-FileUploader.prototype.show = function(name) {
-  var css = gadgetui.util.setStyle;
-  var dropzone = this.selector.querySelector( "div[class='gadgetui-fileuploader-dropzone']" ),
-    filedisplay = this.selector.querySelector( "div[class='gadgetui-fileuploader-filedisplay']" );
-  if (name === "dropzone") {
-    css(dropzone, "display", "table-cell");
-    css(filedisplay, "display", "none");
-  } else {
-    css(filedisplay, "display", "table-cell");
-    css(dropzone, "display", "none");
-  }
+FileUploader.prototype.show = function (name) {
+	var css = gadgetui.util.setStyle;
+	var dropzone = this.selector.querySelector("div[class='gadgetui-fileuploader-dropzone']"),
+		filedisplay = this.selector.querySelector("div[class='gadgetui-fileuploader-filedisplay']");
+	if (name === "dropzone") {
+		css(dropzone, "display", "table-cell");
+		css(filedisplay, "display", "none");
+	} else {
+		css(filedisplay, "display", "table-cell");
+		css(dropzone, "display", "none");
+	}
 };
 
-FileUploader.prototype.handleDragOver = function(evt) {
-  evt.stopPropagation();
-  evt.preventDefault();
-  evt.dataTransfer.dropEffect = "copy";
-  // Explicitly show this is a copy.
+FileUploader.prototype.handleDragOver = function (evt) {
+	evt.stopPropagation();
+	evt.preventDefault();
+	evt.dataTransfer.dropEffect = "copy";
+	// Explicitly show this is a copy.
 };
 
 //author - Robert Munn <robertdmunn@gmail.com>
 
 //adapted from jQuery UI autocomplete.
 
-function LookupListInput( selector, options ){
+function LookupListInput(selector, options) {
 	this.selector = selector;
 	this.items = [];
-	this.config( options );
+	this.config(options);
 	this.setIsMultiLine();
 	this.addControl();
 	this.initSource();
@@ -2392,52 +2396,52 @@ function LookupListInput( selector, options ){
 	this.addBindings();
 }
 
-LookupListInput.prototype.addControl = function(){
-	this.wrapper = document.createElement( "div" );
-	if( this.width !== undefined ){
-		gadgetui.util.setStyle( this.wrapper, "width", this.width );
+LookupListInput.prototype.addControl = function () {
+	this.wrapper = document.createElement("div");
+	if (this.width !== undefined) {
+		gadgetui.util.setStyle(this.wrapper, "width", this.width);
 	}
-	gadgetui.util.addClass( this.wrapper, "gadgetui-lookuplist-input" );
-	this.selector.parentNode.insertBefore( this.wrapper, this.selector );
-	this.selector.parentNode.removeChild( this.selector );
-	this.wrapper.appendChild( this.selector );
+	gadgetui.util.addClass(this.wrapper, "gadgetui-lookuplist-input");
+	this.selector.parentNode.insertBefore(this.wrapper, this.selector);
+	this.selector.parentNode.removeChild(this.selector);
+	this.wrapper.appendChild(this.selector);
 };
 
-LookupListInput.prototype.addMenu = function(){
-	var div = document.createElement( "div" );
-	gadgetui.util.addClass( div, "gadgetui-lookuplist-menu" );
-	gadgetui.util.setStyle( div, "display", "none" );
+LookupListInput.prototype.addMenu = function () {
+	var div = document.createElement("div");
+	gadgetui.util.addClass(div, "gadgetui-lookuplist-menu");
+	gadgetui.util.setStyle(div, "display", "none");
 
 	this.menu = {
-			element: div
-		};
+		element: div
+	};
 
-	this.wrapper.appendChild( this.menu.element );
+	this.wrapper.appendChild(this.menu.element);
 };
 
-LookupListInput.prototype.initSource = function(){
+LookupListInput.prototype.initSource = function () {
 	var array, url,
 		_this = this;
-	if ( this.datasource.constructor === Array ) {
+	if (this.datasource.constructor === Array) {
 		array = this.datasource;
-		this.source = function( request, response ) {
-			var content = _this.filter( array, request.term );
-			response( content );
+		this.source = function (request, response) {
+			var content = _this.filter(array, request.term);
+			response(content);
 		};
-	} else if ( typeof this.datasource === "string" ) {
+	} else if (typeof this.datasource === "string") {
 		url = this.datasource;
-		this.source = function( request, response ) {
-			if ( _this.xhr ) {
+		this.source = function (request, response) {
+			if (_this.xhr) {
 				_this.xhr.abort();
 			}
 			_this.xhr = fetch({
 				url: url,
 				data: request,
 				dataType: "json",
-				success: function( data ) {
-					response( data );
+				success: function (data) {
+					response(data);
 				},
-				error: function() {
+				error: function () {
 					response([]);
 				}
 			});
@@ -2447,21 +2451,21 @@ LookupListInput.prototype.initSource = function(){
 	}
 };
 
-LookupListInput.prototype.escapeRegex = function( value ) {
-	return value.replace( /[\-\[\]{}()*+?.,\\\^$|#\s]/g, "\\$&" );
+LookupListInput.prototype.escapeRegex = function (value) {
+	return value.replace(/[\-\[\]{}()*+?.,\\\^$|#\s]/g, "\\$&");
 };
 
-LookupListInput.prototype._filter = function( array, term ) {
-	var matcher = new RegExp( this.escapeRegex( term ), "i" );
-	return gadgetui.util.grep( array, function( value ) {
-		return matcher.test( value.label || value.value || value );
+LookupListInput.prototype._filter = function (array, term) {
+	var matcher = new RegExp(this.escapeRegex(term), "i");
+	return gadgetui.util.grep(array, function (value) {
+		return matcher.test(value.label || value.value || value);
 	});
 };
 
-LookupListInput.prototype.checkForDuplicate = function( item ) {
+LookupListInput.prototype.checkForDuplicate = function (item) {
 	var ix, found = false;
-	for( ix = 0; ix < this.items.length; ix++ ){
-		if( this.items[ix].value === item.value ){
+	for (ix = 0; ix < this.items.length; ix++) {
+		if (this.items[ix].value === item.value) {
 			found = true;
 			break;
 		}
@@ -2469,41 +2473,41 @@ LookupListInput.prototype.checkForDuplicate = function( item ) {
 	return found;
 };
 
-LookupListInput.prototype.makeUnique = function( content ) {
+LookupListInput.prototype.makeUnique = function (content) {
 	var ix, results = [];
-	for( ix = 0; ix < content.length; ix++ ){
-		if( !this.checkForDuplicate( content[ ix ] ) ){
-			results.push( content[ ix ] );
+	for (ix = 0; ix < content.length; ix++) {
+		if (!this.checkForDuplicate(content[ix])) {
+			results.push(content[ix]);
 		}
 	}
 	return results;
 };
 
-LookupListInput.prototype.setIsMultiLine = function(){
+LookupListInput.prototype.setIsMultiLine = function () {
 	var nodeName = this.selector.nodeName.toLowerCase(),
-	isTextarea = nodeName === "textarea",
-	isInput = nodeName === "input";
+		isTextarea = nodeName === "textarea",
+		isInput = nodeName === "input";
 
-	this.isMultiLine = isTextarea ? true : isInput ? false : this.selector.getAttribute( "isContentEditable" );
+	this.isMultiLine = isTextarea ? true : isInput ? false : this.selector.getAttribute("isContentEditable");
 };
 
-LookupListInput.prototype.addBindings = function(){
+LookupListInput.prototype.addBindings = function () {
 	var _this = this, suppressKeyPress, suppressKeyPressRepeat, suppressInput, nodeName = this.selector.nodeName.toLowerCase();
 	this.isTextarea = nodeName === "textarea";
 	this.isInput = nodeName === "input";
 	this.wrapper
-		.addEventListener( "click", function(){
+		.addEventListener("click", function () {
 			_this.selector.focus();
 		});
 
-	this.valueMethod = this.selector[ this.isTextarea || this.isInput ? "value" : "innerText" ];
+	this.valueMethod = this.selector[this.isTextarea || this.isInput ? "value" : "innerText"];
 	this.isNewMenu = true;
 
-	this.selector.setAttribute( "autocomplete", "off" );
+	this.selector.setAttribute("autocomplete", "off");
 
 	this.selector
-		.addEventListener( "keydown", function( event ) {
-			if ( this.getAttribute( "readOnly" ) ) {
+		.addEventListener("keydown", function (event) {
+			if (this.getAttribute("readOnly")) {
 				suppressKeyPress = true;
 				suppressInput = true;
 				suppressKeyPressRepeat = true;
@@ -2514,132 +2518,132 @@ LookupListInput.prototype.addBindings = function(){
 			suppressInput = false;
 			suppressKeyPressRepeat = false;
 			var keyCode = gadgetui.keyCode;
-			switch ( event.keyCode ) {
-			case keyCode.PAGE_UP:
-				suppressKeyPress = true;
-				this._move( "previousPage", event );
-				break;
-			case keyCode.PAGE_DOWN:
-				suppressKeyPress = true;
-				this._move( "nextPage", event );
-				break;
-			case keyCode.UP:
-				suppressKeyPress = true;
-				this._keyEvent( "previous", event );
-				break;
-			case keyCode.DOWN:
-				suppressKeyPress = true;
-				this._keyEvent( "next", event );
-				break;
-			case keyCode.ENTER:
-				// when menu is open and has focus
-				if ( _this.menu.active ) {
-					// #6055 - Opera still allows the keypress to occur
-					// which causes forms to submit
+			switch (event.keyCode) {
+				case keyCode.PAGE_UP:
 					suppressKeyPress = true;
-					event.preventDefault();
-					_this.menu.select( event );
-				}
-				break;
-			case keyCode.BACKSPACE:
-				if( !this.value.length && _this.items.length ){
-					var selector = this.previousSibling;
-					_this.remove( selector );
-				}
-				break;
-			case keyCode.TAB:
-				if ( _this.menu.active ) {
-					_this.menu.select( event );
-				}
-				break;
-			case keyCode.ESCAPE:
-				if ( _this.menu.element.style.display !== 'none' ) {
-					if ( !this.isMultiLine ) {
-						this._value( this.term );
+					this._move("previousPage", event);
+					break;
+				case keyCode.PAGE_DOWN:
+					suppressKeyPress = true;
+					this._move("nextPage", event);
+					break;
+				case keyCode.UP:
+					suppressKeyPress = true;
+					this._keyEvent("previous", event);
+					break;
+				case keyCode.DOWN:
+					suppressKeyPress = true;
+					this._keyEvent("next", event);
+					break;
+				case keyCode.ENTER:
+					// when menu is open and has focus
+					if (_this.menu.active) {
+						// #6055 - Opera still allows the keypress to occur
+						// which causes forms to submit
+						suppressKeyPress = true;
+						event.preventDefault();
+						_this.menu.select(event);
 					}
-					this.close( event );
-					// Different browsers have different default behavior for escape
-					// Single press can mean undo or clear
-					// Double press in IE means clear the whole form
-					event.preventDefault();
-				}
-				break;
-			default:
-				suppressKeyPressRepeat = true;
-				// search timeout should be triggered before the input value is changed
-				_this._searchTimeout( event );
-				break;
+					break;
+				case keyCode.BACKSPACE:
+					if (!this.value.length && _this.items.length) {
+						var selector = this.previousSibling;
+						_this.remove(selector);
+					}
+					break;
+				case keyCode.TAB:
+					if (_this.menu.active) {
+						_this.menu.select(event);
+					}
+					break;
+				case keyCode.ESCAPE:
+					if (_this.menu.element.style.display !== 'none') {
+						if (!this.isMultiLine) {
+							this._value(this.term);
+						}
+						this.close(event);
+						// Different browsers have different default behavior for escape
+						// Single press can mean undo or clear
+						// Double press in IE means clear the whole form
+						event.preventDefault();
+					}
+					break;
+				default:
+					suppressKeyPressRepeat = true;
+					// search timeout should be triggered before the input value is changed
+					_this._searchTimeout(event);
+					break;
 			}
 		});
 
 	this.selector
-		.addEventListener( "keypress", function( event ) {
-			if ( suppressKeyPress ) {
+		.addEventListener("keypress", function (event) {
+			if (suppressKeyPress) {
 				suppressKeyPress = false;
-				if ( !this.isMultiLine || _this.menu.element.style.display !== 'none' ) {
+				if (!this.isMultiLine || _this.menu.element.style.display !== 'none') {
 					event.preventDefault();
 				}
 				return;
 			}
-			if ( suppressKeyPressRepeat ) {
+			if (suppressKeyPressRepeat) {
 				return;
 			}
 
 			// replicate some key handlers to allow them to repeat in Firefox and Opera
 			var keyCode = gadgetui.keyCode;
-			switch ( event.keyCode ) {
-			case keyCode.PAGE_UP:
-				this._move( "previousPage", event );
-				break;
-			case keyCode.PAGE_DOWN:
-				this._move( "nextPage", event );
-				break;
-			case keyCode.UP:
-				this._keyEvent( "previous", event );
-				break;
-			case keyCode.DOWN:
-				this._keyEvent( "next", event );
-				break;
+			switch (event.keyCode) {
+				case keyCode.PAGE_UP:
+					this._move("previousPage", event);
+					break;
+				case keyCode.PAGE_DOWN:
+					this._move("nextPage", event);
+					break;
+				case keyCode.UP:
+					this._keyEvent("previous", event);
+					break;
+				case keyCode.DOWN:
+					this._keyEvent("next", event);
+					break;
 			}
 		});
 
 	this.selector
-		.addEventListener( "input", function( event ) {
-			if ( suppressInput ) {
+		.addEventListener("input", function (event) {
+			if (suppressInput) {
 				suppressInput = false;
 				event.preventDefault();
 				return;
 			}
-			_this._searchTimeout( event );
+			_this._searchTimeout(event);
 		});
 
 	this.selector
-		.addEventListener( "focus", function( event ) {
+		.addEventListener("focus", function (event) {
 			this.selectedItem = null;
 			this.previous = this.value;
 		});
 
 	this.selector
-		.addEventListener( "blur", function( event ) {
-			if ( this.cancelBlur ) {
+		.addEventListener("blur", function (event) {
+			if (this.cancelBlur) {
 				delete this.cancelBlur;
 				return;
 			}
 
-			clearTimeout( this.searching );
-			_this.close( event );
-			_this._change( event );
+			clearTimeout(this.searching);
+			_this.close(event);
+			_this._change(event);
 		});
 
 	// menu bindings
-	this.menu.element.addEventListener("mousedown", function( event ) {
+	this.menu.element.addEventListener("mousedown", function (event) {
 		// prevent moving focus out of the text field
 		event.preventDefault();
 
 		// IE doesn't prevent moving focus even with event.preventDefault()
 		// so we set a flag to know when we should ignore the blur event
 		this.cancelBlur = true;
-		gadgetui.util.delay(function() {
+		gadgetui.util.delay(function () {
 			delete this.cancelBlur;
 		});
 
@@ -2650,132 +2654,132 @@ LookupListInput.prototype.addBindings = function(){
 		var menuElement = _this.menu.element;
 	});
 
-	this.menu.element.addEventListener( "menuselect", function( event ) {
+	this.menu.element.addEventListener("menuselect", function (event) {
 		var item = event.detail,
 			previous = _this.previous;
 
 		// only trigger when focus was lost (click on menu)
-		if ( _this.menu.element !== document.activeElement ) {
+		if (_this.menu.element !== document.activeElement) {
 			_this.menu.element.focus();
 			_this.previous = previous;
 			// #6109 - IE triggers two focus events and the second
 			// is asynchronous, so we need to reset the previous
 			// term synchronously and asynchronously :-(
-			gadgetui.util.delay(function() {
+			gadgetui.util.delay(function () {
 				_this.previous = previous;
 				_this.selectedItem = item;
 			});
 		}
 
 		//if ( false !== this._trigger( "select", event, { item: item } ) ) {
-			_this._value( item.value );
+		_this._value(item.value);
 		//}
 		// reset the term after the select event
 		// this allows custom select handling to work properly
 		_this.term = _this._value();
 
-		_this.close( event );
+		_this.close(event);
 		_this.selectedItem = item;
-		if( !_this.checkForDuplicate( item ) ){
-			_this.add( item );
-		}else{
+		if (!_this.checkForDuplicate(item)) {
+			_this.add(item);
+		} else {
 
 		}
 	});
 };
 
-LookupListInput.prototype._renderItem = function( item ){
-	var itemNode, itemWrapper = document.createElement( "div" );
-	gadgetui.util.addClass( itemWrapper, "gadgetui-lookuplist-input-item-wrapper" );
-	itemNode = document.createElement( "div" );
-	gadgetui.util.addClass( itemNode, "gadgetui-lookuplist-input-item" );
-	itemNode.innerHTML = this.labelRenderer( item );
-	itemWrapper.appendChild( itemNode );
+LookupListInput.prototype._renderItem = function (item) {
+	var itemNode, itemWrapper = document.createElement("div");
+	gadgetui.util.addClass(itemWrapper, "gadgetui-lookuplist-input-item-wrapper");
+	itemNode = document.createElement("div");
+	gadgetui.util.addClass(itemNode, "gadgetui-lookuplist-input-item");
+	itemNode.innerHTML = this.labelRenderer(item);
+	itemWrapper.appendChild(itemNode);
 	return itemWrapper;
 };
 
-LookupListInput.prototype._renderItemCancel = function( item, wrapper ){
-	var	css = gadgetui.util.setStyle,
-		itemCancel = document.createElement( "span" ),
-		spanLeft = gadgetui.util.getNumberValue( gadgetui.util.getStyle( wrapper, "width" ) )
-		+ 6;  // font-size of icon
-		//- 3; // top offset of icon
+LookupListInput.prototype._renderItemCancel = function (item, wrapper) {
+	var css = gadgetui.util.setStyle,
+		itemCancel = document.createElement("span"),
+		spanLeft = gadgetui.util.getNumberValue(gadgetui.util.getStyle(wrapper, "width"))
+			+ 6;  // font-size of icon
+	//- 3; // top offset of icon
 
-	gadgetui.util.addClass( itemCancel, "oi" );
-	itemCancel.setAttribute( 'data-glyph', "circle-x" );
-	css( itemCancel, "font-size", 12 );
-	css( itemCancel, "opacity", ".5" );
-	css( itemCancel, "left", spanLeft );
-	css( itemCancel, "position", "absolute" );
-	css( itemCancel, "cursor", "pointer"  );
-	css( itemCancel, "top", 3 );
+	gadgetui.util.addClass(itemCancel, "oi");
+	itemCancel.setAttribute('data-glyph', "circle-x");
+	css(itemCancel, "font-size", 12);
+	css(itemCancel, "opacity", ".5");
+	css(itemCancel, "left", spanLeft);
+	css(itemCancel, "position", "absolute");
+	css(itemCancel, "cursor", "pointer");
+	css(itemCancel, "top", 3);
 	return itemCancel;
 };
 
-LookupListInput.prototype.add = function( item ){
+LookupListInput.prototype.add = function (item) {
 	var _this = this,
 		prop, list, itemWrapper,
 		itemCancel;
 
-	itemWrapper = this.itemRenderer( item );
-	itemWrapper.setAttribute( "data-value", item.value );
-	this.wrapper.insertBefore( itemWrapper, this.selector );
-	itemCancel = this.itemCancelRenderer( item, itemWrapper );
-	if( itemCancel !== undefined ){
-		itemWrapper.appendChild( itemCancel );
-		itemCancel.addEventListener( "click", function( event ){
-			_this.remove( this.parentNode );
+	itemWrapper = this.itemRenderer(item);
+	itemWrapper.setAttribute("data-value", item.value);
+	this.wrapper.insertBefore(itemWrapper, this.selector);
+	itemCancel = this.itemCancelRenderer(item, itemWrapper);
+	if (itemCancel !== undefined) {
+		itemWrapper.appendChild(itemCancel);
+		itemCancel.addEventListener("click", function (event) {
+			_this.remove(this.parentNode);
 		});
 	}
 
 	this.selector.value = '';
-	this.items.push( item );
+	this.items.push(item);
 
-	if( this.emitEvents === true ){
-		gadgetui.util.trigger( this.selector, "gadgetui-lookuplist-input-add", item );
+	if (this.emitEvents === true) {
+		gadgetui.util.trigger(this.selector, "gadgetui-lookuplist-input-add", item);
 	}
 
-	if( this.func !== undefined ){
-		this.func( item, 'add' );
+	if (this.func !== undefined) {
+		this.func(item, 'add');
 	}
-	if( this.model !== undefined ){
+	if (this.model !== undefined) {
 		//update the model
-		prop = this.selector.getAttribute( "gadgetui-bind" );
-		if( prop !== null && prop !== undefined ){
-			list = this.model.get( prop );
-			if( typeof list === Array ){
+		prop = this.selector.getAttribute("gadgetui-bind");
+		if (prop !== null && prop !== undefined) {
+			list = this.model.get(prop);
+			if (typeof list === Array) {
 				list = [];
 			}
-			list.push( item );
-			this.model.set( prop, list );
+			list.push(item);
+			this.model.set(prop, list);
 		}
 	}
 };
 
-LookupListInput.prototype.remove = function( selector ){
-	var _this = this, removed, ix, prop, list, value = selector.getAttribute( "data-value" );
+LookupListInput.prototype.remove = function (selector) {
+	var _this = this, removed, ix, prop, list, value = selector.getAttribute("data-value");
 
-	selector.parentNode.removeChild( selector );
+	selector.parentNode.removeChild(selector);
 	// remove from internal array
-	for( ix = 0; ix < this.items.length; ix++ ){
-		if( this.items[ ix ].value === value ){
-			removed = this.items.splice( ix, 1 );
+	for (ix = 0; ix < this.items.length; ix++) {
+		if (this.items[ix].value === value) {
+			removed = this.items.splice(ix, 1);
 		}
 	}
-	if( this.model !== undefined ){
-		prop = this.selector.getAttribute( "gadgetui-bind" );
-		if( prop !== null && prop !== undefined ){
-			list = this.model.get( prop );
-			list.forEach( function( obj, ix ){
-				if( obj.value === value ){
-					list.splice( ix, 1 );
-					if( _this.func !== undefined ){
-						_this.func( obj, 'remove' );
+	if (this.model !== undefined) {
+		prop = this.selector.getAttribute("gadgetui-bind");
+		if (prop !== null && prop !== undefined) {
+			list = this.model.get(prop);
+			list.forEach(function (obj, ix) {
+				if (obj.value === value) {
+					list.splice(ix, 1);
+					if (_this.func !== undefined) {
+						_this.func(obj, 'remove');
 					}
-					if( _this.emitEvents === true ){
-						gadgetui.util.trigger( _this.selector, "gadgetui-lookuplist-input-remove", obj );
+					if (_this.emitEvents === true) {
+						gadgetui.util.trigger(_this.selector, "gadgetui-lookuplist-input-remove", obj);
 					}
-					_this.model.set( prop, list );
+					_this.model.set(prop, list);
 					return false;
 				}
 			});
@@ -2783,154 +2787,154 @@ LookupListInput.prototype.remove = function( selector ){
 	}
 };
 
-LookupListInput.prototype.reset = function(){
+LookupListInput.prototype.reset = function () {
 
-	while ( this.wrapper.firstChild && this.wrapper.firstChild !== this.selector ) {
-			this.wrapper.removeChild( this.wrapper.firstChild );
+	while (this.wrapper.firstChild && this.wrapper.firstChild !== this.selector) {
+		this.wrapper.removeChild(this.wrapper.firstChild);
 	}
 	this.items = [];
-	if( this.model !== undefined ){
-		var prop = this.selector.getAttribute( "gadgetui-bind" );
-		this.model.set( prop, [] );
+	if (this.model !== undefined) {
+		var prop = this.selector.getAttribute("gadgetui-bind");
+		this.model.set(prop, []);
 	}
 };
 
-LookupListInput.prototype.destroy = function() {
-	clearTimeout( this.searching );
+LookupListInput.prototype.destroy = function () {
+	clearTimeout(this.searching);
 	this.menu.element.remove();
 	this.liveRegion.remove();
 };
 
-LookupListInput.prototype._setOption = function( key, value ) {
-	this._super( key, value );
-	if ( key === "source" ) {
+LookupListInput.prototype._setOption = function (key, value) {
+	this._super(key, value);
+	if (key === "source") {
 		this._initSource();
 	}
-	if ( key === "appendTo" ) {
-		this.menu.element.appendTo( this._appendTo() );
+	if (key === "appendTo") {
+		this.menu.element.appendTo(this._appendTo());
 	}
-	if ( key === "disabled" && value && this.xhr ) {
+	if (key === "disabled" && value && this.xhr) {
 		this.xhr.abort();
 	}
 };
 
-LookupListInput.prototype._appendTo = function() {
+LookupListInput.prototype._appendTo = function () {
 	var element = this.options.appendTo;
 
-	if ( element ) {
+	if (element) {
 		element = element.jquery || element.nodeType ?
-			$( element ) :
-			this.document.find( element ).eq( 0 );
+			$(element) :
+			this.document.find(element).eq(0);
 	}
 
-	if ( !element || !element[ 0 ] ) {
-		element = this.element.closest( ".ui-front" );
+	if (!element || !element[0]) {
+		element = this.element.closest(".ui-front");
 	}
 
-	if ( !element.length ) {
-		element = this.document[ 0 ].body;
+	if (!element.length) {
+		element = this.document[0].body;
 	}
 
 	return element;
 };
 
-LookupListInput.prototype._searchTimeout = function( event ) {
+LookupListInput.prototype._searchTimeout = function (event) {
 	var _this = this;
-	clearTimeout( this.searching );
-	this.searching = gadgetui.util.delay(function() {
+	clearTimeout(this.searching);
+	this.searching = gadgetui.util.delay(function () {
 
 		// Search if the value has changed, or if the user retypes the same value (see #7434)
 		var equalValues = this.term === _this.selector.value,
 			menuVisible = _this.menu.element.style.display !== 'none',
 			modifierKey = event.altKey || event.ctrlKey || event.metaKey || event.shiftKey;
 
-		if ( !equalValues || ( equalValues && !menuVisible && !modifierKey ) ) {
+		if (!equalValues || (equalValues && !menuVisible && !modifierKey)) {
 			_this.selectedItem = null;
-			_this.search( null, event );
+			_this.search(null, event);
 		}
-	}, this.delay );
+	}, this.delay);
 };
 
-LookupListInput.prototype.search = function( value, event ) {
+LookupListInput.prototype.search = function (value, event) {
 	var _this = this;
 	value = value != null ? value : _this.selector.value;
 
 	// always save the actual value, not the one passed as an argument
 	this.term = this._value();
 
-	if ( value.length < this.minLength ) {
-		return this.close( event );
+	if (value.length < this.minLength) {
+		return this.close(event);
 	}
 
-	return this._search( value );
+	return this._search(value);
 };
 
-LookupListInput.prototype._search = function( value ) {
+LookupListInput.prototype._search = function (value) {
 	this.pending++;
 	this.cancelSearch = false;
 
-	this.source( { term: value }, this._response() );
+	this.source({ term: value }, this._response());
 };
 
-LookupListInput.prototype._response = function() {
+LookupListInput.prototype._response = function () {
 	var _this = this,
 		index = ++this.requestIndex,
-		fn = function( content ) {
-				_this.__response( content );
+		fn = function (content) {
+			_this.__response(content);
 
 			_this.pending--;
 			/*	if ( !_this.pending ) {
 				this.element.removeClass( "ui-autocomplete-loading" );
 			}	*/
 		},
-		proxy = function(){
-			return fn.apply( _this, arguments );
+		proxy = function () {
+			return fn.apply(_this, arguments);
 		};
 	return proxy;
 };
 
-LookupListInput.prototype.__response = function( content ) {
-	content = this.makeUnique( content );
+LookupListInput.prototype.__response = function (content) {
+	content = this.makeUnique(content);
 
-	if ( content && content.length ) {
-		content = this._normalize( content );
+	if (content && content.length) {
+		content = this._normalize(content);
 	}
-	this.selector.dispatchEvent( new CustomEvent( "response", { content: content } ) );
-	if ( !this.disabled && content && content.length && !this.cancelSearch ) {
-		this._suggest( content );
-		this.selector.dispatchEvent( new Event( "open" ) );
+	this.selector.dispatchEvent(new CustomEvent("response", { content: content }));
+	if (!this.disabled && content && content.length && !this.cancelSearch) {
+		this._suggest(content);
+		this.selector.dispatchEvent(new Event("open"));
 	} else {
 		this._close();
 	}
 };
 
-LookupListInput.prototype.close = function( event ) {
+LookupListInput.prototype.close = function (event) {
 	this.cancelSearch = true;
-	this._close( event );
+	this._close(event);
 };
 
-LookupListInput.prototype._close = function( event ) {
-	if ( this.menu.element.style.display !== 'none' ) {
+LookupListInput.prototype._close = function (event) {
+	if (this.menu.element.style.display !== 'none') {
 		this.menu.element.style.display = 'none';
 		this.menu.element.blur();
 		this.isNewMenu = true;
 	}
 };
 
-LookupListInput.prototype._change = function( event ) {
+LookupListInput.prototype._change = function (event) {
 	/*	if ( this.previous !== this._value() ) {
 	//	this._trigger( "change", event, { item: this.selectedItem } );
 		//this.selector.dispatchEvent( event );
 	}	*/
 };
 
-LookupListInput.prototype._normalize = function( items ) {
+LookupListInput.prototype._normalize = function (items) {
 	// assume all items have the right format when the first item is complete
-	if ( items.length && items[ 0 ].label && items[ 0 ].value ) {
+	if (items.length && items[0].label && items[0].value) {
 		return items;
 	}
-	return items.map( function( item ) {
-		if ( typeof item === "string" ) {
+	return items.map(function (item) {
+		if (typeof item === "string") {
 			return {
 				label: item,
 				value: item
@@ -2943,12 +2947,12 @@ LookupListInput.prototype._normalize = function( items ) {
 	});
 };
 
-LookupListInput.prototype._suggest = function( items ) {
+LookupListInput.prototype._suggest = function (items) {
 	var div = this.menu.element;
 	while (div.firstChild) {
-		div.removeChild( div.firstChild );
+		div.removeChild(div.firstChild);
 	}
-	this._renderMenu( items );
+	this._renderMenu(items);
 	this.isNewMenu = true;
 
 	// size and position menu
@@ -2961,287 +2965,287 @@ LookupListInput.prototype._suggest = function( items ) {
 	}	*/
 };
 
-LookupListInput.prototype._resizeMenu = function() {
+LookupListInput.prototype._resizeMenu = function () {
 	var div = this.menu.element;
 	// don't change it right now
 };
 
-LookupListInput.prototype._renderMenu = function( items ) {
+LookupListInput.prototype._renderMenu = function (items) {
 	var _this = this, ix;
-	var maxItems = Math.min( this.maxSuggestions, items.length );
-	for( ix = 0; ix < maxItems; ix++ ){
-		_this._renderItemData( items[ ix ] );
+	var maxItems = Math.min(this.maxSuggestions, items.length);
+	for (ix = 0; ix < maxItems; ix++) {
+		_this._renderItemData(items[ix]);
 	}
 };
 
-LookupListInput.prototype._renderItemData = function( item ) {
+LookupListInput.prototype._renderItemData = function (item) {
 	var _this = this,
-		menuItem = this.menuItemRenderer( item );
+		menuItem = this.menuItemRenderer(item);
 
-	menuItem.addEventListener( "click", function( event ){
-		var ev = new CustomEvent( "menuselect", { detail: item } );
-		_this.menu.element.dispatchEvent( ev );
+	menuItem.addEventListener("click", function (event) {
+		var ev = new CustomEvent("menuselect", { detail: item });
+		_this.menu.element.dispatchEvent(ev);
 	});
-	this.menu.element.appendChild( menuItem );
+	this.menu.element.appendChild(menuItem);
 
 };
 
-LookupListInput.prototype._renderMenuItem = function( item ) {
-	var menuItem = document.createElement( "div" );
-	gadgetui.util.addClass( menuItem, "gadgetui-lookuplist-item" );
-	menuItem.setAttribute( "value", item.value );
-	menuItem.innerText = this.labelRenderer( item );
+LookupListInput.prototype._renderMenuItem = function (item) {
+	var menuItem = document.createElement("div");
+	gadgetui.util.addClass(menuItem, "gadgetui-lookuplist-item");
+	menuItem.setAttribute("value", item.value);
+	menuItem.innerText = this.labelRenderer(item);
 	return menuItem;
 };
 
-LookupListInput.prototype._renderLabel = function( item ) {
+LookupListInput.prototype._renderLabel = function (item) {
 	return item.label;
 };
 
-LookupListInput.prototype._move = function( direction, event ) {
-	if ( !this.menu.element.style.display !== 'none' ) {
-		this.search( null, event );
+LookupListInput.prototype._move = function (direction, event) {
+	if (!this.menu.element.style.display !== 'none') {
+		this.search(null, event);
 		return;
 	}
-	if ( this.menu.element.isFirstItem() && /^previous/.test( direction ) ||
-			this.menu.element.isLastItem() && /^next/.test( direction ) ) {
+	if (this.menu.element.isFirstItem() && /^previous/.test(direction) ||
+		this.menu.element.isLastItem() && /^next/.test(direction)) {
 
-		if ( !this.isMultiLine ) {
-			this._value( this.term );
+		if (!this.isMultiLine) {
+			this._value(this.term);
 		}
 
 		this.menu.blur();
 		return;
 	}
-	this.menu[ direction ]( event );
+	this.menu[direction](event);
 };
 
-LookupListInput.prototype.widget = function() {
+LookupListInput.prototype.widget = function () {
 	return this.menu.element;
 };
 
-LookupListInput.prototype._value = function() {
-	return ( this.isInput ? this.selector.value : this.selector.innerText );
+LookupListInput.prototype._value = function () {
+	return (this.isInput ? this.selector.value : this.selector.innerText);
 };
 
-LookupListInput.prototype._keyEvent = function( keyEvent, event ) {
-	if ( !this.isMultiLine || this.menu.element.style.display !== 'none' ) {
-		this._move( keyEvent, event );
+LookupListInput.prototype._keyEvent = function (keyEvent, event) {
+	if (!this.isMultiLine || this.menu.element.style.display !== 'none') {
+		this._move(keyEvent, event);
 
 		// prevents moving cursor to beginning/end of the text field in some browsers
 		event.preventDefault();
 	}
 };
 
-LookupListInput.prototype.config = function( options ){
-	options = ( options === undefined ? {} : options );
+LookupListInput.prototype.config = function (options) {
+	options = (options === undefined ? {} : options);
 	// if binding but no model was specified, use gadgetui model
-	if( this.selector.getAttribute( "gadgetui-bind" ) !== undefined ){
-		this.model = (( options.model === undefined) ? gadgetui.model : options.model );
+	if (this.selector.getAttribute("gadgetui-bind") !== undefined) {
+		this.model = ((options.model === undefined) ? gadgetui.model : options.model);
 	}
-	this.width = (( options.width === undefined) ? undefined : options.width );
-	this.func = (( options.func === undefined) ? undefined : options.func );
-	this.filter = (( options.filter === undefined) ? this._filter : options.filter );
-	this.labelRenderer = (( options.labelRenderer === undefined) ? this._renderLabel : options.labelRenderer );
-	this.itemRenderer = (( options.itemRenderer === undefined) ? this._renderItem : options.itemRenderer );
-	this.menuItemRenderer = (( options.menuItemRenderer === undefined) ? this._renderMenuItem : options.menuItemRenderer );
-	this.itemCancelRenderer = (( options.itemCancelRenderer === undefined) ? this._renderItemCancel : options.itemCancelRenderer );
-	this.emitEvents = (( options.emitEvents === undefined) ? true : options.emitEvents );
-	this.datasource = (( options.datasource === undefined) ? (( options.lookupList !== undefined ) ? options.lookupList : true ) : options.datasource );
-	this.minLength = (( options.minLength === undefined) ? 0 : options.minLength );
-	this.disabled = (( options.disabled === undefined) ? false : options.disabled );
-	this.maxSuggestions = (( options.maxSuggestions === undefined) ? 20 : options.maxSuggestions );
-	this.position = ( options.position === undefined ) ? { my: "left top", at: "left bottom", collision: "none" } : options.position;
-	this.autoFocus = (( options.autoFocus === undefined) ? false : options.autoFocus );
+	this.width = ((options.width === undefined) ? undefined : options.width);
+	this.func = ((options.func === undefined) ? undefined : options.func);
+	this.filter = ((options.filter === undefined) ? this._filter : options.filter);
+	this.labelRenderer = ((options.labelRenderer === undefined) ? this._renderLabel : options.labelRenderer);
+	this.itemRenderer = ((options.itemRenderer === undefined) ? this._renderItem : options.itemRenderer);
+	this.menuItemRenderer = ((options.menuItemRenderer === undefined) ? this._renderMenuItem : options.menuItemRenderer);
+	this.itemCancelRenderer = ((options.itemCancelRenderer === undefined) ? this._renderItemCancel : options.itemCancelRenderer);
+	this.emitEvents = ((options.emitEvents === undefined) ? true : options.emitEvents);
+	this.datasource = ((options.datasource === undefined) ? ((options.lookupList !== undefined) ? options.lookupList : true) : options.datasource);
+	this.minLength = ((options.minLength === undefined) ? 0 : options.minLength);
+	this.disabled = ((options.disabled === undefined) ? false : options.disabled);
+	this.maxSuggestions = ((options.maxSuggestions === undefined) ? 20 : options.maxSuggestions);
+	this.position = (options.position === undefined) ? { my: "left top", at: "left bottom", collision: "none" } : options.position;
+	this.autoFocus = ((options.autoFocus === undefined) ? false : options.autoFocus);
 	this.requestIndex = 0;
 };
 
 
-function SelectInput( selector, options ){
+function SelectInput(selector, options) {
 	this.selector = selector;
 
-	this.config( options );
+	this.config(options);
 	this.setSelectOptions();
-	this.setInitialValue( options );
+	this.setInitialValue(options);
 
 	this.addControl();
 	this.addCSS();
 	var css = gadgetui.util.setStyle;
-	if( this.hideable ){
-		css( this.selector, "display", "none" );
-	}else{
-		css( this.label, "display", 'none' );
-		css( this.selector, "display", "inline-block" );
+	if (this.hideable) {
+		css(this.selector, "display", "none");
+	} else {
+		css(this.label, "display", 'none');
+		css(this.selector, "display", "inline-block");
 	}
 
 	// bind to the model if binding is specified
-	gadgetui.util.bind( this.selector, this.model );
+	gadgetui.util.bind(this.selector, this.model);
 	// bind to the model if binding is specified
-	gadgetui.util.bind( this.label, this.model );
+	gadgetui.util.bind(this.label, this.model);
 	this.addBindings();
 }
 
-SelectInput.prototype.setInitialValue = function( options ){
-	this.value = ( options.value || { id: this.selector.options[this.selector.selectedIndex||0].value, text: this.selector.options[this.selector.selectedIndex||0].innerHTML } );
+SelectInput.prototype.setInitialValue = function (options) {
+	this.value = (options.value || { id: this.selector.options[this.selector.selectedIndex || 0].value, text: this.selector.options[this.selector.selectedIndex || 0].innerHTML });
 	this.selector.value = this.value.id;
 };
 
-SelectInput.prototype.addControl = function(){
+SelectInput.prototype.addControl = function () {
 	var _this = this;
-	this.wrapper = document.createElement( "div" );
-	this.label = document.createElement( "div" );
-	gadgetui.util.addClass( this.wrapper, "gadgetui-selectinput-div" );
-	gadgetui.util.addClass( this.label, "gadgetui-selectinput-label" );
-	this.label.setAttribute( "gadgetui-bind", this.selector.getAttribute( "gadgetui-bind" ) );
+	this.wrapper = document.createElement("div");
+	this.label = document.createElement("div");
+	gadgetui.util.addClass(this.wrapper, "gadgetui-selectinput-div");
+	gadgetui.util.addClass(this.label, "gadgetui-selectinput-label");
+	this.label.setAttribute("gadgetui-bind", this.selector.getAttribute("gadgetui-bind"));
 	this.label.innerHTML = this.value.text;
-	this.selector.parentNode.insertBefore( this.wrapper, this.selector );
+	this.selector.parentNode.insertBefore(this.wrapper, this.selector);
 	this.wrapper = this.selector.previousSibling;
-	this.selector.parentNode.removeChild( this.selector );
-	this.wrapper.appendChild( this.selector );
-	this.selector.parentNode.insertBefore( this.label, this.selector );
+	this.selector.parentNode.removeChild(this.selector);
+	this.wrapper.appendChild(this.selector);
+	this.selector.parentNode.insertBefore(this.label, this.selector);
 };
 
-SelectInput.prototype.setSelectOptions = function(){
+SelectInput.prototype.setSelectOptions = function () {
 	var _this = this, id, text, option;
-	if( this.selector.getAttribute( "gadgetui-bind-options" ) !== null || this.dataProvider !== undefined ){
+	if (this.selector.getAttribute("gadgetui-bind-options") !== null || this.dataProvider !== undefined) {
 		while (_this.selector.options.length > 0) {
 			_this.selector.remove(0);
-	  }
+		}
 
-		if( this.selector.getAttribute( "gadgetui-bind-options" ) !== null ){
+		if (this.selector.getAttribute("gadgetui-bind-options") !== null) {
 			// use the gadgetui-ui-bind attribute to populate the select box from the model
-			var optionsArray = this.model.get( this.selector.getAttribute( "gadgetui-bind-options" ) );
-			optionsArray.forEach( function( item ){
+			var optionsArray = this.model.get(this.selector.getAttribute("gadgetui-bind-options"));
+			optionsArray.forEach(function (item) {
 				var opt = document.createElement("option");
-				if( typeof item === "object" ){
+				if (typeof item === "object") {
 					// object containing id, text keys
 					opt.value = item.id;
 					opt.text = item.text;
-				}else{
+				} else {
 					// simple values in array
 					opt.text = item;
 				}
 
-				_this.selector.add( opt );
+				_this.selector.add(opt);
 			});
-		}else if( this.dataProvider !== undefined ){
+		} else if (this.dataProvider !== undefined) {
 			// use the dataProvider option to populate the select if provided
-			this.dataProvider.data.forEach( function( obj ){
+			this.dataProvider.data.forEach(function (obj) {
 				id = obj.id;
 				text = obj.text;
-				if( text === undefined ){
+				if (text === undefined) {
 					text = id;
 				}
-				option = gadgetui.util.createElement( "option" );
+				option = gadgetui.util.createElement("option");
 				option.value = id;
 				option.text = text;
 
-				_this.selector.add( option );
+				_this.selector.add(option);
 			});
 		}
 	}
 };
 
-SelectInput.prototype.addCSS = function(){
+SelectInput.prototype.addCSS = function () {
 	var height,
 		parentstyle,
 		css = gadgetui.util.setStyle,
-		style = gadgetui.util.getStyle( this.selector );
+		style = gadgetui.util.getStyle(this.selector);
 
-	css( this.selector, "min-width", "100px" );
-	css( this.selector, "font-size", style.fontSize );
+	css(this.selector, "min-width", "100px");
+	css(this.selector, "font-size", style.fontSize);
 
-	parentstyle = gadgetui.util.getStyle( this.selector.parentNode );
-	height = gadgetui.util.getNumberValue( parentstyle.height ) - 2;
-	this.label.setAttribute( "style", "" );
-	css( this.label, "padding-top", "2px" );
-	css( this.label, "height", height + "px" );
-	css( this.label, "margin-left", "9px" );
+	parentstyle = gadgetui.util.getStyle(this.selector.parentNode);
+	height = gadgetui.util.getNumberValue(parentstyle.height) - 2;
+	this.label.setAttribute("style", "");
+	css(this.label, "padding-top", "2px");
+	css(this.label, "height", height + "px");
+	css(this.label, "margin-left", "9px");
 
-	if( navigator.userAgent.match( /Edge/ ) ){
-		css( this.selector, "margin-left", "5px" );
-	}else if( navigator.userAgent.match( /MSIE/ ) ){
-		css( this.selector, "margin-top", "0px" );
-		css( this.selector, "margin-left", "5px" );
+	if (navigator.userAgent.match(/Edge/)) {
+		css(this.selector, "margin-left", "5px");
+	} else if (navigator.userAgent.match(/MSIE/)) {
+		css(this.selector, "margin-top", "0px");
+		css(this.selector, "margin-left", "5px");
 	}
 };
 
-SelectInput.prototype.addBindings = function() {
+SelectInput.prototype.addBindings = function () {
 	var _this = this,
 		css = gadgetui.util.setStyle;
 
-	if( this.hideable ){
+	if (this.hideable) {
 		this.label
-			.addEventListener( this.activate, function( event ) {
-				css( _this.label, "display", 'none' );
-				css( _this.selector, "display", "inline-block" );
+			.addEventListener(this.activate, function (event) {
+				css(_this.label, "display", 'none');
+				css(_this.selector, "display", "inline-block");
 				event.preventDefault();
 			});
 
 		this.selector
-			.addEventListener( "blur", function( ev ) {
+			.addEventListener("blur", function (ev) {
 				//setTimeout( function() {
-					css( _this.label, "display", "inline-block" );
-					css( _this.selector, "display", 'none' );
+				css(_this.label, "display", "inline-block");
+				css(_this.selector, "display", 'none');
 				//}, 100 );
 			});
 	}
 
 	this.selector
-		.addEventListener( "change", function( ev ) {
-			setTimeout( function() {
+		.addEventListener("change", function (ev) {
+			setTimeout(function () {
 				var value = ev.target.value,
-					label = ev.target[ ev.target.selectedIndex ].innerHTML;
+					label = ev.target[ev.target.selectedIndex].innerHTML;
 
-				if( value.trim().length === 0 ){
+				if (value.trim().length === 0) {
 					value = 0;
 				}
 
 				_this.label.innerText = label;
-				if( _this.model !== undefined && _this.selector.getAttribute( "gadgetui-bind" ) === undefined ){
+				if (_this.model !== undefined && _this.selector.getAttribute("gadgetui-bind") === undefined) {
 					// if we have specified a model but no data binding, change the model value
-					_this.model.set( this.name, { id: value, text: label } );
+					_this.model.set(this.name, { id: value, text: label });
 				}
 
-				if( _this.emitEvents === true ){
-					gadgetui.util.trigger( _this.selector, "gadgetui-input-change", { id: value, text: label } );
+				if (_this.emitEvents === true) {
+					gadgetui.util.trigger(_this.selector, "gadgetui-input-change", { id: value, text: label });
 				}
-				if( _this.func !== undefined ){
-					_this.func( { id: value, text: label } );
+				if (_this.func !== undefined) {
+					_this.func({ id: value, text: label });
 				}
 				_this.value = { id: value, text: label };
-			}, 100 );
+			}, 100);
 		});
 
-	if( this.hideable ){
+	if (this.hideable) {
 		this.selector
-			.addEventListener( "mouseleave", function( ) {
-				if ( _this.selector !== document.activeElement ) {
-					css( _this.label, "display", 'inline-block' );
-					css( _this.selector, "display", 'none' );
+			.addEventListener("mouseleave", function () {
+				if (_this.selector !== document.activeElement) {
+					css(_this.label, "display", 'inline-block');
+					css(_this.selector, "display", 'none');
 				}
 			});
 	}
 };
 
-SelectInput.prototype.config = function( options ){
-	options = ( options === undefined ? {} : options );
-	this.model =  (( options.model === undefined) ? undefined : options.model );
-	this.dataProvider =  (( options.dataProvider === undefined) ? undefined : options.dataProvider );
-	this.func = (( options.func === undefined) ? undefined : options.func );
-	this.emitEvents = (( options.emitEvents === undefined) ? true : options.emitEvents );
-	this.activate = (( options.activate === undefined) ? "mouseenter" : options.activate );
+SelectInput.prototype.config = function (options) {
+	options = (options === undefined ? {} : options);
+	this.model = ((options.model === undefined) ? undefined : options.model);
+	this.dataProvider = ((options.dataProvider === undefined) ? undefined : options.dataProvider);
+	this.func = ((options.func === undefined) ? undefined : options.func);
+	this.emitEvents = ((options.emitEvents === undefined) ? true : options.emitEvents);
+	this.activate = ((options.activate === undefined) ? "mouseenter" : options.activate);
 	this.hideable = options.hideable || false;
 };
 
-function TextInput( selector, options ){
+function TextInput(selector, options) {
 	this.emitEvents = true;
 	this.model = gadgetui.model;
 	this.func;
 
 	this.selector = selector;
 
-	this.config( options );
+	this.config(options);
 
 	this.setInitialValue();
 	this.addControl();
@@ -3251,156 +3255,156 @@ function TextInput( selector, options ){
 	this.setWidth();
 	this.addCSS();
 	// bind to the model if binding is specified
-	gadgetui.util.bind( this.selector, this.model );
+	gadgetui.util.bind(this.selector, this.model);
 	this.addBindings();
 }
 
-TextInput.prototype.addControl = function(){
-	if( this.hideable ){
-		this.blockSize = gadgetui.util.getStyle( this.selector, "block-size" );
-		gadgetui.util.setStyle( this.selector, 'block-size', this.blockSize );
-		this.selector.classList.add( this.browserHideBorderCSS );
+TextInput.prototype.addControl = function () {
+	if (this.hideable) {
+		this.blockSize = gadgetui.util.getStyle(this.selector, "block-size");
+		gadgetui.util.setStyle(this.selector, 'block-size', this.blockSize);
+		this.selector.classList.add(this.browserHideBorderCSS);
 	}
 };
 
-TextInput.prototype.setInitialValue = function(){
+TextInput.prototype.setInitialValue = function () {
 	var val = this.selector.value,
-		ph = this.selector.getAttribute( "placeholder" );
+		ph = this.selector.getAttribute("placeholder");
 
-	if( val.length === 0 ){
-		if( ph !== null && ph!== undefined && ph.length > 0 ){
+	if (val.length === 0) {
+		if (ph !== null && ph !== undefined && ph.length > 0) {
 			val = ph;
-		}else{
+		} else {
 			val = " ... ";
 		}
 	}
 	this.value = val;
 };
 
-TextInput.prototype.setLineHeight = function(){
+TextInput.prototype.setLineHeight = function () {
 	var lineHeight = this.selector.offsetHeight;
 	this.lineHeight = lineHeight;
 };
 
-TextInput.prototype.setFont = function(){
-	var style = gadgetui.util.getStyle( this.selector ),
+TextInput.prototype.setFont = function () {
+	var style = gadgetui.util.getStyle(this.selector),
 		font = style.fontFamily + " " + style.fontSize + " " + style.fontWeight + " " + style.fontVariant;
-		this.font = font;
+	this.font = font;
 };
 
-TextInput.prototype.setWidth = function(){
-	this.width = gadgetui.util.textWidth( this.selector.value, this.font ) + 10;
-	if( this.width === 10 ){
+TextInput.prototype.setWidth = function () {
+	this.width = gadgetui.util.textWidth(this.selector.value, this.font) + 10;
+	if (this.width === 10) {
 		this.width = this.maxWidth;
 	}
 };
 
-TextInput.prototype.addCSS = function(){
-	var style = gadgetui.util.getStyle( this.selector ),
+TextInput.prototype.addCSS = function () {
+	var style = gadgetui.util.getStyle(this.selector),
 		css = gadgetui.util.setStyle;
 	// add CSS classes
-	gadgetui.util.addClass( this.selector, "gadgetui-textinput" );
+	gadgetui.util.addClass(this.selector, "gadgetui-textinput");
 
-	if( this.maxWidth > 10 && this.enforceMaxWidth === true ){
-		css( this.selector, "max-width", this.maxWidth );
+	if (this.maxWidth > 10 && this.enforceMaxWidth === true) {
+		css(this.selector, "max-width", this.maxWidth);
 	}
 };
 
-TextInput.prototype.setControlWidth = function( text ){
-	var textWidth = parseInt( gadgetui.util.textWidth(text, this.font ), 10 ),
+TextInput.prototype.setControlWidth = function (text) {
+	var textWidth = parseInt(gadgetui.util.textWidth(text, this.font), 10),
 		css = gadgetui.util.setStyle;
-	if( textWidth < this.minWidth ){
+	if (textWidth < this.minWidth) {
 		textWidth = this.minWidth;
 	}
-	css( this.selector, "width", ( textWidth + 30 ) + "px" );
+	css(this.selector, "width", (textWidth + 30) + "px");
 };
 
-TextInput.prototype.addBindings = function(){
+TextInput.prototype.addBindings = function () {
 	var _this = this;
 
 	this.selector
-		.addEventListener( "mouseenter", function( event ){
+		.addEventListener("mouseenter", function (event) {
 			event.preventDefault();
-			if( _this.hideable ){
-				this.classList.remove( _this.browserHideBorderCSS );
+			if (_this.hideable) {
+				this.classList.remove(_this.browserHideBorderCSS);
 			}
 		});
 
-		this.selector
-		.addEventListener( "focus", function(event){
+	this.selector
+		.addEventListener("focus", function (event) {
 			event.preventDefault();
-			if( _this.hideable ){
-				this.classList.remove( _this.browserHideBorderCSS );
+			if (_this.hideable) {
+				this.classList.remove(_this.browserHideBorderCSS);
 			}
 		});
-		this.selector
-		.addEventListener( "keyup", function( event ) {
-			if ( parseInt( event.keyCode, 10 ) === 13 ) {
+	this.selector
+		.addEventListener("keyup", function (event) {
+			if (parseInt(event.keyCode, 10) === 13) {
 				this.blur();
 			}
-			_this.setControlWidth( this.value );
+			_this.setControlWidth(this.value);
 		});
-		this.selector
-		.addEventListener( "change", function( event ) {
-			setTimeout( function( ) {
+	this.selector
+		.addEventListener("change", function (event) {
+			setTimeout(function () {
 				var value = event.target.value, style, txtWidth;
-				if( value.length === 0 && _this.selector.getAttribute( "placeholder" ) !== undefined ){
-					value = _this.selector.getAttribute( "placeholder" );
+				if (value.length === 0 && _this.selector.getAttribute("placeholder") !== undefined) {
+					value = _this.selector.getAttribute("placeholder");
 				}
 
-				txtWidth = gadgetui.util.textWidth( value, _this.font );
+				txtWidth = gadgetui.util.textWidth(value, _this.font);
 
-				if( _this.maxWidth < txtWidth ){
-					value = gadgetui.util.fitText( value, _this.font, _this.maxWidth );
+				if (_this.maxWidth < txtWidth) {
+					value = gadgetui.util.fitText(value, _this.font, _this.maxWidth);
 				}
-				if( _this.model !== undefined && _this.selector.getAttribute( "gadgetui-bind" ) === undefined ){
+				if (_this.model !== undefined && _this.selector.getAttribute("gadgetui-bind") === undefined) {
 					// if we have specified a model but no data binding, change the model value
-					_this.model.set( _this.selector.name, event.target.value );
+					_this.model.set(_this.selector.name, event.target.value);
 				}
 
-				if( _this.emitEvents === true ){
-					gadgetui.util.trigger( _this.selector, "gadgetui-input-change", { text: event.target.value } );
+				if (_this.emitEvents === true) {
+					gadgetui.util.trigger(_this.selector, "gadgetui-input-change", { text: event.target.value });
 				}
 
-				if( _this.func !== undefined ){
-					_this.func( { text: event.target.value } );
+				if (_this.func !== undefined) {
+					_this.func({ text: event.target.value });
 				}
-			}, 200 );
+			}, 200);
 		});
 
-	if( this.hideable ){
+	if (this.hideable) {
 		this.selector
 			//.removeEventListener( "mouseleave" )
-			.addEventListener( "mouseleave", function( ) {
+			.addEventListener("mouseleave", function () {
 				var css = gadgetui.util.setStyle;
-				if( this !== document.activeElement ){
+				if (this !== document.activeElement) {
 
-					this.classList.add( _this.browserHideBorderCSS );
+					this.classList.add(_this.browserHideBorderCSS);
 				}
 			});
-			this.selector
-			.addEventListener( "blur", function( ) {
+		this.selector
+			.addEventListener("blur", function () {
 				var css = gadgetui.util.setStyle;
-				css( _this.selector, "maxWidth", _this.maxWidth );
-				this.classList.add( _this.browserHideBorderCSS );
+				css(_this.selector, "maxWidth", _this.maxWidth);
+				this.classList.add(_this.browserHideBorderCSS);
 				//css( _this.label, "maxWidth", _this.maxWidth );
 			});
 	}
 };
 
-TextInput.prototype.config = function( options ){
-	options = ( options === undefined ? {} : options );
-	this.borderColor =  (( options.borderColor === undefined) ? "#d0d0d0" : options.borderColor );
-	this.useActive =  (( options.useActive === undefined) ? false : options.useActive );
-	this.model =  (( options.model === undefined) ? this.model : options.model );
-	this.func = (( options.func === undefined) ? undefined : options.func );
-	this.emitEvents = (( options.emitEvents === undefined) ? true : options.emitEvents );
-	this.activate = (( options.activate === undefined) ? "mouseenter" : options.activate );
-	this.delay = (( options.delay === undefined) ? 10 : options.delay );
-	this.minWidth = (( options.minWidth === undefined) ? 100 : options.minWidth );
-	this.enforceMaxWidth = ( options.enforceMaxWidth === undefined ? false : options.enforceMaxWidth );
+TextInput.prototype.config = function (options) {
+	options = (options === undefined ? {} : options);
+	this.borderColor = ((options.borderColor === undefined) ? "#d0d0d0" : options.borderColor);
+	this.useActive = ((options.useActive === undefined) ? false : options.useActive);
+	this.model = ((options.model === undefined) ? this.model : options.model);
+	this.func = ((options.func === undefined) ? undefined : options.func);
+	this.emitEvents = ((options.emitEvents === undefined) ? true : options.emitEvents);
+	this.activate = ((options.activate === undefined) ? "mouseenter" : options.activate);
+	this.delay = ((options.delay === undefined) ? 10 : options.delay);
+	this.minWidth = ((options.minWidth === undefined) ? 100 : options.minWidth);
+	this.enforceMaxWidth = (options.enforceMaxWidth === undefined ? false : options.enforceMaxWidth);
 	this.hideable = options.hideable || false;
-	this.maxWidth = options.maxWidth || gadgetui.util.getNumberValue( gadgetui.util.getStyle( this.selector.parentNode ).width );
+	this.maxWidth = options.maxWidth || gadgetui.util.getNumberValue(gadgetui.util.getStyle(this.selector.parentNode).width);
 	let browser = gadgetui.util.checkBrowser();
 	this.browserHideBorderCSS = "gadget-ui-textinput-hideBorder-" + browser;
 };
@@ -3448,34 +3452,36 @@ function Constructor(constructor, args, addBindings) {
 }
 
 var EventBindings = {
-  on: function(event, func) {
-    if (this.events[event] === undefined) {
-      this.events[event] = [];
-    }
-    this.events[event].push(func);
-    return this;
-  },
+	on: function (event, func) {
+		if (this.events[event] === undefined) {
+			this.events[event] = [];
+		}
+		this.events[event].push(func);
+		return this;
+	},
 
-  off: function(event) {
-    // clear listeners
-    this.events[event] = [];
-    return this;
-  },
+	off: function (event) {
+		// clear listeners
+		this.events[event] = [];
+		return this;
+	},
 
-  fireEvent: function(key, args) {
-    var self = this;
-    this.events[key].forEach( function( func ) {
-      func(self, args);
-    });
-  },
+	fireEvent: function (key, args) {
+		var _this = this;
+		if (this.events[key] !== undefined) {
+			this.events[key].forEach(function (func) {
+				func(_this, args);
+			});
+		}
+	},
 
-  getAll: function() {
-    return [
-      { name: "on", func: this.on },
-      { name: "off", func: this.off },
-      { name: "fireEvent", func: this.fireEvent }
-    ];
-  }
+	getAll: function () {
+		return [
+			{ name: "on", func: this.on },
+			{ name: "off", func: this.off },
+			{ name: "fireEvent", func: this.fireEvent }
+		];
+	}
 };
 
 function FileItem(args) {

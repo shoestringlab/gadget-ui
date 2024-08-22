@@ -1,6 +1,11 @@
 
 ***Release Notes***
 
+9.0.1
+======
+
+This releases fixes a bug in eventbindings.js where events will not fire because an event is called during instantiation before the binding events are created.
+
 9.0.0
 ======
 
