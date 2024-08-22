@@ -17,7 +17,7 @@ Menu.prototype.retrieveData = function () {
 		.then(function (data) {
 			this.data = data;
 			this.addControl();
-		}).bind(this);
+		}.bind(this));
 };
 
 Menu.prototype.addControl = function () {
@@ -87,11 +87,12 @@ Menu.prototype.addControl = function () {
 	};
 
 	this.data.forEach(function (menu) {
+
 		let element = generateMenu(menu);
 		// for each menu, generate the items and sub-menus
 		this.selector.appendChild(element);
 		this.elements.push(element);
-	}).bind(this);
+	}.bind(this));
 };
 
 Menu.prototype.addBindings = function () {

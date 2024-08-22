@@ -1,6 +1,12 @@
 
 ***Release Notes***
 
+9.0.2
+======
+
+This release fixes two bugs in the Menu object related to the bind command.
+
+
 9.0.1
 ======
 

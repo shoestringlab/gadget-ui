@@ -1,4 +1,4 @@
-import {gadgetui,combobox,constructor,model} from '/dist/gadget-ui.mjs';
+import {gadgetui,combobox,constructor,model} from '/dist/gadget-ui.js';
 
 var user = { food : "" };
 var foods = [ { text: "cereal", id : 1 },
