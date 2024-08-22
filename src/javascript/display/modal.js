@@ -58,6 +58,15 @@ Modal.prototype.close = function(){
   }
 };
 
+Modal.prototype.destroy = function(){
+	// remove the wrapper
+	this.selector.parentNode.removeChild( this.selector );
+	this.wrapper.parentNode.insertBefore( this.selector, this.wrapper );
+	this.wrapper.parentNode.removeChild( this.wrapper );
+	// remove the close span
+	this.selector.removeChild(this.selector.querySelector( ".gadgetui-right-align" ));
+};
+
 Modal.prototype.config = function( options ){
   this.class = ( ( options.class === undefined ? false : options.class ) );
   this.featherClass = ( ( options.featherClass === undefined ? 'feather' : options.featherClass ) );

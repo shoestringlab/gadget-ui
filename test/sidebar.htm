@@ -5,11 +5,11 @@
 		<link rel="stylesheet" href="/dist/gadget-ui.css"/>
 		<script src='/bower_components/velocity/velocity.js'></script>
 		 <script type="module">
-			import {sidebar,constructor} from '/dist/gadget-ui.mjs';
+			import {sidebar,constructor} from '/dist/gadget-ui.js';
 
 			var sb = constructor( sidebar,
 				[ document.querySelector("#sidebar"),
-					{animationMS: 200}], true ) ;
+					{animationMS: 200, minimized:true }], true ) ;
 			sb.on( "maximized", function( obj ){
 				console.log( "maximized" );
 				console.log( obj );

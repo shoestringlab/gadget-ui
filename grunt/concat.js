@@ -1,6 +1,6 @@
 module.exports = {
 
-	javascript : {
+	/* javascript : {
 		options: {
 		      sourceMap: true
 		    },
@@ -10,8 +10,8 @@ module.exports = {
 						'src/objects/wrapper/pre.js', 'src/objects/*.js', 'src/objects/wrapper/post.js',
 		        'src/javascript/gadget-ui.util.js' ],
 		dest : 'dist/<%= pkg.name %>.js'
-	},
-	javascriptes6 : {
+	}, */
+	javascript : {
 		options: {
 		      sourceMap: true
 		    },
@@ -20,7 +20,7 @@ module.exports = {
 			   		'src/javascript/input/wrapper/pre.js', 'src/javascript/input/*.js', 'src/javascript/input/wrapper/post.js',
 						'src/objects/wrapper/pre.js', 'src/objects/*.js', 'src/objects/wrapper/post.js',
 		        'src/javascript/gadget-ui.util.js','src/javascript/gadget-ui.export.js' ],
-		dest : 'dist/<%= pkg.name %>.mjs'
+		dest : 'dist/<%= pkg.name %>.js'
 	},
 	jquery : {
 		options: {

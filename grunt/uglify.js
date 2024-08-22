@@ -1,6 +1,6 @@
 module.exports = {
 
-	javascript : {
+	/* javascript : {
 		options:{
 			sourceMap: true,
 			sourceMapName: '<%= pkg.name %>.min.js.map',
@@ -9,15 +9,15 @@ module.exports = {
 		files : {
 			'dist/<%= pkg.name %>.min.js' : [ '<%= concat.javascript.dest %>' ]
 		}
-	},
-	javascriptes6 : {
+	}, */
+	javascript : {
 		options:{
 			sourceMap: true,
-			sourceMapName: '<%= pkg.name %>.min.mjs.map',
+			sourceMapName: '<%= pkg.name %>.min.js.map',
 			mangle: true
 			},
 		files : {
-			'dist/<%= pkg.name %>.min.mjs' : [ '<%= concat.javascriptes6.dest %>' ]
+			'dist/<%= pkg.name %>.min.js' : [ '<%= concat.javascript.dest %>' ]
 		}
 	},
 	jquery : {

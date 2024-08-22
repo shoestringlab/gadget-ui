@@ -50,29 +50,16 @@ div.gadgetui-bubble{
 	box-sizing: initial;
 }
 
-.feather, .feather_bigger, .feather_biggest{
-stroke: currentColor;
-stroke-width: 2;
-stroke-linecap: round;
-stroke-linejoin: round;
-fill: none;
-}
-
 .feather{
-  width: 1.2em;
+	width: 1.2em;
   height: 1.2em;
-
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  fill: none;
 }
 
-.feather_bigger{
-  width: 1.2em;
-  height: 1.2em;
-}
-
-.feather_biggest{
-  width: 2.2em;
-  height: 2.2em;
-}
 
 div.gadgetui-modal {
     position: fixed;
