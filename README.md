@@ -3,6 +3,12 @@ gadget-ui
 
 JavaScript UI and data binding library
 
+v 9.0.0
+
+This release marks a big change. The library is now only distributed as an ES6 module. The .mjs extension files have been removed for easier standardization with web server software. 
+
+In terms of functionality, the Modal and Menu objects now have a destroy() method so you can remove the controls programmatically. Also, the Sidebar object now has the option to be initialized in the minimized state.
+
 v 8.2.2
 
 This release adds options for the FileUploader to hide the dropzone and use a selected icon for the file input. It also adds the option for a user-specified close icon for the Modal component.
@@ -14,7 +20,6 @@ This release adds oiptions for the FileUploader component to display an image ra
 v 7.1.0
 
 This release adds custom binding events for the display widgets. It also adds open and close methods for the Modal display.
-
 
 v 7.0.0
 

@@ -1,7 +1,7 @@
 "use strict";
 
 /*
- * author: Robert Munn <robert.d.munn@gmail.com>
+ * author: Robert Munn <robert@robertmunn.com>
  * 
  * Copyright (C) 2016 Robert Munn
  * 

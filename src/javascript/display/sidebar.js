@@ -37,7 +37,7 @@ Sidebar.prototype.addControl = function () {
 	this.width = this.wrapper.offsetWidth;
 };
 
-Sidebar.prototype.maximize = function(){
+Sidebar.prototype.maximize = function () {
 	let self = this;
 	self.minimized = false;
 	self.setChevron(self.minimized);
@@ -61,10 +61,10 @@ Sidebar.prototype.maximize = function(){
 			self.fireEvent('maximized');
 		}
 	}
-	
+
 }
 
-Sidebar.prototype.minimize = function(){
+Sidebar.prototype.minimize = function () {
 	let self = this;
 	self.minimized = true;
 	self.setChevron(self.minimized);
@@ -102,7 +102,7 @@ Sidebar.prototype.addBindings = function (options) {
 		}
 	});
 
-	if(options.minimized){
+	if (options.minimized) {
 		self.minimize();
 	}
 };

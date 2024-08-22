@@ -1,6 +1,15 @@
 
 ***Release Notes***
 
+9.0.0
+======
+
+This release marks a big change. The library is now only distributed as an ES6 module. The .mjs extension files have been removed for easier standardization with web server software. 
+
+In terms of functionality, the Modal and Menu objects now have a destroy() method so you can remove the controls programmatically. Also, the Sidebar object now has the option to be initialized in the minimized state.
+
+For anyone interested in modifying the library, the project is configured to be run through either NodeJS > node index.js from the root, or by starting a CFML server from the root (See the excellent CommandBox project by Ortus Solutions if you want an easy and free way to run a CFML server).
+
 8.2.2
 ======
 

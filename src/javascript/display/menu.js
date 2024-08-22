@@ -160,8 +160,8 @@ Menu.prototype.addBindings = function () {
 Menu.prototype.destroy = function () {
 	let menus = this.selector.querySelectorAll("div.gadget-ui-menu");
 	// remove the menus
-	for( var idx = 0; idx < menus.length; idx++ ){
-		document.querySelector( this.selector ).removeChild( menus[idx] );
+	for (var idx = 0; idx < menus.length; idx++) {
+		document.querySelector(this.selector).removeChild(menus[idx]);
 	}
 };
 
