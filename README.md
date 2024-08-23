@@ -5,7 +5,7 @@ JavaScript UI and data binding library
 
 v 9.0.0
 
-This release marks a big change. The library is now only distributed as an ES6 module. The .mjs extension files have been removed for easier standardization with web server software. 
+This release changes the module distribution from using .msj to .es.js files.
 
 In terms of functionality, the Modal and Menu objects now have a destroy() method so you can remove the controls programmatically. Also, the Sidebar object now has the option to be initialized in the minimized state.
 

@@ -1,6 +1,12 @@
 
 ***Release Notes***
 
+9.0.3
+======
+
+This release changes the module distribution from using .msj to .es.js files.
+
+
 9.0.2
 ======
 
