@@ -17,7 +17,7 @@ module.exports = {
 			mangle: true
 			},
 		files : {
-			'dist/<%= pkg.name %>.min.es.js' : [ '<%= concat.javascript.dest %>' ]
+			'dist/<%= pkg.name %>.min.es.js' : [ '<%= concat.javascriptes6.dest %>' ]
 		}
 	},
 	jquery : {
