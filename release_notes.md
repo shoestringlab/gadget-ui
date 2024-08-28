@@ -1,5 +1,10 @@
 
 ***Release Notes***
+9.0.8
+======
+
+CSS update for Progress Bar.
+
 9.0.7
 ======
 

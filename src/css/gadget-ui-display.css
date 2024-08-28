@@ -231,6 +231,14 @@ div.gadget-ui-menu{
 	font-size: smaller;
 }
 
+.gadgetui-progressbar-label{
+	color: white;
+	position: absolute;
+	float: left;
+	padding-left: .5em;
+  }
+  
+
 .gadget-ui-progressbar-filename{
 	padding: 0 .25em;
 }
