@@ -1,5 +1,10 @@
 
 ***Release Notes***
+9.0.9
+======
+
+Update adds the Sidebar toggle title and updates the test code for all JavaScript components.
+
 9.0.8
 ======
 

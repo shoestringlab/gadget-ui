@@ -5,7 +5,7 @@ JavaScript UI and data binding library
 
 Current Release
 
-v 9.0.8
+v 9.0.9
 
 Notes
 
