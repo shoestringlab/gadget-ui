@@ -3,6 +3,12 @@ gadget-ui
 
 JavaScript UI and data binding library
 
+Current Release
+
+v 9.0.7
+
+Notes
+
 v 9.0.0
 
 This release changes the module distribution from using .msj to .es.js files.

@@ -1,0 +1,71 @@
+<!doctype html>
+<html>
+	<head>
+		<title>gadget-ui Modal Test</title>
+		<link rel="stylesheet" href="/dist/gadget-ui.css"/>
+		
+	 <script type="module">
+		import {progressbar,constructor} from '/dist/gadget-ui.es.js';
+
+		var pb1 = constructor( progressbar, [ document.querySelector("#pb"), {id: 'pbxx1', label: 'progress', width: 500} ], true ) ;
+		pb1.render();
+		let myInterval = "";
+		let started = false;
+		let paused = true;
+		let increase = true;
+
+		document.querySelector( "button[name='start']" ).addEventListener( "click", function(){
+			if( ! started ){
+				pb1.start();
+				started = true;
+			}
+			if( paused ){
+				paused = false;
+				
+				myInterval = setInterval(function () {
+				pb1.updatePercent( percent );
+				if( increase ){
+					percent = percent + 10;
+					
+				}else{
+					percent = percent - 10;
+				}
+				if( percent === 100 || percent === 0 ){
+					increase = !increase;
+				} 
+				}, 500);
+			}
+		});
+
+		document.querySelector( "button[name='stop']" ).addEventListener( "click", function(){
+			clearInterval(myInterval);
+			paused = true;
+		});
+
+        console.log( "Progress Bar" );
+        let percent = 10;
+        /*  */
+	 </script>
+
+		<style>
+			body {font-size: 1em;}
+			input, select, select option{ font-size: 1em;}
+			#modal{
+				width:500px;
+				height:300px;
+				overflow:hidden;
+			}
+		</style>
+
+	</head>
+
+	<body>
+		<p>Test the Progress bar control.</p>
+		<button name="start">Start</button>
+		<button name="stop">Stop</button>
+	<div id="pb">
+	
+	</div>
+
+	</body>
+</html>

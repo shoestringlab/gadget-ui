@@ -5,9 +5,11 @@ function ProgressBar(selector, options) {
 
 ProgressBar.prototype.configure = function (options) {
 	this.id = options.id;
-	this.filename = options.filename;
+	this.label = options.label;
 	this.width = options.width;
 };
+
+ProgressBar.prototype.events = ['start,updatePercent,update'];
 
 ProgressBar.prototype.render = function () {
 	var css = gadgetui.util.setStyle;
@@ -15,25 +17,29 @@ ProgressBar.prototype.render = function () {
 	var pbDiv = document.createElement("div");
 	pbDiv.setAttribute("name", "progressbox_" + this.id);
 	gadgetui.util.addClass(pbDiv, "gadgetui-progressbar-progressbox");
+	
+	this.selector.appendChild(pbDiv);
 
 	var fileDiv = document.createElement("div");
-	fileDiv.setAttribute("name", "filename");
-	gadgetui.util.addClass(fileDiv, "gadgetui-progressbar-filename");
-	fileDiv.innerText = " " + this.filename + " ";
+	fileDiv.setAttribute("name", "label");
+	gadgetui.util.addClass(fileDiv, "gadgetui-progressbar-label");
+	fileDiv.innerText = " " + this.label + " ";
+
 	pbDiv.appendChild(fileDiv);
 
 	var pbarDiv = document.createElement("div");
 	gadgetui.util.addClass(pbarDiv, "gadget-ui-progressbar");
 	pbarDiv.setAttribute("name", "progressbar_" + this.id);
+
 	pbDiv.appendChild(pbarDiv);
 
 	var statusDiv = document.createElement("div");
 	statusDiv.setAttribute("name", "statustxt");
 	gadgetui.util.addClass(statusDiv, "statustxt");
 	statusDiv.innertText = "0%";
+
 	pbDiv.appendChild(statusDiv);
 
-	this.selector.appendChild(pbDiv);
 
 	this.progressbox = this.selector.querySelector("div[name='progressbox_" + this.id + "']");
 	this.progressbar = this.selector.querySelector("div[name='progressbar_" + this.id + "']");

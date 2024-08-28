@@ -1,5 +1,11 @@
 
 ***Release Notes***
+9.0.7
+======
+
+Add events to the ProgressBar object so it renders correctly.
+
+Add test page for ProgressBar.
 
 9.0.5
 ======
