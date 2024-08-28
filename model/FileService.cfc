@@ -78,14 +78,21 @@ component output="false"{
 			variables.FilePartDAO.delete( fileid = arguments.id );
 		}
 
-		local.result.path = variables.viewFilePath;
+		local.result = {
+			"filename": arguments.filename,
+			"disabled": 0,
+			"filesize": arguments.filesize,
+			"mimetype": "application/octet-stream",
+			"created": now()
+		};
+		/* local.result.path = variables.viewFilePath;
 		//local.result.tags = arguments.tags;
 		local.result.filename = arguments.filename;
 		local.result.disabled = 0;
 		local.result.filesize = arguments.filesize;
 		local.result.mimetype = "application/octet-stream";
 		local.result.created = now();
-
+ */
 		return local.result;
 	}
 }

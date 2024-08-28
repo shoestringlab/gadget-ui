@@ -1385,6 +1385,7 @@ Sidebar.prototype.config = function (options) {
 	this.featherPath = options.featherPath || "/node_modules/feather-icons";
 	this.animate = ((options.animate === undefined) ? true : options.animate);
 	this.delay = ((options.delay === undefined ? 300 : options.delay));
+	this.toggleTitle = ((options.toggleTitle === undefined ? "Toggle Sidebar" : options.toggleTitle)); 
 };
 
 Sidebar.prototype.addControl = function () {
@@ -1395,6 +1396,7 @@ Sidebar.prototype.addControl = function () {
 	gadgetui.util.addClass(this.wrapper, "gadgetui-sidebar");
 
 	this.span = document.createElement("span");
+	this.span.setAttribute("title", this.toggleTitle );
 	gadgetui.util.addClass(this.span, "gadgetui-right-align");
 	gadgetui.util.addClass(this.span, "gadgetui-sidebar-toggle");
 	this.span.innerHTML = `<svg class="feather" name="chevron">

@@ -2,13 +2,10 @@
 <html>
 	<head>
 		<title>gadget-ui Tests</title>
-		<script src='../bower_components/modlazy/dist/modlazy.min.js'></script>
-		 <script>
-		 	modlazy.load(['combined.js < ../dist/gadget-ui.js', '/bower_components/velocity/velocity.js', '../dist/gadget-ui.css', '/bower_components/open-iconic/font/css/open-iconic.css' ], function(){
-  				console.log('All files have been loaded');
-  				console.log( navigator.userAgent );
-}			);
-		 </script>
+		<link rel="stylesheet" href="/dist/gadget-ui.css"/>
+		<link rel="stylesheet" href="/node_modules/open-iconic/font/css/open-iconic.css"/>
+		<script src='/node_modules/velocity/velocity.js'></script>
+	   <script src="combined.js" type="module"></script>
 		 <style>
 		 	body, div, span, select, input{
 		 		font-family:Arial, Helvetica, sans-serif;

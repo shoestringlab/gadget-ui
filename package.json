@@ -37,12 +37,13 @@
     "load-grunt-config": "^4.0.1",
     "load-grunt-tasks": "^4.0.0",
     "mariadb": "^2.2.0",
-	"minimist": "^1.2.7",
+    "minimist": "^1.2.7",
     "trim-newlines": "^4.0.2",
     "ws": "^8.12.0"
   },
   "dependencies": {
-   
+    "open-iconic": "^1.1.1",
+    "velocity": "^0.7.3"
   },
   "author": "Robert Munn <robert@robertmunn.com>",
   "license": "Mozilla Public License 2.0"

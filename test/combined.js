@@ -1,3 +1,5 @@
+import {gadgetui} from '/dist/gadget-ui.es.js';
+
 
 		var user = {
 			firstname : "",

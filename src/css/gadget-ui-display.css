@@ -121,6 +121,7 @@ span.gadgetui-sidebar-toggle{
 	border-bottom: 1px solid silver;
 	padding-top: 4px;
 	border-radius: .25em 0 0 .25em;
+	cursor: pointer;
 }
 
 div.gadget-ui-menu{

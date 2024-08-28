@@ -2,12 +2,12 @@
 <html>
 	<head>
 		<title>gadget-ui SelectInput Test</title>
-		<script src='../bower_components/modlazy/dist/modlazy.min.js'></script>
-		 <script>
-		 	modlazy.load(['selectinput.js < ../dist/gadget-ui.js' ,'../dist/gadget-ui.css'], function(){
-  				console.log('All files have been loaded');
-			});
-		 </script>
+		<link rel="stylesheet" href="/dist/gadget-ui.css"/>
+		<style>
+			body {font-size: 2em;}
+			input, select, select option{ font-size: 1em;}
+		</style>
+		<script src="selectinput.js" type="module"></script>
 
 		<style>
 			body {

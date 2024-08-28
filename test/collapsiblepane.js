@@ -1,4 +1,4 @@
-import {gadgetui} from '/dist/gadget-ui.js';
+import {gadgetui} from '/dist/gadget-ui.es.js';
 
 var collapser = gadgetui.objects.Constructor( gadgetui.display.CollapsiblePane, [ document.querySelector( "div[name='collapser']"),
 		{

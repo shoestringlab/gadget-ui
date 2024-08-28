@@ -1,5 +1,6 @@
+import {dialog,constructor} from '/dist/gadget-ui.es.js';
 
-var fp1 = gadgetui.objects.Constructor( gadgetui.display.Dialog,
+var fp1 = constructor( dialog,
 	[ document.querySelector("#dlg1"),
 		{
 			top: 200,

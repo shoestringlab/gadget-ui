@@ -1,3 +1,4 @@
+import {gadgetui} from '/dist/gadget-ui.es.js';
 
 		var user = {
 			icons : []
@@ -17,7 +18,7 @@
 			gadgetui.util.setStyle( icon, "width", 64 );
 			gadgetui.util.setStyle( wrapper, "border", "1px solid silver" );
 			var img = document.createElement( "img" );
-			img.setAttribute( "src", "/bower_components/open-iconic/png/" + item.label.replace( ".png", "-8x.png") );
+			img.setAttribute( "src", "/node_modules/open-iconic/png/" + item.label.replace( ".png", "-8x.png") );
 			img.setAttribute( "title", item.label );
 			icon.appendChild( img );
 
@@ -36,7 +37,7 @@
 			gadgetui.util.setStyle( wrapper, "margin", 3 );
 			//gadgetui.util.setStyle( icon, "width", 64 );
 			var img = document.createElement( "img" );
-			img.setAttribute( "src", "/bower_components/open-iconic/png/" + item.label.replace( ".png", "-4x.png") );
+			img.setAttribute( "src", "/node_modules/open-iconic/png/" + item.label.replace( ".png", "-4x.png") );
 			img.setAttribute( "title", item.label );
 			gadgetui.util.setStyle( img, "margin-right", 5 );
 			var label = document.createElement( "span" );

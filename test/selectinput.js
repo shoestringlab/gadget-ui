@@ -1,3 +1,4 @@
+import {gadgetui} from '/dist/gadget-ui.es.js';
 
 var user = { name:"John Smith", role : "" };
 var user2 = { name: "Jack Smith", role : "" };

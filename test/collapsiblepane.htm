@@ -2,12 +2,9 @@
 <html>
 	<head>
 		<title>gadget-ui CollapsiblePane Test</title>
-		<script src='../bower_components/modlazy/dist/modlazy.min.js'></script>
-		 <script>
-		 	modlazy.load([ "/bower_components/velocity/velocity.js", '../dist/gadget-ui.css', "/bower_components/open-iconic/font/css/open-iconic.css" ], function(){
-  				console.log('All files have been loaded');
-			});
-		 </script>
+		 <link rel="stylesheet" href="/dist/gadget-ui.css"/>
+		 <link rel="stylesheet" href="/node_modules/open-iconic/font/css/open-iconic.css"/>
+		 <script src='/node_modules/velocity/velocity.js'></script>
 		<script src="collapsiblepane.js" type="module"></script>
 
 		<style>
@@ -37,7 +34,7 @@
 		<p>Test the CollapsiblePabe control.</p>
 
 <h3>Generic example</h3>
-	<div style="width:900px" name="collapser2">
+	<div style="width:900px;" name="collapser2">
 
 		jslint:/Users/rmunn/git/gadgetui/dist/gadget-ui.js:17:2:Unnecessary 'use strict'.<br/>
 		jslint:/Users/rmunn/git/gadgetui/dist/gadget-ui.js:48:3:Missing 'break' after 'case'.<br/>
@@ -50,7 +47,7 @@
 
 	<br><br>
 	<h3>Custom header and wrapper classes</h3>
-		<div style="width:900px" name="collapser">
+		<div style="width:900px;" name="collapser">
 
 			jslint:/Users/rmunn/git/gadgetui/dist/gadget-ui.js:17:2:Unnecessary 'use strict'.<br/>
 			jslint:/Users/rmunn/git/gadgetui/dist/gadget-ui.js:48:3:Missing 'break' after 'case'.<br/>

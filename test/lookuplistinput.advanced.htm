@@ -2,16 +2,14 @@
 <html>
 	<head>
 		<title>gadget-ui LookupListInput Test</title>
-		 <script src='../bower_components/modlazy/dist/modlazy.min.js'></script>
-		 <script>
-		 	modlazy.load([ 'lookuplistinput.advanced.js < ../dist/gadget-ui.js', '../dist/gadget-ui.css', "/bower_components/open-iconic/font/css/open-iconic.css" ], function(){
-  				console.log('All files have been loaded');
-			});
-		 </script>
+		 
+		<link rel="stylesheet" href="/dist/gadget-ui.css"/>
+		<script src='/node_modules/velocity/velocity.js'></script>
 		<style>
 			body {font-size: 2em;}
 			input, select, select option{ font-size: 1em;}
 		</style>
+		<script src="lookuplistinput.advanced.js" type="module"></script>
 	</head>
 
 	<body>
