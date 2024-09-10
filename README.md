@@ -5,6 +5,10 @@ JavaScript UI and data binding library
 
 Current Release
 
+v 9.3.0
+
+The Lightbox component has been added to generate a Lightbox from a div with an array of images.
+
 v 9.1.0
 
 Notes

@@ -1,5 +1,10 @@
 
 ***Release Notes***
+9.3.0
+======
+
+The Lightbox component has been added to generate a Lightbox from a div with an array of images.
+
 9.1.0
 ======
 
