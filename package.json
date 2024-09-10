@@ -1,6 +1,6 @@
 {
   "name": "gadget-ui",
-  "version": "9.3.0",
+  "version": "9.4.0",
   "description": "JavaScript UI and data binding library",
   "repository": {
     "type": "git",
@@ -40,11 +40,11 @@
     "minimist": "^1.2.7",
     "open-iconic": "^1.1.1",
     "trim-newlines": "^4.0.2",
-    "velocity": "^0.7.3",
     "ws": "^8.12.0"
   },
-  "dependencies": {
-  },
   "author": "Robert Munn <robert@robertmunn.com>",
-  "license": "Mozilla Public License 2.0"
+  "license": "Mozilla Public License 2.0",
+  "dependencies": {
+    "velocity-animate": "^2.0.6"
+  }
 }

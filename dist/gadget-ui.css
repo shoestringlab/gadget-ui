@@ -270,6 +270,26 @@ div.gadget-ui-menu{
 	cursor:pointer;
 }
 
+.gadgetui-lightbox-modal{
+	width:100%;
+	height:100%;
+	z-index:3;
+	position:fixed;
+	top:0;
+	left:0;
+	background-color: silver;
+}
+
+.gadgetui-hidden{
+	display:none;
+}
+
+.gadgetui-lightbox-modal-imagecontainer{
+	width:100%;
+	position:fixed;
+	top:10%;
+	left:0;
+}
 div .gadget-ui-input-div{
 	display:inline;
 	font-size: 1.1em;

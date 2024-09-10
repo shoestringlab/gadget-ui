@@ -1,5 +1,12 @@
 
 ***Release Notes***
+
+9.4.0
+======
+
+The Lightbox component has added an `animate()` method that switches to the next image in the array at a given interval `time`, imitating the functionality of an image carousel. Lightbox has also added a modal container that can show an image zoomed to 100% width on the page. Clicking on the image in the lightbox shows the modal. Clicking on the image modal hides the modal. This functionality can be deactivated with enableModal: false in the component options.
+
+
 9.3.0
 ======
 
