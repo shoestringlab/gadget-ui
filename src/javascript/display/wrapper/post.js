@@ -6,6 +6,7 @@
 		FileUploadWrapper: FileUploadWrapper,
 		FloatingPane: FloatingPane,
 		Menu: Menu,
+		Lightbox: Lightbox,
 		Modal: Modal,
 		ProgressBar: ProgressBar,
 		Sidebar: Sidebar,

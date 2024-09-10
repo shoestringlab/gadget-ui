@@ -1226,23 +1226,65 @@ FloatingPane.prototype.config = function (options) {
 function Lightbox( selector, options ){
     this.selector = selector;
     this.config( options );
-    this.addControl( selector );
+    this.addControl();
+    this.updateImage();
 }
 
-Lightbox.prototype.events = ['shiftLeft','shiftRight'];
+Lightbox.prototype.events = ['showPrevious','showNext'];
 
 Lightbox.prototype.config = function( options ){
-
+    this.images = options.images;
+    this.currentIndex = 0;
+    this.featherPath = options.featherPath || "/node_modules/feather-icons";
 };
 
 Lightbox.prototype.addControl = function(){
+    this.selector.setAttribute( "class", "gadgetui-lightbox" );
     let lb = document.createElement( "div" );
-    this.selector.parentNode.insertBefore(lb, this.selector);
-	this.wrapper = this.selector.previousSibling;
-	this.selector.parentNode.removeChild(this.selector);
-	lb.appendChild(this.selector);
+    lb.setAttribute( "class", "gadgetui-lightbox-image-container" );
+	
+
+    this.spanPrevious = document.createElement("span");
+    this.spanNext = document.createElement("span");
+	gadgetui.util.addClass(this.spanPrevious, "gadgetui-lightbox-previousControl");
+	gadgetui.util.addClass(this.spanNext, "gadgetui-lightbox-nextControl");
+
+	this.spanPrevious.innerHTML = `<svg class="feather" name="chevron">
+      <use xlink:href="${this.featherPath}/dist/feather-sprite.svg#chevron-left"/>
+    </svg>`;
+    this.spanNext.innerHTML = `<svg class="feather" name="chevron">
+      <use xlink:href="${this.featherPath}/dist/feather-sprite.svg#chevron-right"/>
+    </svg>`;
+    this.selector.appendChild( this.spanPrevious );
+    this.selector.appendChild( lb );
+    this.selector.appendChild( this.spanNext );
+    this.imageContainer = lb;
+
+    this.spanPrevious.addEventListener( "click", function( event ){
+        this.prevImage();
+    }.bind(this));
+
+    this.spanNext.addEventListener( "click", function( event ){
+        this.nextImage();
+    }.bind(this));
 };
 
+// Function to show the next image
+Lightbox.prototype.nextImage = function() {
+    this.currentIndex = ( this.currentIndex + 1 ) %  this.images.length;
+    this.updateImage();
+};
+
+// Function to show the previous image
+Lightbox.prototype.prevImage = function() {
+    this.currentIndex = ( this.currentIndex - 1 + this.images.length ) %  this.images.length;
+    this.updateImage();
+};
+
+// Function to update the current image
+Lightbox.prototype.updateImage = function() {
+    this.imageContainer.innerHTML = `<img style="height:100%;width:100%;" src="${this.images[this.currentIndex]}" alt="Image ${this.currentIndex + 1}">`;
+};
 
 function Menu(selector, options) {
 	this.selector = selector;
@@ -1682,137 +1724,6 @@ Sidebar.prototype.setChevron = function (minimized) {
 	svg.innerHTML = `<use xlink:href="${this.featherPath}/dist/feather-sprite.svg#${chevron}"/>`;
 }
 
-class SpeechBubble {
-    constructor(canvasId) {
-        this.canvas = document.getElementById(canvasId);
-        this.ctx = this.canvas.getContext('2d');
-        this.bubble = {
-            x: 0,
-            y: 0,
-            width: 0,
-            height: 0,
-            arrowX: 0,
-            arrowY: 0,
-            text: '',
-            padding: 10,
-            fontSize: 14,
-            color: '#fff',
-            borderColor: '#000',
-            backgroundColor: '#f0f0f0'
-        };
-    }
-
-    // Set bubble properties
-    setBubble(x, y, width, height, arrowX, arrowY, text) {
-        this.bubble.x = x;
-        this.bubble.y = y;
-        this.bubble.width = width;
-        this.bubble.height = height;
-        this.bubble.arrowX = arrowX;
-        this.bubble.arrowY = arrowY;
-        this.bubble.text = text;
-    }
-
-    // Draw the speech bubble
-    draw() {
-        this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-
-        // Draw bubble body
-        this.ctx.fillStyle = this.bubble.backgroundColor;
-        this.ctx.strokeStyle = this.bubble.borderColor;
-        
-        // Calculate arrow position
-        let arrowOffset = 15;
-        let arrowWidth = 10;
-        let arrowHeight = 20;
-
-        // Adjust bubble position based on arrow location
-        let bubbleX = this.bubble.x;
-        let bubbleY = this.bubble.y;
-
-        // Check if arrow is on the left or right
-        if (this.bubble.arrowX === 'left') {
-            bubbleX += arrowHeight;
-        } else if (this.bubble.arrowX === 'right') {
-            bubbleX -= arrowHeight;
-        }
-
-        // Check if arrow is on the top or bottom
-        if (this.bubble.arrowY === 'top') {
-            bubbleY += arrowHeight;
-        } else if (this.bubble.arrowY === 'bottom') {
-            bubbleY -= arrowHeight;
-        }
-
-        // Draw bubble
-        this.ctx.beginPath();
-        this.ctx.moveTo(bubbleX, bubbleY);
-
-        // Top left corner
-        this.ctx.lineTo(bubbleX, bubbleY - this.bubble.height);
-        // Top right corner
-        this.ctx.lineTo(bubbleX + this.bubble.width, bubbleY - this.bubble.height);
-        // Bottom right corner
-        this.ctx.lineTo(bubbleX + this.bubble.width, bubbleY);
-
-        // Draw arrow
-        if (this.bubble.arrowX === 'left') {
-            this.ctx.lineTo(bubbleX, bubbleY - arrowOffset);
-            this.ctx.lineTo(bubbleX - arrowHeight, bubbleY - arrowOffset - arrowWidth);
-            this.ctx.lineTo(bubbleX, bubbleY - arrowOffset - 2 * arrowWidth);
-        } else if (this.bubble.arrowX === 'right') {
-            this.ctx.lineTo(bubbleX + this.bubble.width, bubbleY - arrowOffset);
-            this.ctx.lineTo(bubbleX + this.bubble.width + arrowHeight, bubbleY - arrowOffset - arrowWidth);
-            this.ctx.lineTo(bubbleX + this.bubble.width, bubbleY - arrowOffset - 2 * arrowWidth);
-        } else {
-            this.ctx.lineTo(bubbleX + this.bubble.width, bubbleY);
-        }
-
-        this.ctx.closePath();
-        this.ctx.fill();
-        this.ctx.stroke();
-
-        // Draw text
-        this.ctx.fillStyle = this.bubble.color;
-        this.ctx.font = `${this.bubble.fontSize}px Arial`;
-        this.ctx.textAlign = 'center';
-        this.ctx.textBaseline = 'middle';
-        this.ctx.fillText(
-            this.bubble.text,
-            bubbleX + this.bubble.width / 2,
-            bubbleY - this.bubble.height / 2
-        );
-    }
-
-    // Method to attach bubble to an HTML element
-    attachToElement(elementId) {
-        const element = document.getElementById(elementId);
-        if (!element) return;
-
-        const rect = element.getBoundingClientRect();
-        const canvasRect = this.canvas.getBoundingClientRect();
-
-        // Position bubble relative to the element and canvas
-        this.setBubble(
-            rect.left - canvasRect.left + element.offsetWidth / 2,
-            rect.top - canvasRect.top - this.bubble.height - 20,
-            this.bubble.width,
-            this.bubble.height,
-            'bottom', // Arrow at the bottom
-            'center'  // Arrow centered
-        );
-
-        this.draw();
-    }
-}
-
-// Usage example:
-// const bubble = new SpeechBubble('myCanvas');
-// bubble.setBubble(100, 100, 200, 100, 'left', 'top', 'Hello, World!');
-// bubble.draw();
-
-// To attach to an element:
-// bubble.attachToElement('someElementId');
 function Tabs(selector, options) {
 	this.selector = selector;
 	this.config(options);
@@ -1881,6 +1792,7 @@ Tabs.prototype.setActiveTab = function (activeTab) {
 		FileUploadWrapper: FileUploadWrapper,
 		FloatingPane: FloatingPane,
 		Menu: Menu,
+		Lightbox: Lightbox,
 		Modal: Modal,
 		ProgressBar: ProgressBar,
 		Sidebar: Sidebar,
@@ -4513,6 +4425,7 @@ export var collapsiblepane = gadgetui.display.CollapsiblePane;
 export var dialog = gadgetui.display.Dialog;
 export var fileuploadwrapper = gadgetui.display.FileUploadWrapper;
 export var floatingpane = gadgetui.display.FloatingPane;
+export var lightbox = gadgetui.display.Lightbox;
 export var menu = gadgetui.display.Menu;
 export var modal = gadgetui.display.Modal;
 export var overlay = gadgetui.display.Overlay;
