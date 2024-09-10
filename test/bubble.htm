@@ -2,11 +2,14 @@
 <html>
 	<head>
 		<title>gadget-ui Bubble Test</title>
-			<script src='../bower_components/modlazy/dist/modlazy.min.js'></script> <script>
-		 	modlazy.load([ 'bubble.js < ../dist/gadget-ui.js', '/bower_components/velocity/velocity.js', '../dist/gadget-ui.css', "/bower_components/open-iconic/font/css/open-iconic.css" ], function(){
-  				console.log('All files have been loaded');
-			});
-		 </script>
+		<link rel="stylesheet" href="/dist/gadget-ui.css"/>
+		<link rel="stylesheet" href="/node_modules/open-iconic/font/css/open-iconic.css"/>
+		<script src='/node_modules/velocity/velocity.js'></script>
+
+	   <script src="bubble.js" type="module">
+
+	   </script>
+
 
 		<style>
 			body {font-size: 2em;}
@@ -22,6 +25,18 @@
 				opacity: .7;
 
 			}
+
+			#bubbleCnvs{
+				z-index:2;
+				position:absolute;
+				background-color: "#ff9900";
+	
+			}
+
+			#main{
+				display:flex;
+				flex-direction:row-reverse;
+			}
 		</style>
 
 	</head>
@@ -30,12 +45,16 @@
 		<p>Test the Bubble control.</p>
 
 		<p>Select your favorite breakfast food, or enter something new:</p>
-	<div style="margin-left: 50px;">
+	<div id="main" style="margin-left: 50px; width:800px;" >
 
-		<select name="food" gadgetui-bind="user.food">
-
+		<select id="food" name="food" gadgetui-bind="user.food" >
+			<option>cereal</option>
+			<option>toast</option>
 		</select>
 	</div>
+	<canvas id="bubbleCnvs" height="200" width="310">
+		<div>Show me this Text</div>
 
+	</canvas>
 	</body>
 </html>

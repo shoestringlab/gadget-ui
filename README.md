@@ -5,9 +5,13 @@ JavaScript UI and data binding library
 
 Current Release
 
-v 9.0.10
+v 9.1.0
 
 Notes
+
+v 9.10.0
+
+The Bubble component has been re-written to use the canvas component. The Bubble now functions correctly and has many more configuration options than previously.
 
 v 9.0.0
 

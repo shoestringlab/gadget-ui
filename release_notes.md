@@ -1,5 +1,10 @@
 
 ***Release Notes***
+9.1.0
+======
+
+The Bubble component has been re-written to use the canvas component. The Bubble now functions correctly and has many more configuration options than previously.
+
 9.0.9
 ======
 

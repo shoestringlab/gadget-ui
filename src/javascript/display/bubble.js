@@ -1,156 +1,330 @@
-function Bubble( selector, message, options ){
-	this.selector = selector;
-	this.message = message;
+function Bubble( options ){
+	this.canvas = document.createElement( 'canvas');
+	this.ctx = this.canvas.getContext('2d');
 	this.config( options );
-	this.render();
-	this.setStyles();
-	this.setBehaviors();
-	this.show();
+	this.bubble = {
+		x: 0,
+		y: 0,
+		width: 0,
+		height: 0,
+		arrowPosition: 'topleft',
+		arrowAngle: 315,
+		text: '',
+		padding: 10,
+		fontSize: this.fontSize,
+		fontStyle: this.fontStyle,
+		fontWeight: this.fontWeight,
+		fontVariant: this.fontVariant,
+		font: this.font,
+		color: this.color,
+		borderWidth: this.borderWidth,
+		borderColor: this.borderColor,
+		backgroundColor: this.backgroundColor,
+		justifyText: this.justifyText,
+		lineHeight: this.lineHeight,
+		align: this.align,
+		vAlign: this.vAlign
+	};
 }
 
-Bubble.prototype.render = function(){
+Bubble.prototype.config = function (options) {
+	options = (options === undefined ? {} : options);
+	this.color = ((options.color === undefined) ? "#000" : options.color);
+	this.borderWidth = ((options.borderWidth === undefined) ? 1 : options.borderWidth);
+	this.borderColor = ((options.borderColor === undefined ? "#000" : options.borderColor));
+	this.backgroundColor = (options.backgroundColor === undefined ? "#f0f0f0" : options.backgroundColor);
+	this.fontSize = ((options.fontSize === undefined) ? 14 : options.fontSize);
+	this.font = ((options.font === undefined) ? "Arial" : options.font);
+	this.fontStyle = ((options.fontStyle === undefined) ? "" : options.fontStyle);
+	this.fontWeight = ((options.fontWeight === undefined) ? 100 : options.fontWeight);
+	this.fontVariant = ((options.fontVariant === undefined) ? "" : options.fontVariant);
+	this.lineHeight = ((options.lineHeight === undefined) ? null : options.lineHeight);
+	this.align = ((options.align === undefined) ? "center" : options.align); //center, left, right
+	this.vAlign = ((options.vAlign === undefined) ? "middle" : options.vAlign);// middle, top, bottom
+	this.justifyText = ((options.justifyText === undefined) ? false : options.justifyText);
+};
 
-	var	css = gadgetui.util.setStyle;
-	var span,
-		arrowOutside,
-		arrowInside;
+Bubble.prototype.events = ['rendered'];
 
-	this.bubbleElement = document.createElement( "div" );
-	gadgetui.util.addClass( this.bubbleElement, "gadgetui-bubble" );
-	gadgetui.util.addClass( this.bubbleElement, "gadgetui-bubble-" + this.bubbleType );
-	if( this.class ){
-		gadgetui.util.addClass( this.bubbleElement, this.class );
-	}
-	this.bubbleElement.setAttribute( "id", this.id );
-	this.bubbleElement.innerHTML = this.message;
+Bubble.prototype.setBubble = function(x, y, width, height, arrowPosition, length, angle ){
+	this.bubble.x = x;
+	this.bubble.y = y;
+	this.bubble.width = width;
+	this.bubble.height = height;
+	this.setArrow( arrowPosition, length, angle );
+	this.calculateBoundingRect();
+	const rect = this.getBoundingClientRect();
+	this.canvas.height = rect.height;
+	this.canvas.width = rect.width;
+	const body = document.querySelector( "body" );
+	body.appendChild( this.canvas );
+};
 
-	if( this.closable ){
- 		span = document.createElement( "span" );
-		css( span, "float", "right" );
-		var icon = `<svg class="feather">
-                <use xlink:href="${this.featherPath}/dist/feather-sprite.svg#x-circle"/>
-                </svg>`;
-		span.innerHTML = icon;
-	}
+Bubble.prototype.setText = function( text ){
+	this.bubble.text = text;
+};
 
-	this.selector.parentNode.insertBefore( this.bubbleElement, this.selector.nextSibling );
-	if( this.closable ){
-		this.bubbleElement.appendChild( span );
+Bubble.prototype.setPosition = function(x, y) {
+	this.bubble.x = x;
+	this.bubble.y = y;
+};
+
+Bubble.prototype.setArrow = function( position, length, angle ){
+	// get the dX and dY of the arrow so we can figure out where it needs to be
+	this.setArrowLength( length );
+	this.setArrowPosition( position );
+	this.setArrowAngle( angle );
+	this.setArrowComponents();
+	this.setArrowVector();
+};
+
+Bubble.prototype.setArrowPosition = function( position ) {
+	this.bubble.arrowPosition = position;
+	switch( this.bubble.arrowPosition ){
+		case "top":
+			this.bubble.arrowX = this.bubble.x + ( this.bubble.width / 2 );
+			this.bubble.arrowY = this.bubble.y;
+			break;
+		case "topright":
+			this.bubble.arrowX = this.bubble.x + this.bubble.width;
+			this.bubble.arrowY = this.bubble.y;
+			break;
+		case "right":
+			this.bubble.arrowX = this.bubble.x + this.bubble.width;
+			this.bubble.arrowY = this.bubble.y + this.bubble.height / 2;
+			break;
+		case "bottomright":
+			this.bubble.arrowX = this.bubble.x + this.bubble.width;
+			this.bubble.arrowY = this.bubble.y + this.bubble.height;
+			break;
+		case "bottom":
+			this.bubble.arrowX = this.bubble.x + ( this.bubble.width / 2 );
+			this.bubble.arrowY = this.bubble.y + this.bubble.height;
+			break;
+		case "bottomleft":
+			this.bubble.arrowX = this.bubble.x;
+			this.bubble.arrowY = this.bubble.y + this.bubble.height;
+			break;
+		case "left":
+			this.bubble.arrowX = this.bubble.x;
+			this.bubble.arrowY = this.bubble.y + this.bubble.height / 2;
+			break;
+		case "topleft":
+			this.bubble.arrowX = this.bubble.x;
+			this.bubble.arrowY = this.bubble.y;
+			break;
+		default:
+			this.bubble.arrowX = this.bubble.x;
+			this.bubble.arrowY = this.bubble.y;
+			break;
 	}
 };
 
-Bubble.prototype.show = function(){
-	gadgetui.util.setStyle( this.bubbleElement, "display", "block" );
-};
-
-Bubble.prototype.setStyles = function(){
-	var	css = gadgetui.util.setStyle;
-	this.setBubbleStyles();
-	this.calculatePosition();
-
-	css( this.bubbleElement, "position", "absolute" );
-	css( this.bubbleElement, "top", this.top );
-	css( this.bubbleElement, "left", this.left );
-
-	this.spanElement = this.bubbleElement.querySelector( "span" );
-	css( this.spanElement, "right", "3px" );
-	css( this.spanElement, "position", "absolute" );
-	css( this.spanElement, "cursor", "pointer"  );
-	css( this.spanElement, "top", "3px" );
-};
-
-Bubble.prototype.setBubbleStyles = function(){
-	var css = gadgetui.util.setStyle;
-	css( this.bubbleElement, "margin", 0 );
-
-	if( this.boxShadow ){
-		css( this.bubbleElement, "-webkit-box-shadow", this.shadowSize + "px " + this.shadowSize + "px 4px " + this.boxShadowColor );
-		css( this.bubbleElement, "-moz-box-shadow", this.shadowSize + "px " + this.shadowSize + "px 4px " + this.boxShadowColor );
-		css( this.bubbleElement, "box-shadow", this.shadowSize + "px " + this.shadowSize + "px 4px " + this.boxShadowColor );
-	}
-};
-
-Bubble.prototype.calculatePosition = function(){
-	var _this = this;
-	this.top = 0;
-	this.left = 0;
-	var relativeOffset = this.selector.getBoundingClientRect();
-	var bubbleCoords = this.bubbleElement.getBoundingClientRect();
-	this.position.split( " " ).forEach( function( ele ){
-		switch( ele ){
-			case "top":
-				_this.top =  relativeOffset.top - relativeOffset.height;
-				break;
-			case "middle":
-				_this.top = relativeOffset.top + Math.abs( relativeOffset.height - bubbleCoords.height  ) / 2;
-				break;
-			case "bottom":
-				_this.top = relativeOffset.height + relativeOffset.top;
-				break;
-			case "left":
-				_this.left = relativeOffset.left - relativeOffset.width - bubbleCoords.width;
-				break;
-			case "right":
-				_this.left = relativeOffset.width + relativeOffset.left;
-				break;
-			case "center":
-				_this.left = relativeOffset.width / 2  + relativeOffset.left;
-				break;
+Bubble.prototype.setArrowAngle = function(angle) {
+	this.bubble.arrowAngle = angle;
+	switch( this.bubble.arrowPosition ){
+		case "top":
+			if( angle < 280 && angle > 80 ){
+				console.error( "Angle must be 280-360 or 0-80 degrees." );
+				this.bubble.arrowAngle = 0;
 			}
-	});
-};
-
-Bubble.prototype.setBehaviors = function(){
-	var _this = this;
-	var css = gadgetui.util.setStyle;
-
-	let closeBubble = function(){
-		if( typeof Velocity != 'undefined' && _this.animate ){
-			Velocity( _this.bubbleElement, {
-			opacity: 0
-			},{ duration: _this.delay, complete: function() {
-					css( _this.bubbleElement, "display", "none" );
-					_this.bubbleElement.parentNode.removeChild( _this.bubbleElement );
-				}
-			});
-		}else{
-			css( _this.bubbleElement, "display", "none" );
-			_this.bubbleElement.parentNode.removeChild( _this.bubbleElement );
-		}
-
-	};
-
-	this.spanElement
-		.addEventListener( "click", function(){
-				closeBubble();
-			});
-
-	if( this.autoClose ){
-		setTimeout( closeBubble, this.autoCloseDelay );
+			break;
+		case "topright":
+			if( angle < 10 && angle > 80 ){
+				console.error( "Angle must be between 10 and 80 degrees." );
+				this.bubble.arrowAngle = 45;
+			}
+			break;
+		case "right":
+			if( angle < 10 && angle > 170 ){
+				console.error( "Angle must be between 10 and 170 degrees." );
+				this.bubble.arrowAngle = 90;
+			}
+			break;
+		case "bottomright":
+			if( angle < 100 && angle > 170 ){
+				console.error( "Angle must be between 100 and 170 degrees." );
+				this.bubble.arrowAngle = 180;
+			}
+			break;
+		case "bottom":
+			if( angle < 100 && angle > 260 ){
+				console.error( "Angle must be between 100 and 260 degrees." );
+				this.bubble.arrowAngle = 180;
+			}
+			break;
+		case "bottomleft":
+			if( angle < 190 && angle > 260 ){
+				console.error( "Angle must be between 190 and 260 degrees." );
+				this.bubble.arrowAngle = 225;
+			}
+			break;
+		case "left":
+			if( angle < 190 && angle > 350 ){
+				console.error( "Angle must be between 190 and 350 degrees." );
+				this.bubble.arrowAngle = 270;
+			}
+			break;
+		case "topleft":
+			if( angle < 280 && angle > 80 ){
+				console.error( "Angle must be between 280 and 80 degrees." );
+				this.bubble.arrowAngle = 315;
+			}
+			break;
+		default:
+			this.bubble.arrowAngle = 315;
+			break;
 	}
 };
 
-Bubble.prototype.config = function( options ){
-	options = options || {};
+Bubble.prototype.setArrowLength = function(length) {
+	this.bubble.arrowLength = length;
+};
 
-	var baseUIColor = options.baseUIColor || "silver";
-	this.bubbleType = options.bubbleType || "speech";
-	this.shadowColor = options.shadowColor || baseUIColor;
-	this.position = options.position || "top left";
-	this.boxShadow = (( options.boxShadow === undefined) ? true : options.boxShadow );
-	this.shadowSize = 2; // shadow
-	this.arrowPosition = options.arrowPosition || "bottom left"; // location of arrow on bubble - top left | top right | top center | right top | right center | right bottom | bottom right | bottom center | bottom right | left bottom | left center | left top
-	this.arrowDirection = options.arrowDirection || "middle"; // direction arrow points - center | corner | middle
-	this.arrowPositionArray = this.arrowPosition.split( " " );
-	this.featherPath = options.featherPath || "/node_modules/feather-icons";
-	this.boxShadowColor = options.boxShadowColor || baseUIColor;
-	this.closeIconSize = 13; // ui-icon css
-	this.closable = options.closable || false;
-	this.autoClose = options.autoClose || false;
-	this.autoCloseDelay = options.autoCloseDelay || 5000;
-	this.relativeOffset = { left: 0, top: 0 };
-	this.animate = (( options.animate === undefined) ? true : options.animate );
-	this.delay = (( options.delay === undefined) ? 500 : options.delay );
-	this.id = "gadgetui-bubble-" + gadgetui.util.Id();
-	this.class = options.class;
+Bubble.prototype.setArrowComponents = function(){
+	const angleInRadians = Math.abs(this.bubble.arrowAngle - 90) * Math.PI / 180;
+	// calculate the change in x and y for the vector
+	this.bubble.arrowDx = Math.round(this.bubble.arrowLength * Math.cos( angleInRadians ));
+	this.bubble.arrowDy = Math.round(this.bubble.arrowLength * Math.sin( angleInRadians ));
+};
+
+Bubble.prototype.setArrowVector = function() {
+
+	// arrowEndX and arrowEndY based on quandrant of arrow position and direction
+	if( this.bubble.arrowAngle >= 0 && this.bubble.arrowAngle <= 90 ){
+		this.bubble.arrowEndX = this.bubble.arrowX + this.bubble.arrowDx;
+		this.bubble.arrowEndY = this.bubble.arrowY - this.bubble.arrowDy;
+	}else if(this.bubble.arrowAngle >= 90 && this.bubble.arrowAngle <= 180 ){
+		this.bubble.arrowEndX = this.bubble.arrowX + this.bubble.arrowDx;
+		this.bubble.arrowEndY = this.bubble.arrowY + this.bubble.arrowDy;
+	}else if(this.bubble.arrowAngle >= 180 && this.bubble.arrowAngle <= 270 ){
+		this.bubble.arrowEndX = this.bubble.arrowX + this.bubble.arrowDx;
+		this.bubble.arrowEndY = this.bubble.arrowY + this.bubble.arrowDy;
+	}else if(this.bubble.arrowAngle >= 270 && this.bubble.arrowAngle <= 360 ){
+		this.bubble.arrowEndX = this.bubble.arrowX + this.bubble.arrowDx;
+		this.bubble.arrowEndY = this.bubble.arrowY + this.bubble.arrowDy;
+	}
+};
+
+Bubble.prototype.calculateBoundingRect = function(){
+	this.bubble.top = Math.min( this.bubble.y, this.bubble.arrowEndY ) - Math.floor( this.bubble.borderWidth / 2 );
+	this.bubble.left = Math.min( this.bubble.x, this.bubble.arrowEndX ) - Math.floor( this.bubble.borderWidth / 2 );
+	this.bubble.right = Math.max( this.bubble.x + this.bubble.width, this.bubble.arrowEndX ) + Math.floor( this.bubble.borderWidth / 2 );
+	this.bubble.bottom = Math.max( this.bubble.y + this.bubble.height, this.bubble.arrowEndY ) + Math.floor( this.bubble.borderWidth / 2 );
+};
+
+Bubble.prototype.getBoundingClientRect = function(){
+	return{
+		top: this.bubble.top,
+		left: this.bubble.left,
+		bottom: this.bubble.bottom,
+		right: this.bubble.right,
+		height: this.bubble.bottom - this.bubble.top,
+		width: this.bubble.right - this.bubble.left
 	};
+};
+
+Bubble.prototype.render = function(){
+	this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+
+	// Draw bubble body
+	this.ctx.fillStyle = this.bubble.backgroundColor;
+	this.ctx.strokeStyle = this.bubble.borderColor;
+	this.ctx.lineWidth = this.bubble.borderWidth;
+	
+	// Adjust bubble position based on arrow location
+	let bubbleX = this.bubble.x;
+	let bubbleY = this.bubble.y;
+
+	// Draw bubble
+	this.ctx.beginPath();
+	this.ctx.moveTo(bubbleX, bubbleY);
+
+	// bottom left corner
+	this.ctx.lineTo(bubbleX, bubbleY + this.bubble.height);
+	// bottom right corner
+	this.ctx.lineTo(bubbleX + this.bubble.width, bubbleY + this.bubble.height);
+	// top right corner
+	this.ctx.lineTo(bubbleX + this.bubble.width, bubbleY);
+	
+	this.ctx.lineTo(bubbleX, bubbleY);
+	
+	this.ctx.closePath();
+
+	//this.ctx.fill();
+	//this.ctx.stroke();
+
+
+	this.ctx.moveTo(this.bubble.arrowX, this.bubble.arrowY);
+	this.ctx.lineTo(this.bubble.arrowEndX, this.bubble.arrowEndY);
+	this.ctx.fill();
+	this.ctx.stroke();
+
+	this.ctx.fillStyle = this.bubble.color;
+	const config = {
+		x: bubbleX + this.bubble.padding,
+		y: bubbleY + this.bubble.padding,
+		width: this.bubble.width - this.bubble.padding * 2 - this.bubble.borderWidth * 2,
+		height: this.bubble.height - this.bubble.padding * 2 - this.bubble.borderWidth * 2, 
+		fontSize: this.bubble.fontSize,
+		justify: this.bubble.justifyText,
+		align: this.bubble.align,
+		vAlign: this.bubble.vAlign,
+		font: this.bubble.font,
+		fontStyle: this.bubble.fontStyle,
+		fontWeight: this.bubble.fontWeight,
+		fontVariant: this.bubble.fontVariant,
+		font: this.bubble.font,
+		lineHeight: this.bubble.lineHeight
+	  };
+	gadgetui.util.drawText( this.ctx, this.bubble.text, config );
+};
+
+Bubble.prototype.attachToElement = function( selector, position ) {
+	const element = selector;
+	if (!element) return;
+
+	const rect = element.getBoundingClientRect();
+	const canvasRect = this.canvas.getBoundingClientRect();
+	var render = this.canvas.getContext("2d");
+	switch( position ){
+		case "top":
+			this.canvas.style.left = rect.left + (rect.right - rect.left) / 2 + "px";
+			this.canvas.style.top = rect.top + "px";
+			break;
+		case "topright":
+			this.canvas.style.left = rect.right + "px";
+			this.canvas.style.top = -( this.bubble.padding ) + "px";
+			break;
+		case "right":
+			this.canvas.style.left = rect.right + "px";
+			this.canvas.style.top = rect.top / 2 + ( rect.bottom - rect.top ) / 2 + "px";
+			break;	
+		case "bottomright":
+			this.canvas.style.left = rect.right + "px";
+			this.canvas.style.top = rect.bottom + "px";
+			break;
+		case "bottom":
+			this.canvas.style.left = rect.left + (rect.right - rect.left) / 2 + "px";
+			this.canvas.style.top = rect.bottom + "px";
+			break;
+		case "bottomleft":
+			this.canvas.style.left = rect.left - canvasRect.width + "px";
+			this.canvas.style.top = rect.bottom + "px";
+			break;
+		case "left":
+			this.canvas.style.left = rect.left - canvasRect.width + "px";
+			this.canvas.style.top = rect.top - ((rect.bottom - rect.top ) / 2) + "px";
+			break;
+		case "topleft":
+			this.canvas.style.left = rect.left - canvasRect.width + "px";
+			this.canvas.style.top = rect.top - canvasRect.height + "px";
+			break;
+		}
+		this.canvas.style.position = "absolute";
+
+};
+
+Bubble.prototype.destroy = function(){
+	document.querySelector("body").removeChild( this.canvas );
+};
