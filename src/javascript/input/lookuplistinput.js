@@ -13,6 +13,8 @@ function LookupListInput(selector, options) {
 	this.addBindings();
 }
 
+LookupListInput.prototype.events = ['change', 'focus', 'mouseenter', 'keyup', 'mouseleave', 'blur', 'click', 'input', 'keypress', 'keydown', 'menuselect', 'mousedown'];
+
 LookupListInput.prototype.addControl = function () {
 	this.wrapper = document.createElement("div");
 	if (this.width !== undefined) {
@@ -115,6 +117,9 @@ LookupListInput.prototype.addBindings = function () {
 	this.wrapper
 		.addEventListener("click", function () {
 			_this.selector.focus();
+			if (typeof _this.fireEvent === 'function') {
+				_this.fireEvent('click');
+			}
 		});
 
 	this.valueMethod = this.selector[this.isTextarea || this.isInput ? "value" : "innerText"];
@@ -191,6 +196,9 @@ LookupListInput.prototype.addBindings = function () {
 					_this._searchTimeout(event);
 					break;
 			}
+			if (typeof _this.fireEvent === 'function') {
+				_this.fireEvent('keydown');
+			}
 		});
 
 	this.selector
@@ -222,6 +230,9 @@ LookupListInput.prototype.addBindings = function () {
 					this._keyEvent("next", event);
 					break;
 			}
+			if (typeof _this.fireEvent === 'function') {
+				_this.fireEvent('keypress');
+			}
 		});
 
 	this.selector
@@ -232,12 +243,18 @@ LookupListInput.prototype.addBindings = function () {
 				return;
 			}
 			_this._searchTimeout(event);
+			if (typeof _this.fireEvent === 'function') {
+				_this.fireEvent('input');
+			}
 		});
 
 	this.selector
 		.addEventListener("focus", function (event) {
 			this.selectedItem = null;
 			this.previous = this.value;
+			if (typeof _this.fireEvent === 'function') {
+				_this.fireEvent('focus');
+			}
 		});
 
 	this.selector
@@ -249,8 +266,14 @@ LookupListInput.prototype.addBindings = function () {
 
 			clearTimeout(this.searching);
 			_this.close(event);
-			_this._change(event);
+			if (typeof _this.fireEvent === 'function') {
+				_this.fireEvent('blur');
+			}
 		});
+
+	this.select.addEventListener( "change", function( event ){
+		_this.fireEvent("change");
+	});
 
 	// menu bindings
 	this.menu.element.addEventListener("mousedown", function (event) {
@@ -269,6 +292,9 @@ LookupListInput.prototype.addBindings = function () {
 		// so we have to track the next mousedown and close the menu if
 		// the user clicks somewhere outside of the autocomplete
 		var menuElement = _this.menu.element;
+		if (typeof _this.fireEvent === 'function') {
+			_this.fireEvent('mousedown');
+		}
 	});
 
 	this.menu.element.addEventListener("menuselect", function (event) {
@@ -301,6 +327,9 @@ LookupListInput.prototype.addBindings = function () {
 			_this.add(item);
 		} else {
 
+		}
+		if (typeof _this.fireEvent === 'function') {
+			_this.fireEvent('menuselect');
 		}
 	});
 };
@@ -536,13 +565,6 @@ LookupListInput.prototype._close = function (event) {
 		this.menu.element.blur();
 		this.isNewMenu = true;
 	}
-};
-
-LookupListInput.prototype._change = function (event) {
-	/*	if ( this.previous !== this._value() ) {
-	//	this._trigger( "change", event, { item: this.selectedItem } );
-		//this.selector.dispatchEvent( event );
-	}	*/
 };
 
 LookupListInput.prototype._normalize = function (items) {

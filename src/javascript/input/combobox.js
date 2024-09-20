@@ -194,6 +194,8 @@ ComboBox.prototype.showLabel = function () {
 	css(this.inputWrapper, "display", 'none');
 };
 
+ComboBox.prototype.events = ['change', 'click', 'focus', 'mouseenter', 'keyup', 'mouseleave', 'blur'];
+
 ComboBox.prototype.addBehaviors = function (obj) {
 	var _this = this;
 	if (this.hideable) {
@@ -217,11 +219,17 @@ ComboBox.prototype.addBehaviors = function (obj) {
 				if (_this.selector != document.activeElement && _this.input != document.activeElement) {
 					_this.showLabel();
 				}
+				if (typeof _this.fireEvent === 'function') {
+					_this.fireEvent('mouseleave');
+				}
 			});
 	}
 	_this.input
 		.addEventListener("click", function (e) {
 			console.log("input click ");
+			if (typeof _this.fireEvent === 'function') {
+				_this.fireEvent('click');
+			}
 		});
 	_this.input
 		.addEventListener("keyup", function (event) {
@@ -229,6 +237,9 @@ ComboBox.prototype.addBehaviors = function (obj) {
 			if (event.which === 13) {
 				var inputText = gadgetui.util.encode(_this.input.value);
 				_this.handleInput(inputText);
+			}
+			if (typeof _this.fireEvent === 'function') {
+				_this.fireEvent('keyup');
 			}
 		});
 	if (this.hideable) {
@@ -242,18 +253,27 @@ ComboBox.prototype.addBehaviors = function (obj) {
 				} else {
 					_this.showLabel();
 				}
+				if (typeof _this.fireEvent === 'function') {
+					_this.fireEvent('blur');
+				}
 			});
 	}
 	if (this.hideable) {
 		this.selector
 			.addEventListener("mouseenter", function (ev) {
 				_this.selector.style.display = "inline";
+				if (typeof _this.fireEvent === 'function') {
+					_this.fireEvent('mouseenter');
+				}
 			});
 	}
 	this.selector
 		.addEventListener("click", function (ev) {
 			console.log("select click");
 			ev.stopPropagation();
+			if (typeof _this.fireEvent === 'function') {
+				_this.fireEvent('click');
+			}
 		});
 	this.selector
 		.addEventListener("change", function (event) {
@@ -269,6 +289,9 @@ ComboBox.prototype.addBehaviors = function (obj) {
 					_this.input.focus();
 				}
 				gadgetui.util.trigger(_this.selector, "gadgetui-combobox-change", { id: event.target[event.target.selectedIndex].value, text: event.target[event.target.selectedIndex].innerHTML });
+				if (typeof _this.fireEvent === 'function') {
+					_this.fireEvent('change');
+				}
 			}
 		});
 	if (this.hideable) {
@@ -283,6 +306,9 @@ ComboBox.prototype.addBehaviors = function (obj) {
 						_this.showLabel();
 					}
 				}, 200);
+				if (typeof _this.fireEvent === 'function') {
+					_this.fireEvent('blur');
+				}
 			});
 	}
 };

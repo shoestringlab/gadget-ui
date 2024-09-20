@@ -11,7 +11,9 @@ var fp1 = constructor( dialog,
 			overflow: "hidden",
 			buttons: [
 				{ label: 'Save', click: function(){ console.log( 'Saved')}},
-				{ label: 'Cancel', click: function(){ console.log( 'Cancelled' )}}
+				{ label: 'Cancel', click: function(){ 
+					console.log( 'Cancelled'); 
+				fp1.close(); }}
 			]
 		}], true );
 

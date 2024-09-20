@@ -7,9 +7,9 @@ Gadget-ui is a UI component library that has a built-in model and data-binding m
 
 ### Current Release
 
-v 9.4.0
+v 9.5.0
 
-The Lightbox component has added an `animate()` method that switches to the next image in the array at a given interval `time`, imitating the functionality of an image carousel. Lightbox has also added a modal container that can show an image zoomed to 100% width on the page. Clicking on the image in the lightbox shows the modal. Clicking on the image modal hides the modal. This functionality can be deactivated with enableModal: false in the component options.
+The input controls have added standard event emitters from the Constructor object. With this change, you can simply use `myInputControl.on( "change", function(obj){})` to capture events from the input objects in the standard way for gadget-ui components. Each control has an array of events in <Component>.prototype.events.
 
 ## Installation
 

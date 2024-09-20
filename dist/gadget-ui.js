@@ -2041,6 +2041,8 @@ ComboBox.prototype.showLabel = function () {
 	css(this.inputWrapper, "display", 'none');
 };
 
+ComboBox.prototype.events = ['change', 'click', 'focus', 'mouseenter', 'keyup', 'mouseleave', 'blur'];
+
 ComboBox.prototype.addBehaviors = function (obj) {
 	var _this = this;
 	if (this.hideable) {
@@ -2064,11 +2066,17 @@ ComboBox.prototype.addBehaviors = function (obj) {
 				if (_this.selector != document.activeElement && _this.input != document.activeElement) {
 					_this.showLabel();
 				}
+				if (typeof _this.fireEvent === 'function') {
+					_this.fireEvent('mouseleave');
+				}
 			});
 	}
 	_this.input
 		.addEventListener("click", function (e) {
 			console.log("input click ");
+			if (typeof _this.fireEvent === 'function') {
+				_this.fireEvent('click');
+			}
 		});
 	_this.input
 		.addEventListener("keyup", function (event) {
@@ -2076,6 +2084,9 @@ ComboBox.prototype.addBehaviors = function (obj) {
 			if (event.which === 13) {
 				var inputText = gadgetui.util.encode(_this.input.value);
 				_this.handleInput(inputText);
+			}
+			if (typeof _this.fireEvent === 'function') {
+				_this.fireEvent('keyup');
 			}
 		});
 	if (this.hideable) {
@@ -2089,18 +2100,27 @@ ComboBox.prototype.addBehaviors = function (obj) {
 				} else {
 					_this.showLabel();
 				}
+				if (typeof _this.fireEvent === 'function') {
+					_this.fireEvent('blur');
+				}
 			});
 	}
 	if (this.hideable) {
 		this.selector
 			.addEventListener("mouseenter", function (ev) {
 				_this.selector.style.display = "inline";
+				if (typeof _this.fireEvent === 'function') {
+					_this.fireEvent('mouseenter');
+				}
 			});
 	}
 	this.selector
 		.addEventListener("click", function (ev) {
 			console.log("select click");
 			ev.stopPropagation();
+			if (typeof _this.fireEvent === 'function') {
+				_this.fireEvent('click');
+			}
 		});
 	this.selector
 		.addEventListener("change", function (event) {
@@ -2116,6 +2136,9 @@ ComboBox.prototype.addBehaviors = function (obj) {
 					_this.input.focus();
 				}
 				gadgetui.util.trigger(_this.selector, "gadgetui-combobox-change", { id: event.target[event.target.selectedIndex].value, text: event.target[event.target.selectedIndex].innerHTML });
+				if (typeof _this.fireEvent === 'function') {
+					_this.fireEvent('change');
+				}
 			}
 		});
 	if (this.hideable) {
@@ -2130,6 +2153,9 @@ ComboBox.prototype.addBehaviors = function (obj) {
 						_this.showLabel();
 					}
 				}, 200);
+				if (typeof _this.fireEvent === 'function') {
+					_this.fireEvent('blur');
+				}
 			});
 	}
 };
@@ -2306,6 +2332,8 @@ function FileUploader(selector, options) {
 	this.setDimensions();
 }
 
+FileUploader.prototype.events = ['uploadComplete', 'uploadStart', 'show', 'dragover', 'dragstart', 'dragenter', 'dragleave', 'drop'];
+
 FileUploader.prototype.render = function (title) {
 	var data,
 		options,
@@ -2409,6 +2437,9 @@ FileUploader.prototype.renderDropZone = function () {
 	this.selector.addEventListener("dragstart", function (ev) {
 		ev.dataTransfer.setData("text", "data");
 		ev.dataTransfer.effectAllowed = "copy";
+		if (typeof _this.fireEvent === 'function') {
+			_this.fireEvent('dragstart');
+		}
 	});
 
 	dropzone.addEventListener("dragenter", function (ev) {
@@ -2416,23 +2447,34 @@ FileUploader.prototype.renderDropZone = function () {
 
 		ev.preventDefault();
 		ev.stopPropagation();
+		if (typeof _this.fireEvent === 'function') {
+			_this.fireEvent('dragenter');
+		}
 	});
 
 	dropzone.addEventListener("dragleave", function (ev) {
 		ev.stopPropagation();
 		ev.preventDefault();
 		gadgetui.util.removeClass(dropzone, "highlighted");
+		if (typeof _this.fireEvent === 'function') {
+			_this.fireEvent('dragleave');
+		}
 	});
 
 	dropzone.addEventListener("dragover", function (ev) {
 		this.handleDragOver(ev);
 		ev.dataTransfer.dropEffect = "copy";
+		if (typeof _this.fireEvent === 'function') {
+			_this.fireEvent('dragover');
+		}
 	}.bind(this));
 
 	dropzone.addEventListener("drop", function (ev) {
 		ev.stopPropagation();
 		ev.preventDefault();
-
+		if (typeof _this.fireEvent === 'function') {
+			_this.fireEvent('drop');
+		}
 		this.processUpload(
 			ev,
 			ev.dataTransfer.files,
@@ -2466,6 +2508,9 @@ FileUploader.prototype.processUpload = function (event, files, dropzone, filedis
 				if (this.showDropZone) this.show("dropzone");
 				this.setDimensions();
 			}
+			if (typeof _this.fireEvent === 'function') {
+				_this.fireEvent('uploadComplete');
+			}
 		}.bind(this));
 	}
 
@@ -2491,7 +2536,11 @@ FileUploader.prototype.generateThumbnails = function (wrappedFiles) {
 };
 
 FileUploader.prototype.upload = function (wrappedFiles) {
+	var _this = this;
 	wrappedFiles.forEach(function (wrappedFile) {
+		if (typeof _this.fireEvent === 'function') {
+			_this.fireEvent('uploadStart');
+		}
 		wrappedFile.progressbar.start();
 	});
 
@@ -2686,6 +2735,8 @@ function LookupListInput(selector, options) {
 	this.addBindings();
 }
 
+LookupListInput.prototype.events = ['change', 'focus', 'mouseenter', 'keyup', 'mouseleave', 'blur', 'click', 'input', 'keypress', 'keydown', 'menuselect', 'mousedown'];
+
 LookupListInput.prototype.addControl = function () {
 	this.wrapper = document.createElement("div");
 	if (this.width !== undefined) {
@@ -2788,6 +2839,9 @@ LookupListInput.prototype.addBindings = function () {
 	this.wrapper
 		.addEventListener("click", function () {
 			_this.selector.focus();
+			if (typeof _this.fireEvent === 'function') {
+				_this.fireEvent('click');
+			}
 		});
 
 	this.valueMethod = this.selector[this.isTextarea || this.isInput ? "value" : "innerText"];
@@ -2864,6 +2918,9 @@ LookupListInput.prototype.addBindings = function () {
 					_this._searchTimeout(event);
 					break;
 			}
+			if (typeof _this.fireEvent === 'function') {
+				_this.fireEvent('keydown');
+			}
 		});
 
 	this.selector
@@ -2895,6 +2952,9 @@ LookupListInput.prototype.addBindings = function () {
 					this._keyEvent("next", event);
 					break;
 			}
+			if (typeof _this.fireEvent === 'function') {
+				_this.fireEvent('keypress');
+			}
 		});
 
 	this.selector
@@ -2905,12 +2965,18 @@ LookupListInput.prototype.addBindings = function () {
 				return;
 			}
 			_this._searchTimeout(event);
+			if (typeof _this.fireEvent === 'function') {
+				_this.fireEvent('input');
+			}
 		});
 
 	this.selector
 		.addEventListener("focus", function (event) {
 			this.selectedItem = null;
 			this.previous = this.value;
+			if (typeof _this.fireEvent === 'function') {
+				_this.fireEvent('focus');
+			}
 		});
 
 	this.selector
@@ -2922,8 +2988,14 @@ LookupListInput.prototype.addBindings = function () {
 
 			clearTimeout(this.searching);
 			_this.close(event);
-			_this._change(event);
+			if (typeof _this.fireEvent === 'function') {
+				_this.fireEvent('blur');
+			}
 		});
+
+	this.select.addEventListener( "change", function( event ){
+		_this.fireEvent("change");
+	});
 
 	// menu bindings
 	this.menu.element.addEventListener("mousedown", function (event) {
@@ -2942,6 +3014,9 @@ LookupListInput.prototype.addBindings = function () {
 		// so we have to track the next mousedown and close the menu if
 		// the user clicks somewhere outside of the autocomplete
 		var menuElement = _this.menu.element;
+		if (typeof _this.fireEvent === 'function') {
+			_this.fireEvent('mousedown');
+		}
 	});
 
 	this.menu.element.addEventListener("menuselect", function (event) {
@@ -2974,6 +3049,9 @@ LookupListInput.prototype.addBindings = function () {
 			_this.add(item);
 		} else {
 
+		}
+		if (typeof _this.fireEvent === 'function') {
+			_this.fireEvent('menuselect');
 		}
 	});
 };
@@ -3211,13 +3289,6 @@ LookupListInput.prototype._close = function (event) {
 	}
 };
 
-LookupListInput.prototype._change = function (event) {
-	/*	if ( this.previous !== this._value() ) {
-	//	this._trigger( "change", event, { item: this.selectedItem } );
-		//this.selector.dispatchEvent( event );
-	}	*/
-};
-
 LookupListInput.prototype._normalize = function (items) {
 	// assume all items have the right format when the first item is complete
 	if (items.length && items[0].label && items[0].value) {
@@ -3375,6 +3446,8 @@ function SelectInput(selector, options) {
 	this.addBindings();
 }
 
+SelectInput.prototype.events = ['change', 'focus', 'mouseenter', 'mouseleave', 'blur'];
+
 SelectInput.prototype.setInitialValue = function (options) {
 	this.value = (options.value || { id: this.selector.options[this.selector.selectedIndex || 0].value, text: this.selector.options[this.selector.selectedIndex || 0].innerHTML });
 	this.selector.value = this.value.id;
@@ -3470,6 +3543,9 @@ SelectInput.prototype.addBindings = function () {
 				css(_this.label, "display", 'none');
 				css(_this.selector, "display", "inline-block");
 				event.preventDefault();
+				if (typeof _this.fireEvent === 'function') {
+					_this.fireEvent(_this.activate);
+				}
 			});
 
 		this.selector
@@ -3478,6 +3554,9 @@ SelectInput.prototype.addBindings = function () {
 				css(_this.label, "display", "inline-block");
 				css(_this.selector, "display", 'none');
 				//}, 100 );
+				if (typeof _this.fireEvent === 'function') {
+					_this.fireEvent('blur');
+				}
 			});
 	}
 
@@ -3505,6 +3584,9 @@ SelectInput.prototype.addBindings = function () {
 				}
 				_this.value = { id: value, text: label };
 			}, 100);
+			if (typeof _this.fireEvent === 'function') {
+				_this.fireEvent('change');
+			}
 		});
 
 	if (this.hideable) {
@@ -3513,6 +3595,9 @@ SelectInput.prototype.addBindings = function () {
 				if (_this.selector !== document.activeElement) {
 					css(_this.label, "display", 'inline-block');
 					css(_this.selector, "display", 'none');
+				}
+				if (typeof _this.fireEvent === 'function') {
+					_this.fireEvent('mouseleave');
 				}
 			});
 	}
@@ -3548,6 +3633,8 @@ function TextInput(selector, options) {
 	gadgetui.util.bind(this.selector, this.model);
 	this.addBindings();
 }
+
+TextInput.prototype.events = ['change', 'focus', 'mouseenter', 'keyup', 'mouseleave', 'blur'];
 
 TextInput.prototype.addControl = function () {
 	if (this.hideable) {
@@ -3618,13 +3705,18 @@ TextInput.prototype.addBindings = function () {
 			if (_this.hideable) {
 				this.classList.remove(_this.browserHideBorderCSS);
 			}
+			if (typeof _this.fireEvent === 'function') {
+				_this.fireEvent('mouseenter');
+			}
 		});
-
 	this.selector
 		.addEventListener("focus", function (event) {
 			event.preventDefault();
 			if (_this.hideable) {
 				this.classList.remove(_this.browserHideBorderCSS);
+			}
+			if (typeof _this.fireEvent === 'function') {
+				_this.fireEvent('focus');
 			}
 		});
 	this.selector
@@ -3633,6 +3725,9 @@ TextInput.prototype.addBindings = function () {
 				this.blur();
 			}
 			_this.setControlWidth(this.value);
+			if (typeof _this.fireEvent === 'function') {
+				_this.fireEvent('keyup');
+			}
 		});
 	this.selector
 		.addEventListener("change", function (event) {
@@ -3659,6 +3754,9 @@ TextInput.prototype.addBindings = function () {
 				if (_this.func !== undefined) {
 					_this.func({ text: event.target.value });
 				}
+				if (typeof _this.fireEvent === 'function') {
+					_this.fireEvent('change');
+				}
 			}, 200);
 		});
 
@@ -3671,12 +3769,18 @@ TextInput.prototype.addBindings = function () {
 
 					this.classList.add(_this.browserHideBorderCSS);
 				}
+				if (typeof _this.fireEvent === 'function') {
+					_this.fireEvent('mouseleave');
+				}
 			});
 		this.selector
 			.addEventListener("blur", function () {
 				var css = gadgetui.util.setStyle;
 				css(_this.selector, "maxWidth", _this.maxWidth);
 				this.classList.add(_this.browserHideBorderCSS);
+				if (typeof _this.fireEvent === 'function') {
+					_this.fireEvent('blur');
+				}
 				//css( _this.label, "maxWidth", _this.maxWidth );
 			});
 	}

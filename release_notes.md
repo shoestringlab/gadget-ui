@@ -1,6 +1,11 @@
 
 ***Release Notes***
 
+9.5.0
+======
+
+The input controls have added standard event emitters from the Constructor object. With this change, you can simply use `myInputControl.on( "change", function(obj){})` to capture events from the input objects in the standard way for gadget-ui components. Each control has an array of events in <Component>.prototype.events.
+
 9.4.0
 ======
 

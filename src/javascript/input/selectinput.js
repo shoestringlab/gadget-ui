@@ -23,6 +23,8 @@ function SelectInput(selector, options) {
 	this.addBindings();
 }
 
+SelectInput.prototype.events = ['change', 'focus', 'mouseenter', 'mouseleave', 'blur'];
+
 SelectInput.prototype.setInitialValue = function (options) {
 	this.value = (options.value || { id: this.selector.options[this.selector.selectedIndex || 0].value, text: this.selector.options[this.selector.selectedIndex || 0].innerHTML });
 	this.selector.value = this.value.id;
@@ -118,6 +120,9 @@ SelectInput.prototype.addBindings = function () {
 				css(_this.label, "display", 'none');
 				css(_this.selector, "display", "inline-block");
 				event.preventDefault();
+				if (typeof _this.fireEvent === 'function') {
+					_this.fireEvent(_this.activate);
+				}
 			});
 
 		this.selector
@@ -126,6 +131,9 @@ SelectInput.prototype.addBindings = function () {
 				css(_this.label, "display", "inline-block");
 				css(_this.selector, "display", 'none');
 				//}, 100 );
+				if (typeof _this.fireEvent === 'function') {
+					_this.fireEvent('blur');
+				}
 			});
 	}
 
@@ -153,6 +161,9 @@ SelectInput.prototype.addBindings = function () {
 				}
 				_this.value = { id: value, text: label };
 			}, 100);
+			if (typeof _this.fireEvent === 'function') {
+				_this.fireEvent('change');
+			}
 		});
 
 	if (this.hideable) {
@@ -161,6 +172,9 @@ SelectInput.prototype.addBindings = function () {
 				if (_this.selector !== document.activeElement) {
 					css(_this.label, "display", 'inline-block');
 					css(_this.selector, "display", 'none');
+				}
+				if (typeof _this.fireEvent === 'function') {
+					_this.fireEvent('mouseleave');
 				}
 			});
 	}

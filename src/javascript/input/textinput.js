@@ -19,6 +19,8 @@ function TextInput(selector, options) {
 	this.addBindings();
 }
 
+TextInput.prototype.events = ['change', 'focus', 'mouseenter', 'keyup', 'mouseleave', 'blur'];
+
 TextInput.prototype.addControl = function () {
 	if (this.hideable) {
 		this.blockSize = gadgetui.util.getStyle(this.selector, "block-size");
@@ -88,13 +90,18 @@ TextInput.prototype.addBindings = function () {
 			if (_this.hideable) {
 				this.classList.remove(_this.browserHideBorderCSS);
 			}
+			if (typeof _this.fireEvent === 'function') {
+				_this.fireEvent('mouseenter');
+			}
 		});
-
 	this.selector
 		.addEventListener("focus", function (event) {
 			event.preventDefault();
 			if (_this.hideable) {
 				this.classList.remove(_this.browserHideBorderCSS);
+			}
+			if (typeof _this.fireEvent === 'function') {
+				_this.fireEvent('focus');
 			}
 		});
 	this.selector
@@ -103,6 +110,9 @@ TextInput.prototype.addBindings = function () {
 				this.blur();
 			}
 			_this.setControlWidth(this.value);
+			if (typeof _this.fireEvent === 'function') {
+				_this.fireEvent('keyup');
+			}
 		});
 	this.selector
 		.addEventListener("change", function (event) {
@@ -129,6 +139,9 @@ TextInput.prototype.addBindings = function () {
 				if (_this.func !== undefined) {
 					_this.func({ text: event.target.value });
 				}
+				if (typeof _this.fireEvent === 'function') {
+					_this.fireEvent('change');
+				}
 			}, 200);
 		});
 
@@ -141,12 +154,18 @@ TextInput.prototype.addBindings = function () {
 
 					this.classList.add(_this.browserHideBorderCSS);
 				}
+				if (typeof _this.fireEvent === 'function') {
+					_this.fireEvent('mouseleave');
+				}
 			});
 		this.selector
 			.addEventListener("blur", function () {
 				var css = gadgetui.util.setStyle;
 				css(_this.selector, "maxWidth", _this.maxWidth);
 				this.classList.add(_this.browserHideBorderCSS);
+				if (typeof _this.fireEvent === 'function') {
+					_this.fireEvent('blur');
+				}
 				//css( _this.label, "maxWidth", _this.maxWidth );
 			});
 	}

@@ -6,32 +6,36 @@ var user = { firstname : "", lastname: "" };
 // set the model first if we're using auto data-binding
 gadgetui.model.set("user", user);
 
-gadgetui.objects.Constructor( gadgetui.input.TextInput, [
+var fname = gadgetui.objects.Constructor( gadgetui.input.TextInput, [
 		document.querySelector( "input[name='firstname']" ),
 		{
 			emitEvents : true,
 			enforceMaxWidth: true,
 			maxWidth: 200
 		}
-	]);
+	], true );
 
-gadgetui.objects.Constructor( gadgetui.input.TextInput, [
+var lname = gadgetui.objects.Constructor( gadgetui.input.TextInput, [
 		document.querySelector( "input[name='lastname']" ),
 		{
 			emitEvents : true,
 			enforceMaxWidth: true,
 			hideable: true
 		}
-	]);
+	], true );
 
-	gadgetui.objects.Constructor( gadgetui.input.TextInput, [
+lname.on("focus", function(event){
+	console.log( "Focused on the lname control.");
+});
+
+var nick = gadgetui.objects.Constructor( gadgetui.input.TextInput, [
 			document.querySelector( "input[name='nickname']" ),
 			{
 				emitEvents : true,
 				enforceMaxWidth: true,
 				hideable: false
 			}
-		]);
+		], true );
 
 
 document.querySelector( "input[name='firstname']" )

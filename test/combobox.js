@@ -9,7 +9,7 @@ var foods = [ { text: "cereal", id : 1 },
 // set the model first if we're using auto data-binding
 model.set("user", user);
 
-constructor( combobox,[  document.querySelector( "select[name='food']" ),
+const cb = constructor( combobox,[  document.querySelector( "select[name='food']" ),
 	 {
     animate: true,
     glowColor: 'gold',
@@ -36,9 +36,15 @@ constructor( combobox,[  document.querySelector( "select[name='food']" ),
 			}
 		}
 	}
-]);
+], true);
+
+cb.on("keyup", function(obj){
+	console.log( "keyup: ");
+	console.dir( obj );
+});
 
  document.querySelector( "select[name='food']" )
  	.addEventListener( "gadgetui-combobox-change", function( event ){
  		console.log( event.detail );
  	});
+

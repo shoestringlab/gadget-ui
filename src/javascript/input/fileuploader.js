@@ -8,6 +8,8 @@ function FileUploader(selector, options) {
 	this.setDimensions();
 }
 
+FileUploader.prototype.events = ['uploadComplete', 'uploadStart', 'show', 'dragover', 'dragstart', 'dragenter', 'dragleave', 'drop'];
+
 FileUploader.prototype.render = function (title) {
 	var data,
 		options,
@@ -111,6 +113,9 @@ FileUploader.prototype.renderDropZone = function () {
 	this.selector.addEventListener("dragstart", function (ev) {
 		ev.dataTransfer.setData("text", "data");
 		ev.dataTransfer.effectAllowed = "copy";
+		if (typeof _this.fireEvent === 'function') {
+			_this.fireEvent('dragstart');
+		}
 	});
 
 	dropzone.addEventListener("dragenter", function (ev) {
@@ -118,23 +123,34 @@ FileUploader.prototype.renderDropZone = function () {
 
 		ev.preventDefault();
 		ev.stopPropagation();
+		if (typeof _this.fireEvent === 'function') {
+			_this.fireEvent('dragenter');
+		}
 	});
 
 	dropzone.addEventListener("dragleave", function (ev) {
 		ev.stopPropagation();
 		ev.preventDefault();
 		gadgetui.util.removeClass(dropzone, "highlighted");
+		if (typeof _this.fireEvent === 'function') {
+			_this.fireEvent('dragleave');
+		}
 	});
 
 	dropzone.addEventListener("dragover", function (ev) {
 		this.handleDragOver(ev);
 		ev.dataTransfer.dropEffect = "copy";
+		if (typeof _this.fireEvent === 'function') {
+			_this.fireEvent('dragover');
+		}
 	}.bind(this));
 
 	dropzone.addEventListener("drop", function (ev) {
 		ev.stopPropagation();
 		ev.preventDefault();
-
+		if (typeof _this.fireEvent === 'function') {
+			_this.fireEvent('drop');
+		}
 		this.processUpload(
 			ev,
 			ev.dataTransfer.files,
@@ -168,6 +184,9 @@ FileUploader.prototype.processUpload = function (event, files, dropzone, filedis
 				if (this.showDropZone) this.show("dropzone");
 				this.setDimensions();
 			}
+			if (typeof _this.fireEvent === 'function') {
+				_this.fireEvent('uploadComplete');
+			}
 		}.bind(this));
 	}
 
@@ -193,7 +212,11 @@ FileUploader.prototype.generateThumbnails = function (wrappedFiles) {
 };
 
 FileUploader.prototype.upload = function (wrappedFiles) {
+	var _this = this;
 	wrappedFiles.forEach(function (wrappedFile) {
+		if (typeof _this.fireEvent === 'function') {
+			_this.fireEvent('uploadStart');
+		}
 		wrappedFile.progressbar.start();
 	});
 
