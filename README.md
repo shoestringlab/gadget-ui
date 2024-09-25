@@ -7,9 +7,9 @@ Gadget-ui is a UI component library that has a built-in model and data-binding m
 
 ### Current Release
 
-v 9.5.0
+v 9.6.0
 
-The input controls have added standard event emitters from the Constructor object. With this change, you can simply use `myInputControl.on( "change", function(obj){})` to capture events from the input objects in the standard way for gadget-ui components. Each control has an array of events in <Component>.prototype.events.
+If you pass in null as the selector, the Dialog control now creates its own div as the base for the control. The FloatingPane and Dialog control now accept a backgroundColor option to set the background color of the dialog.
 
 ## Installation
 

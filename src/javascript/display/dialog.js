@@ -1,7 +1,19 @@
 
 function Dialog(selector, options) {
+	var css = gadgetui.util.setStyle;
+	
+	if( selector !== null ){
+		this.selector = selector;
+	}else{
+		let dv = document.createElement("div");
+		dv.setAttribute( "id", "gadgetui-dialog-" + Math.random());
+		if( options.width !== undefined ){
+			css(dv, "width", options.width);
+		}
+		document.querySelector( "body" ).append(dv);
+		this.selector = dv;
+	}
 
-	this.selector = selector;
 	if (options !== undefined) {
 		this.config(options);
 		this.buttons = (options.buttons !== undefined ? options.buttons : []);

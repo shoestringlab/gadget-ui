@@ -1,6 +1,11 @@
 
 ***Release Notes***
 
+9.6.0
+======
+
+If you pass in null as the selector, the Dialog control now creates its own div as the base for the control. The FloatingPane and Dialog control now accept a backgroundColor option to set the background color of the dialog.
+
 9.5.0
 ======
 

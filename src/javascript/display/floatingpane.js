@@ -131,6 +131,9 @@ FloatingPane.prototype.addCSS = function () {
 	//copy width from selector
 	css(this.wrapper, "width", this.width);
 	css(this.wrapper, "z-index", this.zIndex);
+	if( this.backgroundColor.length ){
+		css(this.wrapper, "background-color", this.backgroundColor);
+	}
 	if (this.top !== undefined) css(this.wrapper, "top", this.top);
 	if (this.left !== undefined) css(this.wrapper, "left", this.left);
 	if (this.bottom !== undefined) css(this.wrapper, "bottom", this.bottom);
@@ -180,12 +183,14 @@ FloatingPane.prototype.expand = function () {
 			queue: false, duration: 500, complete: function () {
 				_this.shrinker.innerHTML = icon;
 				css(_this.selector, "overflow", "scroll");
+
 				if (typeof _this.fireEvent === 'function') {
 					_this.fireEvent('maximized');
 				}
 			}
 		});
 	} else {
+
 		css(this.wrapper, "width", this.width);
 		css(this.selector, "height", this.height);
 		this.shrinker.innerHTML = icon;
@@ -249,6 +254,7 @@ FloatingPane.prototype.config = function (options) {
 	this.animate = ((options.animate === undefined) ? true : options.animate);
 	this.delay = ((options.delay === undefined ? 500 : options.delay));
 	this.title = (options.title === undefined ? "" : options.title);
+	this.backgroundColor = (options.backgroundColor === undefined ? "" : options.backgroundColor);
 	this.zIndex = (options.zIndex === undefined ? gadgetui.util.getMaxZIndex() + 1 : options.zIndex);
 	this.width = gadgetui.util.getStyle(this.selector, "width");
 	this.top = (options.top === undefined ? undefined : options.top);
