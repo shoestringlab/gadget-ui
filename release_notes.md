@@ -1,6 +1,11 @@
 
 ***Release Notes***
 
+9.6.1
+======
+
+Bug fix for lookupListInput not adding selected choices from the list.
+
 9.6.0
 ======
 

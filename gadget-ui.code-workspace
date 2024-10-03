@@ -1,0 +1,16 @@
+{
+	"folders": [
+		{
+			"path": "."
+		},
+		{
+			"name": "gadget-ui @ 7.0.1",
+			"uri": "gitlens://7b22726566223a22372e302e31222c227265706f50617468223a222f686f6d652f726d756e6e2f6769742f6761646765742d7569227d/home/rmunn/git/gadget-ui?{\"ref\":\"7.0.1\"}"
+		},
+		{
+			"name": "gadget-ui @ 9.5.0",
+			"uri": "gitlens://7b22726566223a22392e352e30222c227265706f50617468223a222f686f6d652f726d756e6e2f6769742f6761646765742d7569227d/home/rmunn/git/gadget-ui?{\"ref\":\"9.5.0\"}"
+		}
+	],
+	"settings": {}
+}

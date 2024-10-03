@@ -3011,7 +3011,7 @@ LookupListInput.prototype.addBindings = function () {
 			}
 		});
 
-	this.select.addEventListener( "change", function( event ){
+	this.selector.addEventListener( "change", function( event ){
 		_this.fireEvent("change");
 	});
 
