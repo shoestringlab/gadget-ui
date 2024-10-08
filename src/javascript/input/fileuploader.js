@@ -106,7 +106,7 @@ FileUploader.prototype.setEventHandlers = function () {
 
 FileUploader.prototype.renderDropZone = function () {
 	// if we decide to drop files into a drag/drop zone
-
+	let _this = this;
 	var dropzone = this.selector.querySelector("div[name='gadgetui-fileuploader-dropzone']"),
 		filedisplay = this.selector.querySelector("div[name='gadgetui-fileuploader-filedisplay']");
 
