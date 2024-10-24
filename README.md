@@ -7,9 +7,9 @@ Gadget-ui is a UI component library that has a built-in model and data-binding m
 
 ### Current Release
 
-v 9.6.1
+v 9.7.0
 
-If you pass in null as the selector, the Dialog control now creates its own div as the base for the control. The FloatingPane and Dialog control now accept a backgroundColor option to set the background color of the dialog.
+An option has been added to the fileuploader to enable authenticated use of the control with the altseven framework by specifying useTokens = true in the options for the control. This feature may be extended in the future to allow more generalized authentication with other frameworks.
 
 ## Installation
 

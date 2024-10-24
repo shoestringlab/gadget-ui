@@ -1,10 +1,17 @@
 
 ***Release Notes***
 
+9.7.0
+======
+
+An option has been added to the fileuploader to enable authenticated use of the control with the altseven framework by specifying useTokens = true in the options for the control. This feature may be extended in the future to allow more generalized authentication with other frameworks.
+
+
 9.6.1
 ======
 
 Bug fix for lookupListInput not adding selected choices from the list.
+
 
 9.6.0
 ======

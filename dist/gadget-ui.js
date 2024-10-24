@@ -2348,6 +2348,8 @@ function FileUploader(selector, options) {
 	this.render(options.title);
 	this.setEventHandlers();
 	this.setDimensions();
+	this.token = (sessionStorage && this.useTokens ? sessionStorage.token : null );
+
 }
 
 FileUploader.prototype.events = ['uploadComplete', 'uploadStart', 'show', 'dragover', 'dragstart', 'dragenter', 'dragleave', 'drop'];
@@ -2421,6 +2423,7 @@ FileUploader.prototype.configure = function (options) {
 	this.addFileMessage = (options.addFileMessage !== undefined ? options.addFileMessage : "Add a File");
 	this.dropMessage = (options.dropMessage !== undefined ? options.dropMessage : "Drop Files Here");
 	this.uploadErrorMessage = (options.uploadErrorMessage !== undefined ? options.uploadErrorMessage : "Upload error.");
+	this.useTokens = (options.useTokens !== undefined ? options.useTokens : false );
 };
 
 FileUploader.prototype.setDimensions = function () {
@@ -2526,8 +2529,8 @@ FileUploader.prototype.processUpload = function (event, files, dropzone, filedis
 				if (this.showDropZone) this.show("dropzone");
 				this.setDimensions();
 			}
-			if (typeof _this.fireEvent === 'function') {
-				_this.fireEvent('uploadComplete');
+			if (typeof this.fireEvent === 'function') {
+				this.fireEvent('uploadComplete');
 			}
 		}.bind(this));
 	}
@@ -2628,6 +2631,12 @@ FileUploader.prototype.uploadChunk = function (wrappedFile, chunks, filepart, pa
 				this.handleUploadError(xhr, {}, wrappedFile);
 			} else {
 				response = xhr.response;
+				// set token
+				console.log( xhr.getResponseHeader('X-Token') );
+				if( sessionStorage && this.useTokens ){
+					sessionStorage.token = xhr.getResponseHeader('X-Token');
+					this.token = sessionStorage.token;
+				}
 
 				if (filepart <= parts) {
 					wrappedFile.progressbar.updatePercent(
@@ -2673,6 +2682,12 @@ FileUploader.prototype.uploadChunk = function (wrappedFile, chunks, filepart, pa
 	xhr.setRequestHeader("X-FileSize", wrappedFile.file.size);
 	xhr.setRequestHeader("X-FilePart", filepart);
 	xhr.setRequestHeader("X-Parts", parts);
+
+	if( sessionStorage && this.useTokens ){
+		//let token = sessionStorage.token;
+		xhr.setRequestHeader("X-Token", this.token);
+	}
+
 	xhr.setRequestHeader(
 		"X-MimeType",
 		wrappedFile.file.type || "application/octet-stream"
@@ -2689,6 +2704,8 @@ FileUploader.prototype.uploadChunk = function (wrappedFile, chunks, filepart, pa
 };
 
 FileUploader.prototype.handleUploadResponse = function (json, wrappedFile) {
+
+
 
 	var fileItem = gadgetui.objects.Constructor(
 		gadgetui.objects.FileItem, [{
