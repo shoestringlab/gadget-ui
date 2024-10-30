@@ -2,8 +2,8 @@
 
 //adapted from jQuery UI autocomplete.
 
-function LookupListInput(selector, options) {
-	this.selector = selector;
+function LookupListInput(element, options) {
+	this.element = element;
 	this.items = [];
 	this.config(options);
 	this.setIsMultiLine();
@@ -21,9 +21,9 @@ LookupListInput.prototype.addControl = function () {
 		gadgetui.util.setStyle(this.wrapper, "width", this.width);
 	}
 	gadgetui.util.addClass(this.wrapper, "gadgetui-lookuplist-input");
-	this.selector.parentNode.insertBefore(this.wrapper, this.selector);
-	this.selector.parentNode.removeChild(this.selector);
-	this.wrapper.appendChild(this.selector);
+	this.element.parentNode.insertBefore(this.wrapper, this.element);
+	this.element.parentNode.removeChild(this.element);
+	this.wrapper.appendChild(this.element);
 };
 
 LookupListInput.prototype.addMenu = function () {
@@ -103,31 +103,31 @@ LookupListInput.prototype.makeUnique = function (content) {
 };
 
 LookupListInput.prototype.setIsMultiLine = function () {
-	var nodeName = this.selector.nodeName.toLowerCase(),
+	var nodeName = this.element.nodeName.toLowerCase(),
 		isTextarea = nodeName === "textarea",
 		isInput = nodeName === "input";
 
-	this.isMultiLine = isTextarea ? true : isInput ? false : this.selector.getAttribute("isContentEditable");
+	this.isMultiLine = isTextarea ? true : isInput ? false : this.element.getAttribute("isContentEditable");
 };
 
 LookupListInput.prototype.addBindings = function () {
-	var _this = this, suppressKeyPress, suppressKeyPressRepeat, suppressInput, nodeName = this.selector.nodeName.toLowerCase();
+	var _this = this, suppressKeyPress, suppressKeyPressRepeat, suppressInput, nodeName = this.element.nodeName.toLowerCase();
 	this.isTextarea = nodeName === "textarea";
 	this.isInput = nodeName === "input";
 	this.wrapper
 		.addEventListener("click", function () {
-			_this.selector.focus();
+			_this.element.focus();
 			if (typeof _this.fireEvent === 'function') {
 				_this.fireEvent('click');
 			}
 		});
 
-	this.valueMethod = this.selector[this.isTextarea || this.isInput ? "value" : "innerText"];
+	this.valueMethod = this.element[this.isTextarea || this.isInput ? "value" : "innerText"];
 	this.isNewMenu = true;
 
-	this.selector.setAttribute("autocomplete", "off");
+	this.element.setAttribute("autocomplete", "off");
 
-	this.selector
+	this.element
 		.addEventListener("keydown", function (event) {
 			if (this.getAttribute("readOnly")) {
 				suppressKeyPress = true;
@@ -201,7 +201,7 @@ LookupListInput.prototype.addBindings = function () {
 			}
 		});
 
-	this.selector
+	this.element
 		.addEventListener("keypress", function (event) {
 			if (suppressKeyPress) {
 				suppressKeyPress = false;
@@ -235,7 +235,7 @@ LookupListInput.prototype.addBindings = function () {
 			}
 		});
 
-	this.selector
+	this.element
 		.addEventListener("input", function (event) {
 			if (suppressInput) {
 				suppressInput = false;
@@ -248,7 +248,7 @@ LookupListInput.prototype.addBindings = function () {
 			}
 		});
 
-	this.selector
+	this.element
 		.addEventListener("focus", function (event) {
 			this.selectedItem = null;
 			this.previous = this.value;
@@ -257,7 +257,7 @@ LookupListInput.prototype.addBindings = function () {
 			}
 		});
 
-	this.selector
+	this.element
 		.addEventListener("blur", function (event) {
 			if (this.cancelBlur) {
 				delete this.cancelBlur;
@@ -271,7 +271,7 @@ LookupListInput.prototype.addBindings = function () {
 			}
 		});
 
-	this.selector.addEventListener( "change", function( event ){
+	this.element.addEventListener( "change", function( event ){
 		_this.fireEvent("change");
 	});
 
@@ -369,7 +369,7 @@ LookupListInput.prototype.add = function (item) {
 
 	itemWrapper = this.itemRenderer(item);
 	itemWrapper.setAttribute("data-value", item.value);
-	this.wrapper.insertBefore(itemWrapper, this.selector);
+	this.wrapper.insertBefore(itemWrapper, this.element);
 	itemCancel = this.itemCancelRenderer(item, itemWrapper);
 	if (itemCancel !== undefined) {
 		itemWrapper.appendChild(itemCancel);
@@ -378,11 +378,11 @@ LookupListInput.prototype.add = function (item) {
 		});
 	}
 
-	this.selector.value = '';
+	this.element.value = '';
 	this.items.push(item);
 
 	if (this.emitEvents === true) {
-		gadgetui.util.trigger(this.selector, "gadgetui-lookuplist-input-add", item);
+		gadgetui.util.trigger(this.element, "gadgetui-lookuplist-input-add", item);
 	}
 
 	if (this.func !== undefined) {
@@ -390,7 +390,7 @@ LookupListInput.prototype.add = function (item) {
 	}
 	if (this.model !== undefined) {
 		//update the model
-		prop = this.selector.getAttribute("gadgetui-bind");
+		prop = this.element.getAttribute("gadgetui-bind");
 		if (prop !== null && prop !== undefined) {
 			list = this.model.get(prop);
 			if (typeof list === Array) {
@@ -402,10 +402,10 @@ LookupListInput.prototype.add = function (item) {
 	}
 };
 
-LookupListInput.prototype.remove = function (selector) {
-	var _this = this, removed, ix, prop, list, value = selector.getAttribute("data-value");
+LookupListInput.prototype.remove = function (element) {
+	var _this = this, removed, ix, prop, list, value = element.getAttribute("data-value");
 
-	selector.parentNode.removeChild(selector);
+	element.parentNode.removeChild(element);
 	// remove from internal array
 	for (ix = 0; ix < this.items.length; ix++) {
 		if (this.items[ix].value === value) {
@@ -413,7 +413,7 @@ LookupListInput.prototype.remove = function (selector) {
 		}
 	}
 	if (this.model !== undefined) {
-		prop = this.selector.getAttribute("gadgetui-bind");
+		prop = this.element.getAttribute("gadgetui-bind");
 		if (prop !== null && prop !== undefined) {
 			list = this.model.get(prop);
 			list.forEach(function (obj, ix) {
@@ -423,7 +423,7 @@ LookupListInput.prototype.remove = function (selector) {
 						_this.func(obj, 'remove');
 					}
 					if (_this.emitEvents === true) {
-						gadgetui.util.trigger(_this.selector, "gadgetui-lookuplist-input-remove", obj);
+						gadgetui.util.trigger(_this.element, "gadgetui-lookuplist-input-remove", obj);
 					}
 					_this.model.set(prop, list);
 					return false;
@@ -435,12 +435,12 @@ LookupListInput.prototype.remove = function (selector) {
 
 LookupListInput.prototype.reset = function () {
 
-	while (this.wrapper.firstChild && this.wrapper.firstChild !== this.selector) {
+	while (this.wrapper.firstChild && this.wrapper.firstChild !== this.element) {
 		this.wrapper.removeChild(this.wrapper.firstChild);
 	}
 	this.items = [];
 	if (this.model !== undefined) {
-		var prop = this.selector.getAttribute("gadgetui-bind");
+		var prop = this.element.getAttribute("gadgetui-bind");
 		this.model.set(prop, []);
 	}
 };
@@ -490,7 +490,7 @@ LookupListInput.prototype._searchTimeout = function (event) {
 	this.searching = gadgetui.util.delay(function () {
 
 		// Search if the value has changed, or if the user retypes the same value (see #7434)
-		var equalValues = this.term === _this.selector.value,
+		var equalValues = this.term === _this.element.value,
 			menuVisible = _this.menu.element.style.display !== 'none',
 			modifierKey = event.altKey || event.ctrlKey || event.metaKey || event.shiftKey;
 
@@ -503,7 +503,7 @@ LookupListInput.prototype._searchTimeout = function (event) {
 
 LookupListInput.prototype.search = function (value, event) {
 	var _this = this;
-	value = value != null ? value : _this.selector.value;
+	value = value != null ? value : _this.element.value;
 
 	// always save the actual value, not the one passed as an argument
 	this.term = this._value();
@@ -545,10 +545,10 @@ LookupListInput.prototype.__response = function (content) {
 	if (content && content.length) {
 		content = this._normalize(content);
 	}
-	this.selector.dispatchEvent(new CustomEvent("response", { content: content }));
+	this.element.dispatchEvent(new CustomEvent("response", { content: content }));
 	if (!this.disabled && content && content.length && !this.cancelSearch) {
 		this._suggest(content);
-		this.selector.dispatchEvent(new Event("open"));
+		this.element.dispatchEvent(new Event("open"));
 	} else {
 		this._close();
 	}
@@ -664,7 +664,7 @@ LookupListInput.prototype.widget = function () {
 };
 
 LookupListInput.prototype._value = function () {
-	return (this.isInput ? this.selector.value : this.selector.innerText);
+	return (this.isInput ? this.element.value : this.element.innerText);
 };
 
 LookupListInput.prototype._keyEvent = function (keyEvent, event) {
@@ -679,7 +679,7 @@ LookupListInput.prototype._keyEvent = function (keyEvent, event) {
 LookupListInput.prototype.config = function (options) {
 	options = (options === undefined ? {} : options);
 	// if binding but no model was specified, use gadgetui model
-	if (this.selector.getAttribute("gadgetui-bind") !== undefined) {
+	if (this.element.getAttribute("gadgetui-bind") !== undefined) {
 		this.model = ((options.model === undefined) ? gadgetui.model : options.model);
 	}
 	this.width = ((options.width === undefined) ? undefined : options.width);

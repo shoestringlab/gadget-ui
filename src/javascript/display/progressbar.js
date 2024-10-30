@@ -1,5 +1,5 @@
-function ProgressBar(selector, options) {
-	this.selector = selector;
+function ProgressBar(element, options) {
+	this.element = element;
 	this.configure(options);
 }
 
@@ -18,7 +18,7 @@ ProgressBar.prototype.render = function () {
 	pbDiv.setAttribute("name", "progressbox_" + this.id);
 	gadgetui.util.addClass(pbDiv, "gadgetui-progressbar-progressbox");
 	
-	this.selector.appendChild(pbDiv);
+	this.element.appendChild(pbDiv);
 
 	var fileDiv = document.createElement("div");
 	fileDiv.setAttribute("name", "label");
@@ -41,9 +41,9 @@ ProgressBar.prototype.render = function () {
 	pbDiv.appendChild(statusDiv);
 
 
-	this.progressbox = this.selector.querySelector("div[name='progressbox_" + this.id + "']");
-	this.progressbar = this.selector.querySelector("div[name='progressbar_" + this.id + "']");
-	this.statustxt = this.selector.querySelector("div[name='progressbox_" + this.id + "'] div[name='statustxt']");
+	this.progressbox = this.element.querySelector("div[name='progressbox_" + this.id + "']");
+	this.progressbar = this.element.querySelector("div[name='progressbar_" + this.id + "']");
+	this.statustxt = this.element.querySelector("div[name='progressbox_" + this.id + "'] div[name='statustxt']");
 };
 
 ProgressBar.prototype.start = function () {

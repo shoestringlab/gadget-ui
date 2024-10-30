@@ -1,5 +1,5 @@
-function FloatingPane(selector, options) {
-	this.selector = selector;
+function FloatingPane(element, options) {
+	this.element = element;
 	if (options !== undefined) {
 		this.config(options);
 	}
@@ -18,19 +18,19 @@ FloatingPane.prototype.setup = function (options) {
 	}
 	// need to be computed after header is done
 	this.minWidth = (this.title.length > 0 ? gadgetui.util.textWidth(this.title, this.header.style) + 80 : 100);
-	var paddingPx = (parseInt(gadgetui.util.getNumberValue(gadgetui.util.getStyle(this.selector, "padding")), 10) * 2);
+	var paddingPx = (parseInt(gadgetui.util.getNumberValue(gadgetui.util.getStyle(this.element, "padding")), 10) * 2);
 	// 6 px is padding + border of header
 	var headerHeight = gadgetui.util.getNumberValue(gadgetui.util.getStyle(this.header, "height")) + 6;
 	//set height by setting width on selector to get content height at that width
-	gadgetui.util.setStyle(this.selector, "width", this.width - paddingPx);
-	this.height = (options.height === undefined ? gadgetui.util.getNumberValue(gadgetui.util.getStyle(this.selector, "height")) + paddingPx + headerHeight + 10 : options.height);
+	gadgetui.util.setStyle(this.element, "width", this.width - paddingPx);
+	this.height = (options.height === undefined ? gadgetui.util.getNumberValue(gadgetui.util.getStyle(this.element, "height")) + paddingPx + headerHeight + 10 : options.height);
 
 	this.addCSS();
 
 	// now set height to computed height of control _this has been created
 	this.height = gadgetui.util.getStyle(this.wrapper, "height");
 
-	this.relativeOffsetLeft = gadgetui.util.getRelativeParentOffset(this.selector).left;
+	this.relativeOffsetLeft = gadgetui.util.getRelativeParentOffset(this.element).left;
 	this.addBindings();
 	/* 	if( this.enableShrink ){
 			this.minimize();
@@ -40,7 +40,7 @@ FloatingPane.prototype.setup = function (options) {
 
 FloatingPane.prototype.setMessage = function () {
 	if (this.message !== undefined) {
-		this.selector.innerText = this.message;
+		this.element.innerText = this.message;
 	}
 }
 
@@ -50,7 +50,7 @@ FloatingPane.prototype.addBindings = function () {
 	this.wrapper.addEventListener("drag_end", function (event) {
 		this.top = event.detail.top;
 		this.left = event.detail.left;
-		this.relativeOffsetLeft = gadgetui.util.getRelativeParentOffset(this.selector).left;
+		this.relativeOffsetLeft = gadgetui.util.getRelativeParentOffset(this.element).left;
 
 		if (typeof this.fireEvent === 'function') {
 			this.fireEvent('moved');
@@ -103,10 +103,10 @@ FloatingPane.prototype.addHeader = function () {
 								</svg>`;
 		this.shrinker.innerHTML = shrinkIcon;
 		this.header.insertBefore(this.shrinker, undefined);
-		this.wrapper.insertBefore(this.header, this.selector);
+		this.wrapper.insertBefore(this.header, this.element);
 		this.header.appendChild(this.shrinker);
 	} else {
-		this.wrapper.insertBefore(this.header, this.selector);
+		this.wrapper.insertBefore(this.header, this.element);
 	}
 
 	if (this.enableClose) {
@@ -148,10 +148,10 @@ FloatingPane.prototype.addControl = function () {
 	gadgetui.util.addClass(fp, "gadget-ui-floatingPane");
 
 	fp.draggable = true;
-	this.selector.parentNode.insertBefore(fp, this.selector);
-	this.wrapper = this.selector.previousSibling;
-	this.selector.parentNode.removeChild(this.selector);
-	fp.appendChild(this.selector);
+	this.element.parentNode.insertBefore(fp, this.element);
+	this.wrapper = this.element.previousSibling;
+	this.element.parentNode.removeChild(this.element);
+	fp.appendChild(this.element);
 
 };
 
@@ -177,12 +177,12 @@ FloatingPane.prototype.expand = function () {
 			// Animation complete.
 		});
 
-		Velocity(this.selector, {
+		Velocity(this.element, {
 			height: this.height
 		}, {
 			queue: false, duration: 500, complete: function () {
 				_this.shrinker.innerHTML = icon;
-				css(_this.selector, "overflow", "scroll");
+				css(_this.element, "overflow", "scroll");
 
 				if (typeof _this.fireEvent === 'function') {
 					_this.fireEvent('maximized');
@@ -192,9 +192,9 @@ FloatingPane.prototype.expand = function () {
 	} else {
 
 		css(this.wrapper, "width", this.width);
-		css(this.selector, "height", this.height);
+		css(this.element, "height", this.height);
 		this.shrinker.innerHTML = icon;
-		css(this.selector, "overflow", "scroll");
+		css(this.element, "overflow", "scroll");
 		if (typeof this.fireEvent === 'function') {
 			this.fireEvent('maximized');
 		}
@@ -214,7 +214,7 @@ FloatingPane.prototype.minimize = function () {
 		lx = parseInt(new Number(offset.left), 10) - this.relativeOffsetLeft - parentPaddingLeft,
 		width = parseInt(gadgetui.util.getNumberValue(this.width), 10);
 
-	css(this.selector, "overflow", "hidden");
+	css(this.element, "overflow", "hidden");
 	var icon = `<svg class="feather">
 							<use xlink:href="${this.featherPath}/dist/feather-sprite.svg#maximize"/>
 							</svg>`;
@@ -229,7 +229,7 @@ FloatingPane.prototype.minimize = function () {
 			}
 		});
 
-		Velocity(this.selector, {
+		Velocity(this.element, {
 			height: "50px"
 		}, { queue: false, duration: _this.delay }, function () {
 			// Animation complete.
@@ -239,7 +239,7 @@ FloatingPane.prototype.minimize = function () {
 		});
 	} else {
 		css(this.wrapper, "width", this.minWidth);
-		css(this.selector, "height", "50px");
+		css(this.element, "height", "50px");
 		this.shrinker.innerHTML = icon;
 		if (typeof this.fireEvent === 'function') {
 			this.fireEvent('minimized');
@@ -256,7 +256,7 @@ FloatingPane.prototype.config = function (options) {
 	this.title = (options.title === undefined ? "" : options.title);
 	this.backgroundColor = (options.backgroundColor === undefined ? "" : options.backgroundColor);
 	this.zIndex = (options.zIndex === undefined ? gadgetui.util.getMaxZIndex() + 1 : options.zIndex);
-	this.width = gadgetui.util.getStyle(this.selector, "width");
+	this.width = gadgetui.util.getStyle(this.element, "width");
 	this.top = (options.top === undefined ? undefined : options.top);
 	this.left = (options.left === undefined ? undefined : options.left);
 	this.bottom = (options.bottom === undefined ? undefined : options.bottom);

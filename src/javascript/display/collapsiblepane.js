@@ -1,6 +1,6 @@
-function CollapsiblePane(selector, options) {
+function CollapsiblePane(element, options) {
 
-	this.selector = selector;
+	this.element = element;
 	this.config(options);
 
 	this.addControl();
@@ -13,7 +13,7 @@ function CollapsiblePane(selector, options) {
 	this.addBindings();
 	this.height = this.wrapper.offsetHeight;
 	this.headerHeight = this.header.offsetHeight;
-	this.selectorHeight = this.selector.offsetHeight;
+	this.selectorHeight = this.element.offsetHeight;
 	//if( this.collapse === true ){
 	this.toggle();
 	//}
@@ -31,10 +31,10 @@ CollapsiblePane.prototype.addControl = function () {
 	}
 	gadgetui.util.addClass(pane, "gadget-ui-collapsiblePane");
 
-	this.selector.parentNode.insertBefore(pane, this.selector);
-	this.wrapper = this.selector.previousSibling;
-	this.selector.parentNode.removeChild(this.selector);
-	pane.appendChild(this.selector);
+	this.element.parentNode.insertBefore(pane, this.element);
+	this.wrapper = this.element.previousSibling;
+	this.element.parentNode.removeChild(this.element);
+	pane.appendChild(this.element);
 };
 
 CollapsiblePane.prototype.addHeader = function () {
@@ -47,7 +47,7 @@ CollapsiblePane.prototype.addHeader = function () {
 		gadgetui.util.addClass(header, this.headerClass);
 	}
 	header.innerHTML = this.title;
-	this.wrapper.insertBefore(header, this.selector);
+	this.wrapper.insertBefore(header, this.element);
 	this.header = (this.headerClass ? this.wrapper.querySelector("div." + this.headerClass) : this.wrapper.querySelector("div.gadget-ui-collapsiblePane-header"));
 	div = document.createElement("div");
 	//gadgetui.util.addClass( div, "oi" );
@@ -99,7 +99,7 @@ CollapsiblePane.prototype.toggle = function () {
 	this.eventName = (this.collapsed ? "collapse" : "expand");
 	this.newEventName = (this.collapsed ? "minimized" : "maximized");
 	var ev = new Event(this.eventName);
-	this.selector.dispatchEvent(ev);
+	this.element.dispatchEvent(ev);
 
 	if (typeof Velocity != 'undefined' && this.animate) {
 
@@ -110,7 +110,7 @@ CollapsiblePane.prototype.toggle = function () {
 				//_this.icon.setAttribute( "data-glyph", icon );
 			}
 		});
-		Velocity(this.selector, {
+		Velocity(this.element, {
 			height: selectorHeight
 		}, {
 			queue: false, duration: _this.delay, complete: function () {
@@ -120,7 +120,7 @@ CollapsiblePane.prototype.toggle = function () {
 			}
 		});
 	} else {
-		css(this.selector, "display", display);
+		css(this.element, "display", display);
 		//this.icon.setAttribute( "data-glyph", icon );
 	}
 };
@@ -130,7 +130,7 @@ CollapsiblePane.prototype.config = function (options) {
 	this.animate = ((options.animate === undefined) ? true : options.animate);
 	this.delay = ((options.delay === undefined ? 300 : options.delay));
 	this.title = (options.title === undefined ? "" : options.title);
-	this.width = gadgetui.util.getStyle(this.selector, "width");
+	this.width = gadgetui.util.getStyle(this.element, "width");
 	this.collapse = ((options.collapse === undefined ? false : options.collapse));
 	this.collapsed = ((options.collapse === undefined ? true : !options.collapse));
 	this.class = ((options.class === undefined ? false : options.class));

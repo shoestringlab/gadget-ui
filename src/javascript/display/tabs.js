@@ -1,5 +1,6 @@
-function Tabs(selector, options) {
-	this.selector = selector;
+function Tabs(element, options) {
+	this.element = element;
+	this.tabsDiv = this.element.querySelector( "div" );
 	this.config(options);
 	this.addControl();
 }
@@ -15,8 +16,8 @@ Tabs.prototype.events = ["tabSelected"];
 
 Tabs.prototype.addControl = function () {
 	let dir = (this.direction === "vertical" ? "v" : "h");
-	this.selector.classList.add("gadget-ui-tabs-" + dir);
-	this.tabs = this.selector.querySelectorAll("div");
+	this.tabsDiv.classList.add("gadget-ui-tabs-" + dir);
+	this.tabs = this.tabsDiv.querySelectorAll("div");
 	let activeSet = false;
 	this.tabs.forEach(function (tab) {
 		tab.classList.add("gadget-ui-tab-" + dir);
@@ -29,20 +30,20 @@ Tabs.prototype.addControl = function () {
 			//this.activeTab = tab.id;
 		}
 		this.tabContentDivIds.push(tab.attributes['data-tab'].value);
-		document.querySelector("#" + tab.attributes['data-tab'].value).style.display = 'none';
+		this.element.querySelector("div[name='" + tab.attributes['data-tab'].value + "']").style.display = 'none';
 		tab.addEventListener("click", function () {
 			this.setActiveTab(tab.attributes['data-tab'].value);
 		}.bind(this));
 	}.bind(this));
-	document.querySelector("#" + this.tabContentDivIds[0]).style.display = 'block';
+	this.element.querySelector("div[name='" + this.tabContentDivIds[0] + "']").style.display = 'block';
 };
 
 Tabs.prototype.setActiveTab = function (activeTab) {
 	let dir = (this.direction === "vertical" ? "v" : "h");
 	this.tabContentDivIds.forEach(function (tab) {
 		let dsp = (tab === activeTab ? "block" : "none");
-		document.querySelector("#" + tab).style.display = dsp;
-	});
+		this.element.querySelector("div[name='" + tab + "']").style.display = dsp;
+	}.bind(this));
 
 	this.tabs.forEach(function (tab) {
 		if (tab.attributes['data-tab'].value === activeTab) {

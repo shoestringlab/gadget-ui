@@ -1,5 +1,5 @@
-function FileUploader(selector, options) {
-	this.selector = selector;
+function FileUploader(element, options) {
+	this.element = element;
 	//this.dlg = "";
 	this.droppedFiles = [];
 	this.configure(options);
@@ -39,7 +39,7 @@ FileUploader.prototype.render = function (title) {
 			icon = '<img name="gadgetui-fileuploader-uploadIcon" class="' + uploadClass + '" src="' + this.uploadIcon + '">';
 		}
 
-		this.selector.innerHTML =
+		this.element.innerHTML =
 			'<div class="gadgetui-fileuploader-wrapper"><div name="gadgetui-fileuploader-dropzone" class="gadgetui-fileuploader-dropzone"><div name="gadgetui-fileuploader-filedisplay" class="gadgetui-fileuploader-filedisplay" style="display:none;"></div><div class="gadgetui-fileuploader-dropmessage" name="gadgetui-fileuploader-dropMessageDiv">' +
 			options.dropMessage +
 			'</span></div></div><div class="buttons full"><div class="gadgetui-fileuploader-fileUpload" name="gadgetui-fileuploader-fileUpload"><label>' + icon + '<input type="file" name="gadgetui-fileuploader-fileselect" class="gadgetui-fileuploader-upload" title="' +
@@ -47,15 +47,15 @@ FileUploader.prototype.render = function (title) {
 			'"></label></div></div></div>';
 
 		if (this.showUploadButton === false) {
-			css(this.selector.querySelector("input[name='gadgetui-fileuploader-fileselect']"), "display", "none");
+			css(this.element.querySelector("input[name='gadgetui-fileuploader-fileselect']"), "display", "none");
 		}
 		if (this.showDropZone === false) {
-			css(this.selector.querySelector("div[name='gadgetui-fileuploader-dropzone']"), "display", "none");
+			css(this.element.querySelector("div[name='gadgetui-fileuploader-dropzone']"), "display", "none");
 		}
 		if (this.showUploadIcon === false) {
-			let iconSelector = this.selector.querySelector("img[name='gadgetui-fileuploader-uploadIcon']");
+			let iconSelector = this.element.querySelector("img[name='gadgetui-fileuploader-uploadIcon']");
 			if (iconSelector === null) {
-				iconSelector = this.selector.querySelector("svg[name='gadgetui-fileuploader-uploadIcon']");
+				iconSelector = this.element.querySelector("svg[name='gadgetui-fileuploader-uploadIcon']");
 			}
 			css(iconSelector, "display", "none");
 		}
@@ -86,17 +86,17 @@ FileUploader.prototype.configure = function (options) {
 
 FileUploader.prototype.setDimensions = function () {
 	var css = gadgetui.util.setStyle;
-	var uHeight = gadgetui.util.getNumberValue(gadgetui.util.getStyle(this.selector, "height")),
-		uWidth = gadgetui.util.getNumberValue(gadgetui.util.getStyle(this.selector, "width")),
-		dropzone = this.selector.querySelector("div[class='gadgetui-fileuploader-dropzone']"),
-		filedisplay = this.selector.querySelector("div[class='gadgetui-fileuploader-filedisplay']"),
-		buttons = this.selector.querySelector("div[class~='buttons']");
+	var uHeight = gadgetui.util.getNumberValue(gadgetui.util.getStyle(this.element, "height")),
+		uWidth = gadgetui.util.getNumberValue(gadgetui.util.getStyle(this.element, "width")),
+		dropzone = this.element.querySelector("div[class='gadgetui-fileuploader-dropzone']"),
+		filedisplay = this.element.querySelector("div[class='gadgetui-fileuploader-filedisplay']"),
+		buttons = this.element.querySelector("div[class~='buttons']");
 };
 
 FileUploader.prototype.setEventHandlers = function () {
-	this.selector.querySelector("input[name='gadgetui-fileuploader-fileselect']").addEventListener("change", function (evt) {
-		var dropzone = this.selector.querySelector("div[name='gadgetui-fileuploader-dropzone']"),
-			filedisplay = this.selector.querySelector("div[name='gadgetui-fileuploader-filedisplay']");
+	this.element.querySelector("input[name='gadgetui-fileuploader-fileselect']").addEventListener("change", function (evt) {
+		var dropzone = this.element.querySelector("div[name='gadgetui-fileuploader-dropzone']"),
+			filedisplay = this.element.querySelector("div[name='gadgetui-fileuploader-filedisplay']");
 
 		this.processUpload(
 			evt,
@@ -110,10 +110,10 @@ FileUploader.prototype.setEventHandlers = function () {
 FileUploader.prototype.renderDropZone = function () {
 	// if we decide to drop files into a drag/drop zone
 	let _this = this;
-	var dropzone = this.selector.querySelector("div[name='gadgetui-fileuploader-dropzone']"),
-		filedisplay = this.selector.querySelector("div[name='gadgetui-fileuploader-filedisplay']");
+	var dropzone = this.element.querySelector("div[name='gadgetui-fileuploader-dropzone']"),
+		filedisplay = this.element.querySelector("div[name='gadgetui-fileuploader-filedisplay']");
 
-	this.selector.addEventListener("dragstart", function (ev) {
+	this.element.addEventListener("dragstart", function (ev) {
 		ev.dataTransfer.setData("text", "data");
 		ev.dataTransfer.effectAllowed = "copy";
 		if (typeof _this.fireEvent === 'function') {
@@ -395,8 +395,8 @@ FileUploader.prototype.handleUploadError = function (xhr, json, wrappedFile) {
 
 FileUploader.prototype.show = function (name) {
 	var css = gadgetui.util.setStyle;
-	var dropzone = this.selector.querySelector("div[class='gadgetui-fileuploader-dropzone']"),
-		filedisplay = this.selector.querySelector("div[class='gadgetui-fileuploader-filedisplay']");
+	var dropzone = this.element.querySelector("div[class='gadgetui-fileuploader-dropzone']"),
+		filedisplay = this.element.querySelector("div[class='gadgetui-fileuploader-filedisplay']");
 	if (name === "dropzone") {
 		css(dropzone, "display", "table-cell");
 		css(filedisplay, "display", "none");

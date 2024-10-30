@@ -1,5 +1,5 @@
-function Lightbox( selector, options ){
-    this.selector = selector;
+function Lightbox( element, options ){
+    this.element = element;
     this.config( options );
     this.addControl();
     this.updateImage();
@@ -16,7 +16,7 @@ Lightbox.prototype.config = function( options ){
 };
 
 Lightbox.prototype.addControl = function(){
-    gadgetui.util.addClass( this.selector, "gadgetui-lightbox" );
+    gadgetui.util.addClass( this.element, "gadgetui-lightbox" );
     this.imageContainer  = document.createElement( "div" );
     gadgetui.util.addClass(  this.imageContainer, "gadgetui-lightbox-image-container" );
 	
@@ -31,9 +31,9 @@ Lightbox.prototype.addControl = function(){
     this.spanNext.innerHTML = `<svg class="feather" name="chevron">
       <use xlink:href="${this.featherPath}/dist/feather-sprite.svg#chevron-right"/>
     </svg>`;
-    this.selector.appendChild( this.spanPrevious );
-    this.selector.appendChild( this.imageContainer );
-    this.selector.appendChild( this.spanNext );
+    this.element.appendChild( this.spanPrevious );
+    this.element.appendChild( this.imageContainer );
+    this.element.appendChild( this.spanNext );
 
     this.spanPrevious.addEventListener( "click", function( event ){
         this.prevImage();
@@ -55,14 +55,14 @@ Lightbox.prototype.addControl = function(){
 
         this.imageContainer.addEventListener( "click", function(event){
             this.setModalImage();
-            gadgetui.util.addClass( this.selector, "gadgetui-hidden");
+            gadgetui.util.addClass( this.element, "gadgetui-hidden");
             gadgetui.util.removeClass( this.modal, "gadgetui-hidden");
             this.stopAnimation();
         }.bind(this));
 
         this.modal.addEventListener( "click", function(event){
             gadgetui.util.addClass( this.modal, "gadgetui-hidden");
-            gadgetui.util.removeClass( this.selector, "gadgetui-hidden");
+            gadgetui.util.removeClass( this.element, "gadgetui-hidden");
             this.animate();
         }.bind(this));
     }

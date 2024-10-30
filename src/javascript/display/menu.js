@@ -1,5 +1,5 @@
-function Menu(selector, options) {
-	this.selector = selector;
+function Menu(element, options) {
+	this.element = element;
 	this.elements = [];
 	this.config(options);
 	if (this.datasource !== undefined) {
@@ -90,14 +90,14 @@ Menu.prototype.addControl = function () {
 
 		let element = generateMenu(menu);
 		// for each menu, generate the items and sub-menus
-		this.selector.appendChild(element);
+		this.element.appendChild(element);
 		this.elements.push(element);
 	}.bind(this));
 };
 
 Menu.prototype.addBindings = function () {
 
-	let menus = this.selector.querySelectorAll(".gadget-ui-menu");
+	let menus = this.element.querySelectorAll(".gadget-ui-menu");
 	// each menu needs to be initialized
 	menus.forEach(function (mu) {
 		let menuItem = mu.querySelector("div[class='gadget-ui-menu-menuItem']");
@@ -159,10 +159,10 @@ Menu.prototype.addBindings = function () {
 };
 
 Menu.prototype.destroy = function () {
-	let menus = this.selector.querySelectorAll("div.gadget-ui-menu");
+	let menus = this.element.querySelectorAll("div.gadget-ui-menu");
 	// remove the menus
 	for (var idx = 0; idx < menus.length; idx++) {
-		document.querySelector(this.selector).removeChild(menus[idx]);
+		document.querySelector(this.element).removeChild(menus[idx]);
 	}
 };
 

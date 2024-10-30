@@ -8,9 +8,9 @@
  		<script type="module">
 			import {tabs,constructor} from '/dist/gadget-ui.es.js';
 
-			var tbs = constructor( tabs, [ document.querySelector("#tabs-h"), { } ] );
+			var tbs = constructor( tabs, [ document.querySelector("#tabsHContainer"), { } ] );
 			// show bindings
-			var tbs3 = constructor( tabs, [ document.querySelector("#tabs-v"), { direction: 'vertical' } ], true );
+			var tbs3 = constructor( tabs, [ document.querySelector("#vertTabContainer"), { direction: 'vertical' } ], true );
 
 			tbs3.on("tabSelected", function( event, tab ){
 				console.log( event );
@@ -69,16 +69,16 @@
 	</head>
 
 	<body>
-	<div style="width: 515px;">
+	<div style="width: 515px;" id="tabsHContainer">
     <div id="tabs-h">
       <div data-tab="tab-h1">One</div>
       <div data-tab="tab-h2">Two</div>
       <div data-tab="tab-h3">Three</div>
     </div>
 		<div style="border:1px solid silver; height: 300px; padding: 1em;">
-	    <div id="tab-h1">Content One</div>
-	    <div id="tab-h2">Content Two</div>
-	    <div id="tab-h3">Content Three</div>
+	    <div name="tab-h1">Content One</div>
+	    <div name="tab-h2">Content Two</div>
+	    <div name="tab-h3">Content Three</div>
 		</div>
 	</div>
 	<br><br>
@@ -89,9 +89,9 @@
 			<div data-tab="tab-v3">Three</div>
 		</div>
 		<div class="vcontentContainer">
-			<div id="tab-v1" class="vtabContent">Content One</div>
-			<div id="tab-v2" class="vtabContent">Content Two</div>
-			<div id="tab-v3" class="vtabContent">Content Three</div>
+			<div name="tab-v1" class="vtabContent">Content One</div>
+			<div name="tab-v2" class="vtabContent">Content Two</div>
+			<div name="tab-v3" class="vtabContent">Content Three</div>
 		</div>
 	</div>
 

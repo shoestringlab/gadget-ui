@@ -1,15 +1,15 @@
 
-function FileUploadWrapper(file, selector) {
+function FileUploadWrapper(file, element) {
 	var ix,
 		id,
 		options,
 		bindings = gadgetui.objects.EventBindings.getAll();
 
 	id = gadgetui.util.Id();
-	options = { id: id, filename: file.name, width: gadgetui.util.getStyle(selector, "width") };
+	options = { id: id, filename: file.name, width: gadgetui.util.getStyle(element, "width") };
 	this.file = file;
 	this.id = id;
-	this.progressbar = new gadgetui.display.ProgressBar(selector, options);
+	this.progressbar = new gadgetui.display.ProgressBar(element, options);
 	this.progressbar.render();
 	for (ix = 0; ix < bindings.length; ix++) {
 		this[bindings[ix].name] = bindings[ix].func;
