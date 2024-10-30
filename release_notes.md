@@ -1,6 +1,11 @@
 
 ***Release Notes***
 
+10.0.0-beta
+======
+
+The Tab component now uses an enclosing div around both the tabs and the content divs, and uses the name attribute of content divs instead of id attributes for more flexibility. Note that this is a breaking change so you will need to re-write any use of the Tabs component you have already deployed. 
+
 9.7.0
 ======
 

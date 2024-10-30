@@ -7,9 +7,9 @@ Gadget-ui is a UI component library that has a built-in model and data-binding m
 
 ### Current Release
 
-v 9.7.0
+v 10.0.0-beta
 
-An option has been added to the fileuploader to enable authenticated use of the control with the altseven framework by specifying useTokens = true in the options for the control. This feature may be extended in the future to allow more generalized authentication with other frameworks.
+The Tab component now uses an enclosing div around both the tabs and the content divs, and uses the name attribute of content divs instead of id attributes for more flexibility. Note that this is a breaking change so you will need to re-write any use of the Tabs component you have already deployed. 
 
 ## Installation
 
