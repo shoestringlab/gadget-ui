@@ -3,11 +3,13 @@ function Toggle(options) {
     this.create();
 }
 
+Toggle.prototype.events = ['changed'];
+
 Toggle.prototype.configure = function (options) {
     this.selector = options.selector;
-    this.parent = options.parent;
+    this.parentSelector = options.parentSelector;
     this.shape = options.shape === undefined ? "square" : options.shape;
-    this.value = options.initialValue === 1 ?  1 : 0;
+    this.value = parseInt(options.initialValue,10) === 1 ?  1 : 0;
 };
 
 Toggle.prototype.create = function () {
@@ -15,28 +17,36 @@ Toggle.prototype.create = function () {
     if (this.selector !== undefined) {
         this.element = document.querySelector(this.selector);
     } else {
-        this.element = document.createElement("input");
-        this.element.type = "range";
-        this.element.min = "0";
-        this.element.max = "1";
-        this.parent.addChild(this.element);
+        let ele = document.createElement("input");
+        ele.type = "range";
+        ele.min = 0;
+        ele.max = 1;
+        let parent = document.querySelector( this.parentSelector );
+        parent.appendChild(ele);
+        this.element = ele;
     }
     this.element.value = this.value;
     this.element.classList.add("gadget-ui-toggle");
-    this.value = this.element.value;
+    if(this.shape === "round"){
+      this.element.classList.add("gadget-ui-toggle-round");
+    }
 
+    if(this.value === 0 ){
+        this.element.classList.add("gadget-ui-toggle-off");
+    }
     this.element.addEventListener("click", function(){
-        //console.log(this);
-        //myVal = (myVal == 1 ? 0: 1 );
-      
-        if( this.value  == 1 ){
+
+        if( this.value  === 1 ){
             this.value  = 0;
           this.element.classList.add("gadget-ui-toggle-off");
         }else{
             this.value  = 1;
             this.element.classList.remove("gadget-ui-toggle-off");
         }
-        this.element.value = myVal;
+        this.element.value = this.value;
+        if (typeof this.fireEvent === 'function') {
+            this.fireEvent("changed");
+        }
       
        // event.currentTarget.css.backgroundColor='#ccc';
       }.bind(this));

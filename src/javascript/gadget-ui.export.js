@@ -19,5 +19,6 @@ export var fileuploader = gadgetui.input.FileUploader;
 export var lookuplistinput = gadgetui.input.LookupListInput;
 export var selectinput = gadgetui.input.SelectInput;
 export var textinput = gadgetui.input.TextInput;
+export var toggle = gadgetui.input.Toggle;
 export var constructor = gadgetui.objects.Constructor;
 export var util = gadgetui.util;
