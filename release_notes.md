@@ -1,6 +1,11 @@
 
 ***Release Notes***
 
+10.0.0-release
+======
+
+A new input control has been introduced, the Toggle control. Toggle functions like a switch that can turn on or off. It emits a single event, "changed".
+
 10.0.0-beta
 ======
 

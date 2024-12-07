@@ -7,9 +7,10 @@ Gadget-ui is a UI component library that has a built-in model and data-binding m
 
 ### Current Release
 
-v 10.0.0-beta
+v 10.0.0-release
 
-The Tab component now uses an enclosing div around both the tabs and the content divs, and uses the name attribute of content divs instead of id attributes for more flexibility. Note that this is a breaking change so you will need to re-write any use of the Tabs component you have already deployed. 
+A new input control has been introduced, the Toggle control. Toggle functions like a switch that can turn on or off. It emits a single event, "changed".
+
 
 ## Installation
 
