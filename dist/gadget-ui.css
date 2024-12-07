@@ -290,206 +290,285 @@ div.gadget-ui-menu{
 	top:10%;
 	left:0;
 }
-div .gadget-ui-input-div{
-	display:inline;
-	font-size: 1.1em;
-	font-family: inherit;
+div .gadget-ui-input-div {
+  display: inline;
+  font-size: 1.1em;
+  font-family: inherit;
 }
-div .gadget-ui-input-div span{
-	padding-left: 4px;
-	font-size: .8em;
-	letter-spacing: 1px;
-	font-family: inherit;
+div .gadget-ui-input-div span {
+  padding-left: 4px;
+  font-size: 0.8em;
+  letter-spacing: 1px;
+  font-family: inherit;
 }
-div .gadget-ui-input-div input{
-	line-height: 0.8em;
-	font-size: 0.8em;
-	letter-spacing: 1px;
-	font-family: inherit;
-	margin: 0px 0px -1px;
-	padding: 0px 0px 0px 1px;
-	min-width: 2em;
-}
-
-div .gadget-ui-input-div div{
-
+div .gadget-ui-input-div input {
+  line-height: 0.8em;
+  font-size: 0.8em;
+  letter-spacing: 1px;
+  font-family: inherit;
+  margin: 0px 0px -1px;
+  padding: 0px 0px 0px 1px;
+  min-width: 2em;
 }
 
-div.gadgetui-lookuplist-input-div, div.gadgetui-lookuplist-input{
-	background:#fff;
-	border: 1px solid silver;
+div .gadget-ui-input-div div {
 }
 
-div.gadgetui-lookuplist-input-div input, div.gadgetui-lookuplist-input input{
-	border:0;
-	outline: none;
-	padding-left: 10px;
+div.gadgetui-lookuplist-input-div,
+div.gadgetui-lookuplist-input {
+  background: #fff;
+  border: 1px solid silver;
 }
 
-div.gadgetui-lookuplist-input-div .gadgetui-lookuplist-input-item, div.gadgetui-lookuplist-input .gadgetui-lookuplist-input-item{
-	display:inline !important;
-	padding: 0 20px 0 10px;
+div.gadgetui-lookuplist-input-div input,
+div.gadgetui-lookuplist-input input {
+  border: 0;
+  outline: none;
+  padding-left: 10px;
 }
 
-div.gadgetui-lookuplist-input-div .gadgetui-lookuplist-input-cancel, div.gadgetui-lookuplist-input .gadgetui-lookuplist-input-cancel{
-	background: url('img/cancel.png') 98% center no-repeat #f4f0ec;
-	border: 1px solid #f4f0ec;
-	padding: 0px 20px 0px 3px;
-	margin:0px;
-	display:inline-block;
-	position:absolute;
-	height: 15px;
+div.gadgetui-lookuplist-input-div .gadgetui-lookuplist-input-item,
+div.gadgetui-lookuplist-input .gadgetui-lookuplist-input-item {
+  display: inline !important;
+  padding: 0 20px 0 10px;
 }
 
-div.gadgetui-lookuplist-input-div > .gadgetui-lookuplist-input-item-wrapper, div.gadgetui-lookuplist-input > .gadgetui-lookuplist-input-item-wrapper{
-	margin:3px;
-	display:inline-block;
-	position:relative;
-	background: silver;
-	border-radius: 5px;
+div.gadgetui-lookuplist-input-div .gadgetui-lookuplist-input-cancel,
+div.gadgetui-lookuplist-input .gadgetui-lookuplist-input-cancel {
+  background: url("img/cancel.png") 98% center no-repeat #f4f0ec;
+  border: 1px solid #f4f0ec;
+  padding: 0px 20px 0px 3px;
+  margin: 0px;
+  display: inline-block;
+  position: absolute;
+  height: 15px;
 }
 
-div.gadgetui-lookuplist-menu{
-	padding: 0;
-	margin:0;
-	background: white;
-	color: black;
-	border: 1px solid silver;
+div.gadgetui-lookuplist-input-div > .gadgetui-lookuplist-input-item-wrapper,
+div.gadgetui-lookuplist-input > .gadgetui-lookuplist-input-item-wrapper {
+  margin: 3px;
+  display: inline-block;
+  position: relative;
+  background: silver;
+  border-radius: 5px;
 }
 
-div.gadgetui-lookuplist-item{
-	display:block;
-	padding-left: 10px;
+div.gadgetui-lookuplist-menu {
+  padding: 0;
+  margin: 0;
+  background: white;
+  color: black;
+  border: 1px solid silver;
 }
 
-div.gadgetui-lookuplist-item:hover{
-	/*	background: silver;	*/
-	color: silver;
-	border-top: 1px solid silver;
-	border-bottom: 1px solid silver;
+div.gadgetui-lookuplist-item {
+  display: block;
+  padding-left: 10px;
 }
 
-div.gadgetui-selectinput-label{
-	display:inline-block;
+div.gadgetui-lookuplist-item:hover {
+  /*	background: silver;	*/
+  color: silver;
+  border-top: 1px solid silver;
+  border-bottom: 1px solid silver;
 }
 
-div.gadgetui-selectinput-div{
-	line-height:normal;
-	box-sizing: initial;
-	-webkit-box-sizing: initial;
-	-moz-box-sizing: initial;
+div.gadgetui-selectinput-label {
+  display: inline-block;
 }
 
-select.gadgetui-selectinput{
-	/* hack to allow font-size changes in Safari/Chrome */
-	border-image:0;
-	-webkit-box-shadow: 0 0 0 transparent;
-	box-shadow: 0 0 0 transparent;
+div.gadgetui-selectinput-div {
+  line-height: normal;
+  box-sizing: initial;
+  -webkit-box-sizing: initial;
+  -moz-box-sizing: initial;
 }
 
-input.gadgetui-combobox-input, select.gadgetui-combobox-select{
-	outline: none;
+select.gadgetui-selectinput {
+  /* hack to allow font-size changes in Safari/Chrome */
+  border-image: 0;
+  -webkit-box-shadow: 0 0 0 transparent;
+  box-shadow: 0 0 0 transparent;
+}
+
+input.gadgetui-combobox-input,
+select.gadgetui-combobox-select {
+  outline: none;
 }
 
 select.gadgetui-combobox-select::-ms-expand {
-    display: none;
+  display: none;
 }
 
 select.gadgetui-combobox-select:-moz-focusring {
-	color: transparent;
-	text-shadow: 0 0 0 #000;
+  color: transparent;
+  text-shadow: 0 0 0 #000;
 }
 
-div.gadgetui-combobox{
-	line-height:normal;
-	box-sizing: initial;
-	-webkit-box-sizing: initial;
-	-moz-box-sizing: initial;
+div.gadgetui-combobox {
+  line-height: normal;
+  box-sizing: initial;
+  -webkit-box-sizing: initial;
+  -moz-box-sizing: initial;
 }
 
-select.gadgetui-combobox-select{
-	margin-left: 1px;
-	background-color: #fff;
+select.gadgetui-combobox-select {
+  margin-left: 1px;
+  background-color: #fff;
 }
 
-select.gadgetui-combobox-select option{
-	padding-left: 0px;
-	margin-left: 1px;
+select.gadgetui-combobox-select option {
+  padding-left: 0px;
+  margin-left: 1px;
 }
 
-div.gadgetui-combobox-selectwrapper{
-	box-shadow: 0px 0px 0px;
-	border: 1px solid silver;
-	border-radius: 5px;
+div.gadgetui-combobox-selectwrapper {
+  box-shadow: 0px 0px 0px;
+  border: 1px solid silver;
+  border-radius: 5px;
 
-	display: inline;
-	position: absolute;
-	padding-bottom: 1px;
-	left:0;
+  display: inline;
+  position: absolute;
+  padding-bottom: 1px;
+  left: 0;
 }
 
 div.gadgetui-combobox-selectwrapper:after {
-    content: url( /node_modules/feather-icons/dist/icons/chevron-down.svg );
-		right: 0px;
-    height: 1.25em;
-    border-left: 1px solid silver;
-    position: absolute;
-    pointer-events: none;
-		width:24px;
+  content: url(/node_modules/feather-icons/dist/icons/chevron-down.svg);
+  right: 0px;
+  height: 1.25em;
+  border-left: 1px solid silver;
+  position: absolute;
+  pointer-events: none;
+  width: 24px;
 }
 
-input.gadgetui-combobox-input{
-	margin-left: 1px;
-	border-radius: 5px 0 0 5px;
-	padding-left: 5px;
-	border:0;
-	display:inline;
-	background-color: #fff;
+input.gadgetui-combobox-input {
+  margin-left: 1px;
+  border-radius: 5px 0 0 5px;
+  padding-left: 5px;
+  border: 0;
+  display: inline;
+  background-color: #fff;
 }
 
-div.gadgetui-combobox-label{
-	position:absolute;
-	padding-top: 2px;
-	margin-left: 1px;
+div.gadgetui-combobox-label {
+  position: absolute;
+  padding-top: 2px;
+  margin-left: 1px;
 }
 
-div.gadgetui-combobox-inputwrapper{
-	position:absolute;
+div.gadgetui-combobox-inputwrapper {
+  position: absolute;
 }
 
-.gadgetui-fileuploader-wrapper{
-	/* border: 1px solid silver; */
-
+.gadgetui-fileuploader-wrapper {
+  /* border: 1px solid silver; */
 }
 
-.gadgetui-fileuploader-dropmessage{
-	opacity: .7;
-	position:sticky;
-	margin-top:45%;
+.gadgetui-fileuploader-dropmessage {
+  opacity: 0.7;
+  position: sticky;
+  margin-top: 45%;
 }
 
-.gadgetui-inputlabelinput{
-	background:none;
-	padding-left: 4px;
-	border: 1px solid transparent;
+.gadgetui-inputlabelinput {
+  background: none;
+  padding-left: 4px;
+  border: 1px solid transparent;
 }
 
-.gadget-ui-textinput-hideBorder-firefox{
-	border-inline-end-width: 8px;
-	border-inline-start-width: 8px;
-	border-left-width: 0px;
-	border-right-width: 8px;
-	border-image-width: 1;
-	border-top-width:0px;
-	border-bottom-width: 0px;
-	border-color:transparent;
+.gadget-ui-textinput-hideBorder-firefox {
+  border-inline-end-width: 8px;
+  border-inline-start-width: 8px;
+  border-left-width: 0px;
+  border-right-width: 8px;
+  border-image-width: 1;
+  border-top-width: 0px;
+  border-bottom-width: 0px;
+  border-color: transparent;
 }
 
-.gadget-ui-textinput-hideBorder-chrome, .gadget-ui-textinput-hideBorder-generic{
-	border-inline-end-width: 8px;
-	border-right-width: 8px;
-	border-image-width: 1;
-	border-color:transparent;
+.gadget-ui-textinput-hideBorder-chrome,
+.gadget-ui-textinput-hideBorder-generic {
+  border-inline-end-width: 8px;
+  border-right-width: 8px;
+  border-image-width: 1;
+  border-color: transparent;
+}
+
+.gadget-ui-toggle {
+  width: 3em;
+}
+
+.gadget-ui-toggle::-webkit-slider-runnable-track {
+  width: 100%;
+  height: 1.5em;
+  cursor: pointer;
+  background: black;
+  border-radius: 0px;
+  border: 0;
+  padding: 2px;
+}
+
+.gadget-ui-toggle:focus::-webkit-slider-runnable-track {
+  background: black;
+}
+
+.gadget-ui-toggle::-moz-range-track {
+  width: 100%;
+  height: 1.5em;
+  cursor: pointer;
+  background: black;
+  border-radius: 0px;
+  border: 0;
+}
+
+.gadget-ui-toggle::-ms-track {
+  width: 100%;
+  height: 1.5em;
+  cursor: pointer;
+  background: transparent;
+  border-color: transparent;
+  border-width: 16px 0;
+  color: transparent;
+}
+
+.gadget-ui-toggle-off::-webkit-slider-runnable-track {
+  background: #ccc !important;
+}
+
+.gadget-ui-toggle-off::-moz-range-track {
+  background: #ccc !important;
+}
+
+.gadget-ui-toggle-off::-ms-track {
+  background: #ccc !important;
+}
+
+.gadget-ui-toggle::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  height: 18px;
+  width: 18px;
+  border-radius: 0px;
+  cursor: pointer;
+  margin-top: -14px; /* You need to specify a margin in Chrome, but in Firefox and IE it is automatic */
+}
+
+/* All the same stuff for Firefox */
+.gadgetui-toggle::-moz-range-thumb {
+  height: 18px;
+  width: 18px;
+  border-radius: 0px;
+  cursor: pointer;
+}
+
+/* All the same stuff for IE */
+.gadgetui-toggle::-ms-thumb::-ms-thumb {
+  height: 18px;
+  width: 18px;
+  border-radius: 0px;
+  cursor: pointer;
 }
 
 /*# sourceMappingURL=gadget-ui.css.map */
