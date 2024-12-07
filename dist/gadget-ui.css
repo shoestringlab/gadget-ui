@@ -499,6 +499,7 @@ div.gadgetui-combobox-inputwrapper {
 
 .gadget-ui-toggle {
   width: 3em;
+  background-color: transparent;
 }
 
 .gadget-ui-toggle::-webkit-slider-runnable-track {
