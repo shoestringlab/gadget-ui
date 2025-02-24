@@ -1,6 +1,12 @@
 
 ***Release Notes***
 
+10.1.0
+======
+
+This version introduces an improved model with undo,redo,fast forward, and rewind capabilities for any value in the model. It also includes a general cleanup of the codebase for readability and clarity. The test code has been consolidated in the /test folder, except for the index.js in the root if you want to test server-side logic.
+
+
 10.0.0-release
 ======
 
@@ -9,7 +15,7 @@ A new input control has been introduced, the Toggle control. Toggle functions li
 10.0.0-beta
 ======
 
-The Tab component now uses an enclosing div around both the tabs and the content divs, and uses the name attribute of content divs instead of id attributes for more flexibility. Note that this is a breaking change so you will need to re-write any use of the Tabs component you have already deployed. 
+The Tab component now uses an enclosing div around both the tabs and the content divs, and uses the name attribute of content divs instead of id attributes for more flexibility. Note that this is a breaking change so you will need to re-write any use of the Tabs component you have already deployed.
 
 9.7.0
 ======
@@ -86,7 +92,7 @@ This releases fixes a bug in eventbindings.js where events will not fire because
 9.0.0
 ======
 
-This release marks a big change. The library is now only distributed as an ES6 module. The .mjs extension files have been removed for easier standardization with web server software. 
+This release marks a big change. The library is now only distributed as an ES6 module. The .mjs extension files have been removed for easier standardization with web server software.
 
 In terms of functionality, the Modal and Menu objects now have a destroy() method so you can remove the controls programmatically. Also, the Sidebar object now has the option to be initialized in the minimized state.
 
@@ -369,7 +375,7 @@ PREVIEW - FileDialog
 - made selector a required argument for LookupListInput
 - Re-factored TextInput and SelectInput
   - only accept a single selector, required
-   - function signatures changed   
+   - function signatures changed
 
 
 1.6.2

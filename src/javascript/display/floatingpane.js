@@ -1,271 +1,275 @@
 function FloatingPane(element, options) {
-	this.element = element;
-	if (options !== undefined) {
-		this.config(options);
-	}
-
-	this.setup(options);
+	this.element = element
+	this.config(options || {})
+	this.setup(options)
 }
 
-FloatingPane.prototype.events = ['minimized', 'maximized', 'moved', 'closed'];
+FloatingPane.prototype.events = ['minimized', 'maximized', 'moved', 'closed']
 
 FloatingPane.prototype.setup = function (options) {
-	this.setMessage();
-	this.addControl();
-	this.addHeader();
+	this.setMessage()
+	this.addControl()
+	this.addHeader()
+
 	if (this.enableShrink) {
-		this.maxmin = this.wrapper.querySelector("div.oi[name='maxmin']");
+		this.maxmin = this.wrapper.querySelector("div.oi[name='maxmin']")
 	}
-	// need to be computed after header is done
-	this.minWidth = (this.title.length > 0 ? gadgetui.util.textWidth(this.title, this.header.style) + 80 : 100);
-	var paddingPx = (parseInt(gadgetui.util.getNumberValue(gadgetui.util.getStyle(this.element, "padding")), 10) * 2);
-	// 6 px is padding + border of header
-	var headerHeight = gadgetui.util.getNumberValue(gadgetui.util.getStyle(this.header, "height")) + 6;
-	//set height by setting width on selector to get content height at that width
-	gadgetui.util.setStyle(this.element, "width", this.width - paddingPx);
-	this.height = (options.height === undefined ? gadgetui.util.getNumberValue(gadgetui.util.getStyle(this.element, "height")) + paddingPx + headerHeight + 10 : options.height);
 
-	this.addCSS();
+	// Calculate dimensions after header is added
+	const paddingPx =
+		parseInt(
+			gadgetui.util.getNumberValue(
+				gadgetui.util.getStyle(this.element, 'padding')
+			),
+			10
+		) * 2
+	const headerHeight =
+		gadgetui.util.getNumberValue(
+			gadgetui.util.getStyle(this.header, 'height')
+		) + 6
 
-	// now set height to computed height of control _this has been created
-	this.height = gadgetui.util.getStyle(this.wrapper, "height");
+	this.minWidth =
+		this.title.length > 0
+			? gadgetui.util.textWidth(this.title, this.header.style) + 80
+			: 100
 
-	this.relativeOffsetLeft = gadgetui.util.getRelativeParentOffset(this.element).left;
-	this.addBindings();
-	/* 	if( this.enableShrink ){
-			this.minimize();
-			this.expand();
-		} */
-};
+	gadgetui.util.setStyle(this.element, 'width', this.width - paddingPx)
+	this.height =
+		options?.height ??
+		gadgetui.util.getNumberValue(
+			gadgetui.util.getStyle(this.element, 'height')
+		) +
+			paddingPx +
+			headerHeight +
+			10
+
+	this.addCSS()
+	this.height = gadgetui.util.getStyle(this.wrapper, 'height')
+	this.relativeOffsetLeft = gadgetui.util.getRelativeParentOffset(
+		this.element
+	).left
+	this.addBindings()
+}
 
 FloatingPane.prototype.setMessage = function () {
-	if (this.message !== undefined) {
-		this.element.innerText = this.message;
+	if (this.message) {
+		this.element.innerText = this.message
 	}
 }
 
 FloatingPane.prototype.addBindings = function () {
-	var dragger = gadgetui.util.draggable(this.wrapper);
+	const dragger = gadgetui.util.draggable(this.wrapper)
 
-	this.wrapper.addEventListener("drag_end", function (event) {
-		this.top = event.detail.top;
-		this.left = event.detail.left;
-		this.relativeOffsetLeft = gadgetui.util.getRelativeParentOffset(this.element).left;
+	this.wrapper.addEventListener('drag_end', (event) => {
+		this.top = event.detail.top
+		this.left = event.detail.left
+		this.relativeOffsetLeft = gadgetui.util.getRelativeParentOffset(
+			this.element
+		).left
 
 		if (typeof this.fireEvent === 'function') {
-			this.fireEvent('moved');
+			this.fireEvent('moved')
 		}
-	}.bind(this));
+	})
 
 	if (this.enableShrink) {
-		this.shrinker.addEventListener("click", function (event) {
-			event.stopPropagation();
-			if (this.minimized) {
-				this.expand();
-			} else {
-				this.minimize();
-			}
-		}.bind(this));
+		this.shrinker.addEventListener('click', (event) => {
+			event.stopPropagation()
+			this.minimized ? this.expand() : this.minimize()
+		})
 	}
+
 	if (this.enableClose) {
-		this.closer.addEventListener("click", function (event) {
-			event.stopPropagation();
-			this.close();
-		}.bind(this));
+		this.closer.addEventListener('click', (event) => {
+			event.stopPropagation()
+			this.close()
+		})
 	}
-};
+}
 
 FloatingPane.prototype.close = function () {
 	if (typeof this.fireEvent === 'function') {
-		this.fireEvent('closed');
+		this.fireEvent('closed')
 	}
-	this.wrapper.parentNode.removeChild(this.wrapper);
-
-};
+	this.wrapper.parentNode.removeChild(this.wrapper)
+}
 
 FloatingPane.prototype.addHeader = function () {
-	var css = gadgetui.util.setStyle;
-	this.header = document.createElement("div");
-	this.header.innerHTML = this.title;
-	if (this.headerClass) {
-		gadgetui.util.addClass(header, this.headerClass);
-	}
-	gadgetui.util.addClass(this.header, 'gadget-ui-floatingPane-header');
+	const css = gadgetui.util.setStyle
+	this.header = document.createElement('div')
+	this.header.innerHTML = this.title
 
+	gadgetui.util.addClass(
+		this.header,
+		this.headerClass || 'gadget-ui-floatingPane-header'
+	)
 
 	if (this.enableShrink) {
-		this.shrinker = document.createElement("span");
-		this.shrinker.setAttribute("name", "maxmin");
-		css(this.shrinker, "float", "left");
-		css(this.shrinker, "margin-right", ".5em");
-		var shrinkIcon = `<svg class="feather">
-								<use xlink:href="${this.featherPath}/dist/feather-sprite.svg#minimize"/>
-								</svg>`;
-		this.shrinker.innerHTML = shrinkIcon;
-		this.header.insertBefore(this.shrinker, undefined);
-		this.wrapper.insertBefore(this.header, this.element);
-		this.header.appendChild(this.shrinker);
-	} else {
-		this.wrapper.insertBefore(this.header, this.element);
+		this.shrinker = document.createElement('span')
+		this.shrinker.setAttribute('name', 'maxmin')
+		css(this.shrinker, 'float', 'left')
+		css(this.shrinker, 'margin-right', '.5em')
+
+		const shrinkIcon = `<svg class="feather"><use xlink:href="${this.featherPath}/dist/feather-sprite.svg#minimize"/></svg>`
+		this.shrinker.innerHTML = shrinkIcon
+		this.header.appendChild(this.shrinker)
 	}
+
+	this.wrapper.insertBefore(this.header, this.element)
 
 	if (this.enableClose) {
-		var span = document.createElement("span");
-		span.setAttribute("name", "closeIcon");
-		css(span, "float", "right");
-		var icon = `<svg class="feather">
-								<use xlink:href="${this.featherPath}/dist/feather-sprite.svg#x-circle"/>
-								</svg>`;
-		span.innerHTML = icon;
-		this.header.appendChild(span);
-		css(span, "right", "3px");
-		css(span, "position", "absolute");
-		css(span, "cursor", "pointer");
-		css(span, "top", "3px");
-		this.closer = span;
+		const span = document.createElement('span')
+		span.setAttribute('name', 'closeIcon')
+		css(span, 'float', 'right')
+
+		const icon = `<svg class="feather"><use xlink:href="${this.featherPath}/dist/feather-sprite.svg#x-circle"/></svg>`
+		span.innerHTML = icon
+		this.header.appendChild(span)
+
+		Object.assign(span.style, {
+			right: '3px',
+			position: 'absolute',
+			cursor: 'pointer',
+			top: '3px',
+		})
+
+		this.closer = span
 	}
-};
+}
 
 FloatingPane.prototype.addCSS = function () {
-	var css = gadgetui.util.setStyle;
-	//copy width from selector
-	css(this.wrapper, "width", this.width);
-	css(this.wrapper, "z-index", this.zIndex);
-	if( this.backgroundColor.length ){
-		css(this.wrapper, "background-color", this.backgroundColor);
+	const css = gadgetui.util.setStyle
+	const styles = {
+		width: this.width,
+		'z-index': this.zIndex,
+		...(this.backgroundColor && {
+			'background-color': this.backgroundColor,
+		}),
+		...(this.top !== undefined && { top: this.top }),
+		...(this.left !== undefined && { left: this.left }),
+		...(this.bottom !== undefined && { bottom: this.bottom }),
+		...(this.right !== undefined && { right: this.right }),
 	}
-	if (this.top !== undefined) css(this.wrapper, "top", this.top);
-	if (this.left !== undefined) css(this.wrapper, "left", this.left);
-	if (this.bottom !== undefined) css(this.wrapper, "bottom", this.bottom);
-	if (this.right !== undefined) css(this.wrapper, "right", this.right);
-};
+
+	Object.entries(styles).forEach(([key, value]) =>
+		css(this.wrapper, key, value)
+	)
+}
 
 FloatingPane.prototype.addControl = function () {
-	var fp = document.createElement("div");
-	if (this.class) {
-		gadgetui.util.addClass(fp, this.class);
-	}
-	gadgetui.util.addClass(fp, "gadget-ui-floatingPane");
+	const fp = document.createElement('div')
+	gadgetui.util.addClass(fp, this.class || 'gadget-ui-floatingPane')
 
-	fp.draggable = true;
-	this.element.parentNode.insertBefore(fp, this.element);
-	this.wrapper = this.element.previousSibling;
-	this.element.parentNode.removeChild(this.element);
-	fp.appendChild(this.element);
-
-};
+	fp.draggable = true
+	this.element.parentNode.insertBefore(fp, this.element)
+	this.wrapper = this.element.previousSibling
+	this.element.parentNode.removeChild(this.element)
+	fp.appendChild(this.element)
+}
 
 FloatingPane.prototype.expand = function () {
-	// when minimizing and expanding, we must look up the ancestor chain to see if there are position: relative elements.
-	// if so, we must subtract the offset left of the ancestor to get the pane back to its original position
+	const css = gadgetui.util.setStyle
+	const offset = gadgetui.util.getOffset(this.wrapper)
+	const parentPaddingLeft = parseInt(
+		gadgetui.util.getNumberValue(
+			gadgetui.util.getStyle(this.wrapper.parentElement, 'padding-left')
+		),
+		10
+	)
+	const icon = `<svg class="feather"><use xlink:href="${this.featherPath}/dist/feather-sprite.svg#minimize"/></svg>`
 
-	var _this = this,
-		css = gadgetui.util.setStyle,
-		offset = gadgetui.util.getOffset(this.wrapper),
-		parentPaddingLeft = parseInt(gadgetui.util.getNumberValue(gadgetui.util.getStyle(this.wrapper.parentElement, "padding-left")), 10),
-		lx = parseInt(new Number(offset.left), 10) - this.relativeOffsetLeft - parentPaddingLeft;
-
-	//width = parseInt( gadgetui.util.getNumberValue( this.width ), 10 );
-	var icon = `<svg class="feather">
-								<use xlink:href="${this.featherPath}/dist/feather-sprite.svg#minimize"/>
-								</svg>`;
-	if (typeof Velocity != 'undefined' && this.animate) {
-
-		Velocity(this.wrapper, {
-			width: this.width
-		}, { queue: false, duration: 500 }, function () {
-			// Animation complete.
-		});
-
-		Velocity(this.element, {
-			height: this.height
-		}, {
-			queue: false, duration: 500, complete: function () {
-				_this.shrinker.innerHTML = icon;
-				css(_this.element, "overflow", "scroll");
-
-				if (typeof _this.fireEvent === 'function') {
-					_this.fireEvent('maximized');
-				}
+	if (typeof Velocity !== 'undefined' && this.animate) {
+		Velocity(
+			this.wrapper,
+			{ width: this.width },
+			{ queue: false, duration: 500 }
+		)
+		Velocity(
+			this.element,
+			{ height: this.height },
+			{
+				queue: false,
+				duration: 500,
+				complete: () => {
+					this.shrinker.innerHTML = icon
+					css(this.element, 'overflow', 'scroll')
+					if (typeof this.fireEvent === 'function') {
+						this.fireEvent('maximized')
+					}
+				},
 			}
-		});
+		)
 	} else {
-
-		css(this.wrapper, "width", this.width);
-		css(this.element, "height", this.height);
-		this.shrinker.innerHTML = icon;
-		css(this.element, "overflow", "scroll");
+		css(this.wrapper, 'width', this.width)
+		css(this.element, 'height', this.height)
+		this.shrinker.innerHTML = icon
+		css(this.element, 'overflow', 'scroll')
 		if (typeof this.fireEvent === 'function') {
-			this.fireEvent('maximized');
+			this.fireEvent('maximized')
 		}
 	}
 
-	this.minimized = false;
-};
+	this.minimized = false
+}
 
 FloatingPane.prototype.minimize = function () {
-	// when minimizing and maximizing, we must look up the ancestor chain to see if there are position: relative elements.
-	// if so, we must subtract the offset left of the ancestor to get the pane back to its original position
+	const css = gadgetui.util.setStyle
+	const icon = `<svg class="feather"><use xlink:href="${this.featherPath}/dist/feather-sprite.svg#maximize"/></svg>`
 
-	var _this = this,
-		css = gadgetui.util.setStyle,
-		offset = gadgetui.util.getOffset(this.wrapper),
-		parentPaddingLeft = parseInt(gadgetui.util.getNumberValue(gadgetui.util.getStyle(this.wrapper.parentElement, "padding-left")), 10),
-		lx = parseInt(new Number(offset.left), 10) - this.relativeOffsetLeft - parentPaddingLeft,
-		width = parseInt(gadgetui.util.getNumberValue(this.width), 10);
+	css(this.element, 'overflow', 'hidden')
 
-	css(this.element, "overflow", "hidden");
-	var icon = `<svg class="feather">
-							<use xlink:href="${this.featherPath}/dist/feather-sprite.svg#maximize"/>
-							</svg>`;
-	if (typeof Velocity != 'undefined' && this.animate) {
-
-		Velocity(this.wrapper, {
-			width: _this.minWidth
-		}, {
-			queue: false, duration: _this.delay, complete: function () {
-				//_this.icon.setAttribute( "data-glyph", "fullscreen-enter" );
-				_this.shrinker.innerHTML = icon;
+	if (typeof Velocity !== 'undefined' && this.animate) {
+		Velocity(
+			this.wrapper,
+			{ width: this.minWidth },
+			{
+				queue: false,
+				duration: this.delay,
+				complete: () => (this.shrinker.innerHTML = icon),
 			}
-		});
-
-		Velocity(this.element, {
-			height: "50px"
-		}, { queue: false, duration: _this.delay }, function () {
-			// Animation complete.
-			if (typeof _this.fireEvent === 'function') {
-				_this.fireEvent('minimized');
+		)
+		Velocity(
+			this.element,
+			{ height: '50px' },
+			{
+				queue: false,
+				duration: this.delay,
+				complete: () => {
+					if (typeof this.fireEvent === 'function') {
+						this.fireEvent('minimized')
+					}
+				},
 			}
-		});
+		)
 	} else {
-		css(this.wrapper, "width", this.minWidth);
-		css(this.element, "height", "50px");
-		this.shrinker.innerHTML = icon;
+		css(this.wrapper, 'width', this.minWidth)
+		css(this.element, 'height', '50px')
+		this.shrinker.innerHTML = icon
 		if (typeof this.fireEvent === 'function') {
-			this.fireEvent('minimized');
+			this.fireEvent('minimized')
 		}
 	}
-	this.minimized = true;
-};
+
+	this.minimized = true
+}
 
 FloatingPane.prototype.config = function (options) {
-	options = (options === undefined ? {} : options);
-	this.message = (options.message === undefined ? undefined : options.message);
-	this.animate = ((options.animate === undefined) ? true : options.animate);
-	this.delay = ((options.delay === undefined ? 500 : options.delay));
-	this.title = (options.title === undefined ? "" : options.title);
-	this.backgroundColor = (options.backgroundColor === undefined ? "" : options.backgroundColor);
-	this.zIndex = (options.zIndex === undefined ? gadgetui.util.getMaxZIndex() + 1 : options.zIndex);
-	this.width = gadgetui.util.getStyle(this.element, "width");
-	this.top = (options.top === undefined ? undefined : options.top);
-	this.left = (options.left === undefined ? undefined : options.left);
-	this.bottom = (options.bottom === undefined ? undefined : options.bottom);
-	this.right = (options.right === undefined ? undefined : options.right);
-	this.class = ((options.class === undefined ? false : options.class));
-	this.headerClass = ((options.headerClass === undefined ? false : options.headerClass));
-	this.featherPath = options.featherPath || "/node_modules/feather-icons";
-	this.minimized = false;
-	this.relativeOffsetLeft = 0;
-	this.enableShrink = (options.enableShrink !== undefined ? options.enableShrink : true);
-	this.enableClose = (options.enableClose !== undefined ? options.enableClose : true);
-};
+	this.message = options.message
+	this.animate = options.animate ?? true
+	this.delay = options.delay ?? 500
+	this.title = options.title || ''
+	this.backgroundColor = options.backgroundColor || ''
+	this.zIndex = options.zIndex ?? gadgetui.util.getMaxZIndex() + 1
+	this.width = gadgetui.util.getStyle(this.element, 'width')
+	this.top = options.top
+	this.left = options.left
+	this.bottom = options.bottom
+	this.right = options.right
+	this.class = options.class || false
+	this.headerClass = options.headerClass || false
+	this.featherPath = options.featherPath || '/node_modules/feather-icons'
+	this.minimized = false
+	this.relativeOffsetLeft = 0
+	this.enableShrink = options.enableShrink ?? true
+	this.enableClose = options.enableClose ?? true
+}

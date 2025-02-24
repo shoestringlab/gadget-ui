@@ -1,16 +1,15 @@
 gadget-ui
 =========
 
-# JavaScript UI and data binding library 
+# JavaScript UI and data binding library
 
 Gadget-ui is a UI component library that has a built-in model and data-binding mechanism for some of its components.
 
 ### Current Release
 
-v 10.0.0-release
+v 10.1.0
 
-A new input control has been introduced, the Toggle control. Toggle functions like a switch that can turn on or off. It emits a single event, "changed".
-
+This version introduces an improved model with undo,redo,fast forward, and rewind capabilities for any value in the model. It also includes a general cleanup of the codebase for readability and clarity. The test code has been consolidated in the /test folder, except for the index.js in the root if you want to test server-side logic.
 
 ## Installation
 
@@ -34,11 +33,11 @@ Use the constructor component to create new instances of a gadget-ui component, 
 
 ``` javascript
 // traditional include
-const lightbox = gadgetui.objects.Constructor( gadgetui.display.Lightbox, [ document.getElementById("lightbox"), 
+const lightbox = gadgetui.objects.Constructor( gadgetui.display.Lightbox, [ document.getElementById("lightbox"),
   {images: imageArray, time: 3000, enableModal:false }], true );
 
 // module import
-const lightbox = constructor( lightbox, [ document.getElementById("lightbox"), 
+const lightbox = constructor( lightbox, [ document.getElementById("lightbox"),
   {images: imageArray, time: 3000, enableModal:false }], true );
 
 ```

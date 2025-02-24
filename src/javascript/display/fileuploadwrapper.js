@@ -1,35 +1,36 @@
-
 function FileUploadWrapper(file, element) {
-	var ix,
-		id,
-		options,
-		bindings = gadgetui.objects.EventBindings.getAll();
-
-	id = gadgetui.util.Id();
-	options = { id: id, filename: file.name, width: gadgetui.util.getStyle(element, "width") };
-	this.file = file;
-	this.id = id;
-	this.progressbar = new gadgetui.display.ProgressBar(element, options);
-	this.progressbar.render();
-	for (ix = 0; ix < bindings.length; ix++) {
-		this[bindings[ix].name] = bindings[ix].func;
+	const id = gadgetui.util.Id()
+	const options = {
+		id: id,
+		filename: file.name,
+		width: gadgetui.util.getStyle(element, 'width'),
 	}
+	const bindings = gadgetui.objects.EventBindings.getAll()
+
+	this.file = file
+	this.id = id
+	this.progressbar = new gadgetui.display.ProgressBar(element, options)
+	this.progressbar.render()
+
+	bindings.forEach((binding) => {
+		this[binding.name] = binding.func
+	})
 }
 
-FileUploadWrapper.prototype.events = ["uploadComplete", "uploadAborted"];
+FileUploadWrapper.prototype.events = ['uploadComplete', 'uploadAborted']
 
 FileUploadWrapper.prototype.completeUpload = function (fileItem) {
-	let finish = function () {
-		this.progressbar.destroy();
-		this.fireEvent("uploadComplete", fileItem);
-	}.bind(this);
-	setTimeout(finish, 1000);
-};
+	const finish = () => {
+		this.progressbar.destroy()
+		this.fireEvent('uploadComplete', fileItem)
+	}
+	setTimeout(finish, 1000)
+}
 
 FileUploadWrapper.prototype.abortUpload = function (fileItem) {
-	let aborted = function () {
-		this.progressbar.destroy();
-		this.fireEvent("uploadAborted", fileItem);
-	}.bind(this);
-	setTimeout(aborted, 1000);
-};
+	const aborted = () => {
+		this.progressbar.destroy()
+		this.fireEvent('uploadAborted', fileItem)
+	}
+	setTimeout(aborted, 1000)
+}

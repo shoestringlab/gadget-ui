@@ -2,40 +2,48 @@
 <html>
 	<head>
 		<title>gadget-ui Model Binding Test</title>
-		 <script src='../bower_components/modlazy/dist/modlazy.min.js'></script>
-		 <script>
-		 	modlazy.load([ 'modelbinding.js < ../dist/gadget-ui.js', '../dist/gadget-ui.css', "/bower_components/open-iconic/font/css/open-iconic.css" ], function(){
-  				console.log('All files have been loaded');
-			});
-		 </script>
+		<script src="../node_modules/modlazy/dist/modlazy.min.js"></script>
+		<script>
+			modlazy.load(
+				[
+					'modelbinding.js < ../dist/gadget-ui.js',
+					'../dist/gadget-ui.css',
+					'/bower_components/open-iconic/font/css/open-iconic.css',
+				],
+				function () {
+					console.log('All files have been loaded')
+				}
+			)
+		</script>
 
 		<style>
-			body {font-size: 2em;}
-			input, select, select option{ font-size: 1em;}
+			body {
+				font-size: 2em;
+			}
+			input,
+			select,
+			select option {
+				font-size: 1em;
+			}
 		</style>
-
 	</head>
 
 	<body>
 		Model Binding
-		<br/>
-		<br/>
-			<h1 gadgetui-bind="test.title"></h1>
+		<br />
+		<br />
+		<h1 gadgetui-bind="test.title"></h1>
 		<p gadgetui-bind="test.summary"></p>
 
-	<div>
-	<div gadgetui-bind="test.name"></div>
-	<span gadgetui-bind="test.tagline"></span>
-	<ul gadgetui-bind-list="test.planets">
-	</ul>
+		<div>
+			<div gadgetui-bind="test.name"></div>
+			<span gadgetui-bind="test.tagline"></span>
+			<ul gadgetui-bind-list="test.planets"></ul>
 
-	<select gadgetui-bind-list="test.planets">
+			<select gadgetui-bind-list="test.planets"></select>
 
-	</select>
-
-<br>
-<button onclick="updatePlanets();">Add Pluto</button>
-
-	</div>
+			<br />
+			<button onclick="updatePlanets();">Add Pluto</button>
+		</div>
 	</body>
 </html>

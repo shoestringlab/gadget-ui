@@ -1,172 +1,144 @@
-function Menu(element, options) {
-	this.element = element;
-	this.elements = [];
-	this.config(options);
-	if (this.datasource !== undefined) {
-		this.retrieveData();
-	} else {
-		if (this.data !== undefined) this.addControl();
-		this.addBindings();
+function Menu(element, options = {}) {
+	this.element = element
+	this.elements = []
+	this.config(options)
+
+	if (this.datasource) {
+		this.retrieveData()
+	} else if (this.data) {
+		this.addControl()
+		this.addBindings()
 	}
 }
 
-Menu.prototype.events = ['clicked'];
+Menu.prototype.events = ['clicked']
 
 Menu.prototype.retrieveData = function () {
-	this.datasource()
-		.then(function (data) {
-			this.data = data;
-			this.addControl();
-		}.bind(this));
-};
+	this.datasource().then((data) => {
+		this.data = data
+		this.addControl()
+	})
+}
 
 Menu.prototype.addControl = function () {
+	const processItem = (item, parent) => {
+		const element = document.createElement('div')
+		element.classList.add('gadget-ui-menu-item')
+		element.innerText = item.label || ''
 
-	let processItem = function (item, parent) {
-		// if there is a label, add the label
-		let label = (item.label !== undefined ? item.label : "");
-		//let element = `<div class="gadget-ui-menu-item">{label}</div>`;
-		let element = document.createElement("div");
-		element.classList.add("gadget-ui-menu-item");
-		element.innerText = label;
-		let image = (item.image !== undefined ? item.image : "");
-		if (image.length) {
-			let imgEl = document.createElement("img");
-			imgEl.src = image;
-			imgEl.classList.add("gadget-ui-menu-icon");
-			element.appendChild(imgEl);
+		if (item.image?.length) {
+			const imgEl = document.createElement('img')
+			imgEl.src = item.image
+			imgEl.classList.add('gadget-ui-menu-icon')
+			element.appendChild(imgEl)
 		}
-		if (item.link !== undefined && item.link !== null && (item.link.length > 0 || typeof item.link === 'function')) {
-			//element.removeEventListener( "click" );
-			element.style.cursor = 'pointer';
-			element.addEventListener("click", function () {
+
+		if (
+			item.link &&
+			(item.link.length > 0 || typeof item.link === 'function')
+		) {
+			element.style.cursor = 'pointer'
+			element.addEventListener('click', () => {
 				if (typeof this.fireEvent === 'function') {
-					this.fireEvent('clicked', item);
+					this.fireEvent('clicked', item)
 				}
-				if (typeof item.link === 'function') {
-					item.link();
-				} else {
-					window.open(item.link);
-				}
-			}.bind(this));
+				typeof item.link === 'function'
+					? item.link()
+					: window.open(item.link)
+			})
 		}
-		// if there is a menuItem, add it
-		if (item.menuItem !== undefined) {
-			element.appendChild(processMenuItem(item.menuItem, element));
+
+		if (item.menuItem) {
+			element.appendChild(processMenuItem(item.menuItem, element))
 		}
-		return element;
-	}.bind(this);
+		return element
+	}
 
-	let processMenuItem = function (menuItemData, parent) {
-		// add <div class="gadget-ui-menu-menuItem"> as child of menu
-		let element = document.createElement("div");
-		element.classList.add("gadget-ui-menu-menuItem");
-		menuItemData.items.forEach(function (item) {
-			element.appendChild(processItem(item, element));
-		});
+	const processMenuItem = (menuItemData, parent) => {
+		const element = document.createElement('div')
+		element.classList.add('gadget-ui-menu-menuItem')
+		menuItemData.items.forEach((item) =>
+			element.appendChild(processItem(item, element))
+		)
+		return element
+	}
 
-		return element;
-	};
+	const generateMenu = (menuData) => {
+		const element = document.createElement('div')
+		element.classList.add('gadget-ui-menu')
+		element.innerText = menuData.label || ''
 
-	let generateMenu = function (menuData) {
-		//let element = `<div class="gadget-ui-menu">{menuData.label}</div>`;
-		let element = document.createElement("div");
-		element.classList.add("gadget-ui-menu");
-		let label = (menuData.label !== undefined ? menuData.label : "");
-		element.innerText = label;
-		let image = (menuData.image !== undefined ? menuData.image : "");
-		if (image.length) {
-			let imgEl = document.createElement("img");
-			imgEl.src = image;
-			imgEl.classList.add("gadget-ui-menu-icon");
-			element.appendChild(imgEl);
+		if (menuData.image?.length) {
+			const imgEl = document.createElement('img')
+			imgEl.src = menuData.image
+			imgEl.classList.add('gadget-ui-menu-icon')
+			element.appendChild(imgEl)
 		}
-		// process the menuItem
-		element.appendChild(processMenuItem(menuData.menuItem, element));
-		return element;
-	};
 
-	this.data.forEach(function (menu) {
+		element.appendChild(processMenuItem(menuData.menuItem, element))
+		return element
+	}
 
-		let element = generateMenu(menu);
-		// for each menu, generate the items and sub-menus
-		this.element.appendChild(element);
-		this.elements.push(element);
-	}.bind(this));
-};
+	this.data.forEach((menu) => {
+		const element = generateMenu(menu)
+		this.element.appendChild(element)
+		this.elements.push(element)
+	})
+}
 
 Menu.prototype.addBindings = function () {
+	const menus = this.element.querySelectorAll('.gadget-ui-menu')
 
-	let menus = this.element.querySelectorAll(".gadget-ui-menu");
-	// each menu needs to be initialized
-	menus.forEach(function (mu) {
-		let menuItem = mu.querySelector("div[class='gadget-ui-menu-menuItem']");
+	menus.forEach((mu) => {
+		const menuItem = mu.querySelector('.gadget-ui-menu-menuItem')
+		const items = menuItem.querySelectorAll('.gadget-ui-menu-item')
+		const menuItems = menuItem.querySelectorAll('.gadget-ui-menu-menuItem')
 
-		let items = menuItem.querySelectorAll("div[class='gadget-ui-menu-item']");
+		items.forEach((item) => {
+			const mItem = item.querySelector('.gadget-ui-menu-menuItem')
 
-		// get the menuItems inside the root
-		let menuItems = menuItem.querySelectorAll("div[class='gadget-ui-menu-menuItem']");
+			item.addEventListener('mouseenter', (evt) => {
+				if (mItem) mItem.classList.add('gadget-ui-menu-hovering')
+				item.classList.add('gadget-ui-menu-selected')
+				Array.from(item.parentNode.children).forEach((child) => {
+					if (child !== item)
+						child.classList.remove('gadget-ui-menu-selected')
+				})
+				evt.preventDefault()
+			})
 
-		// loop over the items
-		items.forEach(function (item) {
-			// find if there is a menuItem inside the item class
-			let mItem = item.querySelector("div[class='gadget-ui-menu-menuItem']");
+			item.addEventListener('mouseleave', () => {
+				if (mItem) mItem.classList.remove('gadget-ui-menu-hovering')
+			})
+		})
 
-			// add a hover event listener for each item
-			item.addEventListener("mouseenter", function (evt) {
-				if (mItem !== null) {
-					mItem.classList.add("gadget-ui-menu-hovering");
+		mu.addEventListener('mouseenter', () =>
+			menuItem.classList.add('gadget-ui-menu-hovering')
+		)
+		mu.addEventListener('mouseleave', () =>
+			menuItem.classList.remove('gadget-ui-menu-hovering')
+		)
+
+		menuItems.forEach((mItem) => {
+			mItem.addEventListener('mouseenter', () =>
+				mItem.classList.add('gadget-ui-menu-hovering')
+			)
+			mItem.addEventListener('mouseleave', () => {
+				if (!mItem.parentNode.classList.contains('selected')) {
+					mItem.classList.remove('gadget-ui-menu-hovering')
 				}
-				item.classList.add("gadget-ui-menu-selected");
-				let children = item.parentNode.children;
-				for (var ix = 0; ix < children.length; ix++) {
-					if (children[ix] !== item) {
-						children[ix].classList.remove("gadget-ui-menu-selected");
-					}
-				}
-
-				evt.preventDefault();
-			});
-
-			item.addEventListener("mouseleave", function (evt) {
-				if (mItem !== null) {
-					mItem.classList.remove("gadget-ui-menu-hovering");
-				}
-			});
-		});
-
-		// add hover event listener to the root menuItem
-		mu.addEventListener("mouseenter", function (event) {
-			menuItem.classList.add("gadget-ui-menu-hovering");
-		});
-		// add mouseleave event listener to root menuItem
-		mu.addEventListener("mouseleave", function (event) {
-			menuItem.classList.remove("gadget-ui-menu-hovering");
-		});
-
-		// add listeners to the menu items under the root
-		menuItems.forEach(function (mItem) {
-			mItem.addEventListener("mouseenter", function (ev) {
-				mItem.classList.add("gadget-ui-menu-hovering");
-			});
-			mItem.addEventListener("mouseleave", function (evt) {
-				if (mItem.parentNode.classList.toString().indexOf("selected") < 0) {
-					mItem.classList.remove("gadget-ui-menu-hovering");
-				}
-			});
-		});
-	});
-};
+			})
+		})
+	})
+}
 
 Menu.prototype.destroy = function () {
-	let menus = this.element.querySelectorAll("div.gadget-ui-menu");
-	// remove the menus
-	for (var idx = 0; idx < menus.length; idx++) {
-		document.querySelector(this.element).removeChild(menus[idx]);
-	}
-};
+	this.element.querySelectorAll('.gadget-ui-menu').forEach((menu) => {
+		this.element.removeChild(menu)
+	})
+}
 
 Menu.prototype.config = function (options) {
-	this.data = (options.data !== undefined ? options.data : undefined);
-	this.datasource = (options.datasource !== undefined ? options.datasource : undefined);
-};
+	this.data = options.data
+	this.datasource = options.datasource
+}

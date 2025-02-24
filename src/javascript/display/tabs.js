@@ -1,60 +1,69 @@
-function Tabs(element, options) {
-	this.element = element;
-	this.tabsDiv = this.element.querySelector( "div" );
-	this.config(options);
-	this.addControl();
+function Tabs(element, options = {}) {
+	this.element = element
+	this.tabsDiv = this.element.querySelector('div')
+	this.config(options)
+	this.addControl()
 }
 
 Tabs.prototype.config = function (options) {
-	this.direction = (options.direction === undefined ? "horizontal" : options.direction);
-	this.tabContentDivIds = [];
-	this.tabs = [];
-	this.activeTab;
-};
+	this.direction = options.direction || 'horizontal'
+	this.tabContentDivIds = []
+	this.tabs = []
+	this.activeTab = null
+}
 
-Tabs.prototype.events = ["tabSelected"];
+Tabs.prototype.events = ['tabSelected']
 
 Tabs.prototype.addControl = function () {
-	let dir = (this.direction === "vertical" ? "v" : "h");
-	this.tabsDiv.classList.add("gadget-ui-tabs-" + dir);
-	this.tabs = this.tabsDiv.querySelectorAll("div");
-	let activeSet = false;
-	this.tabs.forEach(function (tab) {
-		tab.classList.add("gadget-ui-tab-" + dir);
-		// set the first tab active
-		if (!activeSet) {
-			activeSet = true;
-			this.setActiveTab(tab.attributes['data-tab'].value);
-			//tab.classList.add( "gadget-ui-tab-" + dir + "-active" );
+	const dir = this.direction === 'vertical' ? 'v' : 'h'
+	this.tabsDiv.classList.add(`gadget-ui-tabs-${dir}`)
+	this.tabs = Array.from(this.tabsDiv.querySelectorAll('div'))
 
-			//this.activeTab = tab.id;
+	let activeSet = false
+	this.tabs.forEach((tab) => {
+		tab.classList.add(`gadget-ui-tab-${dir}`)
+		const tabId = tab.getAttribute('data-tab')
+		this.tabContentDivIds.push(tabId)
+		this.element.querySelector(`div[name='${tabId}']`).style.display =
+			'none'
+
+		if (!activeSet) {
+			activeSet = true
+			this.setActiveTab(tabId)
 		}
-		this.tabContentDivIds.push(tab.attributes['data-tab'].value);
-		this.element.querySelector("div[name='" + tab.attributes['data-tab'].value + "']").style.display = 'none';
-		tab.addEventListener("click", function () {
-			this.setActiveTab(tab.attributes['data-tab'].value);
-		}.bind(this));
-	}.bind(this));
-	this.element.querySelector("div[name='" + this.tabContentDivIds[0] + "']").style.display = 'block';
-};
+
+		tab.addEventListener('click', () => this.setActiveTab(tabId))
+	})
+
+	this.element.querySelector(
+		`div[name='${this.tabContentDivIds[0]}']`
+	).style.display = 'block'
+}
 
 Tabs.prototype.setActiveTab = function (activeTab) {
-	let dir = (this.direction === "vertical" ? "v" : "h");
-	this.tabContentDivIds.forEach(function (tab) {
-		let dsp = (tab === activeTab ? "block" : "none");
-		this.element.querySelector("div[name='" + tab + "']").style.display = dsp;
-	}.bind(this));
+	const dir = this.direction === 'vertical' ? 'v' : 'h'
 
-	this.tabs.forEach(function (tab) {
-		if (tab.attributes['data-tab'].value === activeTab) {
-			tab.classList.add("gadget-ui-tab-" + dir + "-active");
+	this.tabContentDivIds.forEach((tabId) => {
+		const display = tabId === activeTab ? 'block' : 'none'
+		this.element.querySelector(`div[name='${tabId}']`).style.display =
+			display
+	})
+
+	this.tabs.forEach((tab) => {
+		const tabId = tab.getAttribute('data-tab')
+		const className = `gadget-ui-tab-${dir}-active`
+		if (tabId === activeTab) {
+			tab.classList.add(className)
 		} else {
-			tab.classList.remove("gadget-ui-tab-" + dir + "-active");
+			tab.classList.remove(className)
 		}
-	}.bind(this));
-	this.activeTab = activeTab;
-	// if events were called for
-	if (this.events['tabSelected'] !== undefined) {
-		this.fireEvent("tabSelected", activeTab);
+	})
+
+	this.activeTab = activeTab
+	if (
+		typeof this.fireEvent === 'function' &&
+		this.events.includes('tabSelected')
+	) {
+		this.fireEvent('tabSelected', activeTab)
 	}
-};
+}

@@ -1,104 +1,111 @@
-function Lightbox( element, options ){
-    this.element = element;
-    this.config( options );
-    this.addControl();
-    this.updateImage();
+function Lightbox(element, options = {}) {
+	this.element = element
+	this.config(options)
+	this.addControl()
+	this.updateImage()
 }
 
-Lightbox.prototype.events = ['showPrevious','showNext'];
+Lightbox.prototype.events = ['showPrevious', 'showNext']
 
-Lightbox.prototype.config = function( options ){
-    this.images = options.images;
-    this.currentIndex = 0;
-    this.featherPath = options.featherPath || "/node_modules/feather-icons";
-    this.time = options.time || 3000;
-    this.enableModal = ( options.enableModal === undefined ? true : options.enableModal );
-};
+Lightbox.prototype.config = function (options) {
+	this.images = options.images || []
+	this.currentIndex = 0
+	this.featherPath = options.featherPath || '/node_modules/feather-icons'
+	this.time = options.time || 3000
+	this.enableModal = options.enableModal ?? true
+}
 
-Lightbox.prototype.addControl = function(){
-    gadgetui.util.addClass( this.element, "gadgetui-lightbox" );
-    this.imageContainer  = document.createElement( "div" );
-    gadgetui.util.addClass(  this.imageContainer, "gadgetui-lightbox-image-container" );
-	
-    this.spanPrevious = document.createElement("span");
-    this.spanNext = document.createElement("span");
-	gadgetui.util.addClass(this.spanPrevious, "gadgetui-lightbox-previousControl");
-	gadgetui.util.addClass(this.spanNext, "gadgetui-lightbox-nextControl");
+Lightbox.prototype.addControl = function () {
+	gadgetui.util.addClass(this.element, 'gadgetui-lightbox')
 
-	this.spanPrevious.innerHTML = `<svg class="feather" name="chevron">
+	this.imageContainer = document.createElement('div')
+	gadgetui.util.addClass(
+		this.imageContainer,
+		'gadgetui-lightbox-image-container'
+	)
+
+	this.spanPrevious = document.createElement('span')
+	this.spanNext = document.createElement('span')
+	gadgetui.util.addClass(
+		this.spanPrevious,
+		'gadgetui-lightbox-previousControl'
+	)
+	gadgetui.util.addClass(this.spanNext, 'gadgetui-lightbox-nextControl')
+
+	this.spanPrevious.innerHTML = `
+    <svg class="feather" name="chevron">
       <use xlink:href="${this.featherPath}/dist/feather-sprite.svg#chevron-left"/>
-    </svg>`;
-    this.spanNext.innerHTML = `<svg class="feather" name="chevron">
+    </svg>`
+	this.spanNext.innerHTML = `
+    <svg class="feather" name="chevron">
       <use xlink:href="${this.featherPath}/dist/feather-sprite.svg#chevron-right"/>
-    </svg>`;
-    this.element.appendChild( this.spanPrevious );
-    this.element.appendChild( this.imageContainer );
-    this.element.appendChild( this.spanNext );
+    </svg>`
 
-    this.spanPrevious.addEventListener( "click", function( event ){
-        this.prevImage();
-    }.bind(this));
+	this.element.appendChild(this.spanPrevious)
+	this.element.appendChild(this.imageContainer)
+	this.element.appendChild(this.spanNext)
 
-    this.spanNext.addEventListener( "click", function( event ){
-        this.nextImage();
-    }.bind(this));
+	this.spanPrevious.addEventListener('click', () => this.prevImage())
+	this.spanNext.addEventListener('click', () => this.nextImage())
 
-    if( this.enableModal ){
-        this.modal = document.createElement("div");
-        gadgetui.util.addClass( this.modal, "gadgetui-lightbox-modal");
-        gadgetui.util.addClass( this.modal, "gadgetui-hidden");
-        this.modalImageContainer = document.createElement("div");
-        this.modal.appendChild( this.modalImageContainer );
-        gadgetui.util.addClass( this.modalImageContainer, "gadgetui-lightbox-modal-imagecontainer");
+	if (this.enableModal) {
+		this.modal = document.createElement('div')
+		gadgetui.util.addClass(this.modal, 'gadgetui-lightbox-modal')
+		gadgetui.util.addClass(this.modal, 'gadgetui-hidden')
 
-        document.querySelector("body").appendChild( this.modal );
+		this.modalImageContainer = document.createElement('div')
+		gadgetui.util.addClass(
+			this.modalImageContainer,
+			'gadgetui-lightbox-modal-imagecontainer'
+		)
+		this.modal.appendChild(this.modalImageContainer)
 
-        this.imageContainer.addEventListener( "click", function(event){
-            this.setModalImage();
-            gadgetui.util.addClass( this.element, "gadgetui-hidden");
-            gadgetui.util.removeClass( this.modal, "gadgetui-hidden");
-            this.stopAnimation();
-        }.bind(this));
+		document.body.appendChild(this.modal)
 
-        this.modal.addEventListener( "click", function(event){
-            gadgetui.util.addClass( this.modal, "gadgetui-hidden");
-            gadgetui.util.removeClass( this.element, "gadgetui-hidden");
-            this.animate();
-        }.bind(this));
-    }
-};
+		this.imageContainer.addEventListener('click', () => {
+			this.setModalImage()
+			gadgetui.util.addClass(this.element, 'gadgetui-hidden')
+			gadgetui.util.removeClass(this.modal, 'gadgetui-hidden')
+			this.stopAnimation()
+		})
 
-// Function to show the next image
-Lightbox.prototype.nextImage = function() {
-    this.currentIndex = ( this.currentIndex + 1 ) %  this.images.length;
-    this.updateImage();
-};
+		this.modal.addEventListener('click', () => {
+			gadgetui.util.addClass(this.modal, 'gadgetui-hidden')
+			gadgetui.util.removeClass(this.element, 'gadgetui-hidden')
+			this.animate()
+		})
+	}
+}
 
-// Function to show the previous image
-Lightbox.prototype.prevImage = function() {
-    this.currentIndex = ( this.currentIndex - 1 + this.images.length ) %  this.images.length;
-    this.updateImage();
-};
+Lightbox.prototype.nextImage = function () {
+	this.currentIndex = (this.currentIndex + 1) % this.images.length
+	this.updateImage()
+}
 
-// Function to update the current image
-Lightbox.prototype.updateImage = function() {
-    this.imageContainer.innerHTML = `<img style="height:100%;width:100%;" src="${this.images[this.currentIndex]}" alt="Image ${this.currentIndex + 1}">`;
-};
+Lightbox.prototype.prevImage = function () {
+	this.currentIndex =
+		(this.currentIndex - 1 + this.images.length) % this.images.length
+	this.updateImage()
+}
 
-Lightbox.prototype.animate = function() {
-    this.interval = setInterval(function () {
-        this.nextImage();
-        }.bind(this), this.time );
-};
+Lightbox.prototype.updateImage = function () {
+	this.imageContainer.innerHTML = `
+    <img style="height:100%;width:100%;"
+         src="${this.images[this.currentIndex]}"
+         alt="Image ${this.currentIndex + 1}">`
+}
 
-Lightbox.prototype.stopAnimation = function() {
-    clearInterval(this.interval);
-};
+Lightbox.prototype.animate = function () {
+	this.interval = setInterval(() => this.nextImage(), this.time)
+}
 
-Lightbox.prototype.setModalImage = function() {
-    this.modalImageContainer.innerHTML = `<img style="height:100%;width:100%;" src="${this.images[this.currentIndex]}" alt="Image ${this.currentIndex + 1}">`;
-};
+Lightbox.prototype.stopAnimation = function () {
+	clearInterval(this.interval)
+}
 
-
-
-
+Lightbox.prototype.setModalImage = function () {
+	this.modalImageContainer.innerHTML = `
+    <img style="height:100%;width:100%;"
+         src="${this.images[this.currentIndex]}"
+         alt="Image ${this.currentIndex + 1}">`
+}

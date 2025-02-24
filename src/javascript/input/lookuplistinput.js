@@ -1,700 +1,559 @@
-//author - Robert Munn <robertdmunn@gmail.com>
+// Author: Robert Munn <robertdmunn@gmail.com>
+// Adapted from jQuery UI autocomplete
 
-//adapted from jQuery UI autocomplete.
-
-function LookupListInput(element, options) {
-	this.element = element;
-	this.items = [];
-	this.config(options);
-	this.setIsMultiLine();
-	this.addControl();
-	this.initSource();
-	this.addMenu();
-	this.addBindings();
+function LookupListInput(element, options = {}) {
+	this.element = element
+	this.items = []
+	this.config(options)
+	this.setIsMultiLine()
+	this.addControl()
+	this.initSource()
+	this.addMenu()
+	this.addBindings()
 }
 
-LookupListInput.prototype.events = ['change', 'focus', 'mouseenter', 'keyup', 'mouseleave', 'blur', 'click', 'input', 'keypress', 'keydown', 'menuselect', 'mousedown'];
+LookupListInput.prototype.events = [
+	'change',
+	'focus',
+	'mouseenter',
+	'keyup',
+	'mouseleave',
+	'blur',
+	'click',
+	'input',
+	'keypress',
+	'keydown',
+	'menuselect',
+	'mousedown',
+]
 
 LookupListInput.prototype.addControl = function () {
-	this.wrapper = document.createElement("div");
-	if (this.width !== undefined) {
-		gadgetui.util.setStyle(this.wrapper, "width", this.width);
-	}
-	gadgetui.util.addClass(this.wrapper, "gadgetui-lookuplist-input");
-	this.element.parentNode.insertBefore(this.wrapper, this.element);
-	this.element.parentNode.removeChild(this.element);
-	this.wrapper.appendChild(this.element);
-};
+	this.wrapper = document.createElement('div')
+	if (this.width) gadgetui.util.setStyle(this.wrapper, 'width', this.width)
+	gadgetui.util.addClass(this.wrapper, 'gadgetui-lookuplist-input')
+
+	this.element.parentNode.insertBefore(this.wrapper, this.element)
+	this.element.parentNode.removeChild(this.element)
+	this.wrapper.appendChild(this.element)
+}
 
 LookupListInput.prototype.addMenu = function () {
-	var div = document.createElement("div");
-	gadgetui.util.addClass(div, "gadgetui-lookuplist-menu");
-	gadgetui.util.setStyle(div, "display", "none");
-
-	this.menu = {
-		element: div
-	};
-
-	this.wrapper.appendChild(this.menu.element);
-};
+	const div = document.createElement('div')
+	gadgetui.util.addClass(div, 'gadgetui-lookuplist-menu')
+	gadgetui.util.setStyle(div, 'display', 'none')
+	this.menu = { element: div }
+	this.wrapper.appendChild(div)
+}
 
 LookupListInput.prototype.initSource = function () {
-	var array, url,
-		_this = this;
-	if (this.datasource.constructor === Array) {
-		array = this.datasource;
-		this.source = function (request, response) {
-			var content = _this.filter(array, request.term);
-			response(content);
-		};
-	} else if (typeof this.datasource === "string") {
-		url = this.datasource;
-		this.source = function (request, response) {
-			if (_this.xhr) {
-				_this.xhr.abort();
-			}
-			_this.xhr = fetch({
-				url: url,
+	if (Array.isArray(this.datasource)) {
+		this.source = (request, response) =>
+			response(this.filter(this.datasource, request.term))
+	} else if (typeof this.datasource === 'string') {
+		this.source = (request, response) => {
+			if (this.xhr) this.xhr.abort()
+			this.xhr = fetch({
+				url: this.datasource,
 				data: request,
-				dataType: "json",
-				success: function (data) {
-					response(data);
-				},
-				error: function () {
-					response([]);
-				}
-			});
-		};
+				dataType: 'json',
+				success: (data) => response(data),
+				error: () => response([]),
+			})
+		}
 	} else {
-		this.source = this.datasource;
+		this.source = this.datasource
 	}
-};
+}
 
 LookupListInput.prototype.escapeRegex = function (value) {
-	return value.replace(/[\-\[\]{}()*+?.,\\\^$|#\s]/g, "\\$&");
-};
+	return value.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&')
+}
 
 LookupListInput.prototype._filter = function (array, term) {
-	var matcher = new RegExp(this.escapeRegex(term), "i");
-	return gadgetui.util.grep(array, function (value) {
-		return matcher.test(value.label || value.value || value);
-	});
-};
+	const matcher = new RegExp(this.escapeRegex(term), 'i')
+	return gadgetui.util.grep(array, (value) =>
+		matcher.test(value.label || value.value || value)
+	)
+}
 
 LookupListInput.prototype.checkForDuplicate = function (item) {
-	var ix, found = false;
-	for (ix = 0; ix < this.items.length; ix++) {
-		if (this.items[ix].value === item.value) {
-			found = true;
-			break;
-		}
-	}
-	return found;
-};
+	return this.items.some((existing) => existing.value === item.value)
+}
 
 LookupListInput.prototype.makeUnique = function (content) {
-	var ix, results = [];
-	for (ix = 0; ix < content.length; ix++) {
-		if (!this.checkForDuplicate(content[ix])) {
-			results.push(content[ix]);
-		}
-	}
-	return results;
-};
+	return content.filter((item) => !this.checkForDuplicate(item))
+}
 
 LookupListInput.prototype.setIsMultiLine = function () {
-	var nodeName = this.element.nodeName.toLowerCase(),
-		isTextarea = nodeName === "textarea",
-		isInput = nodeName === "input";
-
-	this.isMultiLine = isTextarea ? true : isInput ? false : this.element.getAttribute("isContentEditable");
-};
+	const nodeName = this.element.nodeName.toLowerCase()
+	this.isMultiLine =
+		nodeName === 'textarea' ||
+		(nodeName !== 'input' && this.element.getAttribute('isContentEditable'))
+}
 
 LookupListInput.prototype.addBindings = function () {
-	var _this = this, suppressKeyPress, suppressKeyPressRepeat, suppressInput, nodeName = this.element.nodeName.toLowerCase();
-	this.isTextarea = nodeName === "textarea";
-	this.isInput = nodeName === "input";
-	this.wrapper
-		.addEventListener("click", function () {
-			_this.element.focus();
-			if (typeof _this.fireEvent === 'function') {
-				_this.fireEvent('click');
+	const nodeName = this.element.nodeName.toLowerCase()
+	this.isTextarea = nodeName === 'textarea'
+	this.isInput = nodeName === 'input'
+	this.valueMethod = this.isTextarea || this.isInput ? 'value' : 'innerText'
+	this.element.setAttribute('autocomplete', 'off')
+
+	let suppressKeyPress, suppressKeyPressRepeat, suppressInput
+
+	this.wrapper.addEventListener('click', () => {
+		this.element.focus()
+		if (typeof this.fireEvent === 'function') this.fireEvent('click')
+	})
+
+	const keyEvents = {
+		keydown: (event) => {
+			if (this.element.getAttribute('readOnly')) {
+				suppressKeyPress = suppressInput = suppressKeyPressRepeat = true
+				return
 			}
-		});
+			suppressKeyPress = suppressInput = suppressKeyPressRepeat = false
+			const keyCode = gadgetui.keyCode
 
-	this.valueMethod = this.element[this.isTextarea || this.isInput ? "value" : "innerText"];
-	this.isNewMenu = true;
-
-	this.element.setAttribute("autocomplete", "off");
-
-	this.element
-		.addEventListener("keydown", function (event) {
-			if (this.getAttribute("readOnly")) {
-				suppressKeyPress = true;
-				suppressInput = true;
-				suppressKeyPressRepeat = true;
-				return;
-			}
-
-			suppressKeyPress = false;
-			suppressInput = false;
-			suppressKeyPressRepeat = false;
-			var keyCode = gadgetui.keyCode;
 			switch (event.keyCode) {
 				case keyCode.PAGE_UP:
-					suppressKeyPress = true;
-					this._move("previousPage", event);
-					break;
+					suppressKeyPress = true
+					this._move('previousPage', event)
+					break
 				case keyCode.PAGE_DOWN:
-					suppressKeyPress = true;
-					this._move("nextPage", event);
-					break;
+					suppressKeyPress = true
+					this._move('nextPage', event)
+					break
 				case keyCode.UP:
-					suppressKeyPress = true;
-					this._keyEvent("previous", event);
-					break;
+					suppressKeyPress = true
+					this._keyEvent('previous', event)
+					break
 				case keyCode.DOWN:
-					suppressKeyPress = true;
-					this._keyEvent("next", event);
-					break;
+					suppressKeyPress = true
+					this._keyEvent('next', event)
+					break
 				case keyCode.ENTER:
-					// when menu is open and has focus
-					if (_this.menu.active) {
-						// #6055 - Opera still allows the keypress to occur
-						// which causes forms to submit
-						suppressKeyPress = true;
-						event.preventDefault();
-						_this.menu.select(event);
+					if (this.menu.active) {
+						suppressKeyPress = true
+						event.preventDefault()
+						this.menu.select(event)
 					}
-					break;
+					break
 				case keyCode.BACKSPACE:
-					if (!this.value.length && _this.items.length) {
-						var selector = this.previousSibling;
-						_this.remove(selector);
+					if (!this.element.value.length && this.items.length) {
+						this.remove(this.element.previousSibling)
 					}
-					break;
+					break
 				case keyCode.TAB:
-					if (_this.menu.active) {
-						_this.menu.select(event);
-					}
-					break;
+					if (this.menu.active) this.menu.select(event)
+					break
 				case keyCode.ESCAPE:
-					if (_this.menu.element.style.display !== 'none') {
-						if (!this.isMultiLine) {
-							this._value(this.term);
-						}
-						this.close(event);
-						// Different browsers have different default behavior for escape
-						// Single press can mean undo or clear
-						// Double press in IE means clear the whole form
-						event.preventDefault();
+					if (this.menu.element.style.display !== 'none') {
+						if (!this.isMultiLine) this._value(this.term)
+						this.close(event)
+						event.preventDefault()
 					}
-					break;
+					break
 				default:
-					suppressKeyPressRepeat = true;
-					// search timeout should be triggered before the input value is changed
-					_this._searchTimeout(event);
-					break;
+					suppressKeyPressRepeat = true
+					this._searchTimeout(event)
+					break
 			}
-			if (typeof _this.fireEvent === 'function') {
-				_this.fireEvent('keydown');
-			}
-		});
+			if (typeof this.fireEvent === 'function') this.fireEvent('keydown')
+		},
 
-	this.element
-		.addEventListener("keypress", function (event) {
+		keypress: (event) => {
 			if (suppressKeyPress) {
-				suppressKeyPress = false;
-				if (!this.isMultiLine || _this.menu.element.style.display !== 'none') {
-					event.preventDefault();
+				suppressKeyPress = false
+				if (
+					!this.isMultiLine ||
+					this.menu.element.style.display !== 'none'
+				) {
+					event.preventDefault()
 				}
-				return;
+				return
 			}
-			if (suppressKeyPressRepeat) {
-				return;
-			}
+			if (suppressKeyPressRepeat) return
 
-			// replicate some key handlers to allow them to repeat in Firefox and Opera
-			var keyCode = gadgetui.keyCode;
+			const keyCode = gadgetui.keyCode
 			switch (event.keyCode) {
 				case keyCode.PAGE_UP:
-					this._move("previousPage", event);
-					break;
+					this._move('previousPage', event)
+					break
 				case keyCode.PAGE_DOWN:
-					this._move("nextPage", event);
-					break;
+					this._move('nextPage', event)
+					break
 				case keyCode.UP:
-					this._keyEvent("previous", event);
-					break;
+					this._keyEvent('previous', event)
+					break
 				case keyCode.DOWN:
-					this._keyEvent("next", event);
-					break;
+					this._keyEvent('next', event)
+					break
 			}
-			if (typeof _this.fireEvent === 'function') {
-				_this.fireEvent('keypress');
-			}
-		});
+			if (typeof this.fireEvent === 'function') this.fireEvent('keypress')
+		},
 
-	this.element
-		.addEventListener("input", function (event) {
+		input: (event) => {
 			if (suppressInput) {
-				suppressInput = false;
-				event.preventDefault();
-				return;
+				suppressInput = false
+				event.preventDefault()
+				return
 			}
-			_this._searchTimeout(event);
-			if (typeof _this.fireEvent === 'function') {
-				_this.fireEvent('input');
-			}
-		});
+			this._searchTimeout(event)
+			if (typeof this.fireEvent === 'function') this.fireEvent('input')
+		},
 
-	this.element
-		.addEventListener("focus", function (event) {
-			this.selectedItem = null;
-			this.previous = this.value;
-			if (typeof _this.fireEvent === 'function') {
-				_this.fireEvent('focus');
-			}
-		});
+		focus: () => {
+			this.selectedItem = null
+			this.previous = this.element[this.valueMethod]
+			if (typeof this.fireEvent === 'function') this.fireEvent('focus')
+		},
 
-	this.element
-		.addEventListener("blur", function (event) {
+		blur: (event) => {
 			if (this.cancelBlur) {
-				delete this.cancelBlur;
-				return;
+				delete this.cancelBlur
+				return
 			}
+			clearTimeout(this.searching)
+			this.close(event)
+			if (typeof this.fireEvent === 'function') this.fireEvent('blur')
+		},
 
-			clearTimeout(this.searching);
-			_this.close(event);
-			if (typeof _this.fireEvent === 'function') {
-				_this.fireEvent('blur');
-			}
-		});
+		change: () => this.fireEvent('change'),
+	}
 
-	this.element.addEventListener( "change", function( event ){
-		_this.fireEvent("change");
-	});
+	Object.entries(keyEvents).forEach(([event, handler]) => {
+		this.element.addEventListener(event, handler)
+	})
 
-	// menu bindings
-	this.menu.element.addEventListener("mousedown", function (event) {
-		// prevent moving focus out of the text field
-		event.preventDefault();
+	this.menu.element.addEventListener('mousedown', (event) => {
+		event.preventDefault()
+		this.cancelBlur = true
+		gadgetui.util.delay(() => delete this.cancelBlur)
+		if (typeof this.fireEvent === 'function') this.fireEvent('mousedown')
+	})
 
-		// IE doesn't prevent moving focus even with event.preventDefault()
-		// so we set a flag to know when we should ignore the blur event
-		this.cancelBlur = true;
-		gadgetui.util.delay(function () {
-			delete this.cancelBlur;
-		});
+	this.menu.element.addEventListener('menuselect', (event) => {
+		const item = event.detail
+		const previous = this.previous
 
-		// clicking on the scrollbar causes focus to shift to the body
-		// but we can't detect a mouseup or a click immediately afterward
-		// so we have to track the next mousedown and close the menu if
-		// the user clicks somewhere outside of the autocomplete
-		var menuElement = _this.menu.element;
-		if (typeof _this.fireEvent === 'function') {
-			_this.fireEvent('mousedown');
-		}
-	});
-
-	this.menu.element.addEventListener("menuselect", function (event) {
-		var item = event.detail,
-			previous = _this.previous;
-
-		// only trigger when focus was lost (click on menu)
-		if (_this.menu.element !== document.activeElement) {
-			_this.menu.element.focus();
-			_this.previous = previous;
-			// #6109 - IE triggers two focus events and the second
-			// is asynchronous, so we need to reset the previous
-			// term synchronously and asynchronously :-(
-			gadgetui.util.delay(function () {
-				_this.previous = previous;
-				_this.selectedItem = item;
-			});
+		if (this.menu.element !== document.activeElement) {
+			this.menu.element.focus()
+			this.previous = previous
+			gadgetui.util.delay(() => {
+				this.previous = previous
+				this.selectedItem = item
+			})
 		}
 
-		//if ( false !== this._trigger( "select", event, { item: item } ) ) {
-		_this._value(item.value);
-		//}
-		// reset the term after the select event
-		// this allows custom select handling to work properly
-		_this.term = _this._value();
+		this._value(item.value)
+		this.term = this._value()
+		this.close(event)
+		this.selectedItem = item
 
-		_this.close(event);
-		_this.selectedItem = item;
-		if (!_this.checkForDuplicate(item)) {
-			_this.add(item);
-		} else {
-
-		}
-		if (typeof _this.fireEvent === 'function') {
-			_this.fireEvent('menuselect');
-		}
-	});
-};
+		if (!this.checkForDuplicate(item)) this.add(item)
+		if (typeof this.fireEvent === 'function') this.fireEvent('menuselect')
+	})
+}
 
 LookupListInput.prototype._renderItem = function (item) {
-	var itemNode, itemWrapper = document.createElement("div");
-	gadgetui.util.addClass(itemWrapper, "gadgetui-lookuplist-input-item-wrapper");
-	itemNode = document.createElement("div");
-	gadgetui.util.addClass(itemNode, "gadgetui-lookuplist-input-item");
-	itemNode.innerHTML = this.labelRenderer(item);
-	itemWrapper.appendChild(itemNode);
-	return itemWrapper;
-};
+	const wrapper = document.createElement('div')
+	gadgetui.util.addClass(wrapper, 'gadgetui-lookuplist-input-item-wrapper')
+	const itemNode = document.createElement('div')
+	gadgetui.util.addClass(itemNode, 'gadgetui-lookuplist-input-item')
+	itemNode.innerHTML = this.labelRenderer(item)
+	wrapper.appendChild(itemNode)
+	return wrapper
+}
 
 LookupListInput.prototype._renderItemCancel = function (item, wrapper) {
-	var css = gadgetui.util.setStyle,
-		itemCancel = document.createElement("span"),
-		spanLeft = gadgetui.util.getNumberValue(gadgetui.util.getStyle(wrapper, "width"))
-			+ 6;  // font-size of icon
-	//- 3; // top offset of icon
+	const css = gadgetui.util.setStyle
+	const itemCancel = document.createElement('span')
+	const leftOffset =
+		gadgetui.util.getNumberValue(gadgetui.util.getStyle(wrapper, 'width')) +
+		6
 
-	gadgetui.util.addClass(itemCancel, "oi");
-	itemCancel.setAttribute('data-glyph', "circle-x");
-	css(itemCancel, "font-size", 12);
-	css(itemCancel, "opacity", ".5");
-	css(itemCancel, "left", spanLeft);
-	css(itemCancel, "position", "absolute");
-	css(itemCancel, "cursor", "pointer");
-	css(itemCancel, "top", 3);
-	return itemCancel;
-};
+	gadgetui.util.addClass(itemCancel, 'oi')
+	itemCancel.setAttribute('data-glyph', 'circle-x')
+	css(itemCancel, 'font-size', 12)
+	css(itemCancel, 'opacity', '.5')
+	css(itemCancel, 'left', leftOffset)
+	css(itemCancel, 'position', 'absolute')
+	css(itemCancel, 'cursor', 'pointer')
+	css(itemCancel, 'top', 3)
+	return itemCancel
+}
 
 LookupListInput.prototype.add = function (item) {
-	var _this = this,
-		prop, list, itemWrapper,
-		itemCancel;
+	const wrapper = this.itemRenderer(item)
+	wrapper.setAttribute('data-value', item.value)
+	this.wrapper.insertBefore(wrapper, this.element)
 
-	itemWrapper = this.itemRenderer(item);
-	itemWrapper.setAttribute("data-value", item.value);
-	this.wrapper.insertBefore(itemWrapper, this.element);
-	itemCancel = this.itemCancelRenderer(item, itemWrapper);
-	if (itemCancel !== undefined) {
-		itemWrapper.appendChild(itemCancel);
-		itemCancel.addEventListener("click", function (event) {
-			_this.remove(this.parentNode);
-		});
+	const itemCancel = this.itemCancelRenderer(item, wrapper)
+	if (itemCancel) {
+		wrapper.appendChild(itemCancel)
+		itemCancel.addEventListener('click', () => this.remove(wrapper))
 	}
 
-	this.element.value = '';
-	this.items.push(item);
+	this.element.value = ''
+	this.items.push(item)
 
-	if (this.emitEvents === true) {
-		gadgetui.util.trigger(this.element, "gadgetui-lookuplist-input-add", item);
-	}
-
-	if (this.func !== undefined) {
-		this.func(item, 'add');
-	}
-	if (this.model !== undefined) {
-		//update the model
-		prop = this.element.getAttribute("gadgetui-bind");
-		if (prop !== null && prop !== undefined) {
-			list = this.model.get(prop);
-			if (typeof list === Array) {
-				list = [];
-			}
-			list.push(item);
-			this.model.set(prop, list);
+	if (this.emitEvents)
+		gadgetui.util.trigger(
+			this.element,
+			'gadgetui-lookuplist-input-add',
+			item
+		)
+	if (this.func) this.func(item, 'add')
+	if (this.model) {
+		const prop = this.element.getAttribute('gadgetui-bind')
+		if (prop) {
+			const list = this.model.get(prop) || []
+			list.push(item)
+			this.model.set(prop, list)
 		}
 	}
-};
+}
 
 LookupListInput.prototype.remove = function (element) {
-	var _this = this, removed, ix, prop, list, value = element.getAttribute("data-value");
+	const value = element.getAttribute('data-value')
+	element.parentNode.removeChild(element)
 
-	element.parentNode.removeChild(element);
-	// remove from internal array
-	for (ix = 0; ix < this.items.length; ix++) {
-		if (this.items[ix].value === value) {
-			removed = this.items.splice(ix, 1);
-		}
-	}
-	if (this.model !== undefined) {
-		prop = this.element.getAttribute("gadgetui-bind");
-		if (prop !== null && prop !== undefined) {
-			list = this.model.get(prop);
-			list.forEach(function (obj, ix) {
-				if (obj.value === value) {
-					list.splice(ix, 1);
-					if (_this.func !== undefined) {
-						_this.func(obj, 'remove');
-					}
-					if (_this.emitEvents === true) {
-						gadgetui.util.trigger(_this.element, "gadgetui-lookuplist-input-remove", obj);
-					}
-					_this.model.set(prop, list);
-					return false;
+	const index = this.items.findIndex((item) => item.value === value)
+	if (index !== -1) {
+		const [removed] = this.items.splice(index, 1)
+		if (this.model) {
+			const prop = this.element.getAttribute('gadgetui-bind')
+			if (prop) {
+				const list = this.model.get(prop)
+				const listIndex = list.findIndex((obj) => obj.value === value)
+				if (listIndex !== -1) {
+					list.splice(listIndex, 1)
+					if (this.func) this.func(removed, 'remove')
+					if (this.emitEvents)
+						gadgetui.util.trigger(
+							this.element,
+							'gadgetui-lookuplist-input-remove',
+							removed
+						)
+					this.model.set(prop, list)
 				}
-			});
+			}
 		}
 	}
-};
+}
 
 LookupListInput.prototype.reset = function () {
-
-	while (this.wrapper.firstChild && this.wrapper.firstChild !== this.element) {
-		this.wrapper.removeChild(this.wrapper.firstChild);
+	while (
+		this.wrapper.firstChild &&
+		this.wrapper.firstChild !== this.element
+	) {
+		this.wrapper.removeChild(this.wrapper.firstChild)
 	}
-	this.items = [];
-	if (this.model !== undefined) {
-		var prop = this.element.getAttribute("gadgetui-bind");
-		this.model.set(prop, []);
+	this.items = []
+	if (this.model) {
+		const prop = this.element.getAttribute('gadgetui-bind')
+		if (prop) this.model.set(prop, [])
 	}
-};
+}
 
 LookupListInput.prototype.destroy = function () {
-	clearTimeout(this.searching);
-	this.menu.element.remove();
-	this.liveRegion.remove();
-};
+	clearTimeout(this.searching)
+	this.menu.element.remove()
+	if (this.liveRegion) this.liveRegion.remove()
+}
 
 LookupListInput.prototype._setOption = function (key, value) {
-	this._super(key, value);
-	if (key === "source") {
-		this._initSource();
-	}
-	if (key === "appendTo") {
-		this.menu.element.appendTo(this._appendTo());
-	}
-	if (key === "disabled" && value && this.xhr) {
-		this.xhr.abort();
-	}
-};
+	this._super(key, value)
+	if (key === 'source') this._initSource()
+	if (key === 'appendTo') this.menu.element.appendTo(this._appendTo())
+	if (key === 'disabled' && value && this.xhr) this.xhr.abort()
+}
 
 LookupListInput.prototype._appendTo = function () {
-	var element = this.options.appendTo;
-
-	if (element) {
-		element = element.jquery || element.nodeType ?
-			$(element) :
-			this.document.find(element).eq(0);
-	}
-
-	if (!element || !element[0]) {
-		element = this.element.closest(".ui-front");
-	}
-
-	if (!element.length) {
-		element = this.document[0].body;
-	}
-
-	return element;
-};
+	let element = this.options.appendTo
+	if (!element) element = this.element.closest('.ui-front') || document.body
+	return element.jquery || element.nodeType
+		? $(element)
+		: this.document.find(element).eq(0)
+}
 
 LookupListInput.prototype._searchTimeout = function (event) {
-	var _this = this;
-	clearTimeout(this.searching);
-	this.searching = gadgetui.util.delay(function () {
+	clearTimeout(this.searching)
+	this.searching = gadgetui.util.delay(() => {
+		const termChanged = this.term !== this.element.value
+		const menuVisible = this.menu.element.style.display !== 'none'
+		const modifierKey =
+			event.altKey || event.ctrlKey || event.metaKey || event.shiftKey
 
-		// Search if the value has changed, or if the user retypes the same value (see #7434)
-		var equalValues = this.term === _this.element.value,
-			menuVisible = _this.menu.element.style.display !== 'none',
-			modifierKey = event.altKey || event.ctrlKey || event.metaKey || event.shiftKey;
-
-		if (!equalValues || (equalValues && !menuVisible && !modifierKey)) {
-			_this.selectedItem = null;
-			_this.search(null, event);
+		if (termChanged || (!termChanged && !menuVisible && !modifierKey)) {
+			this.selectedItem = null
+			this.search(null, event)
 		}
-	}, this.delay);
-};
+	}, this.delay)
+}
 
 LookupListInput.prototype.search = function (value, event) {
-	var _this = this;
-	value = value != null ? value : _this.element.value;
-
-	// always save the actual value, not the one passed as an argument
-	this.term = this._value();
-
-	if (value.length < this.minLength) {
-		return this.close(event);
-	}
-
-	return this._search(value);
-};
+	value = value ?? this.element.value
+	this.term = this._value()
+	return value.length < this.minLength
+		? this.close(event)
+		: this._search(value)
+}
 
 LookupListInput.prototype._search = function (value) {
-	this.pending++;
-	this.cancelSearch = false;
-
-	this.source({ term: value }, this._response());
-};
+	this.pending++
+	this.cancelSearch = false
+	this.source({ term: value }, this._response())
+}
 
 LookupListInput.prototype._response = function () {
-	var _this = this,
-		index = ++this.requestIndex,
-		fn = function (content) {
-			_this.__response(content);
-
-			_this.pending--;
-			/*	if ( !_this.pending ) {
-				this.element.removeClass( "ui-autocomplete-loading" );
-			}	*/
-		},
-		proxy = function () {
-			return fn.apply(_this, arguments);
-		};
-	return proxy;
-};
+	const index = ++this.requestIndex
+	return (content) => {
+		if (index === this.requestIndex) {
+			this.__response(content)
+			this.pending--
+		}
+	}
+}
 
 LookupListInput.prototype.__response = function (content) {
-	content = this.makeUnique(content);
+	content = this.makeUnique(content)
+	if (content?.length) content = this._normalize(content)
 
-	if (content && content.length) {
-		content = this._normalize(content);
-	}
-	this.element.dispatchEvent(new CustomEvent("response", { content: content }));
-	if (!this.disabled && content && content.length && !this.cancelSearch) {
-		this._suggest(content);
-		this.element.dispatchEvent(new Event("open"));
+	this.element.dispatchEvent(
+		new CustomEvent('response', { detail: { content } })
+	)
+	if (!this.disabled && content?.length && !this.cancelSearch) {
+		this._suggest(content)
+		this.element.dispatchEvent(new Event('open'))
 	} else {
-		this._close();
+		this._close()
 	}
-};
+}
 
 LookupListInput.prototype.close = function (event) {
-	this.cancelSearch = true;
-	this._close(event);
-};
+	this.cancelSearch = true
+	this._close(event)
+}
 
 LookupListInput.prototype._close = function (event) {
 	if (this.menu.element.style.display !== 'none') {
-		this.menu.element.style.display = 'none';
-		this.menu.element.blur();
-		this.isNewMenu = true;
+		this.menu.element.style.display = 'none'
+		this.menu.element.blur()
+		this.isNewMenu = true
 	}
-};
+}
 
 LookupListInput.prototype._normalize = function (items) {
-	// assume all items have the right format when the first item is complete
-	if (items.length && items[0].label && items[0].value) {
-		return items;
-	}
-	return items.map(function (item) {
-		if (typeof item === "string") {
-			return {
-				label: item,
-				value: item
-			};
-		}
-		item.label = item.label || item.value;
-		item.value = item.value || item.label;
-
-		return item;
-	});
-};
+	if (items.length && items[0].label && items[0].value) return items
+	return items.map((item) =>
+		typeof item === 'string'
+			? { label: item, value: item }
+			: {
+					label: item.label || item.value,
+					value: item.value || item.label,
+				}
+	)
+}
 
 LookupListInput.prototype._suggest = function (items) {
-	var div = this.menu.element;
-	while (div.firstChild) {
-		div.removeChild(div.firstChild);
-	}
-	this._renderMenu(items);
-	this.isNewMenu = true;
+	const div = this.menu.element
+	while (div.firstChild) div.removeChild(div.firstChild)
 
-	// size and position menu
-	div.style.display = 'block';
-	this._resizeMenu();
-	this.position.of = this.element;
-
-	/*	if ( this.autoFocus ) {
-	//	this.menu.next();
-	}	*/
-};
+	this._renderMenu(items)
+	div.style.display = 'block'
+	this._resizeMenu()
+	this.position.of = this.element
+	this.isNewMenu = true
+}
 
 LookupListInput.prototype._resizeMenu = function () {
-	var div = this.menu.element;
-	// don't change it right now
-};
+	// No resizing implemented currently
+}
 
 LookupListInput.prototype._renderMenu = function (items) {
-	var _this = this, ix;
-	var maxItems = Math.min(this.maxSuggestions, items.length);
-	for (ix = 0; ix < maxItems; ix++) {
-		_this._renderItemData(items[ix]);
-	}
-};
+	const maxItems = Math.min(this.maxSuggestions, items.length)
+	for (let i = 0; i < maxItems; i++) this._renderItemData(items[i])
+}
 
 LookupListInput.prototype._renderItemData = function (item) {
-	var _this = this,
-		menuItem = this.menuItemRenderer(item);
-
-	menuItem.addEventListener("click", function (event) {
-		var ev = new CustomEvent("menuselect", { detail: item });
-		_this.menu.element.dispatchEvent(ev);
-	});
-	this.menu.element.appendChild(menuItem);
-
-};
+	const menuItem = this.menuItemRenderer(item)
+	menuItem.addEventListener('click', () => {
+		this.menu.element.dispatchEvent(
+			new CustomEvent('menuselect', { detail: item })
+		)
+	})
+	this.menu.element.appendChild(menuItem)
+}
 
 LookupListInput.prototype._renderMenuItem = function (item) {
-	var menuItem = document.createElement("div");
-	gadgetui.util.addClass(menuItem, "gadgetui-lookuplist-item");
-	menuItem.setAttribute("value", item.value);
-	menuItem.innerText = this.labelRenderer(item);
-	return menuItem;
-};
+	const menuItem = document.createElement('div')
+	gadgetui.util.addClass(menuItem, 'gadgetui-lookuplist-item')
+	menuItem.setAttribute('value', item.value)
+	menuItem.innerText = this.labelRenderer(item)
+	return menuItem
+}
 
 LookupListInput.prototype._renderLabel = function (item) {
-	return item.label;
-};
+	return item.label
+}
 
 LookupListInput.prototype._move = function (direction, event) {
-	if (!this.menu.element.style.display !== 'none') {
-		this.search(null, event);
-		return;
+	if (this.menu.element.style.display === 'none') {
+		this.search(null, event)
+		return
 	}
-	if (this.menu.element.isFirstItem() && /^previous/.test(direction) ||
-		this.menu.element.isLastItem() && /^next/.test(direction)) {
-
-		if (!this.isMultiLine) {
-			this._value(this.term);
-		}
-
-		this.menu.blur();
-		return;
+	if (
+		(this.menu.element.isFirstItem() && /^previous/.test(direction)) ||
+		(this.menu.element.isLastItem() && /^next/.test(direction))
+	) {
+		if (!this.isMultiLine) this._value(this.term)
+		this.menu.blur()
+		return
 	}
-	this.menu[direction](event);
-};
+	this.menu[direction](event)
+}
 
 LookupListInput.prototype.widget = function () {
-	return this.menu.element;
-};
+	return this.menu.element
+}
 
-LookupListInput.prototype._value = function () {
-	return (this.isInput ? this.element.value : this.element.innerText);
-};
+LookupListInput.prototype._value = function (value) {
+	if (value !== undefined) this.element[this.valueMethod] = value
+	return this.element[this.valueMethod]
+}
 
 LookupListInput.prototype._keyEvent = function (keyEvent, event) {
 	if (!this.isMultiLine || this.menu.element.style.display !== 'none') {
-		this._move(keyEvent, event);
-
-		// prevents moving cursor to beginning/end of the text field in some browsers
-		event.preventDefault();
+		this._move(keyEvent, event)
+		event.preventDefault()
 	}
-};
+}
 
 LookupListInput.prototype.config = function (options) {
-	options = (options === undefined ? {} : options);
-	// if binding but no model was specified, use gadgetui model
-	if (this.element.getAttribute("gadgetui-bind") !== undefined) {
-		this.model = ((options.model === undefined) ? gadgetui.model : options.model);
+	this.model =
+		this.element.getAttribute('gadgetui-bind') && !options.model
+			? gadgetui.model
+			: options.model
+	this.width = options.width
+	this.func = options.func
+	this.filter = options.filter || this._filter
+	this.labelRenderer = options.labelRenderer || this._renderLabel
+	this.itemRenderer = options.itemRenderer || this._renderItem
+	this.menuItemRenderer = options.menuItemRenderer || this._renderMenuItem
+	this.itemCancelRenderer =
+		options.itemCancelRenderer || this._renderItemCancel
+	this.emitEvents = options.emitEvents ?? true
+	this.datasource = options.datasource ?? (options.lookupList || true)
+	this.minLength = options.minLength || 0
+	this.disabled = options.disabled || false
+	this.maxSuggestions = options.maxSuggestions || 20
+	this.position = options.position || {
+		my: 'left top',
+		at: 'left bottom',
+		collision: 'none',
 	}
-	this.width = ((options.width === undefined) ? undefined : options.width);
-	this.func = ((options.func === undefined) ? undefined : options.func);
-	this.filter = ((options.filter === undefined) ? this._filter : options.filter);
-	this.labelRenderer = ((options.labelRenderer === undefined) ? this._renderLabel : options.labelRenderer);
-	this.itemRenderer = ((options.itemRenderer === undefined) ? this._renderItem : options.itemRenderer);
-	this.menuItemRenderer = ((options.menuItemRenderer === undefined) ? this._renderMenuItem : options.menuItemRenderer);
-	this.itemCancelRenderer = ((options.itemCancelRenderer === undefined) ? this._renderItemCancel : options.itemCancelRenderer);
-	this.emitEvents = ((options.emitEvents === undefined) ? true : options.emitEvents);
-	this.datasource = ((options.datasource === undefined) ? ((options.lookupList !== undefined) ? options.lookupList : true) : options.datasource);
-	this.minLength = ((options.minLength === undefined) ? 0 : options.minLength);
-	this.disabled = ((options.disabled === undefined) ? false : options.disabled);
-	this.maxSuggestions = ((options.maxSuggestions === undefined) ? 20 : options.maxSuggestions);
-	this.position = (options.position === undefined) ? { my: "left top", at: "left bottom", collision: "none" } : options.position;
-	this.autoFocus = ((options.autoFocus === undefined) ? false : options.autoFocus);
-	this.requestIndex = 0;
-};
+	this.autoFocus = options.autoFocus || false
+	this.requestIndex = 0
+	this.delay = options.delay || 300 // Added default delay for search timeout
+}
