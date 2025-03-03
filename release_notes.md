@@ -4,6 +4,11 @@
 10.1.0
 ======
 
+Bug fix for Tabs control.
+
+10.1.0
+======
+
 This version introduces an improved model with undo,redo,fast forward, and rewind capabilities for any value in the model. It also includes a general cleanup of the codebase for readability and clarity. The test code has been consolidated in the /test folder, except for the index.js in the root if you want to test server-side logic.
 
 

@@ -7,7 +7,7 @@ Gadget-ui is a UI component library that has a built-in model and data-binding m
 
 ### Current Release
 
-v 10.1.0
+v 10.1.1
 
 This version introduces an improved model with undo,redo,fast forward, and rewind capabilities for any value in the model. It also includes a general cleanup of the codebase for readability and clarity. The test code has been consolidated in the /test folder, except for the index.js in the root if you want to test server-side logic.
 

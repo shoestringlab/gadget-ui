@@ -10,9 +10,13 @@ Tabs.prototype.config = function (options) {
 	this.tabContentDivIds = []
 	this.tabs = []
 	this.activeTab = null
+	// Ensure this.events is always an array
+	this.events = Array.isArray(options.events)
+		? options.events
+		: ['tabSelected']
 }
 
-Tabs.prototype.events = ['tabSelected']
+Tabs.prototype.events = ['tabSelected'] // Default value
 
 Tabs.prototype.addControl = function () {
 	const dir = this.direction === 'vertical' ? 'v' : 'h'
@@ -60,8 +64,10 @@ Tabs.prototype.setActiveTab = function (activeTab) {
 	})
 
 	this.activeTab = activeTab
+	// Safeguard to ensure this.events is an array before calling includes
 	if (
 		typeof this.fireEvent === 'function' &&
+		Array.isArray(this.events) &&
 		this.events.includes('tabSelected')
 	) {
 		this.fireEvent('tabSelected', activeTab)
