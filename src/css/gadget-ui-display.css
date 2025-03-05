@@ -1,118 +1,126 @@
-div.gadgetui-bubble span{
-	font-size:13px;
+div.gadgetui-bubble span {
+	font-size: 13px;
 }
 
-div.gadget-ui-collapsiblePane, div.gadget-ui-floatingPane{
+div.gadget-ui-collapsiblePane,
+div.gadget-ui-floatingPane {
 	padding: 0px;
 	border-radius: 5px;
 	border: 1px solid silver;
 }
 
- div.gadget-ui-floatingPane{
+div.gadget-ui-floatingPane {
 	position: absolute;
 	overflow: hidden;
 }
 
-div.gadget-ui-collapsiblePane > div:nth-child(2), div.gadget-ui-floatingPane > div:nth-child(2){
-	padding: .5em;
+div.gadget-ui-collapsiblePane > div:nth-child(2),
+div.gadget-ui-floatingPane > div:nth-child(2) {
+	padding: 0.5em;
 }
 
-div.gadget-ui-floatingPane > div:nth-child(2){
-	overflow:scroll;
+div.gadget-ui-floatingPane > div:nth-child(2) {
+	overflow: auto;
 }
 
-div.gadget-ui-collapsiblePane-header, div.gadget-ui-floatingPane-header{
-	padding: 2px 0px 2px .5em;
-	text-align:left;
+div.gadget-ui-collapsiblePane-header,
+div.gadget-ui-floatingPane-header {
+	padding: 2px 0px 2px 0.5em;
+	text-align: left;
 	border-radius: 5px 5px 0 0;
 	border: 1px solid transparent;
 	background-color: silver;
 	color: black;
 	font-weight: bold;
-	overflow:hidden;
+	overflow: hidden;
 }
 
-div.gadget-ui-collapsiblePane-header div, div.gadget-ui-floatingPane-header div{
+div.gadget-ui-collapsiblePane-header div,
+div.gadget-ui-floatingPane-header div {
 	float: right;
-	display:inline;
-	padding-right:.25em;
+	display: inline;
+	padding-right: 0.25em;
 	margin-top: 0.1em;
 }
 
-p.gadgetui-bubble-speech
-{
-	display:none;
+p.gadgetui-bubble-speech {
+	display: none;
 }
 
-div.gadgetui-bubble{
+div.gadgetui-bubble {
 	-webkit-box-sizing: initial;
 	-moz-box-sizing: initial;
 	box-sizing: initial;
 }
 
-.feather{
+.feather {
 	width: 1.2em;
-  height: 1.2em;
-  stroke: currentColor;
-  stroke-width: 2;
-  stroke-linecap: round;
-  stroke-linejoin: round;
-  fill: none;
+	height: 1.2em;
+	stroke: currentColor;
+	stroke-width: 2;
+	stroke-linecap: round;
+	stroke-linejoin: round;
+	fill: none;
 }
 
-
 div.gadgetui-modal {
-    position: fixed;
-    left: 0;
-    top: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.5);
-    opacity: 0;
-    visibility: hidden;
-    transform: scale(1.1);
-    transition: visibility 0s linear 0.25s, opacity 0.25s 0s, transform 0.25s;
+	position: fixed;
+	left: 0;
+	top: 0;
+	width: 100%;
+	height: 100%;
+	background-color: rgba(0, 0, 0, 0.5);
+	opacity: 0;
+	visibility: hidden;
+	transform: scale(1.1);
+	transition:
+		visibility 0s linear 0.25s,
+		opacity 0.25s 0s,
+		transform 0.25s;
 }
 
 div.gadgetui-modalWindow {
-  padding: 1em;
-  border-radius: .25em;
+	padding: 1em;
+	border-radius: 0.25em;
 	background: #fff;
 	border: 1px solid silver;
-	margin-left:auto;
-	margin-right:auto;
+	margin-left: auto;
+	margin-right: auto;
 	margin-top: 100px;
 }
 
 div.gadgetui-showModal {
-    opacity: 1;
-    visibility: visible;
-    transform: scale(1.0);
-    transition: visibility 0s linear 0s, opacity 0.25s 0s, transform 0.25s;
+	opacity: 1;
+	visibility: visible;
+	transform: scale(1);
+	transition:
+		visibility 0s linear 0s,
+		opacity 0.25s 0s,
+		transform 0.25s;
 }
 
-.gadgetui-right-align{
-	float:right;
+.gadgetui-right-align {
+	float: right;
 }
 
-div.gadgetui-sidebar{
- border: 1px solid silver;
- position:relative;
- top:0;
- bottom:0;
+div.gadgetui-sidebar {
+	border: 1px solid silver;
+	position: relative;
+	top: 0;
+	bottom: 0;
 }
 
-div.gadgetui-sidebar-minimized{
-	width:25px !important;
+div.gadgetui-sidebar-minimized {
+	width: 25px !important;
 }
 
-div.gadgetui-sidebarContent-minimized{
-	opacity:0;
+div.gadgetui-sidebarContent-minimized {
+	opacity: 0;
 	overflow: hidden;
-	width:0px !important;
+	width: 0px !important;
 }
 
-span.gadgetui-sidebar-toggle{
+span.gadgetui-sidebar-toggle {
 	position: relative;
 	right: 0;
 	top: 48%;
@@ -120,173 +128,171 @@ span.gadgetui-sidebar-toggle{
 	border-top: 1px solid silver;
 	border-bottom: 1px solid silver;
 	padding-top: 4px;
-	border-radius: .25em 0 0 .25em;
+	border-radius: 0.25em 0 0 0.25em;
 	cursor: pointer;
 }
 
-div.gadget-ui-menu{
-	display:inline-block;
-	padding: 0 .25em;
-	margin: 0 0 .25em 0;
+div.gadget-ui-menu {
+	display: inline-block;
+	padding: 0 0.25em;
+	margin: 0 0 0.25em 0;
 }
 
-.gadget-ui-menu-menuItem{
-  display:none;
-  border: 1px solid #777;
+.gadget-ui-menu-menuItem {
+	display: none;
+	border: 1px solid #777;
 	background: #fff;
 }
 
 .gadget-ui-menu-menuItem > div {
-  padding-top: .5em;
+	padding-top: 0.5em;
 }
 
-.gadget-ui-menu-hovering{
-  display:block;
-  position:fixed;
+.gadget-ui-menu-hovering {
+	display: block;
+	position: fixed;
 }
 
 .gadget-ui-menu-item > .gadget-ui-menu-menuItem {
-	position:absolute;
-	margin-left:90%;
+	position: absolute;
+	margin-left: 90%;
 	margin-top: -1.3em;
 	float: right;
 }
 
-.gadget-ui-menu-item{
+.gadget-ui-menu-item {
 	white-space: nowrap;
-	padding: 0 1em .5em .25em;
+	padding: 0 1em 0.5em 0.25em;
 }
 
-.gadget-ui-menu-item:hover{
-	background:#ccc;
+.gadget-ui-menu-item:hover {
+	background: #ccc;
 }
 
-.gadget-ui-menu-icon{
+.gadget-ui-menu-icon {
 	width: 2em;
-	display:inline;
-  margin-right: .25em;
+	display: inline;
+	margin-right: 0.25em;
 }
 
-.gadget-ui-tabs-h{
-  background-color: #ccc;
-  padding: 0 .5em;
-  margin-top: .25em;
-  display: flex;
-/*   justify-content: space-between; */
+.gadget-ui-tabs-h {
+	background-color: #ccc;
+	padding: 0 0.5em;
+	margin-top: 0.25em;
+	display: flex;
+	/*   justify-content: space-between; */
 }
 
-.gadget-ui-tabs-h div.gadget-ui-tab-h{
-  display: inline-block;
-  padding: .5em 1em 0 1em;
-  background-color: #777;
-  color: white;
-  margin: .5em .5em 0 .5em;
-  font-weight: bold;
-  border-radius: .25em .25em 0 0;
-  height: 1.5em;
+.gadget-ui-tabs-h div.gadget-ui-tab-h {
+	display: inline-block;
+	padding: 0.5em 1em 0 1em;
+	background-color: #777;
+	color: white;
+	margin: 0.5em 0.5em 0 0.5em;
+	font-weight: bold;
+	border-radius: 0.25em 0.25em 0 0;
+	height: 1.5em;
 }
 
-.gadget-ui-tabs-h div.gadget-ui-tab-h:hover{
-  background-color: #999;
-}
-
-.gadget-ui-tabs-h div.gadget-ui-tab-h-active{
+.gadget-ui-tabs-h div.gadget-ui-tab-h:hover {
 	background-color: #999;
 }
 
-.gadget-ui-tabs-v{
-  background-color: #ccc;
-  padding: 0;
-  display: block;
+.gadget-ui-tabs-h div.gadget-ui-tab-h-active {
+	background-color: #999;
 }
 
-.gadget-ui-tabs-v div.gadget-ui-tab-v{
-  display: block;
-  padding: .5em .5em 0 1em;
-  background-color: #777;
-  color: white;
-  margin: .5em 0 0 .5em;
-  font-weight: bold;
-  border-radius: 0;
-  height: 1.5em;
+.gadget-ui-tabs-v {
+	background-color: #ccc;
+	padding: 0;
+	display: block;
+}
+
+.gadget-ui-tabs-v div.gadget-ui-tab-v {
+	display: block;
+	padding: 0.5em 0.5em 0 1em;
+	background-color: #777;
+	color: white;
+	margin: 0.5em 0 0 0.5em;
+	font-weight: bold;
+	border-radius: 0;
+	height: 1.5em;
 	text-align: right;
 }
 
-.gadget-ui-tabs-v div.gadget-ui-tab-v:hover{
-  background-color: #999;
-}
-
-.gadget-ui-tabs-v div.gadget-ui-tab-v-active{
+.gadget-ui-tabs-v div.gadget-ui-tab-v:hover {
 	background-color: #999;
 }
 
-.gadgetui-progressbar-progressbox{
-	display:flex;
-	padding: .25em .5em;
-	background:#999;
-	color:#fff;
+.gadget-ui-tabs-v div.gadget-ui-tab-v-active {
+	background-color: #999;
 }
 
-.gadget-ui-progressbar{
-	background:#444;
+.gadgetui-progressbar-progressbox {
+	display: flex;
+	padding: 0.25em 0.5em;
+	background: #999;
+	color: #fff;
+}
+
+.gadget-ui-progressbar {
+	background: #444;
 	font-size: smaller;
 }
 
-.gadgetui-progressbar-label{
+.gadgetui-progressbar-label {
 	color: white;
 	position: absolute;
 	float: left;
-	padding-left: .5em;
-  }
-  
-
-.gadget-ui-progressbar-filename{
-	padding: 0 .25em;
+	padding-left: 0.5em;
 }
 
-.gadgetui-lightbox{
-	width:100%;
-	position:absolute;
+.gadget-ui-progressbar-filename {
+	padding: 0 0.25em;
 }
 
-.gadgetui-lightbox-image-container{
+.gadgetui-lightbox {
+	width: 100%;
+	position: absolute;
+}
 
-	width:95%;
+.gadgetui-lightbox-image-container {
+	width: 95%;
 	margin-left: auto;
-	margin-right:auto;
+	margin-right: auto;
 }
 
-.gadgetui-lightbox-previousControl{
+.gadgetui-lightbox-previousControl {
 	position: absolute;
 	left: 0;
 	top: 48%;
-	cursor:pointer;
+	cursor: pointer;
 }
 
-.gadgetui-lightbox-nextControl{
+.gadgetui-lightbox-nextControl {
 	position: absolute;
 	right: 0;
 	top: 48%;
-	cursor:pointer;
+	cursor: pointer;
 }
 
-.gadgetui-lightbox-modal{
-	width:100%;
-	height:100%;
-	z-index:3;
-	position:fixed;
-	top:0;
-	left:0;
+.gadgetui-lightbox-modal {
+	width: 100%;
+	height: 100%;
+	z-index: 3;
+	position: fixed;
+	top: 0;
+	left: 0;
 	background-color: silver;
 }
 
-.gadgetui-hidden{
-	display:none;
+.gadgetui-hidden {
+	display: none;
 }
 
-.gadgetui-lightbox-modal-imagecontainer{
-	width:100%;
-	position:fixed;
-	top:10%;
-	left:0;
+.gadgetui-lightbox-modal-imagecontainer {
+	width: 100%;
+	position: fixed;
+	top: 10%;
+	left: 0;
 }

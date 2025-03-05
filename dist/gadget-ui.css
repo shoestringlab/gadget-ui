@@ -1,118 +1,126 @@
-div.gadgetui-bubble span{
-	font-size:13px;
+div.gadgetui-bubble span {
+	font-size: 13px;
 }
 
-div.gadget-ui-collapsiblePane, div.gadget-ui-floatingPane{
+div.gadget-ui-collapsiblePane,
+div.gadget-ui-floatingPane {
 	padding: 0px;
 	border-radius: 5px;
 	border: 1px solid silver;
 }
 
- div.gadget-ui-floatingPane{
+div.gadget-ui-floatingPane {
 	position: absolute;
 	overflow: hidden;
 }
 
-div.gadget-ui-collapsiblePane > div:nth-child(2), div.gadget-ui-floatingPane > div:nth-child(2){
-	padding: .5em;
+div.gadget-ui-collapsiblePane > div:nth-child(2),
+div.gadget-ui-floatingPane > div:nth-child(2) {
+	padding: 0.5em;
 }
 
-div.gadget-ui-floatingPane > div:nth-child(2){
-	overflow:scroll;
+div.gadget-ui-floatingPane > div:nth-child(2) {
+	overflow: auto;
 }
 
-div.gadget-ui-collapsiblePane-header, div.gadget-ui-floatingPane-header{
-	padding: 2px 0px 2px .5em;
-	text-align:left;
+div.gadget-ui-collapsiblePane-header,
+div.gadget-ui-floatingPane-header {
+	padding: 2px 0px 2px 0.5em;
+	text-align: left;
 	border-radius: 5px 5px 0 0;
 	border: 1px solid transparent;
 	background-color: silver;
 	color: black;
 	font-weight: bold;
-	overflow:hidden;
+	overflow: hidden;
 }
 
-div.gadget-ui-collapsiblePane-header div, div.gadget-ui-floatingPane-header div{
+div.gadget-ui-collapsiblePane-header div,
+div.gadget-ui-floatingPane-header div {
 	float: right;
-	display:inline;
-	padding-right:.25em;
+	display: inline;
+	padding-right: 0.25em;
 	margin-top: 0.1em;
 }
 
-p.gadgetui-bubble-speech
-{
-	display:none;
+p.gadgetui-bubble-speech {
+	display: none;
 }
 
-div.gadgetui-bubble{
+div.gadgetui-bubble {
 	-webkit-box-sizing: initial;
 	-moz-box-sizing: initial;
 	box-sizing: initial;
 }
 
-.feather{
+.feather {
 	width: 1.2em;
-  height: 1.2em;
-  stroke: currentColor;
-  stroke-width: 2;
-  stroke-linecap: round;
-  stroke-linejoin: round;
-  fill: none;
+	height: 1.2em;
+	stroke: currentColor;
+	stroke-width: 2;
+	stroke-linecap: round;
+	stroke-linejoin: round;
+	fill: none;
 }
 
-
 div.gadgetui-modal {
-    position: fixed;
-    left: 0;
-    top: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.5);
-    opacity: 0;
-    visibility: hidden;
-    transform: scale(1.1);
-    transition: visibility 0s linear 0.25s, opacity 0.25s 0s, transform 0.25s;
+	position: fixed;
+	left: 0;
+	top: 0;
+	width: 100%;
+	height: 100%;
+	background-color: rgba(0, 0, 0, 0.5);
+	opacity: 0;
+	visibility: hidden;
+	transform: scale(1.1);
+	transition:
+		visibility 0s linear 0.25s,
+		opacity 0.25s 0s,
+		transform 0.25s;
 }
 
 div.gadgetui-modalWindow {
-  padding: 1em;
-  border-radius: .25em;
+	padding: 1em;
+	border-radius: 0.25em;
 	background: #fff;
 	border: 1px solid silver;
-	margin-left:auto;
-	margin-right:auto;
+	margin-left: auto;
+	margin-right: auto;
 	margin-top: 100px;
 }
 
 div.gadgetui-showModal {
-    opacity: 1;
-    visibility: visible;
-    transform: scale(1.0);
-    transition: visibility 0s linear 0s, opacity 0.25s 0s, transform 0.25s;
+	opacity: 1;
+	visibility: visible;
+	transform: scale(1);
+	transition:
+		visibility 0s linear 0s,
+		opacity 0.25s 0s,
+		transform 0.25s;
 }
 
-.gadgetui-right-align{
-	float:right;
+.gadgetui-right-align {
+	float: right;
 }
 
-div.gadgetui-sidebar{
- border: 1px solid silver;
- position:relative;
- top:0;
- bottom:0;
+div.gadgetui-sidebar {
+	border: 1px solid silver;
+	position: relative;
+	top: 0;
+	bottom: 0;
 }
 
-div.gadgetui-sidebar-minimized{
-	width:25px !important;
+div.gadgetui-sidebar-minimized {
+	width: 25px !important;
 }
 
-div.gadgetui-sidebarContent-minimized{
-	opacity:0;
+div.gadgetui-sidebarContent-minimized {
+	opacity: 0;
 	overflow: hidden;
-	width:0px !important;
+	width: 0px !important;
 }
 
-span.gadgetui-sidebar-toggle{
+span.gadgetui-sidebar-toggle {
 	position: relative;
 	right: 0;
 	top: 48%;
@@ -120,195 +128,194 @@ span.gadgetui-sidebar-toggle{
 	border-top: 1px solid silver;
 	border-bottom: 1px solid silver;
 	padding-top: 4px;
-	border-radius: .25em 0 0 .25em;
+	border-radius: 0.25em 0 0 0.25em;
 	cursor: pointer;
 }
 
-div.gadget-ui-menu{
-	display:inline-block;
-	padding: 0 .25em;
-	margin: 0 0 .25em 0;
+div.gadget-ui-menu {
+	display: inline-block;
+	padding: 0 0.25em;
+	margin: 0 0 0.25em 0;
 }
 
-.gadget-ui-menu-menuItem{
-  display:none;
-  border: 1px solid #777;
+.gadget-ui-menu-menuItem {
+	display: none;
+	border: 1px solid #777;
 	background: #fff;
 }
 
 .gadget-ui-menu-menuItem > div {
-  padding-top: .5em;
+	padding-top: 0.5em;
 }
 
-.gadget-ui-menu-hovering{
-  display:block;
-  position:fixed;
+.gadget-ui-menu-hovering {
+	display: block;
+	position: fixed;
 }
 
 .gadget-ui-menu-item > .gadget-ui-menu-menuItem {
-	position:absolute;
-	margin-left:90%;
+	position: absolute;
+	margin-left: 90%;
 	margin-top: -1.3em;
 	float: right;
 }
 
-.gadget-ui-menu-item{
+.gadget-ui-menu-item {
 	white-space: nowrap;
-	padding: 0 1em .5em .25em;
+	padding: 0 1em 0.5em 0.25em;
 }
 
-.gadget-ui-menu-item:hover{
-	background:#ccc;
+.gadget-ui-menu-item:hover {
+	background: #ccc;
 }
 
-.gadget-ui-menu-icon{
+.gadget-ui-menu-icon {
 	width: 2em;
-	display:inline;
-  margin-right: .25em;
+	display: inline;
+	margin-right: 0.25em;
 }
 
-.gadget-ui-tabs-h{
-  background-color: #ccc;
-  padding: 0 .5em;
-  margin-top: .25em;
-  display: flex;
-/*   justify-content: space-between; */
+.gadget-ui-tabs-h {
+	background-color: #ccc;
+	padding: 0 0.5em;
+	margin-top: 0.25em;
+	display: flex;
+	/*   justify-content: space-between; */
 }
 
-.gadget-ui-tabs-h div.gadget-ui-tab-h{
-  display: inline-block;
-  padding: .5em 1em 0 1em;
-  background-color: #777;
-  color: white;
-  margin: .5em .5em 0 .5em;
-  font-weight: bold;
-  border-radius: .25em .25em 0 0;
-  height: 1.5em;
+.gadget-ui-tabs-h div.gadget-ui-tab-h {
+	display: inline-block;
+	padding: 0.5em 1em 0 1em;
+	background-color: #777;
+	color: white;
+	margin: 0.5em 0.5em 0 0.5em;
+	font-weight: bold;
+	border-radius: 0.25em 0.25em 0 0;
+	height: 1.5em;
 }
 
-.gadget-ui-tabs-h div.gadget-ui-tab-h:hover{
-  background-color: #999;
-}
-
-.gadget-ui-tabs-h div.gadget-ui-tab-h-active{
+.gadget-ui-tabs-h div.gadget-ui-tab-h:hover {
 	background-color: #999;
 }
 
-.gadget-ui-tabs-v{
-  background-color: #ccc;
-  padding: 0;
-  display: block;
+.gadget-ui-tabs-h div.gadget-ui-tab-h-active {
+	background-color: #999;
 }
 
-.gadget-ui-tabs-v div.gadget-ui-tab-v{
-  display: block;
-  padding: .5em .5em 0 1em;
-  background-color: #777;
-  color: white;
-  margin: .5em 0 0 .5em;
-  font-weight: bold;
-  border-radius: 0;
-  height: 1.5em;
+.gadget-ui-tabs-v {
+	background-color: #ccc;
+	padding: 0;
+	display: block;
+}
+
+.gadget-ui-tabs-v div.gadget-ui-tab-v {
+	display: block;
+	padding: 0.5em 0.5em 0 1em;
+	background-color: #777;
+	color: white;
+	margin: 0.5em 0 0 0.5em;
+	font-weight: bold;
+	border-radius: 0;
+	height: 1.5em;
 	text-align: right;
 }
 
-.gadget-ui-tabs-v div.gadget-ui-tab-v:hover{
-  background-color: #999;
-}
-
-.gadget-ui-tabs-v div.gadget-ui-tab-v-active{
+.gadget-ui-tabs-v div.gadget-ui-tab-v:hover {
 	background-color: #999;
 }
 
-.gadgetui-progressbar-progressbox{
-	display:flex;
-	padding: .25em .5em;
-	background:#999;
-	color:#fff;
+.gadget-ui-tabs-v div.gadget-ui-tab-v-active {
+	background-color: #999;
 }
 
-.gadget-ui-progressbar{
-	background:#444;
+.gadgetui-progressbar-progressbox {
+	display: flex;
+	padding: 0.25em 0.5em;
+	background: #999;
+	color: #fff;
+}
+
+.gadget-ui-progressbar {
+	background: #444;
 	font-size: smaller;
 }
 
-.gadgetui-progressbar-label{
+.gadgetui-progressbar-label {
 	color: white;
 	position: absolute;
 	float: left;
-	padding-left: .5em;
-  }
-  
-
-.gadget-ui-progressbar-filename{
-	padding: 0 .25em;
+	padding-left: 0.5em;
 }
 
-.gadgetui-lightbox{
-	width:100%;
-	position:absolute;
+.gadget-ui-progressbar-filename {
+	padding: 0 0.25em;
 }
 
-.gadgetui-lightbox-image-container{
+.gadgetui-lightbox {
+	width: 100%;
+	position: absolute;
+}
 
-	width:95%;
+.gadgetui-lightbox-image-container {
+	width: 95%;
 	margin-left: auto;
-	margin-right:auto;
+	margin-right: auto;
 }
 
-.gadgetui-lightbox-previousControl{
+.gadgetui-lightbox-previousControl {
 	position: absolute;
 	left: 0;
 	top: 48%;
-	cursor:pointer;
+	cursor: pointer;
 }
 
-.gadgetui-lightbox-nextControl{
+.gadgetui-lightbox-nextControl {
 	position: absolute;
 	right: 0;
 	top: 48%;
-	cursor:pointer;
+	cursor: pointer;
 }
 
-.gadgetui-lightbox-modal{
-	width:100%;
-	height:100%;
-	z-index:3;
-	position:fixed;
-	top:0;
-	left:0;
+.gadgetui-lightbox-modal {
+	width: 100%;
+	height: 100%;
+	z-index: 3;
+	position: fixed;
+	top: 0;
+	left: 0;
 	background-color: silver;
 }
 
-.gadgetui-hidden{
-	display:none;
+.gadgetui-hidden {
+	display: none;
 }
 
-.gadgetui-lightbox-modal-imagecontainer{
-	width:100%;
-	position:fixed;
-	top:10%;
-	left:0;
+.gadgetui-lightbox-modal-imagecontainer {
+	width: 100%;
+	position: fixed;
+	top: 10%;
+	left: 0;
 }
+
 div .gadget-ui-input-div {
-  display: inline;
-  font-size: 1.1em;
-  font-family: inherit;
+	display: inline;
+	font-size: 1.1em;
+	font-family: inherit;
 }
 div .gadget-ui-input-div span {
-  padding-left: 4px;
-  font-size: 0.8em;
-  letter-spacing: 1px;
-  font-family: inherit;
+	padding-left: 4px;
+	font-size: 0.8em;
+	letter-spacing: 1px;
+	font-family: inherit;
 }
 div .gadget-ui-input-div input {
-  line-height: 0.8em;
-  font-size: 0.8em;
-  letter-spacing: 1px;
-  font-family: inherit;
-  margin: 0px 0px -1px;
-  padding: 0px 0px 0px 1px;
-  min-width: 2em;
+	line-height: 0.8em;
+	font-size: 0.8em;
+	letter-spacing: 1px;
+	font-family: inherit;
+	margin: 0px 0px -1px;
+	padding: 0px 0px 0px 1px;
+	min-width: 2em;
 }
 
 div .gadget-ui-input-div div {
@@ -316,286 +323,300 @@ div .gadget-ui-input-div div {
 
 div.gadgetui-lookuplist-input-div,
 div.gadgetui-lookuplist-input {
-  background: #fff;
-  border: 1px solid silver;
+	background: #fff;
+	border: 1px solid silver;
 }
 
 div.gadgetui-lookuplist-input-div input,
 div.gadgetui-lookuplist-input input {
-  border: 0;
-  outline: none;
-  padding-left: 10px;
+	border: 0;
+	outline: none;
+	padding-left: 10px;
 }
 
 div.gadgetui-lookuplist-input-div .gadgetui-lookuplist-input-item,
 div.gadgetui-lookuplist-input .gadgetui-lookuplist-input-item {
-  display: inline !important;
-  padding: 0 20px 0 10px;
+	display: inline !important;
+	padding: 0 20px 0 10px;
 }
 
 div.gadgetui-lookuplist-input-div .gadgetui-lookuplist-input-cancel,
 div.gadgetui-lookuplist-input .gadgetui-lookuplist-input-cancel {
-  background: url("img/cancel.png") 98% center no-repeat #f4f0ec;
-  border: 1px solid #f4f0ec;
-  padding: 0px 20px 0px 3px;
-  margin: 0px;
-  display: inline-block;
-  position: absolute;
-  height: 15px;
+	background: url('img/cancel.png') 98% center no-repeat #f4f0ec;
+	border: 1px solid #f4f0ec;
+	padding: 0px 20px 0px 3px;
+	margin: 0px;
+	display: inline-block;
+	position: absolute;
+	height: 15px;
 }
 
 div.gadgetui-lookuplist-input-div > .gadgetui-lookuplist-input-item-wrapper,
 div.gadgetui-lookuplist-input > .gadgetui-lookuplist-input-item-wrapper {
-  margin: 3px;
-  display: inline-block;
-  position: relative;
-  background: silver;
-  border-radius: 5px;
+	margin: 3px;
+	display: inline-block;
+	position: relative;
+	background: silver;
+	border-radius: 5px;
 }
 
 div.gadgetui-lookuplist-menu {
-  padding: 0;
-  margin: 0;
-  background: white;
-  color: black;
-  border: 1px solid silver;
+	padding: 0;
+	margin: 0;
+	background: white;
+	color: black;
+	border: 1px solid silver;
 }
 
 div.gadgetui-lookuplist-item {
-  display: block;
-  padding-left: 10px;
+	display: block;
+	padding-left: 10px;
 }
 
 div.gadgetui-lookuplist-item:hover {
-  /*	background: silver;	*/
-  color: silver;
-  border-top: 1px solid silver;
-  border-bottom: 1px solid silver;
+	/*	background: silver;	*/
+	color: silver;
+	border-top: 1px solid silver;
+	border-bottom: 1px solid silver;
 }
 
 div.gadgetui-selectinput-label {
-  display: inline-block;
+	display: inline-block;
 }
 
 div.gadgetui-selectinput-div {
-  line-height: normal;
-  box-sizing: initial;
-  -webkit-box-sizing: initial;
-  -moz-box-sizing: initial;
+	line-height: normal;
+	box-sizing: initial;
+	-webkit-box-sizing: initial;
+	-moz-box-sizing: initial;
 }
 
 select.gadgetui-selectinput {
-  /* hack to allow font-size changes in Safari/Chrome */
-  border-image: 0;
-  -webkit-box-shadow: 0 0 0 transparent;
-  box-shadow: 0 0 0 transparent;
+	/* hack to allow font-size changes in Safari/Chrome */
+	border-image: 0;
+	-webkit-box-shadow: 0 0 0 transparent;
+	box-shadow: 0 0 0 transparent;
 }
 
 input.gadgetui-combobox-input,
 select.gadgetui-combobox-select {
-  outline: none;
+	outline: none;
 }
 
 select.gadgetui-combobox-select::-ms-expand {
-  display: none;
+	display: none;
 }
 
 select.gadgetui-combobox-select:-moz-focusring {
-  color: transparent;
-  text-shadow: 0 0 0 #000;
+	color: transparent;
+	text-shadow: 0 0 0 #000;
 }
 
 div.gadgetui-combobox {
-  line-height: normal;
-  box-sizing: initial;
-  -webkit-box-sizing: initial;
-  -moz-box-sizing: initial;
+	line-height: normal;
+	box-sizing: initial;
+	-webkit-box-sizing: initial;
+	-moz-box-sizing: initial;
 }
 
 select.gadgetui-combobox-select {
-  margin-left: 1px;
-  background-color: #fff;
+	margin-left: 1px;
+	background-color: #fff;
 }
 
 select.gadgetui-combobox-select option {
-  padding-left: 0px;
-  margin-left: 1px;
+	padding-left: 0px;
+	margin-left: 1px;
 }
 
 div.gadgetui-combobox-selectwrapper {
-  box-shadow: 0px 0px 0px;
-  border: 1px solid silver;
-  border-radius: 5px;
+	box-shadow: 0px 0px 0px;
+	border: 1px solid silver;
+	border-radius: 5px;
 
-  display: inline;
-  position: absolute;
-  padding-bottom: 1px;
-  left: 0;
+	display: inline;
+	position: absolute;
+	padding-bottom: 1px;
+	left: 0;
 }
 
 div.gadgetui-combobox-selectwrapper:after {
-  content: url(/node_modules/feather-icons/dist/icons/chevron-down.svg);
-  right: 0px;
-  height: 1.25em;
-  border-left: 1px solid silver;
-  position: absolute;
-  pointer-events: none;
-  width: 24px;
+	content: url(/node_modules/feather-icons/dist/icons/chevron-down.svg);
+	right: 0px;
+	height: 1.25em;
+	border-left: 1px solid silver;
+	position: absolute;
+	pointer-events: none;
+	width: 24px;
 }
 
 input.gadgetui-combobox-input {
-  margin-left: 1px;
-  border-radius: 5px 0 0 5px;
-  padding-left: 5px;
-  border: 0;
-  display: inline;
-  background-color: #fff;
+	margin-left: 1px;
+	border-radius: 5px 0 0 5px;
+	padding-left: 5px;
+	border: 0;
+	display: inline;
+	background-color: #fff;
 }
 
 div.gadgetui-combobox-label {
-  position: absolute;
-  padding-top: 2px;
-  margin-left: 1px;
+	position: absolute;
+	padding-top: 2px;
+	margin-left: 1px;
 }
 
 div.gadgetui-combobox-inputwrapper {
-  position: absolute;
+	position: absolute;
 }
 
 .gadgetui-fileuploader-wrapper {
-  /* border: 1px solid silver; */
+	/* border: 1px solid silver; */
 }
 
 .gadgetui-fileuploader-dropmessage {
-  opacity: 0.7;
-  position: sticky;
-  margin-top: 45%;
+	opacity: 0.7;
+	position: sticky;
+	margin-top: 45%;
 }
 
 .gadgetui-inputlabelinput {
-  background: none;
-  padding-left: 4px;
-  border: 1px solid transparent;
+	background: none;
+	padding-left: 4px;
+	border: 1px solid transparent;
 }
 
 .gadget-ui-textinput-hideBorder-firefox {
-  border-inline-end-width: 8px;
-  border-inline-start-width: 8px;
-  border-left-width: 0px;
-  border-right-width: 8px;
-  border-image-width: 1;
-  border-top-width: 0px;
-  border-bottom-width: 0px;
-  border-color: transparent;
+	border-inline-end-width: 8px;
+	border-inline-start-width: 8px;
+	border-left-width: 0px;
+	border-right-width: 8px;
+	border-image-width: 1;
+	border-top-width: 0px;
+	border-bottom-width: 0px;
+	border-color: transparent;
 }
 
 .gadget-ui-textinput-hideBorder-chrome,
 .gadget-ui-textinput-hideBorder-generic {
-  border-inline-end-width: 8px;
-  border-right-width: 8px;
-  border-image-width: 1;
-  border-color: transparent;
+	border-inline-end-width: 8px;
+	border-right-width: 8px;
+	border-image-width: 1;
+	border-color: transparent;
 }
 
+/* Base toggle styling */
 .gadget-ui-toggle {
-  width: 3em;
-  background-color: transparent;
+	-webkit-appearance: none;
+	appearance: none;
+	width: 3em;
+	background-color: transparent;
+	height: 1.5em;
+	outline: none;
 }
 
+/* Track styling - Chrome */
 .gadget-ui-toggle::-webkit-slider-runnable-track {
-  width: 100%;
-  height: 1.5em;
-  cursor: pointer;
-  background: black;
-  border-radius: 0px;
-  border: 0;
-  padding: 2px;
+	width: 100%;
+	height: 1.5em;
+	cursor: pointer;
+	background: black;
+	border-radius: 0px;
+	border: 0;
+	padding: 2px;
 }
 
 .gadget-ui-toggle:focus::-webkit-slider-runnable-track {
-  background: black;
+	background: black;
 }
 
+/* Track styling - Firefox */
 .gadget-ui-toggle::-moz-range-track {
-  width: 100%;
-  height: 1.5em;
-  cursor: pointer;
-  background: black;
-  border-radius: 0px;
-  border: 0;
+	width: 100%;
+	height: 1.5em;
+	cursor: pointer;
+	background: black;
+	border-radius: 0px;
+	border: 0;
 }
 
+/* Track styling - IE */
 .gadget-ui-toggle::-ms-track {
-  width: 100%;
-  height: 1.5em;
-  cursor: pointer;
-  background: transparent;
-  border-color: transparent;
-  border-width: 16px 0;
-  color: transparent;
+	width: 100%;
+	height: 1.5em;
+	cursor: pointer;
+	background: transparent;
+	border-color: transparent;
+	border-width: 16px 0;
+	color: transparent;
 }
 
+/* "Off" state - All browsers */
 .gadget-ui-toggle-off::-webkit-slider-runnable-track {
-  background: #ccc !important;
+	background: #ccc !important;
 }
 
 .gadget-ui-toggle-off::-moz-range-track {
-  background: #ccc !important;
+	background: #ccc !important;
 }
 
 .gadget-ui-toggle-off::-ms-track {
-  background: #ccc !important;
+	background: #ccc !important;
 }
 
+/* Thumb styling - Chrome */
 .gadget-ui-toggle::-webkit-slider-thumb {
-  -webkit-appearance: none;
-  height: 1.4em;
-  width: 1.4em;
-  border-radius: 0px;
-  cursor: pointer;
-  margin-top: -14px; /* You need to specify a margin in Chrome, but in Firefox and IE it is automatic */
+	-webkit-appearance: none;
+	appearance: none;
+	height: 1.4em;
+	width: 1.4em;
+	border-radius: 0px;
+	background: #fff;
+	cursor: pointer;
+	margin-top: -0.1em; /* Adjusted to center thumb (approx 1.6px up at 16px font-size) */
 }
 
-/* All the same stuff for Firefox */
+/* Thumb styling - Firefox */
 .gadget-ui-toggle::-moz-range-thumb {
-  height: 1.4em;
-  width: 1.4em;
-  border-radius: 0px;
-  cursor: pointer;
+	height: 1.4em;
+	width: 1.4em;
+	border-radius: 0px;
+	background: #fff;
+	cursor: pointer;
 }
 
-/* All the same stuff for IE */
-.gadget-ui-toggle::-ms-thumb::-ms-thumb {
-  height: 1.4em;
-  width: 1.4em;
-  border-radius: 0px;
-  cursor: pointer;
+/* Thumb styling - IE */
+.gadget-ui-toggle::-ms-thumb {
+	height: 1.4em;
+	width: 1.4em;
+	border-radius: 0px;
+	background: #fff;
+	cursor: pointer;
 }
 
+/* Round variant - Track */
 .gadget-ui-toggle-round::-webkit-slider-runnable-track {
-  border-radius: .7em !important;
+	border-radius: 0.7em !important;
 }
 
 .gadget-ui-toggle-round::-moz-range-track {
-  border-radius: .7em !important;
+	border-radius: 0.7em !important;
 }
 
 .gadget-ui-toggle-round::-ms-track {
-  border-radius: .7em !important;
+	border-radius: 0.7em !important;
 }
 
-
+/* Round variant - Thumb */
 .gadget-ui-toggle-round::-webkit-slider-thumb {
-  border-radius: .7em !important;
+	border-radius: 0.7em !important;
 }
 
-/* All the same stuff for Firefox */
 .gadget-ui-toggle-round::-moz-range-thumb {
-  border-radius: .7em !important;
+	border-radius: 0.7em !important;
 }
 
-/* All the same stuff for IE */
-.gadget-ui-toggle-round::-ms-thumb::-ms-thumb {
-  border-radius: .7em !important;
+.gadget-ui-toggle-round::-ms-thumb {
+	border-radius: 0.7em !important;
 }
+
 /*# sourceMappingURL=gadget-ui.css.map */

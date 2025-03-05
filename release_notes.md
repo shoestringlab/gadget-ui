@@ -1,7 +1,17 @@
 
 ***Release Notes***
 
-10.1.0
+10.1.3
+======
+
+This release fixes a bug with the tabSelected event.
+
+10.1.2
+======
+
+This release fixes a styling bug on webkit-based browsers with the Toggle control.
+
+10.1.1
 ======
 
 Bug fix for Tabs control.
