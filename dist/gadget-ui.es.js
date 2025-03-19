@@ -2495,6 +2495,7 @@ FileUploader.prototype.configure = function (options) {
 	this.dropMessage = options.dropMessage || 'Drop Files Here'
 	this.uploadErrorMessage = options.uploadErrorMessage || 'Upload error.'
 	this.useTokens = options.useTokens ?? false
+	this.tokenType = options.tokenType ?? 'access_token' // old default is 'X-Token' for backward compatibility
 }
 
 FileUploader.prototype.setDimensions = function () {
@@ -2653,7 +2654,12 @@ FileUploader.prototype.uploadChunk = function (
 			this.handleUploadError(xhr, {}, wrappedFile)
 		} else {
 			if (this.useTokens && sessionStorage) {
-				this.token = xhr.getResponseHeader('X-Token')
+				if (this.tokenType === 'X-Token') {
+					this.token = xhr.getResponseHeader('X-Token')
+				} else {
+					this.token = xhr.getResponseHeader('access_token')
+				}
+
 				sessionStorage.token = this.token
 			}
 
@@ -2689,7 +2695,11 @@ FileUploader.prototype.uploadChunk = function (
 	xhr.setRequestHeader('X-FilePart', filepart)
 	xhr.setRequestHeader('X-Parts', parts)
 	if (this.useTokens && this.token)
-		xhr.setRequestHeader('X-Token', this.token)
+		if (this.tokenType === 'X-Token') {
+			xhr.setRequestHeader('X-Token', this.token)
+		} else {
+			xhr.setRequestHeader('Authorization', 'Bearer ' + this.token)
+		}
 	xhr.setRequestHeader(
 		'X-MimeType',
 		wrappedFile.file.type || 'application/octet-stream'

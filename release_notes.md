@@ -1,6 +1,17 @@
 
 ***Release Notes***
 
+10.2.0
+======
+
+This release adds an option to the fileuploader called tokenType with a default of "access_token" that uses Authorization: Bearer token headers for requests and expects access_token to be returned in the header of the response. The alternative "X-Token" value for the tokenType option preserves previous functionality for backwards compatibility.
+
+
+10.1.4
+======
+
+Track back.
+
 10.1.3
 ======
 
