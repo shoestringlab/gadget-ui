@@ -1,6 +1,11 @@
 
 ***Release Notes***
 
+10.2.1
+======
+
+This release adds the missing response event to the event listener, and add a suppressSuggestions option to the config of the LookupListInput object so you can suppress the suggestion menu and handle suggestions manually.
+
 10.2.0
 ======
 
