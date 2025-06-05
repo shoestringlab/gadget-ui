@@ -1,6 +1,11 @@
 
 ***Release Notes***
 
+10.3.0
+======
+
+The feather icons used for controls in the display components have been converted to use <img> tags instead of <svg> tags for maximum compatibility. You can still style the icons using CSS applicable to svgs.
+
 10.2.1
 ======
 

@@ -5,37 +5,36 @@
 		<link rel="stylesheet" href="/dist/gadget-ui.css" />
 
 		<script type="module">
-			import { modal, constructor } from '/dist/gadget-ui.es.js'
+			import { modal, constructor } from "/dist/gadget-ui.es.js";
 
 			var md = constructor(
 				modal,
 				[
-					document.querySelector('#modal'),
+					document.querySelector("#modal"),
 					{
 						autoOpen: false,
-						closeIcon:
-							'/node_modules/feather-icons/dist/feather-sprite.svg#x-circle',
-						featherClass: 'feather',
+
+						featherClass: "feather",
 					},
 				],
-				true
-			)
+				true,
+			);
 
-			md.on('opened', function (obj) {
-				console.log('opened')
-				console.log(obj)
-			})
+			md.on("opened", function (obj) {
+				console.log("opened");
+				console.log(obj);
+			});
 
-			md.on('closed', function (obj) {
-				console.log('closed')
-				console.log(obj)
-			})
+			md.on("closed", function (obj) {
+				console.log("closed");
+				console.log(obj);
+			});
 
 			document
 				.querySelector("button[name='show']")
-				.addEventListener('click', function () {
-					md.open()
-				})
+				.addEventListener("click", function () {
+					md.open();
+				});
 		</script>
 
 		<style>

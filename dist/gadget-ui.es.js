@@ -1100,7 +1100,7 @@ FloatingPane.prototype.addHeader = function () {
 		css(this.shrinker, "right", "20px");
 		css(this.shrinker, "margin-right", ".5em");
 
-		const shrinkIcon = `<svg class="feather"><use xlink:href="${this.featherPath}/dist/feather-sprite.svg#minimize"/></svg>`;
+		const shrinkIcon = `<img class="feather" src="${this.featherPath}/dist/icons/minimize.svg">`;
 		this.shrinker.innerHTML = shrinkIcon;
 		this.header.appendChild(this.shrinker);
 	}
@@ -1111,7 +1111,7 @@ FloatingPane.prototype.addHeader = function () {
 		const span = document.createElement("span");
 		span.setAttribute("name", "closeIcon");
 
-		const icon = `<svg class="feather"><use xlink:href="${this.featherPath}/dist/feather-sprite.svg#x-circle"/></svg>`;
+		const icon = `<img class="feather" src="${this.featherPath}/dist/icons/x-circle.svg">`;
 		span.innerHTML = icon;
 		this.header.appendChild(span);
 
@@ -1165,7 +1165,7 @@ FloatingPane.prototype.expand = function () {
 		),
 		10,
 	);
-	const icon = `<svg class="feather"><use xlink:href="${this.featherPath}/dist/feather-sprite.svg#minimize"/></svg>`;
+	const icon = `<img class="feather" src="${this.featherPath}/dist/icons/minimize.svg">`;
 
 	if (typeof Velocity !== "undefined" && this.animate) {
 		Velocity(
@@ -1203,7 +1203,7 @@ FloatingPane.prototype.expand = function () {
 
 FloatingPane.prototype.minimize = function () {
 	const css = gadgetui.util.setStyle;
-	const icon = `<svg class="feather"><use xlink:href="${this.featherPath}/dist/feather-sprite.svg#maximize"/></svg>`;
+	const icon = `<img class="feather" src="${this.featherPath}/dist/icons/maximize.svg">`;
 
 	css(this.element, "overflow", "hidden");
 
@@ -1264,116 +1264,110 @@ FloatingPane.prototype.config = function (options) {
 };
 
 function Lightbox(element, options = {}) {
-	this.element = element
-	this.config(options)
-	this.addControl()
-	this.updateImage()
+	this.element = element;
+	this.config(options);
+	this.addControl();
+	this.updateImage();
 }
 
-Lightbox.prototype.events = ['showPrevious', 'showNext']
+Lightbox.prototype.events = ["showPrevious", "showNext"];
 
 Lightbox.prototype.config = function (options) {
-	this.images = options.images || []
-	this.currentIndex = 0
-	this.featherPath = options.featherPath || '/node_modules/feather-icons'
-	this.time = options.time || 3000
-	this.enableModal = options.enableModal ?? true
-}
+	this.images = options.images || [];
+	this.currentIndex = 0;
+	this.featherPath = options.featherPath || "/node_modules/feather-icons";
+	this.time = options.time || 3000;
+	this.enableModal = options.enableModal ?? true;
+};
 
 Lightbox.prototype.addControl = function () {
-	gadgetui.util.addClass(this.element, 'gadgetui-lightbox')
+	gadgetui.util.addClass(this.element, "gadgetui-lightbox");
 
-	this.imageContainer = document.createElement('div')
+	this.imageContainer = document.createElement("div");
 	gadgetui.util.addClass(
 		this.imageContainer,
-		'gadgetui-lightbox-image-container'
-	)
+		"gadgetui-lightbox-image-container",
+	);
 
-	this.spanPrevious = document.createElement('span')
-	this.spanNext = document.createElement('span')
+	this.spanPrevious = document.createElement("span");
+	this.spanNext = document.createElement("span");
 	gadgetui.util.addClass(
 		this.spanPrevious,
-		'gadgetui-lightbox-previousControl'
-	)
-	gadgetui.util.addClass(this.spanNext, 'gadgetui-lightbox-nextControl')
+		"gadgetui-lightbox-previousControl",
+	);
+	gadgetui.util.addClass(this.spanNext, "gadgetui-lightbox-nextControl");
 
-	this.spanPrevious.innerHTML = `
-    <svg class="feather" name="chevron">
-      <use xlink:href="${this.featherPath}/dist/feather-sprite.svg#chevron-left"/>
-    </svg>`
-	this.spanNext.innerHTML = `
-    <svg class="feather" name="chevron">
-      <use xlink:href="${this.featherPath}/dist/feather-sprite.svg#chevron-right"/>
-    </svg>`
+	this.spanPrevious.innerHTML = `<img class="feather" src="${this.featherPath}/dist/icons/chevron-left.svg">`;
+	this.spanNext.innerHTML = `<img class="feather" src="${this.featherPath}/dist/icons/chevron-right.svg">`;
 
-	this.element.appendChild(this.spanPrevious)
-	this.element.appendChild(this.imageContainer)
-	this.element.appendChild(this.spanNext)
+	this.element.appendChild(this.spanPrevious);
+	this.element.appendChild(this.imageContainer);
+	this.element.appendChild(this.spanNext);
 
-	this.spanPrevious.addEventListener('click', () => this.prevImage())
-	this.spanNext.addEventListener('click', () => this.nextImage())
+	this.spanPrevious.addEventListener("click", () => this.prevImage());
+	this.spanNext.addEventListener("click", () => this.nextImage());
 
 	if (this.enableModal) {
-		this.modal = document.createElement('div')
-		gadgetui.util.addClass(this.modal, 'gadgetui-lightbox-modal')
-		gadgetui.util.addClass(this.modal, 'gadgetui-hidden')
+		this.modal = document.createElement("div");
+		gadgetui.util.addClass(this.modal, "gadgetui-lightbox-modal");
+		gadgetui.util.addClass(this.modal, "gadgetui-hidden");
 
-		this.modalImageContainer = document.createElement('div')
+		this.modalImageContainer = document.createElement("div");
 		gadgetui.util.addClass(
 			this.modalImageContainer,
-			'gadgetui-lightbox-modal-imagecontainer'
-		)
-		this.modal.appendChild(this.modalImageContainer)
+			"gadgetui-lightbox-modal-imagecontainer",
+		);
+		this.modal.appendChild(this.modalImageContainer);
 
-		document.body.appendChild(this.modal)
+		document.body.appendChild(this.modal);
 
-		this.imageContainer.addEventListener('click', () => {
-			this.setModalImage()
-			gadgetui.util.addClass(this.element, 'gadgetui-hidden')
-			gadgetui.util.removeClass(this.modal, 'gadgetui-hidden')
-			this.stopAnimation()
-		})
+		this.imageContainer.addEventListener("click", () => {
+			this.setModalImage();
+			gadgetui.util.addClass(this.element, "gadgetui-hidden");
+			gadgetui.util.removeClass(this.modal, "gadgetui-hidden");
+			this.stopAnimation();
+		});
 
-		this.modal.addEventListener('click', () => {
-			gadgetui.util.addClass(this.modal, 'gadgetui-hidden')
-			gadgetui.util.removeClass(this.element, 'gadgetui-hidden')
-			this.animate()
-		})
+		this.modal.addEventListener("click", () => {
+			gadgetui.util.addClass(this.modal, "gadgetui-hidden");
+			gadgetui.util.removeClass(this.element, "gadgetui-hidden");
+			this.animate();
+		});
 	}
-}
+};
 
 Lightbox.prototype.nextImage = function () {
-	this.currentIndex = (this.currentIndex + 1) % this.images.length
-	this.updateImage()
-}
+	this.currentIndex = (this.currentIndex + 1) % this.images.length;
+	this.updateImage();
+};
 
 Lightbox.prototype.prevImage = function () {
 	this.currentIndex =
-		(this.currentIndex - 1 + this.images.length) % this.images.length
-	this.updateImage()
-}
+		(this.currentIndex - 1 + this.images.length) % this.images.length;
+	this.updateImage();
+};
 
 Lightbox.prototype.updateImage = function () {
 	this.imageContainer.innerHTML = `
     <img style="height:100%;width:100%;"
          src="${this.images[this.currentIndex]}"
-         alt="Image ${this.currentIndex + 1}">`
-}
+         alt="Image ${this.currentIndex + 1}">`;
+};
 
 Lightbox.prototype.animate = function () {
-	this.interval = setInterval(() => this.nextImage(), this.time)
-}
+	this.interval = setInterval(() => this.nextImage(), this.time);
+};
 
 Lightbox.prototype.stopAnimation = function () {
-	clearInterval(this.interval)
-}
+	clearInterval(this.interval);
+};
 
 Lightbox.prototype.setModalImage = function () {
 	this.modalImageContainer.innerHTML = `
     <img style="height:100%;width:100%;"
          src="${this.images[this.currentIndex]}"
-         alt="Image ${this.currentIndex + 1}">`
-}
+         alt="Image ${this.currentIndex + 1}">`;
+};
 
 function Menu(element, options = {}) {
 	this.element = element
@@ -1521,78 +1515,73 @@ Menu.prototype.config = function (options) {
 }
 
 function Modal(element, options = {}) {
-	this.element = element
-	this.config(options)
-	this.addControl()
-	this.addBindings()
+	this.element = element;
+	this.config(options);
+	this.addControl();
+	this.addBindings();
 }
 
-Modal.prototype.events = ['opened', 'closed']
+Modal.prototype.events = ["opened", "closed"];
 
 Modal.prototype.addControl = function () {
-	this.wrapper = document.createElement('div')
+	this.wrapper = document.createElement("div");
 	if (this.class) {
-		gadgetui.util.addClass(this.wrapper, this.class)
+		gadgetui.util.addClass(this.wrapper, this.class);
 	}
-	gadgetui.util.addClass(this.wrapper, 'gadgetui-modal')
+	gadgetui.util.addClass(this.wrapper, "gadgetui-modal");
 
-	this.element.parentNode.insertBefore(this.wrapper, this.element)
-	this.element.parentNode.removeChild(this.element)
-	this.wrapper.appendChild(this.element)
+	this.element.parentNode.insertBefore(this.wrapper, this.element);
+	this.element.parentNode.removeChild(this.element);
+	this.wrapper.appendChild(this.element);
 
-	const icon = this.closeIcon.includes('svg')
-		? `<svg class="${this.featherClass}"><use xlink:href="${this.closeIcon}"/></svg>`
-		: `<img src="${this.closeIcon}"/>`
+	const icon = `<img class="${this.featherClass}" src="${this.closeIcon}"/>`;
 
-	gadgetui.util.addClass(this.element, 'gadgetui-modalWindow')
+	gadgetui.util.addClass(this.element, "gadgetui-modalWindow");
 	this.element.innerHTML = `
     <span name="close" class="gadgetui-right-align">
       <a name="close">${icon}</a>
     </span>
     ${this.element.innerHTML}
-  `.trim()
+  `.trim();
 
 	if (this.autoOpen) {
-		this.open()
+		this.open();
 	}
-}
+};
 
 Modal.prototype.addBindings = function () {
-	const close = this.element.querySelector('a[name="close"]')
-	close.addEventListener('click', () => this.close())
-}
+	const close = this.element.querySelector('a[name="close"]');
+	close.addEventListener("click", () => this.close());
+};
 
 Modal.prototype.open = function () {
-	gadgetui.util.addClass(this.wrapper, 'gadgetui-showModal')
-	if (typeof this.fireEvent === 'function') {
-		this.fireEvent('opened')
+	gadgetui.util.addClass(this.wrapper, "gadgetui-showModal");
+	if (typeof this.fireEvent === "function") {
+		this.fireEvent("opened");
 	}
-}
+};
 
 Modal.prototype.close = function () {
-	gadgetui.util.removeClass(this.wrapper, 'gadgetui-showModal')
-	if (typeof this.fireEvent === 'function') {
-		this.fireEvent('closed')
+	gadgetui.util.removeClass(this.wrapper, "gadgetui-showModal");
+	if (typeof this.fireEvent === "function") {
+		this.fireEvent("closed");
 	}
-}
+};
 
 Modal.prototype.destroy = function () {
-	this.element.parentNode.removeChild(this.element)
-	this.wrapper.parentNode.insertBefore(this.element, this.wrapper)
-	this.wrapper.parentNode.removeChild(this.wrapper)
-	this.element.removeChild(
-		this.element.querySelector('.gadgetui-right-align')
-	)
-}
+	this.element.parentNode.removeChild(this.element);
+	this.wrapper.parentNode.insertBefore(this.element, this.wrapper);
+	this.wrapper.parentNode.removeChild(this.wrapper);
+	this.element.removeChild(this.element.querySelector(".gadgetui-right-align"));
+};
 
 Modal.prototype.config = function (options) {
-	this.class = options.class || false
-	this.featherClass = options.featherClass || 'feather'
+	this.class = options.class || false;
+	this.featherClass = options.featherClass || "feather";
 	this.closeIcon =
-		options.closeIcon ||
-		'/node_modules/feather-icons/dist/feather-sprite.svg#x-circle'
-	this.autoOpen = options.autoOpen !== false // Default to true unless explicitly false
-}
+		options.closeIcon || "/node_modules/feather-icons/dist/icons/x-circle.svg";
+	this.autoOpen = options.autoOpen !== false; // Default to true unless explicitly false
+};
 
 
 function ProgressBar(element, options = {}) {
@@ -1668,53 +1657,50 @@ ProgressBar.prototype.destroy = function () {
 }
 
 function Sidebar(selector, options = {}) {
-	this.selector = selector
-	this.minimized = false
-	this.config(options)
-	this.addControl()
-	this.addBindings(options)
+	this.selector = selector;
+	this.minimized = false;
+	this.config(options);
+	this.addControl();
+	this.addBindings(options);
 }
 
-Sidebar.prototype.events = ['maximized', 'minimized']
+Sidebar.prototype.events = ["maximized", "minimized"];
 
 Sidebar.prototype.config = function (options) {
-	this.class = options.class || false
-	this.featherPath = options.featherPath || '/node_modules/feather-icons'
-	this.animate = options.animate ?? true
-	this.delay = options.delay || 300
-	this.toggleTitle = options.toggleTitle || 'Toggle Sidebar'
-}
+	this.class = options.class || false;
+	this.featherPath = options.featherPath || "/node_modules/feather-icons";
+	this.animate = options.animate ?? true;
+	this.delay = options.delay || 300;
+	this.toggleTitle = options.toggleTitle || "Toggle Sidebar";
+};
 
 Sidebar.prototype.addControl = function () {
-	this.wrapper = document.createElement('div')
+	this.wrapper = document.createElement("div");
 	if (this.class) {
-		gadgetui.util.addClass(this.wrapper, this.class)
+		gadgetui.util.addClass(this.wrapper, this.class);
 	}
-	gadgetui.util.addClass(this.wrapper, 'gadgetui-sidebar')
+	gadgetui.util.addClass(this.wrapper, "gadgetui-sidebar");
 
-	this.span = document.createElement('span')
-	this.span.setAttribute('title', this.toggleTitle)
-	gadgetui.util.addClass(this.span, 'gadgetui-right-align')
-	gadgetui.util.addClass(this.span, 'gadgetui-sidebar-toggle')
-	this.span.innerHTML = `
-    <svg class="feather" name="chevron">
-      <use xlink:href="${this.featherPath}/dist/feather-sprite.svg#chevron-left"/>
-    </svg>
-  `.trim()
+	this.span = document.createElement("span");
+	this.span.setAttribute("title", this.toggleTitle);
+	gadgetui.util.addClass(this.span, "gadgetui-right-align");
+	gadgetui.util.addClass(this.span, "gadgetui-sidebar-toggle");
+	this.span.innerHTML =
+		`<img class="feather" src="${this.featherPath}/dist/icons/chevron-left.svg">`.trim();
 
-	this.selector.parentNode.insertBefore(this.wrapper, this.selector)
-	this.selector.parentNode.removeChild(this.selector)
-	this.wrapper.appendChild(this.selector)
-	this.wrapper.insertBefore(this.span, this.selector)
-	this.width = this.wrapper.offsetWidth
-}
+	this.selector.parentNode.insertBefore(this.wrapper, this.selector);
+	this.selector.parentNode.removeChild(this.selector);
+	this.wrapper.appendChild(this.selector);
+	this.wrapper.insertBefore(this.span, this.selector);
+	this.width = this.wrapper.offsetWidth;
+};
 
 Sidebar.prototype.maximize = function () {
-	this.minimized = false
-	this.setChevron(this.minimized)
-	gadgetui.util.removeClass(this.wrapper, 'gadgetui-sidebar-minimized')
+	this.minimized = false;
+	this.setChevron(this.minimized);
+	gadgetui.util.removeClass(this.wrapper, "gadgetui-sidebar-minimized");
 
-	if (typeof Velocity !== 'undefined' && this.animate) {
+	if (typeof Velocity !== "undefined" && this.animate) {
 		Velocity(
 			this.wrapper,
 			{ width: this.width },
@@ -1724,31 +1710,31 @@ Sidebar.prototype.maximize = function () {
 				complete: () => {
 					gadgetui.util.removeClass(
 						this.selector,
-						'gadgetui-sidebarContent-minimized'
-					)
-					if (typeof this.fireEvent === 'function') {
-						this.fireEvent('maximized')
+						"gadgetui-sidebarContent-minimized",
+					);
+					if (typeof this.fireEvent === "function") {
+						this.fireEvent("maximized");
 					}
 				},
-			}
-		)
+			},
+		);
 	} else {
 		gadgetui.util.removeClass(
 			this.selector,
-			'gadgetui-sidebarContent-minimized'
-		)
-		if (typeof this.fireEvent === 'function') {
-			this.fireEvent('maximized')
+			"gadgetui-sidebarContent-minimized",
+		);
+		if (typeof this.fireEvent === "function") {
+			this.fireEvent("maximized");
 		}
 	}
-}
+};
 
 Sidebar.prototype.minimize = function () {
-	this.minimized = true
-	this.setChevron(this.minimized)
-	gadgetui.util.addClass(this.selector, 'gadgetui-sidebarContent-minimized')
+	this.minimized = true;
+	this.setChevron(this.minimized);
+	gadgetui.util.addClass(this.selector, "gadgetui-sidebarContent-minimized");
 
-	if (typeof Velocity !== 'undefined' && this.animate) {
+	if (typeof Velocity !== "undefined" && this.animate) {
 		Velocity(
 			this.wrapper,
 			{ width: 25 },
@@ -1756,41 +1742,37 @@ Sidebar.prototype.minimize = function () {
 				queue: false,
 				duration: this.delay,
 				complete: () => {
-					gadgetui.util.addClass(
-						this.wrapper,
-						'gadgetui-sidebar-minimized'
-					)
-					if (typeof this.fireEvent === 'function') {
-						this.fireEvent('minimized')
+					gadgetui.util.addClass(this.wrapper, "gadgetui-sidebar-minimized");
+					if (typeof this.fireEvent === "function") {
+						this.fireEvent("minimized");
 					}
 				},
-			}
-		)
+			},
+		);
 	} else {
-		gadgetui.util.addClass(this.wrapper, 'gadgetui-sidebar-minimized')
-		if (typeof this.fireEvent === 'function') {
-			this.fireEvent('minimized')
+		gadgetui.util.addClass(this.wrapper, "gadgetui-sidebar-minimized");
+		if (typeof this.fireEvent === "function") {
+			this.fireEvent("minimized");
 		}
 	}
-}
+};
 
 Sidebar.prototype.addBindings = function (options) {
-	this.span.addEventListener('click', () => {
-		this.minimized ? this.maximize() : this.minimize()
-	})
+	this.span.addEventListener("click", () => {
+		this.minimized ? this.maximize() : this.minimize();
+	});
 
 	if (options.minimized) {
-		this.minimize()
+		this.minimize();
 	}
-}
+};
 
 Sidebar.prototype.setChevron = function (minimized) {
-	const chevron = minimized ? 'chevron-right' : 'chevron-left'
-	const svg = this.wrapper.querySelector('svg')
-	svg.innerHTML = `
-    <use xlink:href="${this.featherPath}/dist/feather-sprite.svg#${chevron}"/>
-  `.trim()
-}
+	const chevron = minimized ? "chevron-right" : "chevron-left";
+	const svg = this.wrapper.querySelector("span");
+	svg.innerHTML =
+		`<img class="feather" src="${this.featherPath}/dist/icons/${chevron}.svg">`.trim();
+};
 
 function Tabs(element, options = {}) {
 	this.element = element

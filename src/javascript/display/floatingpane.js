@@ -111,7 +111,7 @@ FloatingPane.prototype.addHeader = function () {
 		css(this.shrinker, "right", "20px");
 		css(this.shrinker, "margin-right", ".5em");
 
-		const shrinkIcon = `<svg class="feather"><use xlink:href="${this.featherPath}/dist/feather-sprite.svg#minimize"/></svg>`;
+		const shrinkIcon = `<img class="feather" src="${this.featherPath}/dist/icons/minimize.svg">`;
 		this.shrinker.innerHTML = shrinkIcon;
 		this.header.appendChild(this.shrinker);
 	}
@@ -122,7 +122,7 @@ FloatingPane.prototype.addHeader = function () {
 		const span = document.createElement("span");
 		span.setAttribute("name", "closeIcon");
 
-		const icon = `<svg class="feather"><use xlink:href="${this.featherPath}/dist/feather-sprite.svg#x-circle"/></svg>`;
+		const icon = `<img class="feather" src="${this.featherPath}/dist/icons/x-circle.svg">`;
 		span.innerHTML = icon;
 		this.header.appendChild(span);
 
@@ -176,7 +176,7 @@ FloatingPane.prototype.expand = function () {
 		),
 		10,
 	);
-	const icon = `<svg class="feather"><use xlink:href="${this.featherPath}/dist/feather-sprite.svg#minimize"/></svg>`;
+	const icon = `<img class="feather" src="${this.featherPath}/dist/icons/minimize.svg">`;
 
 	if (typeof Velocity !== "undefined" && this.animate) {
 		Velocity(
@@ -214,7 +214,7 @@ FloatingPane.prototype.expand = function () {
 
 FloatingPane.prototype.minimize = function () {
 	const css = gadgetui.util.setStyle;
-	const icon = `<svg class="feather"><use xlink:href="${this.featherPath}/dist/feather-sprite.svg#maximize"/></svg>`;
+	const icon = `<img class="feather" src="${this.featherPath}/dist/icons/maximize.svg">`;
 
 	css(this.element, "overflow", "hidden");
 
