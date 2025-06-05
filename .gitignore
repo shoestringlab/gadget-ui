@@ -6,3 +6,4 @@ javaloader
 test/upload/
 client/img/postImages
 upload
+test/config/dbconfig.js

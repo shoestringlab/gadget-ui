@@ -33,6 +33,8 @@ div.gadget-ui-floatingPane-header {
 	color: black;
 	font-weight: bold;
 	overflow: hidden;
+	dislay: flex;
+	justify-content: space-between;
 }
 
 div.gadget-ui-collapsiblePane-header div,
