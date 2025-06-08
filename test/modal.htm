@@ -5,19 +5,17 @@
 		<link rel="stylesheet" href="/dist/gadget-ui.css" />
 
 		<script type="module">
-			import { modal, constructor } from "/dist/gadget-ui.es.js";
+			import { gadgetui } from "/dist/gadget-ui.es.js";
 
-			var md = constructor(
-				modal,
-				[
-					document.querySelector("#modal"),
-					{
-						autoOpen: false,
-
-						featherClass: "feather",
-					},
-				],
-				true,
+			var md = new gadgetui.display.Modal(
+				document.querySelector("#modal"),
+				{
+					autoOpen: false,
+					iconType: "svg",
+					featherClass: "feather",
+					closeIcon:
+						"/node_modules/feather-icons/dist/feather-sprite.svg#x-circle",
+				},
 			);
 
 			md.on("opened", function (obj) {

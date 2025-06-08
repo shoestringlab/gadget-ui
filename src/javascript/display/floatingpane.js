@@ -111,7 +111,11 @@ FloatingPane.prototype.addHeader = function () {
 		css(this.shrinker, "right", "20px");
 		css(this.shrinker, "margin-right", ".5em");
 
-		const shrinkIcon = `<img class="feather" src="${this.featherPath}/dist/icons/minimize.svg">`;
+		const shrinkIcon =
+			this.iconType === "img"
+				? `<img class="${this.iconClass}" src="${this.minimizeIcon}"/>`
+				: `<svg class="${this.iconClass}"><use xlink:href="${this.minimizeIcon}"/></svg>`;
+
 		this.shrinker.innerHTML = shrinkIcon;
 		this.header.appendChild(this.shrinker);
 	}
@@ -122,7 +126,11 @@ FloatingPane.prototype.addHeader = function () {
 		const span = document.createElement("span");
 		span.setAttribute("name", "closeIcon");
 
-		const icon = `<img class="feather" src="${this.featherPath}/dist/icons/x-circle.svg">`;
+		const icon =
+			this.iconType === "img"
+				? `<img class="${this.iconClass}" src="${this.closeIcon}"/>`
+				: `<svg class="${this.iconClass}"><use xlink:href="${this.closeIcon}"/></svg>`;
+
 		span.innerHTML = icon;
 		this.header.appendChild(span);
 
@@ -176,7 +184,10 @@ FloatingPane.prototype.expand = function () {
 		),
 		10,
 	);
-	const icon = `<img class="feather" src="${this.featherPath}/dist/icons/minimize.svg">`;
+	const icon =
+		this.iconType === "img"
+			? `<img class="${this.iconClass}" src="${this.minimizeIcon}"/>`
+			: `<svg class="${this.iconClass}"><use xlink:href="${this.minimizeIcon}"/></svg>`;
 
 	if (typeof Velocity !== "undefined" && this.animate) {
 		Velocity(
@@ -214,7 +225,10 @@ FloatingPane.prototype.expand = function () {
 
 FloatingPane.prototype.minimize = function () {
 	const css = gadgetui.util.setStyle;
-	const icon = `<img class="feather" src="${this.featherPath}/dist/icons/maximize.svg">`;
+	const icon =
+		this.iconType === "img"
+			? `<img class="${this.iconClass}" src="${this.maximizeIcon}"/>`
+			: `<svg class="${this.iconClass}"><use xlink:href="${this.maximizeIcon}"/></svg>`;
 
 	css(this.element, "overflow", "hidden");
 
@@ -267,9 +281,20 @@ FloatingPane.prototype.config = function (options) {
 	this.right = options.right;
 	this.class = options.class || false;
 	this.headerClass = options.headerClass || false;
-	this.featherPath = options.featherPath || "/node_modules/feather-icons";
+	//this.featherPath = options.featherPath || "/node_modules/feather-icons";
 	this.minimized = false;
 	this.relativeOffsetLeft = 0;
 	this.enableShrink = options.enableShrink ?? true;
 	this.enableClose = options.enableClose ?? true;
+
+	this.iconClass = options.iconClass || "feather";
+	this.iconType = options.iconType || "img";
+	this.closeIcon =
+		options.closeIcon || "/node_modules/feather-icons/dist/icons/x-circle.svg";
+	this.minimizeIcon =
+		options.minimizeIcon ||
+		"/node_modules/feather-icons/dist/icons/minimize.svg";
+	this.maximizeIcon =
+		options.maximizeIcon ||
+		"/node_modules/feather-icons/dist/icons/maximize.svg";
 };

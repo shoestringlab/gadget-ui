@@ -1,6 +1,13 @@
 
 ***Release Notes***
 
+11.0.0-alpha
+======
+
+The 11.0 release represents a big departure from the old codebase. The components are being re-factored as ES classes for modern code compatibility, and many options are being simplified and made consistent across the library. For instance, all options involving icons have been unified so you can choose svg or img tags for the icons and so you can specify the file for each icon including its path. There are no detailed docs yet, please check source code for the options.
+
+There is no specific roadmap yet for the release,stay tuned to see how it develops.
+
 10.3.0
 ======
 

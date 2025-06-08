@@ -2,62 +2,68 @@
 <html>
 	<head>
 		<title>gadget-ui Tabs Test</title>
-		<link rel="stylesheet" href="/dist/gadget-ui.css"/>
-		
+		<link rel="stylesheet" href="/dist/gadget-ui.css" />
+		<script src="/node_modules/velocity-animate/velocity.js"></script>
+		<script type="module">
+			import { tabs } from "/dist/gadget-ui.es.js";
 
- 		<script type="module">
-			import {tabs,constructor} from '/dist/gadget-ui.es.js';
-
-			var tbs = constructor( tabs, [ document.querySelector("#tabsHContainer"), { } ] );
+			var tbs = new tabs(document.querySelector("#tabsHContainer"), {});
 			// show bindings
-			var tbs3 = constructor( tabs, [ document.querySelector("#vertTabContainer"), { direction: 'vertical' } ], true );
-
-			tbs3.on("tabSelected", function( event, tab ){
-				console.log( event );
-				console.log( tab );
+			var tbs3 = new tabs(document.querySelector("#vertTabContainer"), {
+				direction: "vertical",
 			});
 
-			tbs.on( "tabSelected", function( obj ){
-				console.log( "tabSelected" );
-				console.log( obj );
+			tbs3.on("tabSelected", function (event, tab) {
+				console.log(event);
+				console.log(tab);
 			});
 
-			tbs3.setActiveTab( "tab-v2");
+			tbs.on("tabSelected", function (obj) {
+				console.log("tabSelected");
+				console.log(obj);
+			});
 
+			tbs3.setActiveTab("tab-v2");
 		</script>
 
 		<style>
-			body {font-size: 1em;}
-			input, select, select option{ font-size: 1em;}
-      #header{
-        display: flex;
-				padding: .5em .25em .25em .25em;
-        background: #777;
-      }
+			body {
+				font-size: 1em;
+			}
+			input,
+			select,
+			select option {
+				font-size: 1em;
+			}
+			#header {
+				display: flex;
+				padding: 0.5em 0.25em 0.25em 0.25em;
+				background: #777;
+			}
 
-      #tabs-h{
-        width:500px;
-      }
+			#tabs-h {
+				width: 500px;
+			}
 
-			#vertTabContainer{
-			/* 	display: grid;
+			#vertTabContainer {
+				/* 	display: grid;
 				grid-template-columns: 10em auto; */
-				border:1px solid silver;
+				border: 1px solid silver;
 				width: 50%;
 			}
 
-			#tabs-v{
+			#tabs-v {
 				width: 10em;
-				display:inline-block;
+				display: inline-block;
 				height: 320px;
 			}
 
-			.vtabContent{
-				display:inline;
-				width:auto;
+			.vtabContent {
+				display: inline;
+				width: auto;
 			}
 
-			.vcontentContainer{
+			.vcontentContainer {
 				height: 300px;
 
 				display: inline-block;
@@ -69,31 +75,30 @@
 	</head>
 
 	<body>
-	<div style="width: 515px;" id="tabsHContainer">
-    <div id="tabs-h">
-      <div data-tab="tab-h1">One</div>
-      <div data-tab="tab-h2">Two</div>
-      <div data-tab="tab-h3">Three</div>
-    </div>
-		<div style="border:1px solid silver; height: 300px; padding: 1em;">
-	    <div name="tab-h1">Content One</div>
-	    <div name="tab-h2">Content Two</div>
-	    <div name="tab-h3">Content Three</div>
+		<div style="width: 515px" id="tabsHContainer">
+			<div id="tabs-h">
+				<div data-tab="tab-h1">One</div>
+				<div data-tab="tab-h2">Two</div>
+				<div data-tab="tab-h3">Three</div>
+			</div>
+			<div style="border: 1px solid silver; height: 300px; padding: 1em">
+				<div name="tab-h1">Content One</div>
+				<div name="tab-h2">Content Two</div>
+				<div name="tab-h3">Content Three</div>
+			</div>
 		</div>
-	</div>
-	<br><br>
-	<div id="vertTabContainer">
-		<div id="tabs-v">
-			<div data-tab="tab-v1">One</div>
-			<div data-tab="tab-v2">Two</div>
-			<div data-tab="tab-v3">Three</div>
+		<br /><br />
+		<div id="vertTabContainer">
+			<div id="tabs-v">
+				<div data-tab="tab-v1">One</div>
+				<div data-tab="tab-v2">Two</div>
+				<div data-tab="tab-v3">Three</div>
+			</div>
+			<div class="vcontentContainer">
+				<div name="tab-v1" class="vtabContent">Content One</div>
+				<div name="tab-v2" class="vtabContent">Content Two</div>
+				<div name="tab-v3" class="vtabContent">Content Three</div>
+			</div>
 		</div>
-		<div class="vcontentContainer">
-			<div name="tab-v1" class="vtabContent">Content One</div>
-			<div name="tab-v2" class="vtabContent">Content Two</div>
-			<div name="tab-v3" class="vtabContent">Content Three</div>
-		</div>
-	</div>
-
 	</body>
 </html>

@@ -1,46 +1,44 @@
-
 "use strict";
 
 /*
  * author: Robert Munn <robert@robertmunn.com>
- * 
+ *
  * Copyright (C) 2016 Robert Munn
- * 
+ *
  * This is free software licensed under the Mozilla Public License 2.0
- * 
+ *
  * https://www.mozilla.org/en-US/MPL/2.0/
- * 
- * 
+ *
+ *
  */
 
 var gadgetui = {
-		keyCode: {
-			BACKSPACE: 8,
-			COMMA: 188,
-			DELETE: 46,
-			DOWN: 40,
-			END: 35,
-			ENTER: 13,
-			ESCAPE: 27,
-			HOME: 36,
-			LEFT: 37,
-			PAGE_DOWN: 34,
-			PAGE_UP: 33,
-			PERIOD: 190,
-			RIGHT: 39,
-			SPACE: 32,
-			TAB: 9,
-			UP: 38
-		}
+	keyCode: {
+		BACKSPACE: 8,
+		COMMA: 188,
+		DELETE: 46,
+		DOWN: 40,
+		END: 35,
+		ENTER: 13,
+		ESCAPE: 27,
+		HOME: 36,
+		LEFT: 37,
+		PAGE_DOWN: 34,
+		PAGE_UP: 33,
+		PERIOD: 190,
+		RIGHT: 39,
+		SPACE: 32,
+		TAB: 9,
+		UP: 38,
+	},
 };
 
 // save mouse position
-document
-	.addEventListener( "mousemove", function(ev){ 
-		ev = ev || window.event; 
-		gadgetui.mousePosition = gadgetui.util.mouseCoords(ev); 
-	});
-
+// document
+// 	.addEventListener( "mousemove", function(ev){
+// 		ev = ev || window.event;
+// 		gadgetui.mousePosition = gadgetui.util.mouseCoords(ev);
+// 	});
 
 gadgetui.model = ( function( $ ) {
 	"use strict";
@@ -2740,6 +2738,43 @@ TextInput.prototype.config = function( options ){
 
 gadgetui.objects = (function() {
 
+class Component {
+	constructor() {
+		this.events = {};
+	}
+
+	// event bindings
+	on(event, func) {
+		if (this.events[event] === undefined) {
+			this.events[event] = [];
+		}
+		this.events[event].push(func);
+		return this;
+	}
+
+	off(event) {
+		// Clear listeners
+		this.events[event] = [];
+		return this;
+	}
+
+	fireEvent(key, args) {
+		if (this.events[key] !== undefined) {
+			this.events[key].forEach((func) => {
+				func(this, args);
+			});
+		}
+	}
+
+	getAll() {
+		return [
+			{ name: "on", func: this.on },
+			{ name: "off", func: this.off },
+			{ name: "fireEvent", func: this.fireEvent },
+		];
+	}
+}
+
 function Constructor(constructor, args, addBindings) {
   var ix, returnedObj, obj, bindings;
 
@@ -2833,6 +2868,7 @@ FileItem.prototype.set = function(args) {
 
 
 	return{
+
     Constructor: Constructor,
 	  EventBindings: EventBindings,
     FileItem: FileItem

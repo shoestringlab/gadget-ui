@@ -5,17 +5,13 @@
 		<link rel="stylesheet" href="/dist/gadget-ui.css" />
 
 		<script type="module">
-			import { progressbar, constructor } from "/dist/gadget-ui.es.js";
+			import { gadgetui } from "/dist/gadget-ui.es.js";
 
-			var pb1 = constructor(
-				progressbar,
-				[
-					document.querySelector("#pb"),
-					{ id: "pbxx1", label: "", width: 500 },
-				],
-				true,
+			var pb1 = new gadgetui.display.ProgressBar(
+				document.querySelector("#pb"),
+				{ id: "pbxx1", label: "", width: 500 },
 			);
-			pb1.render();
+			//	pb1.render();
 			let myInterval = "";
 			let started = false;
 			let paused = true;

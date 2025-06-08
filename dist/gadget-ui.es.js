@@ -1,46 +1,44 @@
-
 "use strict";
 
 /*
  * author: Robert Munn <robert@robertmunn.com>
- * 
+ *
  * Copyright (C) 2016 Robert Munn
- * 
+ *
  * This is free software licensed under the Mozilla Public License 2.0
- * 
+ *
  * https://www.mozilla.org/en-US/MPL/2.0/
- * 
- * 
+ *
+ *
  */
 
 var gadgetui = {
-		keyCode: {
-			BACKSPACE: 8,
-			COMMA: 188,
-			DELETE: 46,
-			DOWN: 40,
-			END: 35,
-			ENTER: 13,
-			ESCAPE: 27,
-			HOME: 36,
-			LEFT: 37,
-			PAGE_DOWN: 34,
-			PAGE_UP: 33,
-			PERIOD: 190,
-			RIGHT: 39,
-			SPACE: 32,
-			TAB: 9,
-			UP: 38
-		}
+	keyCode: {
+		BACKSPACE: 8,
+		COMMA: 188,
+		DELETE: 46,
+		DOWN: 40,
+		END: 35,
+		ENTER: 13,
+		ESCAPE: 27,
+		HOME: 36,
+		LEFT: 37,
+		PAGE_DOWN: 34,
+		PAGE_UP: 33,
+		PERIOD: 190,
+		RIGHT: 39,
+		SPACE: 32,
+		TAB: 9,
+		UP: 38,
+	},
 };
 
 // save mouse position
-document
-	.addEventListener( "mousemove", function(ev){ 
-		ev = ev || window.event; 
-		gadgetui.mousePosition = gadgetui.util.mouseCoords(ev); 
-	});
-
+// document
+// 	.addEventListener( "mousemove", function(ev){
+// 		ev = ev || window.event;
+// 		gadgetui.mousePosition = gadgetui.util.mouseCoords(ev);
+// 	});
 
 gadgetui.model = (() => {
 	'use strict'
@@ -510,444 +508,436 @@ gadgetui.display = (function() {
 	    }
 	    return null;
 	}
-function Bubble(options = {}) {
-	this.canvas = document.createElement('canvas')
-	this.ctx = this.canvas.getContext('2d')
-	this.configure(options)
-	this.bubble = {
-		x: 0,
-		y: 0,
-		width: 0,
-		height: 0,
-		arrowPosition: 'topleft',
-		arrowAngle: 315,
-		text: '',
-		padding: 10,
-		fontSize: this.fontSize,
-		fontStyle: this.fontStyle,
-		fontWeight: this.fontWeight,
-		fontVariant: this.fontVariant,
-		font: this.font,
-		color: this.color,
-		borderWidth: this.borderWidth,
-		borderColor: this.borderColor,
-		backgroundColor: this.backgroundColor,
-		justifyText: this.justifyText,
-		lineHeight: this.lineHeight,
-		align: this.align,
-		vAlign: this.vAlign,
-	}
-}
-
-Bubble.prototype.configure = function (options = {}) {
-	this.color = options.color ?? '#000'
-	this.borderWidth = options.borderWidth ?? 1
-	this.borderColor = options.borderColor ?? '#000'
-	this.backgroundColor = options.backgroundColor ?? '#f0f0f0'
-	this.fontSize = options.fontSize ?? 14
-	this.font = options.font ?? 'Arial'
-	this.fontStyle = options.fontStyle ?? ''
-	this.fontWeight = options.fontWeight ?? 100
-	this.fontVariant = options.fontVariant ?? ''
-	this.lineHeight = options.lineHeight ?? null
-	this.align = options.align ?? 'center'
-	this.vAlign = options.vAlign ?? 'middle'
-	this.justifyText = options.justifyText ?? false
-}
-
-Bubble.prototype.events = ['rendered']
-
-Bubble.prototype.setBubble = function (
-	x,
-	y,
-	width,
-	height,
-	arrowPosition,
-	length,
-	angle
-) {
-	this.bubble.x = x
-	this.bubble.y = y
-	this.bubble.width = width
-	this.bubble.height = height
-	this.setArrow(arrowPosition, length, angle)
-	this.calculateBoundingRect()
-	const rect = this.getBoundingClientRect()
-	this.canvas.height = rect.height
-	this.canvas.width = rect.width
-	document.body.appendChild(this.canvas)
-}
-
-Bubble.prototype.setText = function (text) {
-	this.bubble.text = text
-}
-
-Bubble.prototype.setPosition = function (x, y) {
-	this.bubble.x = x
-	this.bubble.y = y
-}
-
-Bubble.prototype.setArrow = function (position, length, angle) {
-	this.setArrowLength(length)
-	this.setArrowPosition(position)
-	this.setArrowAngle(angle)
-	this.setArrowComponents()
-	this.setArrowVector()
-}
-
-Bubble.prototype.setArrowPosition = function (position) {
-	this.bubble.arrowPosition = position
-	const { x, width, y, height } = this.bubble
-
-	const positions = {
-		top: [x + width / 2, y],
-		topright: [x + width, y],
-		right: [x + width, y + height / 2],
-		bottomright: [x + width, y + height],
-		bottom: [x + width / 2, y + height],
-		bottomleft: [x, y + height],
-		left: [x, y + height / 2],
-		topleft: [x, y],
+class Component {
+	constructor() {
+		this.events = {};
 	}
 
-	;[this.bubble.arrowX, this.bubble.arrowY] = positions[position] || [x, y]
-}
-
-Bubble.prototype.setArrowAngle = function (angle) {
-	this.bubble.arrowAngle = angle
-	const angleRanges = {
-		top: [280, 360, 0, 80, 0],
-		topright: [10, 80, 45],
-		right: [10, 170, 90],
-		bottomright: [100, 170, 180],
-		bottom: [100, 260, 180],
-		bottomleft: [190, 260, 225],
-		left: [190, 350, 270],
-		topleft: [280, 360, 0, 80, 315],
-	}
-
-	const range = angleRanges[this.bubble.arrowPosition] || [315]
-	const isValid =
-		range.length === 3
-			? angle >= range[0] && angle <= range[1]
-			: (angle >= range[0] && angle <= range[1]) ||
-				(angle >= range[2] && angle <= range[3])
-
-	if (!isValid) {
-		console.error(
-			`Angle must be within valid range for ${this.bubble.arrowPosition}`
-		)
-		this.bubble.arrowAngle = range[range.length - 1]
-	}
-}
-
-Bubble.prototype.setArrowLength = function (length) {
-	this.bubble.arrowLength = length
-}
-
-Bubble.prototype.setArrowComponents = function () {
-	const angleInRadians =
-		(Math.abs(this.bubble.arrowAngle - 90) * Math.PI) / 180
-	this.bubble.arrowDx = Math.round(
-		this.bubble.arrowLength * Math.cos(angleInRadians)
-	)
-	this.bubble.arrowDy = Math.round(
-		this.bubble.arrowLength * Math.sin(angleInRadians)
-	)
-}
-
-Bubble.prototype.setArrowVector = function () {
-	const { arrowX, arrowY, arrowDx, arrowDy, arrowAngle } = this.bubble
-
-	if (arrowAngle >= 0 && arrowAngle <= 90) {
-		this.bubble.arrowEndX = arrowX + arrowDx
-		this.bubble.arrowEndY = arrowY - arrowDy
-	} else {
-		this.bubble.arrowEndX = arrowX + arrowDx
-		this.bubble.arrowEndY = arrowY + arrowDy
-	}
-}
-
-Bubble.prototype.calculateBoundingRect = function () {
-	const { borderWidth } = this.bubble
-	const halfBorder = Math.floor(borderWidth / 2)
-
-	this.bubble.top =
-		Math.min(this.bubble.y, this.bubble.arrowEndY) - halfBorder
-	this.bubble.left =
-		Math.min(this.bubble.x, this.bubble.arrowEndX) - halfBorder
-	this.bubble.right =
-		Math.max(this.bubble.x + this.bubble.width, this.bubble.arrowEndX) +
-		halfBorder
-	this.bubble.bottom =
-		Math.max(this.bubble.y + this.bubble.height, this.bubble.arrowEndY) +
-		halfBorder
-}
-
-Bubble.prototype.getBoundingClientRect = function () {
-	return {
-		top: this.bubble.top,
-		left: this.bubble.left,
-		bottom: this.bubble.bottom,
-		right: this.bubble.right,
-		height: this.bubble.bottom - this.bubble.top,
-		width: this.bubble.right - this.bubble.left,
-	}
-}
-
-Bubble.prototype.render = function () {
-	this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height)
-
-	this.ctx.fillStyle = this.bubble.backgroundColor
-	this.ctx.strokeStyle = this.bubble.borderColor
-	this.ctx.lineWidth = this.bubble.borderWidth
-
-	const bubbleX = this.bubble.x
-	const bubbleY = this.bubble.y
-
-	this.ctx.beginPath()
-	this.ctx.moveTo(bubbleX, bubbleY)
-	this.ctx.lineTo(bubbleX, bubbleY + this.bubble.height)
-	this.ctx.lineTo(bubbleX + this.bubble.width, bubbleY + this.bubble.height)
-	this.ctx.lineTo(bubbleX + this.bubble.width, bubbleY)
-	this.ctx.lineTo(bubbleX, bubbleY)
-	this.ctx.closePath()
-
-	this.ctx.moveTo(this.bubble.arrowX, this.bubble.arrowY)
-	this.ctx.lineTo(this.bubble.arrowEndX, this.bubble.arrowEndY)
-	this.ctx.fill()
-	this.ctx.stroke()
-
-	this.ctx.fillStyle = this.bubble.color
-	const config = {
-		x: bubbleX + this.bubble.padding,
-		y: bubbleY + this.bubble.padding,
-		width:
-			this.bubble.width -
-			this.bubble.padding * 2 -
-			this.bubble.borderWidth * 2,
-		height:
-			this.bubble.height -
-			this.bubble.padding * 2 -
-			this.bubble.borderWidth * 2,
-		fontSize: this.bubble.fontSize,
-		justify: this.bubble.justifyText,
-		align: this.bubble.align,
-		vAlign: this.bubble.vAlign,
-		font: this.bubble.font,
-		fontStyle: this.bubble.fontStyle,
-		fontWeight: this.bubble.fontWeight,
-		fontVariant: this.bubble.fontVariant,
-		lineHeight: this.bubble.lineHeight,
-	}
-	gadgetui.util.drawText(this.ctx, this.bubble.text, config)
-}
-
-Bubble.prototype.attachToElement = function (selector, position) {
-	const element = selector
-	if (!element) return
-
-	const rect = element.getBoundingClientRect()
-	const canvasRect = this.canvas.getBoundingClientRect()
-
-	const positions = {
-		top: [rect.left + rect.width / 2, rect.top],
-		topright: [rect.right, -this.bubble.padding],
-		right: [rect.right, rect.top / 2 + rect.height / 2],
-		bottomright: [rect.right, rect.bottom],
-		bottom: [rect.left + rect.width / 2, rect.bottom],
-		bottomleft: [rect.left - canvasRect.width, rect.bottom],
-		left: [rect.left - canvasRect.width, rect.top - rect.height / 2],
-		topleft: [rect.left - canvasRect.width, rect.top - canvasRect.height],
-	}
-
-	const [left, top] = positions[position] || [0, 0]
-	this.canvas.style.left = `${left}px`
-	this.canvas.style.top = `${top}px`
-	this.canvas.style.position = 'absolute'
-}
-
-Bubble.prototype.destroy = function () {
-	document.body.removeChild(this.canvas)
-}
-
-function CollapsiblePane(element, options = {}) {
-	this.element = element
-	this.config(options)
-
-	this.addControl()
-	this.addCSS()
-	this.addHeader()
-
-	this.icon = this.wrapper.querySelector('div.oi')
-	this.addBindings()
-
-	this.height = this.wrapper.offsetHeight
-	this.headerHeight = this.header.offsetHeight
-	this.selectorHeight = this.element.offsetHeight
-
-	if (this.collapse) {
-		this.toggle()
-	}
-}
-
-CollapsiblePane.prototype.events = ['minimized', 'maximized']
-
-CollapsiblePane.prototype.addControl = function () {
-	const pane = document.createElement('div')
-
-	if (this.class) {
-		gadgetui.util.addClass(pane, this.class)
-	}
-	gadgetui.util.addClass(pane, 'gadget-ui-collapsiblePane')
-
-	this.element.parentNode.insertBefore(pane, this.element)
-	this.wrapper = this.element.previousSibling
-	this.element.parentNode.removeChild(this.element)
-	pane.appendChild(this.element)
-}
-
-CollapsiblePane.prototype.addHeader = function () {
-	const header = document.createElement('div')
-	const css = gadgetui.util.setStyle
-
-	gadgetui.util.addClass(header, 'gadget-ui-collapsiblePane-header')
-	if (this.headerClass) {
-		gadgetui.util.addClass(header, this.headerClass)
-	}
-	header.innerHTML = this.title
-
-	this.wrapper.insertBefore(header, this.element)
-	this.header = this.wrapper.querySelector(
-		this.headerClass
-			? `div.${this.headerClass}`
-			: 'div.gadget-ui-collapsiblePane-header'
-	)
-
-	const div = document.createElement('div')
-	this.header.appendChild(div)
-}
-
-CollapsiblePane.prototype.addCSS = function () {
-	const css = gadgetui.util.setStyle
-	css(this.wrapper, 'width', this.width)
-	css(this.wrapper, 'overflow', 'hidden')
-}
-
-CollapsiblePane.prototype.addBindings = function () {
-	const header = this.wrapper.querySelector(
-		this.headerClass
-			? `div.${this.headerClass}`
-			: 'div.gadget-ui-collapsiblePane-header'
-	)
-
-	header.addEventListener('click', () => this.toggle())
-}
-
-CollapsiblePane.prototype.toggle = function () {
-	const css = gadgetui.util.setStyle
-	let icon, display, myHeight, selectorHeight
-
-	if (this.collapsed) {
-		icon = ''
-		display = 'block'
-		myHeight = this.height
-		selectorHeight = this.selectorHeight
-		this.collapsed = false
-	} else {
-		icon = ''
-		display = 'none'
-		myHeight = this.headerHeight
-		selectorHeight = 0
-		this.collapsed = true
-	}
-
-	const eventName = this.collapsed ? 'collapse' : 'expand'
-	const newEventName = this.collapsed ? 'minimized' : 'maximized'
-	this.element.dispatchEvent(new Event(eventName))
-
-	if (typeof Velocity !== 'undefined' && this.animate) {
-		Velocity(
-			this.wrapper,
-			{ height: myHeight },
-			{
-				queue: false,
-				duration: this.delay,
-				complete: () => {
-					// this.icon.setAttribute('data-glyph', icon);
-				},
-			}
-		)
-
-		Velocity(
-			this.element,
-			{ height: selectorHeight },
-			{
-				queue: false,
-				duration: this.delay,
-				complete: () => {
-					if (typeof this.fireEvent === 'function') {
-						this.fireEvent(newEventName)
-					}
-				},
-			}
-		)
-	} else {
-		css(this.element, 'display', display)
-		// this.icon.setAttribute('data-glyph', icon);
-	}
-}
-
-CollapsiblePane.prototype.config = function (options = {}) {
-	this.animate = options.animate ?? true
-	this.delay = options.delay ?? 300
-	this.title = options.title ?? ''
-	this.width = gadgetui.util.getStyle(this.element, 'width')
-	this.collapse = options.collapse ?? false
-	this.collapsed = options.collapse ?? true
-	this.class = options.class || false
-	this.headerClass = options.headerClass || false
-}
-
-function Dialog(element, options = {}) {
-	const css = gadgetui.util.setStyle
-
-	if (element) {
-		this.element = element
-	} else {
-		const dv = document.createElement('div')
-		dv.setAttribute('id', `gadgetui-dialog-${Math.random()}`)
-		if (options.width) {
-			css(dv, 'width', options.width)
+	// event bindings
+	on(event, func) {
+		if (this.events[event] === undefined) {
+			this.events[event] = [];
 		}
-		document.body.appendChild(dv)
-		this.element = dv
+		this.events[event].push(func);
+		return this;
 	}
 
-	this.config(options)
-	this.buttons = options.buttons || []
-	this.setup(options)
-	this.addButtons()
+	off(event) {
+		// Clear listeners
+		this.events[event] = [];
+		return this;
+	}
+
+	fireEvent(key, args) {
+		if (this.events[key] !== undefined) {
+			this.events[key].forEach((func) => {
+				func(this, args);
+			});
+		}
+	}
+
+	getAll() {
+		return [
+			{ name: "on", func: this.on },
+			{ name: "off", func: this.off },
+			{ name: "fireEvent", func: this.fireEvent },
+		];
+	}
 }
 
-Dialog.prototype = FloatingPane.prototype
+class Bubble extends Component {
+	constructor(options = {}) {
+		super();
+		this.canvas = document.createElement("canvas");
+		this.ctx = this.canvas.getContext("2d");
+		this.configure(options);
+		this.bubble = {
+			x: 0,
+			y: 0,
+			width: 0,
+			height: 0,
+			arrowPosition: "topleft",
+			arrowAngle: 315,
+			text: "",
+			padding: 10,
+			fontSize: this.fontSize,
+			fontStyle: this.fontStyle,
+			fontWeight: this.fontWeight,
+			fontVariant: this.fontVariant,
+			font: this.font,
+			color: this.color,
+			borderWidth: this.borderWidth,
+			borderColor: this.borderColor,
+			backgroundColor: this.backgroundColor,
+			justifyText: this.justifyText,
+			lineHeight: this.lineHeight,
+			align: this.align,
+			vAlign: this.vAlign,
+		};
+	}
 
-Dialog.prototype.addButtons = function () {
-	const css = gadgetui.util.setStyle
+	configure(options = {}) {
+		this.color = options.color ?? "#000";
+		this.borderWidth = options.borderWidth ?? 1;
+		this.borderColor = options.borderColor ?? "#000";
+		this.backgroundColor = options.backgroundColor ?? "#f0f0f0";
+		this.fontSize = options.fontSize ?? 14;
+		this.font = options.font ?? "Arial";
+		this.fontStyle = options.fontStyle ?? "";
+		this.fontWeight = options.fontWeight ?? 100;
+		this.fontVariant = options.fontVariant ?? "";
+		this.lineHeight = options.lineHeight ?? null;
+		this.align = options.align ?? "center";
+		this.vAlign = options.vAlign ?? "middle";
+		this.justifyText = options.justifyText ?? false;
+	}
 
-	this.buttonDiv = document.createElement('div')
-	css(this.buttonDiv, 'text-align', 'center')
-	css(this.buttonDiv, 'padding', '0.5em')
+	setBubble(x, y, width, height, arrowPosition, length, angle) {
+		this.bubble.x = x;
+		this.bubble.y = y;
+		this.bubble.width = width;
+		this.bubble.height = height;
+		this.setArrow(arrowPosition, length, angle);
+		this.calculateBoundingRect();
+		const rect = this.getBoundingClientRect();
+		this.canvas.height = rect.height;
+		this.canvas.width = rect.width;
+		document.body.appendChild(this.canvas);
+	}
 
-	this.buttons.forEach((button) => {
-		const btn = document.createElement('button')
-		btn.innerText = button.label
-		css(btn, 'margin', '0.5em')
-		btn.addEventListener('click', button.click)
-		this.buttonDiv.appendChild(btn)
-	})
+	setText(text) {
+		this.bubble.text = text;
+	}
 
-	this.wrapper.appendChild(this.buttonDiv)
+	setPosition(x, y) {
+		this.bubble.x = x;
+		this.bubble.y = y;
+	}
+
+	setArrow(position, length, angle) {
+		this.setArrowLength(length);
+		this.setArrowPosition(position);
+		this.setArrowAngle(angle);
+		this.setArrowComponents();
+		this.setArrowVector();
+	}
+
+	setArrowPosition(position) {
+		this.bubble.arrowPosition = position;
+		const { x, width, y, height } = this.bubble;
+
+		const positions = {
+			top: [x + width / 2, y],
+			topright: [x + width, y],
+			right: [x + width, y + height / 2],
+			bottomright: [x + width, y + height],
+			bottom: [x + width / 2, y + height],
+			bottomleft: [x, y + height],
+			left: [x, y + height / 2],
+			topleft: [x, y],
+		};
+
+		[this.bubble.arrowX, this.bubble.arrowY] = positions[position] || [x, y];
+	}
+
+	setArrowAngle(angle) {
+		this.bubble.arrowAngle = angle;
+		const angleRanges = {
+			top: [280, 360, 0, 80, 0],
+			topright: [10, 80, 45],
+			right: [10, 170, 90],
+			bottomright: [100, 170, 180],
+			bottom: [100, 260, 180],
+			bottomleft: [190, 260, 225],
+			left: [190, 350, 270],
+			topleft: [280, 360, 0, 80, 315],
+		};
+
+		const range = angleRanges[this.bubble.arrowPosition] || [315];
+		const isValid =
+			range.length === 3
+				? angle >= range[0] && angle <= range[1]
+				: (angle >= range[0] && angle <= range[1]) ||
+					(angle >= range[2] && angle <= range[3]);
+
+		if (!isValid) {
+			console.error(
+				`Angle must be within valid range for ${this.bubble.arrowPosition}`,
+			);
+			this.bubble.arrowAngle = range[range.length - 1];
+		}
+	}
+
+	setArrowLength(length) {
+		this.bubble.arrowLength = length;
+	}
+
+	setArrowComponents() {
+		const angleInRadians =
+			(Math.abs(this.bubble.arrowAngle - 90) * Math.PI) / 180;
+		this.bubble.arrowDx = Math.round(
+			this.bubble.arrowLength * Math.cos(angleInRadians),
+		);
+		this.bubble.arrowDy = Math.round(
+			this.bubble.arrowLength * Math.sin(angleInRadians),
+		);
+	}
+
+	setArrowVector() {
+		const { arrowX, arrowY, arrowDx, arrowDy, arrowAngle } = this.bubble;
+
+		if (arrowAngle >= 0 && arrowAngle <= 90) {
+			this.bubble.arrowEndX = arrowX + arrowDx;
+			this.bubble.arrowEndY = arrowY - arrowDy;
+		} else {
+			this.bubble.arrowEndX = arrowX + arrowDx;
+			this.bubble.arrowEndY = arrowY + arrowDy;
+		}
+	}
+
+	calculateBoundingRect() {
+		const { borderWidth } = this.bubble;
+		const halfBorder = Math.floor(borderWidth / 2);
+
+		this.bubble.top =
+			Math.min(this.bubble.y, this.bubble.arrowEndY) - halfBorder;
+		this.bubble.left =
+			Math.min(this.bubble.x, this.bubble.arrowEndX) - halfBorder;
+		this.bubble.right =
+			Math.max(this.bubble.x + this.bubble.width, this.bubble.arrowEndX) +
+			halfBorder;
+		this.bubble.bottom =
+			Math.max(this.bubble.y + this.bubble.height, this.bubble.arrowEndY) +
+			halfBorder;
+	}
+
+	getBoundingClientRect() {
+		return {
+			top: this.bubble.top,
+			left: this.bubble.left,
+			bottom: this.bubble.bottom,
+			right: this.bubble.right,
+			height: this.bubble.bottom - this.bubble.top,
+			width: this.bubble.right - this.bubble.left,
+		};
+	}
+
+	render() {
+		this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+
+		this.ctx.fillStyle = this.bubble.backgroundColor;
+		this.ctx.strokeStyle = this.bubble.borderColor;
+		this.ctx.lineWidth = this.bubble.borderWidth;
+
+		const bubbleX = this.bubble.x;
+		const bubbleY = this.bubble.y;
+
+		this.ctx.beginPath();
+		this.ctx.moveTo(bubbleX, bubbleY);
+		this.ctx.lineTo(bubbleX, bubbleY + this.bubble.height);
+		this.ctx.lineTo(bubbleX + this.bubble.width, bubbleY + this.bubble.height);
+		this.ctx.lineTo(bubbleX + this.bubble.width, bubbleY);
+		this.ctx.lineTo(bubbleX, bubbleY);
+		this.ctx.closePath();
+
+		this.ctx.moveTo(this.bubble.arrowX, this.bubble.arrowY);
+		this.ctx.lineTo(this.bubble.arrowEndX, this.bubble.arrowEndY);
+		this.ctx.fill();
+		this.ctx.stroke();
+
+		this.ctx.fillStyle = this.bubble.color;
+		const config = {
+			x: bubbleX + this.bubble.padding,
+			y: bubbleY + this.bubble.padding,
+			width:
+				this.bubble.width -
+				this.bubble.padding * 2 -
+				this.bubble.borderWidth * 2,
+			height:
+				this.bubble.height -
+				this.bubble.padding * 2 -
+				this.bubble.borderWidth * 2,
+			fontSize: this.bubble.fontSize,
+			justify: this.bubble.justifyText,
+			align: this.bubble.align,
+			vAlign: this.bubble.vAlign,
+			font: this.bubble.font,
+			fontStyle: this.bubble.fontStyle,
+			fontWeight: this.bubble.fontWeight,
+			fontVariant: this.bubble.fontVariant,
+			lineHeight: this.bubble.lineHeight,
+		};
+		gadgetui.util.drawText(this.ctx, this.bubble.text, config);
+	}
+
+	attachToElement(selector, position) {
+		const element = selector;
+		if (!element) return;
+
+		const rect = element.getBoundingClientRect();
+		const canvasRect = this.canvas.getBoundingClientRect();
+
+		const positions = {
+			top: [rect.left + rect.width / 2, rect.top],
+			topright: [rect.right, -this.bubble.padding],
+			right: [rect.right, rect.top / 2 + rect.height / 2],
+			bottomright: [rect.right, rect.bottom],
+			bottom: [rect.left + rect.width / 2, rect.bottom],
+			bottomleft: [rect.left - canvasRect.width, rect.bottom],
+			left: [rect.left - canvasRect.width, rect.top - rect.height / 2],
+			topleft: [rect.left - canvasRect.width, rect.top - canvasRect.height],
+		};
+
+		const [left, top] = positions[position] || [0, 0];
+		this.canvas.style.left = `${left}px`;
+		this.canvas.style.top = `${top}px`;
+		this.canvas.style.position = "absolute";
+	}
+
+	destroy() {
+		document.body.removeChild(this.canvas);
+	}
+}
+
+class CollapsiblePane extends Component {
+	constructor(element, options = {}) {
+		super();
+		this.element = element;
+		this.config(options);
+
+		this.addControl();
+		this.addCSS();
+		this.addHeader();
+
+		this.icon = this.wrapper.querySelector("div.oi");
+		this.addBindings();
+
+		this.height = this.wrapper.offsetHeight;
+		this.headerHeight = this.header.offsetHeight;
+		this.selectorHeight = this.element.offsetHeight;
+
+		if (this.collapse) {
+			this.toggle();
+		}
+	}
+
+	events = ["minimized", "maximized"];
+
+	addControl() {
+		const pane = document.createElement("div");
+
+		if (this.class) {
+			gadgetui.util.addClass(pane, this.class);
+		}
+		gadgetui.util.addClass(pane, "gadget-ui-collapsiblePane");
+
+		this.element.parentNode.insertBefore(pane, this.element);
+		this.wrapper = this.element.previousSibling;
+		this.element.parentNode.removeChild(this.element);
+		pane.appendChild(this.element);
+	}
+
+	addHeader() {
+		const header = document.createElement("div");
+		const css = gadgetui.util.setStyle;
+
+		gadgetui.util.addClass(header, "gadget-ui-collapsiblePane-header");
+		if (this.headerClass) {
+			gadgetui.util.addClass(header, this.headerClass);
+		}
+		header.innerHTML = this.title;
+
+		this.wrapper.insertBefore(header, this.element);
+		this.header = this.wrapper.querySelector(
+			this.headerClass
+				? `div.${this.headerClass}`
+				: "div.gadget-ui-collapsiblePane-header",
+		);
+
+		const div = document.createElement("div");
+		this.header.appendChild(div);
+	}
+
+	addCSS() {
+		const css = gadgetui.util.setStyle;
+		css(this.wrapper, "width", this.width);
+		css(this.wrapper, "overflow", "hidden");
+	}
+
+	addBindings() {
+		const header = this.wrapper.querySelector(
+			this.headerClass
+				? `div.${this.headerClass}`
+				: "div.gadget-ui-collapsiblePane-header",
+		);
+
+		header.addEventListener("click", () => this.toggle());
+	}
+
+	toggle() {
+		const css = gadgetui.util.setStyle;
+		let icon, display, myHeight, selectorHeight;
+
+		if (this.collapsed) {
+			icon = "";
+			display = "block";
+			myHeight = this.height;
+			selectorHeight = this.selectorHeight;
+			this.collapsed = false;
+		} else {
+			icon = "";
+			display = "none";
+			myHeight = this.headerHeight;
+			selectorHeight = 0;
+			this.collapsed = true;
+		}
+
+		const eventName = this.collapsed ? "collapse" : "expand";
+		const newEventName = this.collapsed ? "minimized" : "maximized";
+		this.element.dispatchEvent(new Event(eventName));
+
+		if (typeof Velocity !== "undefined" && this.animate) {
+			Velocity(
+				this.wrapper,
+				{ height: myHeight },
+				{
+					queue: false,
+					duration: this.delay,
+					complete: () => {
+						// this.icon.setAttribute('data-glyph', icon);
+					},
+				},
+			);
+
+			Velocity(
+				this.element,
+				{ height: selectorHeight },
+				{
+					queue: false,
+					duration: this.delay,
+					complete: () => {
+						if (typeof this.fireEvent === "function") {
+							this.fireEvent(newEventName);
+						}
+					},
+				},
+			);
+		} else {
+			css(this.element, "display", display);
+			// this.icon.setAttribute('data-glyph', icon);
+		}
+	}
+
+	config(options = {}) {
+		this.animate = options.animate ?? true;
+		this.delay = options.delay ?? 300;
+		this.title = options.title ?? "";
+		this.width = gadgetui.util.getStyle(this.element, "width");
+		this.collapse = options.collapse ?? false;
+		this.collapsed = options.collapse ?? true;
+		this.class = options.class || false;
+		this.headerClass = options.headerClass || false;
+	}
 }
 
 function FileUploadWrapper(file, element) {
@@ -1100,7 +1090,11 @@ FloatingPane.prototype.addHeader = function () {
 		css(this.shrinker, "right", "20px");
 		css(this.shrinker, "margin-right", ".5em");
 
-		const shrinkIcon = `<img class="feather" src="${this.featherPath}/dist/icons/minimize.svg">`;
+		const shrinkIcon =
+			this.iconType === "img"
+				? `<img class="${this.iconClass}" src="${this.minimizeIcon}"/>`
+				: `<svg class="${this.iconClass}"><use xlink:href="${this.minimizeIcon}"/></svg>`;
+
 		this.shrinker.innerHTML = shrinkIcon;
 		this.header.appendChild(this.shrinker);
 	}
@@ -1111,7 +1105,11 @@ FloatingPane.prototype.addHeader = function () {
 		const span = document.createElement("span");
 		span.setAttribute("name", "closeIcon");
 
-		const icon = `<img class="feather" src="${this.featherPath}/dist/icons/x-circle.svg">`;
+		const icon =
+			this.iconType === "img"
+				? `<img class="${this.iconClass}" src="${this.closeIcon}"/>`
+				: `<svg class="${this.iconClass}"><use xlink:href="${this.closeIcon}"/></svg>`;
+
 		span.innerHTML = icon;
 		this.header.appendChild(span);
 
@@ -1165,7 +1163,10 @@ FloatingPane.prototype.expand = function () {
 		),
 		10,
 	);
-	const icon = `<img class="feather" src="${this.featherPath}/dist/icons/minimize.svg">`;
+	const icon =
+		this.iconType === "img"
+			? `<img class="${this.iconClass}" src="${this.minimizeIcon}"/>`
+			: `<svg class="${this.iconClass}"><use xlink:href="${this.minimizeIcon}"/></svg>`;
 
 	if (typeof Velocity !== "undefined" && this.animate) {
 		Velocity(
@@ -1203,7 +1204,10 @@ FloatingPane.prototype.expand = function () {
 
 FloatingPane.prototype.minimize = function () {
 	const css = gadgetui.util.setStyle;
-	const icon = `<img class="feather" src="${this.featherPath}/dist/icons/maximize.svg">`;
+	const icon =
+		this.iconType === "img"
+			? `<img class="${this.iconClass}" src="${this.maximizeIcon}"/>`
+			: `<svg class="${this.iconClass}"><use xlink:href="${this.maximizeIcon}"/></svg>`;
 
 	css(this.element, "overflow", "hidden");
 
@@ -1256,590 +1260,764 @@ FloatingPane.prototype.config = function (options) {
 	this.right = options.right;
 	this.class = options.class || false;
 	this.headerClass = options.headerClass || false;
-	this.featherPath = options.featherPath || "/node_modules/feather-icons";
+	//this.featherPath = options.featherPath || "/node_modules/feather-icons";
 	this.minimized = false;
 	this.relativeOffsetLeft = 0;
 	this.enableShrink = options.enableShrink ?? true;
 	this.enableClose = options.enableClose ?? true;
+
+	this.iconClass = options.iconClass || "feather";
+	this.iconType = options.iconType || "img";
+	this.closeIcon =
+		options.closeIcon || "/node_modules/feather-icons/dist/icons/x-circle.svg";
+	this.minimizeIcon =
+		options.minimizeIcon ||
+		"/node_modules/feather-icons/dist/icons/minimize.svg";
+	this.maximizeIcon =
+		options.maximizeIcon ||
+		"/node_modules/feather-icons/dist/icons/maximize.svg";
 };
 
-function Lightbox(element, options = {}) {
-	this.element = element;
+function Dialog(element, options = {}) {
+	const css = gadgetui.util.setStyle;
+
+	if (element) {
+		this.element = element;
+	} else {
+		const dv = document.createElement("div");
+		dv.setAttribute("id", `gadgetui-dialog-${Math.random()}`);
+		if (options.width) {
+			css(dv, "width", options.width);
+		}
+		document.body.appendChild(dv);
+		this.element = dv;
+	}
+
 	this.config(options);
-	this.addControl();
-	this.updateImage();
+	this.buttons = options.buttons || [];
+	this.setup(options);
+	this.addButtons();
 }
 
-Lightbox.prototype.events = ["showPrevious", "showNext"];
+Dialog.prototype = FloatingPane.prototype;
 
-Lightbox.prototype.config = function (options) {
-	this.images = options.images || [];
-	this.currentIndex = 0;
-	this.featherPath = options.featherPath || "/node_modules/feather-icons";
-	this.time = options.time || 3000;
-	this.enableModal = options.enableModal ?? true;
+Dialog.prototype.addButtons = function () {
+	const css = gadgetui.util.setStyle;
+
+	this.buttonDiv = document.createElement("div");
+	css(this.buttonDiv, "text-align", "center");
+	css(this.buttonDiv, "padding", "0.5em");
+
+	this.buttons.forEach((button) => {
+		const btn = document.createElement("button");
+		btn.innerText = button.label;
+		css(btn, "margin", "0.5em");
+		btn.addEventListener("click", button.click);
+		this.buttonDiv.appendChild(btn);
+	});
+
+	this.wrapper.appendChild(this.buttonDiv);
 };
 
-Lightbox.prototype.addControl = function () {
-	gadgetui.util.addClass(this.element, "gadgetui-lightbox");
-
-	this.imageContainer = document.createElement("div");
-	gadgetui.util.addClass(
-		this.imageContainer,
-		"gadgetui-lightbox-image-container",
-	);
-
-	this.spanPrevious = document.createElement("span");
-	this.spanNext = document.createElement("span");
-	gadgetui.util.addClass(
-		this.spanPrevious,
-		"gadgetui-lightbox-previousControl",
-	);
-	gadgetui.util.addClass(this.spanNext, "gadgetui-lightbox-nextControl");
-
-	this.spanPrevious.innerHTML = `<img class="feather" src="${this.featherPath}/dist/icons/chevron-left.svg">`;
-	this.spanNext.innerHTML = `<img class="feather" src="${this.featherPath}/dist/icons/chevron-right.svg">`;
-
-	this.element.appendChild(this.spanPrevious);
-	this.element.appendChild(this.imageContainer);
-	this.element.appendChild(this.spanNext);
-
-	this.spanPrevious.addEventListener("click", () => this.prevImage());
-	this.spanNext.addEventListener("click", () => this.nextImage());
-
-	if (this.enableModal) {
-		this.modal = document.createElement("div");
-		gadgetui.util.addClass(this.modal, "gadgetui-lightbox-modal");
-		gadgetui.util.addClass(this.modal, "gadgetui-hidden");
-
-		this.modalImageContainer = document.createElement("div");
-		gadgetui.util.addClass(
-			this.modalImageContainer,
-			"gadgetui-lightbox-modal-imagecontainer",
-		);
-		this.modal.appendChild(this.modalImageContainer);
-
-		document.body.appendChild(this.modal);
-
-		this.imageContainer.addEventListener("click", () => {
-			this.setModalImage();
-			gadgetui.util.addClass(this.element, "gadgetui-hidden");
-			gadgetui.util.removeClass(this.modal, "gadgetui-hidden");
-			this.stopAnimation();
-		});
-
-		this.modal.addEventListener("click", () => {
-			gadgetui.util.addClass(this.modal, "gadgetui-hidden");
-			gadgetui.util.removeClass(this.element, "gadgetui-hidden");
-			this.animate();
-		});
+class Lightbox extends Component {
+	constructor(element, options = {}) {
+		super();
+		this.element = element;
+		this.config(options);
+		this.addControl();
+		this.setImage();
 	}
-};
 
-Lightbox.prototype.nextImage = function () {
-	this.currentIndex = (this.currentIndex + 1) % this.images.length;
-	this.updateImage();
-};
+	events = ["showPrevious", "showNext"];
 
-Lightbox.prototype.prevImage = function () {
-	this.currentIndex =
-		(this.currentIndex - 1 + this.images.length) % this.images.length;
-	this.updateImage();
-};
+	config(options = {}) {
+		this.images = options.images || [
+			"https://via.placeholder.com/300x200?text=Image+1",
+			"https://via.placeholder.com/300x200/0000FF/FFFFFF?text=Image+2",
+			"https://via.placeholder.com/300x200/FF0000/FFFFFF?text=Image+3",
+		];
+		this.currentIndex = 0;
+		this.time = options.time || 3000;
+		this.enableModal = options.enableModal ?? true;
+		this.leftIcon =
+			options.leftIcon ||
+			"/node_modules/feather-icons/dist/icons/chevron-left.svg";
+		this.rightIcon =
+			options.rightIcon ||
+			"/node_modules/feather-icons/dist/icons/chevron-right.svg";
+		this.iconClass = options.iconClass || "feather";
+		this.iconType = options.iconType || "img";
+	}
 
-Lightbox.prototype.updateImage = function () {
-	this.imageContainer.innerHTML = `
-    <img style="height:100%;width:100%;"
-         src="${this.images[this.currentIndex]}"
-         alt="Image ${this.currentIndex + 1}">`;
-};
+	addControl() {
+		this.element.classList.add("gadgetui-lightbox");
 
-Lightbox.prototype.animate = function () {
-	this.interval = setInterval(() => this.nextImage(), this.time);
-};
+		this.imageContainer = document.createElement("div");
+		gadgetui.util.addClass(
+			this.imageContainer,
+			"gadgetui-lightbox-image-container",
+		);
+		this.imageTag = document.createElement("img");
+		this.imageTag.setAttribute("name", "image");
+		this.imageTag.classList.add("gadgetui-lightbox-image");
+		this.imageContainer.appendChild(this.imageTag);
 
-Lightbox.prototype.stopAnimation = function () {
-	clearInterval(this.interval);
-};
+		this.transitionImageTag = document.createElement("img");
+		this.transitionImageTag.setAttribute("name", "transitionImage");
+		this.transitionImageTag.classList.add("gadgetui-lightbox-image");
+		gadgetui.util.addClass(
+			this.transitionImageTag,
+			"gadgetui-lightbox-transitionimage",
+		);
+		this.transitionImageTag.classList.add("gadgetui-hidden");
+		this.imageContainer.appendChild(this.transitionImageTag);
 
-Lightbox.prototype.setModalImage = function () {
-	this.modalImageContainer.innerHTML = `
-    <img style="height:100%;width:100%;"
-         src="${this.images[this.currentIndex]}"
-         alt="Image ${this.currentIndex + 1}">`;
-};
+		this.spanPrevious = document.createElement("span");
+		this.spanNext = document.createElement("span");
+		gadgetui.util.addClass(
+			this.spanPrevious,
+			"gadgetui-lightbox-previousControl",
+		);
+		this.spanNext.classList.add("gadgetui-lightbox-nextControl");
+		this.spanPrevious.innerHTML =
+			this.iconType === "img"
+				? `<img class="${this.iconClass}" src="${this.leftIcon}">`
+				: `<svg class="${this.iconClass}"><use xlink:href="${this.leftIcon}"/></svg>`;
+
+		this.spanNext.innerHTML =
+			this.iconType === "img"
+				? `<img class="${this.iconClass}" src="${this.rightIcon}">`
+				: `<svg class="${this.iconClass}"><use xlink:href="${this.rightIcon}"/></svg>`;
+
+		this.element.appendChild(this.spanPrevious);
+		this.element.appendChild(this.imageContainer);
+		this.element.appendChild(this.spanNext);
+
+		this.spanPrevious.addEventListener("click", () => this.prevImage());
+		this.spanNext.addEventListener("click", () => this.nextImage());
+
+		if (this.enableModal) {
+			this.modal = document.createElement("div");
+			this.modal.classList.add("gadgetui-lightbox-modal");
+			this.modal.classList.add("gadgetui-hidden");
+
+			this.modalImageContainer = document.createElement("div");
+			gadgetui.util.addClass(
+				this.modalImageContainer,
+				"gadgetui-lightbox-modal-imagecontainer",
+			);
+			this.modalImageTag = document.createElement("img");
+			this.modalImageTag.classList.add("gadgetui-lightbox-image"); // Fixed typo: this.imageTab -> this.modalImageTag
+			this.modalImageContainer.appendChild(this.modalImageTag);
+
+			this.modal.appendChild(this.modalImageContainer);
+
+			document.body.appendChild(this.modal);
+
+			this.imageContainer.addEventListener("click", () => {
+				this.setModalImage();
+				this.element.classList.add("gadgetui-hidden");
+				gadgetui.util.removeClass(this.modal, "gadgetui-hidden");
+				this.stopAnimation();
+			});
+
+			this.modal.addEventListener("click", () => {
+				this.modal.classList.add("gadgetui-hidden");
+				gadgetui.util.removeClass(this.element, "gadgetui-hidden");
+				this.animate();
+			});
+		}
+	}
+
+	nextImage() {
+		this.currentIndex = (this.currentIndex + 1) % this.images.length;
+		this.updateImage(true);
+		this.fireEvent("showNext", { currentIndex: this.currentIndex });
+	}
+
+	prevImage() {
+		this.currentIndex =
+			(this.currentIndex - 1 + this.images.length) % this.images.length;
+		this.updateImage(false);
+		this.fireEvent("showPrevious", { currentIndex: this.currentIndex });
+	}
+
+	setImage() {
+		this.imageTag.src = `${this.images[this.currentIndex]}`;
+		this.imageTag.alt = `Image ${this.currentIndex + 1}`;
+	}
+
+	updateImage(isNext = true) {
+		const newSrc = this.images[this.currentIndex];
+		const newAlt = `Image ${this.currentIndex + 1}`;
+
+		// Set up transition image
+		this.transitionImageTag.src = newSrc;
+		this.transitionImageTag.alt = newAlt;
+
+		// Remove hidden class to make transition image visible
+		gadgetui.util.removeClass(this.transitionImageTag, "gadgetui-hidden");
+
+		// Apply slide direction
+		const directionClass = isNext
+			? "gadgetui-slide-left"
+			: "gadgetui-slide-right";
+		this.transitionImageTag.classList.add(directionClass);
+
+		// After transition ends, update main image and reset transition image
+		const handleTransitionEnd = () => {
+			// Update main image
+			this.imageTag.src = newSrc;
+			this.imageTag.alt = newAlt;
+
+			// Reset transition image
+			this.transitionImageTag.classList.add("gadgetui-hidden");
+			gadgetui.util.removeClass(this.transitionImageTag, "gadgetui-slide-left");
+			gadgetui.util.removeClass(
+				this.transitionImageTag,
+				"gadgetui-slide-right",
+			);
+
+			// Remove event listener to avoid multiple triggers
+			this.transitionImageTag.removeEventListener(
+				"transitionend",
+				handleTransitionEnd,
+			);
+		};
+
+		this.transitionImageTag.addEventListener(
+			"transitionend",
+			handleTransitionEnd,
+		);
+
+		// Trigger reflow to ensure animation plays
+		this.transitionImageTag.offsetWidth; // Force reflow
+		this.transitionImageTag.classList.add("gadgetui-slide-in");
+	}
+
+	animate() {
+		this.interval = setInterval(() => this.nextImage(), this.time);
+	}
+
+	stopAnimation() {
+		clearInterval(this.interval);
+	}
+
+	setModalImage() {
+		this.modalImageTag.src = `${this.images[this.currentIndex]}`;
+		this.modalImageTag.alt = `Image ${this.currentIndex + 1}`;
+	}
+}
 
 function Menu(element, options = {}) {
-	this.element = element
-	this.elements = []
-	this.config(options)
+	this.element = element;
+	this.elements = [];
+	this.config(options);
 
 	if (this.datasource) {
-		this.retrieveData()
+		this.retrieveData();
 	} else if (this.data) {
-		this.addControl()
-		this.addBindings()
+		this.addControl();
+		this.addBindings();
 	}
 }
 
-Menu.prototype.events = ['clicked']
+Menu.prototype.events = ["clicked"];
 
 Menu.prototype.retrieveData = function () {
 	this.datasource().then((data) => {
-		this.data = data
-		this.addControl()
-	})
-}
+		this.data = data;
+		this.addControl();
+	});
+};
 
 Menu.prototype.addControl = function () {
 	const processItem = (item, parent) => {
-		const element = document.createElement('div')
-		element.classList.add('gadget-ui-menu-item')
-		element.innerText = item.label || ''
+		const element = document.createElement("div");
+		element.classList.add("gadget-ui-menu-item");
+		element.innerText = item.label || "";
 
 		if (item.image?.length) {
-			const imgEl = document.createElement('img')
-			imgEl.src = item.image
-			imgEl.classList.add('gadget-ui-menu-icon')
-			element.appendChild(imgEl)
+			const imgEl = document.createElement("img");
+			imgEl.src = item.image;
+			imgEl.classList.add("gadget-ui-menu-icon");
+			element.appendChild(imgEl);
 		}
 
 		if (
 			item.link &&
-			(item.link.length > 0 || typeof item.link === 'function')
+			(item.link.length > 0 || typeof item.link === "function")
 		) {
-			element.style.cursor = 'pointer'
-			element.addEventListener('click', () => {
-				if (typeof this.fireEvent === 'function') {
-					this.fireEvent('clicked', item)
+			element.style.cursor = "pointer";
+			element.addEventListener("click", () => {
+				if (typeof this.fireEvent === "function") {
+					this.fireEvent("clicked", item);
 				}
-				typeof item.link === 'function'
-					? item.link()
-					: window.open(item.link)
-			})
+				typeof item.link === "function" ? item.link() : window.open(item.link);
+			});
 		}
 
 		if (item.menuItem) {
-			element.appendChild(processMenuItem(item.menuItem, element))
+			element.appendChild(processMenuItem(item.menuItem, element));
 		}
-		return element
-	}
+		return element;
+	};
 
 	const processMenuItem = (menuItemData, parent) => {
-		const element = document.createElement('div')
-		element.classList.add('gadget-ui-menu-menuItem')
+		const element = document.createElement("div");
+		element.classList.add("gadget-ui-menu-menuItem");
 		menuItemData.items.forEach((item) =>
-			element.appendChild(processItem(item, element))
-		)
-		return element
-	}
+			element.appendChild(processItem(item, element)),
+		);
+		return element;
+	};
 
 	const generateMenu = (menuData) => {
-		const element = document.createElement('div')
-		element.classList.add('gadget-ui-menu')
-		element.innerText = menuData.label || ''
+		const element = document.createElement("div");
+		element.classList.add("gadget-ui-menu");
+		element.innerText = menuData.label || "";
 
 		if (menuData.image?.length) {
-			const imgEl = document.createElement('img')
-			imgEl.src = menuData.image
-			imgEl.classList.add('gadget-ui-menu-icon')
-			element.appendChild(imgEl)
+			const imgEl = document.createElement("img");
+			imgEl.src = menuData.image;
+			imgEl.classList.add("gadget-ui-menu-icon");
+			element.appendChild(imgEl);
 		}
 
-		element.appendChild(processMenuItem(menuData.menuItem, element))
-		return element
-	}
+		element.appendChild(processMenuItem(menuData.menuItem, element));
+		return element;
+	};
 
 	this.data.forEach((menu) => {
-		const element = generateMenu(menu)
-		this.element.appendChild(element)
-		this.elements.push(element)
-	})
-}
+		const element = generateMenu(menu);
+		this.element.appendChild(element);
+		this.elements.push(element);
+	});
+};
 
 Menu.prototype.addBindings = function () {
-	const menus = this.element.querySelectorAll('.gadget-ui-menu')
+	const menus = this.element.querySelectorAll(".gadget-ui-menu");
+	const activateEvent = this.options.menuActivate || "mouseenter";
+	const deactivateEvent = activateEvent === "click" ? "click" : "mouseleave";
+
+	document.addEventListener("click", (evt) => {
+		if (!this.element.contains(evt.target)) {
+			this.close();
+		}
+	});
 
 	menus.forEach((mu) => {
-		const menuItem = mu.querySelector('.gadget-ui-menu-menuItem')
-		const items = menuItem.querySelectorAll('.gadget-ui-menu-item')
-		const menuItems = menuItem.querySelectorAll('.gadget-ui-menu-menuItem')
+		const menuItem = mu.querySelector(".gadget-ui-menu-menuItem");
+		const items = menuItem.querySelectorAll(".gadget-ui-menu-item");
+		const menuItems = menuItem.querySelectorAll(".gadget-ui-menu-menuItem");
 
 		items.forEach((item) => {
-			const mItem = item.querySelector('.gadget-ui-menu-menuItem')
+			const mItem = item.querySelector(".gadget-ui-menu-menuItem");
 
-			item.addEventListener('mouseenter', (evt) => {
-				if (mItem) mItem.classList.add('gadget-ui-menu-hovering')
-				item.classList.add('gadget-ui-menu-selected')
+			item.addEventListener(activateEvent, (evt) => {
+				if (mItem) mItem.classList.add("gadget-ui-menu-hovering");
+				item.classList.add("gadget-ui-menu-selected");
 				Array.from(item.parentNode.children).forEach((child) => {
-					if (child !== item)
-						child.classList.remove('gadget-ui-menu-selected')
-				})
-				evt.preventDefault()
-			})
+					if (child !== item) child.classList.remove("gadget-ui-menu-selected");
+				});
+				evt.preventDefault();
+			});
 
-			item.addEventListener('mouseleave', () => {
-				if (mItem) mItem.classList.remove('gadget-ui-menu-hovering')
-			})
-		})
+			// item.addEventListener("mouseleave", () => {
+			// 	if (mItem) mItem.classList.remove("gadget-ui-menu-hovering");
+			// });
+		});
 
-		mu.addEventListener('mouseenter', () =>
-			menuItem.classList.add('gadget-ui-menu-hovering')
-		)
-		mu.addEventListener('mouseleave', () =>
-			menuItem.classList.remove('gadget-ui-menu-hovering')
-		)
+		mu.addEventListener(activateEvent, () =>
+			menuItem.classList.add("gadget-ui-menu-hovering"),
+		);
+		// mu.addEventListener("mouseleave", () =>
+		// 	menuItem.classList.remove("gadget-ui-menu-hovering"),
+		// );
 
 		menuItems.forEach((mItem) => {
-			mItem.addEventListener('mouseenter', () =>
-				mItem.classList.add('gadget-ui-menu-hovering')
-			)
-			mItem.addEventListener('mouseleave', () => {
-				if (!mItem.parentNode.classList.contains('selected')) {
-					mItem.classList.remove('gadget-ui-menu-hovering')
-				}
-			})
-		})
-	})
-}
+			mItem.addEventListener(activateEvent, () =>
+				mItem.classList.add("gadget-ui-menu-hovering"),
+			);
+			// mItem.addEventListener("mouseleave", () => {
+			// 	if (!mItem.parentNode.classList.contains("selected")) {
+			// 		mItem.classList.remove("gadget-ui-menu-hovering");
+			// 	}
+			// });
+		});
+	});
+};
+
+Menu.prototype.close = function () {
+	this.elements.forEach((menu) => {
+		const menuItem = menu.querySelector(".gadget-ui-menu-menuItem");
+		if (menuItem) {
+			menuItem.classList.remove("gadget-ui-menu-hovering");
+		}
+	});
+};
 
 Menu.prototype.destroy = function () {
-	this.element.querySelectorAll('.gadget-ui-menu').forEach((menu) => {
-		this.element.removeChild(menu)
-	})
-}
+	this.element.querySelectorAll(".gadget-ui-menu").forEach((menu) => {
+		this.element.removeChild(menu);
+	});
+};
 
 Menu.prototype.config = function (options) {
-	this.data = options.data
-	this.datasource = options.datasource
-}
+	this.options = options;
+	this.data = options.data;
+	this.datasource = options.datasource;
+};
 
-function Modal(element, options = {}) {
-	this.element = element;
-	this.config(options);
-	this.addControl();
-	this.addBindings();
-}
+class Modal extends Component {
+	constructor(element, options = {}) {
+		super();
+		this.element = element;
+		this.config(options);
+		this.addControl();
+		this.addBindings();
 
-Modal.prototype.events = ["opened", "closed"];
-
-Modal.prototype.addControl = function () {
-	this.wrapper = document.createElement("div");
-	if (this.class) {
-		gadgetui.util.addClass(this.wrapper, this.class);
+		if (this.autoOpen) {
+			this.open();
+		}
 	}
-	gadgetui.util.addClass(this.wrapper, "gadgetui-modal");
 
-	this.element.parentNode.insertBefore(this.wrapper, this.element);
-	this.element.parentNode.removeChild(this.element);
-	this.wrapper.appendChild(this.element);
+	events = ["opened", "closed"];
 
-	const icon = `<img class="${this.featherClass}" src="${this.closeIcon}"/>`;
+	addControl() {
+		this.wrapper = document.createElement("div");
+		if (this.class) {
+			gadgetui.util.addClass(this.wrapper, this.class);
+		}
+		gadgetui.util.addClass(this.wrapper, "gadgetui-modal");
 
-	gadgetui.util.addClass(this.element, "gadgetui-modalWindow");
-	this.element.innerHTML = `
+		this.element.parentNode.insertBefore(this.wrapper, this.element);
+		this.element.parentNode.removeChild(this.element);
+		this.wrapper.appendChild(this.element);
+
+		const icon =
+			this.iconType === "img"
+				? `<img class="${this.iconClass}" src="${this.closeIcon}"/>`
+				: `<svg class="${this.iconClass}"><use xlink:href="${this.closeIcon}"/></svg>`;
+
+		gadgetui.util.addClass(this.element, "gadgetui-modalWindow");
+		this.element.innerHTML = `
     <span name="close" class="gadgetui-right-align">
       <a name="close">${icon}</a>
     </span>
     ${this.element.innerHTML}
   `.trim();
-
-	if (this.autoOpen) {
-		this.open();
 	}
-};
 
-Modal.prototype.addBindings = function () {
-	const close = this.element.querySelector('a[name="close"]');
-	close.addEventListener("click", () => this.close());
-};
+	addBindings() {
+		const close = this.element.querySelector('a[name="close"]');
+		close.addEventListener("click", () => this.close());
+	}
 
-Modal.prototype.open = function () {
-	gadgetui.util.addClass(this.wrapper, "gadgetui-showModal");
-	if (typeof this.fireEvent === "function") {
+	open() {
+		gadgetui.util.addClass(this.wrapper, "gadgetui-showModal");
 		this.fireEvent("opened");
 	}
-};
 
-Modal.prototype.close = function () {
-	gadgetui.util.removeClass(this.wrapper, "gadgetui-showModal");
-	if (typeof this.fireEvent === "function") {
+	close() {
+		gadgetui.util.removeClass(this.wrapper, "gadgetui-showModal");
 		this.fireEvent("closed");
 	}
-};
 
-Modal.prototype.destroy = function () {
-	this.element.parentNode.removeChild(this.element);
-	this.wrapper.parentNode.insertBefore(this.element, this.wrapper);
-	this.wrapper.parentNode.removeChild(this.wrapper);
-	this.element.removeChild(this.element.querySelector(".gadgetui-right-align"));
-};
+	destroy() {
+		this.element.parentNode.removeChild(this.element);
+		this.wrapper.parentNode.insertBefore(this.element, this.wrapper);
+		this.wrapper.parentNode.removeChild(this.wrapper);
+		this.element.removeChild(
+			this.element.querySelector(".gadgetui-right-align"),
+		);
+	}
 
-Modal.prototype.config = function (options) {
-	this.class = options.class || false;
-	this.featherClass = options.featherClass || "feather";
-	this.closeIcon =
-		options.closeIcon || "/node_modules/feather-icons/dist/icons/x-circle.svg";
-	this.autoOpen = options.autoOpen !== false; // Default to true unless explicitly false
-};
+	config(options) {
+		this.class = options.class || false;
+		this.iconClass = options.iconClass || "feather";
+		this.closeIcon =
+			options.closeIcon ||
+			"/node_modules/feather-icons/dist/icons/x-circle.svg";
+		this.autoOpen = options.autoOpen !== false; // Default to true unless explicitly false
+		this.iconType = options.iconType || "img";
+	}
+}
 
 
 function ProgressBar(element, options = {}) {
-	this.element = element
-	this.configure(options)
+	this.element = element;
+	this.configure(options);
 }
 
 ProgressBar.prototype.configure = function (options) {
-	this.id = options.id
-	this.label = options.label || ''
-	this.width = options.width
-}
+	this.id = options.id;
+	this.label = options.label || "";
+	this.width = options.width;
+};
 
-ProgressBar.prototype.events = ['start', 'updatePercent', 'update']
+ProgressBar.prototype.events = ["start", "updatePercent", "update"];
 
 ProgressBar.prototype.render = function () {
-	const css = gadgetui.util.setStyle
+	const css = gadgetui.util.setStyle;
 
-	const pbDiv = document.createElement('div')
-	pbDiv.setAttribute('name', `progressbox_${this.id}`)
-	gadgetui.util.addClass(pbDiv, 'gadgetui-progressbar-progressbox')
+	const pbDiv = document.createElement("div");
+	pbDiv.setAttribute("name", `progressbox_${this.id}`);
+	gadgetui.util.addClass(pbDiv, "gadgetui-progressbar-progressbox");
 
-	const fileDiv = document.createElement('div')
-	fileDiv.setAttribute('name', 'label')
-	gadgetui.util.addClass(fileDiv, 'gadgetui-progressbar-label')
-	fileDiv.innerText = ` ${this.label} `
+	const fileDiv = document.createElement("div");
+	fileDiv.setAttribute("name", "label");
+	gadgetui.util.addClass(fileDiv, "gadgetui-progressbar-label");
+	fileDiv.innerText = ` ${this.label} `;
 
-	const pbarDiv = document.createElement('div')
-	gadgetui.util.addClass(pbarDiv, 'gadget-ui-progressbar')
-	pbarDiv.setAttribute('name', `progressbar_${this.id}`)
+	const pbarDiv = document.createElement("div");
+	gadgetui.util.addClass(pbarDiv, "gadget-ui-progressbar");
+	pbarDiv.setAttribute("name", `progressbar_${this.id}`);
 
-	const statusDiv = document.createElement('div')
-	statusDiv.setAttribute('name', 'statustxt')
-	gadgetui.util.addClass(statusDiv, 'statustxt')
-	statusDiv.innerHTML = '0%' // Fixed typo from innertText to innerHTML
+	const statusDiv = document.createElement("div");
+	statusDiv.setAttribute("name", "statustxt");
+	gadgetui.util.addClass(statusDiv, "statustxt");
+	statusDiv.innerHTML = "0%"; // Fixed typo from innertText to innerHTML
 
-	pbDiv.appendChild(fileDiv)
-	pbDiv.appendChild(pbarDiv)
-	pbDiv.appendChild(statusDiv)
-	this.element.appendChild(pbDiv)
+	pbDiv.appendChild(fileDiv);
+	pbDiv.appendChild(pbarDiv);
+	pbDiv.appendChild(statusDiv);
+	this.element.appendChild(pbDiv);
 
 	this.progressbox = this.element.querySelector(
-		`div[name='progressbox_${this.id}']`
-	)
+		`div[name='progressbox_${this.id}']`,
+	);
 	this.progressbar = this.element.querySelector(
-		`div[name='progressbar_${this.id}']`
-	)
+		`div[name='progressbar_${this.id}']`,
+	);
 	this.statustxt = this.element.querySelector(
-		`div[name='progressbox_${this.id}'] div[name='statustxt']`
-	)
-}
+		`div[name='progressbox_${this.id}'] div[name='statustxt']`,
+	);
+};
 
 ProgressBar.prototype.start = function () {
-	const css = gadgetui.util.setStyle
-	css(this.progressbar, 'width', '0')
-	this.statustxt.innerHTML = '0%'
-}
+	const css = gadgetui.util.setStyle;
+	css(this.progressbar, "width", "0");
+	this.statustxt.innerHTML = "0%";
+};
 
 ProgressBar.prototype.updatePercent = function (percent) {
-	const css = gadgetui.util.setStyle
-	const percentage = `${percent}%`
-	this.percent = percent
-	css(this.progressbar, 'width', percentage)
-	this.statustxt.innerHTML = percentage
-}
+	const css = gadgetui.util.setStyle;
+	const percentage = `${percent}%`;
+	this.percent = percent;
+	css(this.progressbar, "width", percentage);
+	this.statustxt.innerHTML = percentage;
+};
 
 ProgressBar.prototype.update = function (text) {
-	this.statustxt.innerHTML = text
-}
+	this.statustxt.innerHTML = text;
+};
 
 ProgressBar.prototype.destroy = function () {
-	this.progressbox.parentNode.removeChild(this.progressbox)
-}
-
-function Sidebar(selector, options = {}) {
-	this.selector = selector;
-	this.minimized = false;
-	this.config(options);
-	this.addControl();
-	this.addBindings(options);
-}
-
-Sidebar.prototype.events = ["maximized", "minimized"];
-
-Sidebar.prototype.config = function (options) {
-	this.class = options.class || false;
-	this.featherPath = options.featherPath || "/node_modules/feather-icons";
-	this.animate = options.animate ?? true;
-	this.delay = options.delay || 300;
-	this.toggleTitle = options.toggleTitle || "Toggle Sidebar";
+	this.progressbox.parentNode.removeChild(this.progressbox);
 };
 
-Sidebar.prototype.addControl = function () {
-	this.wrapper = document.createElement("div");
-	if (this.class) {
-		gadgetui.util.addClass(this.wrapper, this.class);
+class Sidebar extends Component {
+	constructor(selector, options = {}) {
+		super();
+		this.selector = selector;
+		this.minimized = false;
+		this.config(options);
+		this.addControl();
+		this.addBindings(options);
 	}
-	gadgetui.util.addClass(this.wrapper, "gadgetui-sidebar");
 
-	this.span = document.createElement("span");
-	this.span.setAttribute("title", this.toggleTitle);
-	gadgetui.util.addClass(this.span, "gadgetui-right-align");
-	gadgetui.util.addClass(this.span, "gadgetui-sidebar-toggle");
-	this.span.innerHTML =
-		`<img class="feather" src="${this.featherPath}/dist/icons/chevron-left.svg">`.trim();
+	events = ["maximized", "minimized"];
 
-	this.selector.parentNode.insertBefore(this.wrapper, this.selector);
-	this.selector.parentNode.removeChild(this.selector);
-	this.wrapper.appendChild(this.selector);
-	this.wrapper.insertBefore(this.span, this.selector);
-	this.width = this.wrapper.offsetWidth;
-};
+	config(options) {
+		this.class = options.class || false;
+		this.animate = options.animate ?? true;
+		this.delay = options.delay || 300;
+		this.toggleTitle = options.toggleTitle || "Toggle Sidebar";
+		this.iconClass = options.iconClass || "feather";
+		this.iconType = options.iconType || "img";
+		this.leftIcon =
+			options.leftIcon ||
+			"/node_modules/feather-icons/dist/icons/chevron-left.svg";
+		this.rightIcon =
+			options.rightIcon ||
+			"/node_modules/feather-icons/dist/icons/chevron-right.svg";
+	}
 
-Sidebar.prototype.maximize = function () {
-	this.minimized = false;
-	this.setChevron(this.minimized);
-	gadgetui.util.removeClass(this.wrapper, "gadgetui-sidebar-minimized");
+	addControl() {
+		this.wrapper = document.createElement("div");
+		if (this.class) {
+			gadgetui.util.addClass(this.wrapper, this.class);
+		}
+		gadgetui.util.addClass(this.wrapper, "gadgetui-sidebar");
 
-	if (typeof Velocity !== "undefined" && this.animate) {
-		Velocity(
-			this.wrapper,
-			{ width: this.width },
-			{
-				queue: false,
-				duration: this.delay,
-				complete: () => {
-					gadgetui.util.removeClass(
-						this.selector,
-						"gadgetui-sidebarContent-minimized",
-					);
-					if (typeof this.fireEvent === "function") {
+		this.span = document.createElement("span");
+		this.span.setAttribute("title", this.toggleTitle);
+		gadgetui.util.addClass(this.span, "gadgetui-right-align");
+		gadgetui.util.addClass(this.span, "gadgetui-sidebar-toggle");
+
+		this.span.innerHTML =
+			this.iconType === "img"
+				? `<img class="${this.iconClass}" src="${this.leftIcon}">`
+				: `<svg class="${this.iconClass}"><use xlink:href="${this.leftIcon}"/></svg>`;
+
+		this.selector.parentNode.insertBefore(this.wrapper, this.selector);
+		this.selector.parentNode.removeChild(this.selector);
+		this.wrapper.appendChild(this.selector);
+		this.wrapper.insertBefore(this.span, this.selector);
+		this.width = this.wrapper.offsetWidth;
+	}
+
+	maximize() {
+		this.minimized = false;
+		this.setChevron(this.minimized);
+		gadgetui.util.removeClass(this.wrapper, "gadgetui-sidebar-minimized");
+
+		if (typeof Velocity !== "undefined" && this.animate) {
+			Velocity(
+				this.wrapper,
+				{ width: this.width },
+				{
+					queue: false,
+					duration: this.delay,
+					complete: () => {
+						gadgetui.util.removeClass(
+							this.selector,
+							"gadgetui-sidebarContent-minimized",
+						);
 						this.fireEvent("maximized");
-					}
+					},
 				},
-			},
-		);
-	} else {
-		gadgetui.util.removeClass(
-			this.selector,
-			"gadgetui-sidebarContent-minimized",
-		);
-		if (typeof this.fireEvent === "function") {
+			);
+		} else {
+			gadgetui.util.removeClass(
+				this.selector,
+				"gadgetui-sidebarContent-minimized",
+			);
 			this.fireEvent("maximized");
 		}
 	}
-};
 
-Sidebar.prototype.minimize = function () {
-	this.minimized = true;
-	this.setChevron(this.minimized);
-	gadgetui.util.addClass(this.selector, "gadgetui-sidebarContent-minimized");
+	minimize() {
+		this.minimized = true;
+		this.setChevron(this.minimized);
+		gadgetui.util.addClass(this.selector, "gadgetui-sidebarContent-minimized");
 
-	if (typeof Velocity !== "undefined" && this.animate) {
-		Velocity(
-			this.wrapper,
-			{ width: 25 },
-			{
-				queue: false,
-				duration: this.delay,
-				complete: () => {
-					gadgetui.util.addClass(this.wrapper, "gadgetui-sidebar-minimized");
-					if (typeof this.fireEvent === "function") {
+		if (typeof Velocity !== "undefined" && this.animate) {
+			Velocity(
+				this.wrapper,
+				{ width: 25 },
+				{
+					queue: false,
+					duration: this.delay,
+					complete: () => {
+						gadgetui.util.addClass(this.wrapper, "gadgetui-sidebar-minimized");
 						this.fireEvent("minimized");
-					}
+					},
 				},
-			},
-		);
-	} else {
-		gadgetui.util.addClass(this.wrapper, "gadgetui-sidebar-minimized");
-		if (typeof this.fireEvent === "function") {
+			);
+		} else {
+			gadgetui.util.addClass(this.wrapper, "gadgetui-sidebar-minimized");
 			this.fireEvent("minimized");
 		}
 	}
-};
 
-Sidebar.prototype.addBindings = function (options) {
-	this.span.addEventListener("click", () => {
-		this.minimized ? this.maximize() : this.minimize();
-	});
+	addBindings(options) {
+		this.span.addEventListener("click", () => {
+			this.minimized ? this.maximize() : this.minimize();
+		});
 
-	if (options.minimized) {
-		this.minimize();
+		if (options.minimized) {
+			this.minimize();
+		}
 	}
-};
 
-Sidebar.prototype.setChevron = function (minimized) {
-	const chevron = minimized ? "chevron-right" : "chevron-left";
-	const svg = this.wrapper.querySelector("span");
-	svg.innerHTML =
-		`<img class="feather" src="${this.featherPath}/dist/icons/${chevron}.svg">`.trim();
-};
+	setChevron(minimized) {
+		const chevron = minimized ? this.rightIcon : this.leftIcon;
+		const svg = this.wrapper.querySelector("span");
 
-function Tabs(element, options = {}) {
-	this.element = element
-	this.tabsDiv = this.element.querySelector('div')
-	this.config(options)
-	this.addControl()
+		svg.innerHTML =
+			this.iconType === "img"
+				? `<img class="${this.iconClass}" src="${chevron}">`
+				: `<svg class="${this.iconClass}"><use xlink:href="${chevron}"/></svg>`;
+	}
+
+	destroy() {
+		// Implement cleanup logic if necessary
+	}
 }
 
-Tabs.prototype.config = function (options) {
-	this.direction = options.direction || 'horizontal'
-	this.tabContentDivIds = []
-	this.tabs = []
-	this.activeTab = null
-}
+class Tabs extends Component {
+	constructor(element, options = {}) {
+		super();
+		this.element = element;
+		this.tabsDiv = this.element.querySelector("div");
+		this.config(options);
+		this.addControl();
+	}
 
-Tabs.prototype.events = ['tabSelected'] // Default value
+	config(options) {
+		this.direction = options.direction || "horizontal";
+		this.tabContentDivIds = [];
+		this.tabs = [];
+		this.activeTab = null;
+	}
 
-Tabs.prototype.addControl = function () {
-	const dir = this.direction === 'vertical' ? 'v' : 'h'
-	this.tabsDiv.classList.add(`gadget-ui-tabs-${dir}`)
-	this.tabs = Array.from(this.tabsDiv.querySelectorAll('div'))
+	events = ["tabSelected"]; // Default value
 
-	let activeSet = false
-	this.tabs.forEach((tab) => {
-		tab.classList.add(`gadget-ui-tab-${dir}`)
-		const tabId = tab.getAttribute('data-tab')
-		this.tabContentDivIds.push(tabId)
-		this.element.querySelector(`div[name='${tabId}']`).style.display =
-			'none'
+	addControl() {
+		const dir = this.direction === "vertical" ? "v" : "h";
+		this.tabsDiv.classList.add(`gadget-ui-tabs-${dir}`);
+		this.tabs = Array.from(this.tabsDiv.querySelectorAll("div"));
 
-		if (!activeSet) {
-			activeSet = true
-			this.setActiveTab(tabId)
+		let activeSet = false;
+		this.tabs.forEach((tab) => {
+			tab.classList.add(`gadget-ui-tab-${dir}`);
+			const tabId = tab.getAttribute("data-tab");
+			this.tabContentDivIds.push(tabId);
+			this.element.querySelector(`div[name='${tabId}']`).style.display = "none";
+
+			if (!activeSet) {
+				activeSet = true;
+				this.setActiveTab(tabId);
+			}
+
+			tab.addEventListener("click", () => this.setActiveTab(tabId));
+		});
+
+		this.element.querySelector(
+			`div[name='${this.tabContentDivIds[0]}']`,
+		).style.display = "block";
+	}
+
+	setActiveTab(activeTab) {
+		const dir = this.direction === "vertical" ? "v" : "h";
+
+		this.tabContentDivIds.forEach((tabId) => {
+			const display = tabId === activeTab ? "block" : "none";
+			this.element.querySelector(`div[name='${tabId}']`).style.display =
+				display;
+		});
+
+		this.tabs.forEach((tab) => {
+			const tabId = tab.getAttribute("data-tab");
+			const className = `gadget-ui-tab-${dir}-active`;
+			if (tabId === activeTab) {
+				tab.classList.add(className);
+			} else {
+				tab.classList.remove(className);
+			}
+		});
+
+		this.activeTab = activeTab;
+
+		if (typeof this.fireEvent === "function") {
+			this.fireEvent("tabSelected", { activeTab });
 		}
+	}
 
-		tab.addEventListener('click', () => this.setActiveTab(tabId))
-	})
-
-	this.element.querySelector(
-		`div[name='${this.tabContentDivIds[0]}']`
-	).style.display = 'block'
-}
-
-Tabs.prototype.setActiveTab = function (activeTab) {
-	const dir = this.direction === 'vertical' ? 'v' : 'h'
-
-	this.tabContentDivIds.forEach((tabId) => {
-		const display = tabId === activeTab ? 'block' : 'none'
-		this.element.querySelector(`div[name='${tabId}']`).style.display =
-			display
-	})
-
-	this.tabs.forEach((tab) => {
-		const tabId = tab.getAttribute('data-tab')
-		const className = `gadget-ui-tab-${dir}-active`
-		if (tabId === activeTab) {
-			tab.classList.add(className)
-		} else {
-			tab.classList.remove(className)
-		}
-	})
-
-	this.activeTab = activeTab
-	// Safeguard to ensure this.events is an array before calling includes
-
-	if (typeof this.fireEvent === 'function') {
-		this.fireEvent('tabSelected', activeTab)
+	destroy() {
+		// Implement cleanup logic if necessary
 	}
 }
 
@@ -3796,6 +3974,7 @@ FileItem.prototype.set = function(args) {
 
 
 	return{
+
     Constructor: Constructor,
 	  EventBindings: EventBindings,
     FileItem: FileItem
@@ -4472,6 +4651,7 @@ export var lookuplistinput = gadgetui.input.LookupListInput;
 export var selectinput = gadgetui.input.SelectInput;
 export var textinput = gadgetui.input.TextInput;
 export var toggle = gadgetui.input.Toggle;
+export var component = gadgetui.objects.Component;
 export var constructor = gadgetui.objects.Constructor;
 export var util = gadgetui.util;
 

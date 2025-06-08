@@ -2,61 +2,64 @@
 <html>
 	<head>
 		<title>gadget-ui Sidebar Test</title>
-		<link rel="stylesheet" href="/dist/gadget-ui.css"/>
-		<script src='/bower_components/velocity/velocity.js'></script>
-		 <script type="module">
-			import {sidebar,constructor} from '/dist/gadget-ui.es.js';
+		<link rel="stylesheet" href="/dist/gadget-ui.css" />
+		<script src="/node_modules/velocity-animate/velocity.js"></script>
+		<script type="module">
+			import { sidebar } from "/dist/gadget-ui.es.js";
 
-			var sb = constructor( sidebar,
-				[ document.querySelector("#sidebar"),
-					{animationMS: 200, minimized:true }], true ) ;
-			sb.on( "maximized", function( obj ){
-				console.log( "maximized" );
-				console.log( obj );
+			var sb = new sidebar(document.querySelector("#sidebar"), {
+				animationMS: 200,
+				minimized: true,
 			});
-			sb.on( "minimized", function( obj ){
-				console.log( "minimized" );
-				console.log( obj );
+			sb.on("maximized", function (obj) {
+				console.log("maximized");
+				console.log(obj);
 			});
-		 </script>
+			sb.on("minimized", function (obj) {
+				console.log("minimized");
+				console.log(obj);
+			});
+		</script>
 
 		<style>
-			body {font-size: 1em;}
-			input, select, select option{ font-size: 1em;}
-      #appWrapper{
-        display: flex;
-        height:97vh;
-				width:98vw;
-        background-color: #fff;
-      }
-			.sidebar{
-				display:inline-block;
-        height:100%;
-				width:25em;
+			body {
+				font-size: 1em;
 			}
-      .app{
-				display:inline-block;
-        height:100%;
-      }
+			input,
+			select,
+			select option {
+				font-size: 1em;
+			}
+			#appWrapper {
+				display: flex;
+				height: 97vh;
+				width: 98vw;
+				background-color: #fff;
+			}
+			.sidebar {
+				display: inline-block;
+				height: 100%;
+				width: 25em;
+			}
+			.app {
+				display: inline-block;
+				height: 100%;
+			}
 		</style>
-
 	</head>
 
 	<body>
+		<div id="appWrapper">
+			<div id="sidebar" class="sidebar">
+				<h3>Item 1</h3>
+				<h3>Item 2</h3>
+				<h3>Item 3</h3>
+			</div>
+			<div class="app">
+				<p>Test the Sidebar control.</p>
 
-    <div id="appWrapper">
-    	<div id="sidebar" class="sidebar">
-
-        <h3>Item 1</h3>
-        <h3>Item 2</h3>
-        <h3>Item 3</h3>
-    	</div>
-      <div class="app">
-			<p>Test the Sidebar control.</p>
-
-      This is the main application space.
-      </div>
-    </div>
-
+				This is the main application space.
+			</div>
+		</div>
 	</body>
 </html>
