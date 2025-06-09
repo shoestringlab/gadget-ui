@@ -1,6 +1,45 @@
 
 ***Release Notes***
 
+
+11.0.0-alpha.1
+======
+
+All components have now been re-factored as ES6 classes. Some configuration options have been changed. For details on calling components for now, check /test/11.x/index.htm to see how each new component is called and configured. I will get around to writing documentation sooner or later. For now, the test code shows you enough to build on.
+
+The basic conversion process is simple. Old code:
+
+``` javascript
+			import { floatingpane, constructor } from "/dist/gadget-ui.es.js";
+
+			var fp1 = constructor(
+				floatingpane,
+				[
+					document.querySelector("#fp1"),
+					{
+						title: "Random Text",
+						enableShrink: true,
+					},
+				],
+				true,
+			);
+```
+
+new code:
+``` JavaScript
+			import { floatingpane } from "/dist/gadget-ui.es.js";
+
+			var fp1 = new floatingpane(
+				document.querySelector("#fp1"),
+				{
+					title: "Random Text",
+					enableShrink: true,
+				},
+			);
+```
+
+No more constructor, events are enabled automatically.
+
 11.0.0-alpha
 ======
 
