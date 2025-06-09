@@ -1,0 +1,97 @@
+<!doctype html>
+<html>
+	<head>
+		<title>gadget-ui Menu Test</title>
+		<link rel="stylesheet" href="/dist/gadget-ui.css" />
+
+		<script type="module">
+			import { menu } from "/dist/gadget-ui.es.js";
+
+			let authAlert = function () {
+				alert("Auth option selected.");
+			};
+
+			let menus = [
+				{
+					image: "/test/art/anon.png",
+					menuItem: {
+						items: [
+							{ image: "/test/art/login.png", link: authAlert },
+							{ label: "Logout", link: "" },
+						],
+					},
+				},
+				{
+					label: "Options",
+					menuItem: {
+						items: [
+							{
+								label: "Files",
+								menuItem: {
+									items: [
+										{ label: "Saving ...", link: "" },
+										{ label: "Loading ...", link: "" },
+									],
+								},
+							},
+							{
+								label: "Logs",
+								menuItem: {
+									items: [
+										{
+											label: "System",
+											menuItem: {
+												items: [
+													{
+														label: "Saving ...",
+														link: "",
+													},
+													{
+														label: "Loading ...",
+														link: "",
+													},
+												],
+											},
+										},
+									],
+								},
+							},
+						],
+					},
+				},
+			];
+			var md = new menu(document.querySelector("#menu"), {
+				data: menus,
+				menuActivate: "mouseenter",
+			});
+
+			md.on("clicked", function (obj, item) {
+				console.log("clicked");
+				console.log(obj);
+				console.log(item);
+			});
+		</script>
+
+		<style>
+			body {
+				font-size: 1em;
+			}
+			input,
+			select,
+			select option {
+				font-size: 1em;
+			}
+			#header {
+				display: flex;
+				padding: 0.5em 0.25em 0.25em 0.25em;
+				background: #77f;
+			}
+		</style>
+	</head>
+
+	<body>
+		<div id="header">
+			<div id="menu"></div>
+		</div>
+	</body>
+</html>

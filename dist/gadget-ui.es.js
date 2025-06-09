@@ -827,9 +827,9 @@ class CollapsiblePane extends Component {
 		const pane = document.createElement("div");
 
 		if (this.class) {
-			gadgetui.util.addClass(pane, this.class);
+			pane.classList.add(this.class);
 		}
-		gadgetui.util.addClass(pane, "gadget-ui-collapsiblePane");
+		pane.classList.add("gadget-ui-collapsiblePane");
 
 		this.element.parentNode.insertBefore(pane, this.element);
 		this.wrapper = this.element.previousSibling;
@@ -841,9 +841,9 @@ class CollapsiblePane extends Component {
 		const header = document.createElement("div");
 		const css = gadgetui.util.setStyle;
 
-		gadgetui.util.addClass(header, "gadget-ui-collapsiblePane-header");
+		header.classList.add("gadget-ui-collapsiblePane-header");
 		if (this.headerClass) {
-			gadgetui.util.addClass(header, this.headerClass);
+			header.classList.add(this.headerClass);
 		}
 		header.innerHTML = this.title;
 
@@ -977,347 +977,360 @@ FileUploadWrapper.prototype.abortUpload = function (fileItem) {
 	setTimeout(aborted, 1000)
 }
 
-function FloatingPane(element, options) {
-	this.element = element;
-	this.config(options || {});
-	this.setup(options);
-}
-
-FloatingPane.prototype.events = ["minimized", "maximized", "moved", "closed"];
-
-FloatingPane.prototype.setup = function (options) {
-	this.setMessage();
-	this.addControl();
-	this.addHeader();
-
-	if (this.enableShrink) {
-		this.maxmin = this.wrapper.querySelector("div.oi[name='maxmin']");
+class FloatingPane extends Component {
+	constructor(element, options) {
+		super();
+		this.element = element;
+		this.config(options || {});
+		this.setup(options);
 	}
 
-	// Calculate dimensions after header is added
-	const paddingPx =
-		parseInt(
+	//FloatingPane.prototype.events = ["minimized", "maximized", "moved", "closed"];
+
+	setup(options) {
+		this.setMessage();
+		this.addControl();
+		this.addHeader();
+
+		if (this.enableShrink) {
+			this.maxmin = this.wrapper.querySelector("div.oi[name='maxmin']");
+		}
+
+		// Calculate dimensions after header is added
+		const paddingPx =
+			parseInt(
+				gadgetui.util.getNumberValue(
+					gadgetui.util.getStyle(this.element, "padding"),
+				),
+				10,
+			) * 2;
+		const headerHeight =
 			gadgetui.util.getNumberValue(
-				gadgetui.util.getStyle(this.element, "padding"),
-			),
-			10,
-		) * 2;
-	const headerHeight =
-		gadgetui.util.getNumberValue(
-			gadgetui.util.getStyle(this.header, "height"),
-		) + 6;
+				gadgetui.util.getStyle(this.header, "height"),
+			) + 6;
 
-	this.minWidth =
-		this.title.length > 0
-			? gadgetui.util.textWidth(this.title, this.header.style) + 80
-			: 100;
+		this.minWidth =
+			this.title.length > 0
+				? gadgetui.util.textWidth(this.title, this.header.style) + 80
+				: 100;
 
-	gadgetui.util.setStyle(this.element, "width", this.width - paddingPx);
-	this.height =
-		options?.height ??
-		gadgetui.util.getNumberValue(
-			gadgetui.util.getStyle(this.element, "height"),
-		) +
-			paddingPx +
-			headerHeight +
-			10;
+		gadgetui.util.setStyle(this.element, "width", this.width - paddingPx);
+		this.height =
+			options?.height ??
+			gadgetui.util.getNumberValue(
+				gadgetui.util.getStyle(this.element, "height"),
+			) +
+				paddingPx +
+				headerHeight +
+				10;
 
-	this.addCSS();
-	this.height = gadgetui.util.getStyle(this.wrapper, "height");
-	this.relativeOffsetLeft = gadgetui.util.getRelativeParentOffset(
-		this.element,
-	).left;
-	this.addBindings();
-};
-
-FloatingPane.prototype.setMessage = function () {
-	if (this.message) {
-		this.element.innerText = this.message;
-	}
-};
-
-FloatingPane.prototype.addBindings = function () {
-	const dragger = gadgetui.util.draggable(this.wrapper);
-
-	this.wrapper.addEventListener("drag_end", (event) => {
-		this.top = event.detail.top;
-		this.left = event.detail.left;
+		this.addCSS();
+		this.height = gadgetui.util.getStyle(this.wrapper, "height");
 		this.relativeOffsetLeft = gadgetui.util.getRelativeParentOffset(
 			this.element,
 		).left;
+		this.addBindings();
+	}
 
-		if (typeof this.fireEvent === "function") {
-			this.fireEvent("moved");
+	setMessage() {
+		if (this.message) {
+			this.element.innerText = this.message;
 		}
-	});
+	}
 
-	if (this.enableShrink) {
-		this.shrinker.addEventListener("click", (event) => {
-			event.stopPropagation();
-			this.minimized ? this.expand() : this.minimize();
+	addBindings() {
+		const dragger = gadgetui.util.draggable(this.wrapper);
+
+		this.wrapper.addEventListener("drag_end", (event) => {
+			this.top = event.detail.top;
+			this.left = event.detail.left;
+			this.relativeOffsetLeft = gadgetui.util.getRelativeParentOffset(
+				this.element,
+			).left;
+
+			if (typeof this.fireEvent === "function") {
+				this.fireEvent("moved");
+			}
 		});
+
+		if (this.enableShrink) {
+			this.shrinker.addEventListener("click", (event) => {
+				event.stopPropagation();
+				this.minimized ? this.expand() : this.minimize();
+			});
+		}
+
+		if (this.enableClose) {
+			this.closer.addEventListener("click", (event) => {
+				event.stopPropagation();
+				this.close();
+			});
+		}
 	}
 
-	if (this.enableClose) {
-		this.closer.addEventListener("click", (event) => {
-			event.stopPropagation();
-			this.close();
-		});
+	close() {
+		if (typeof this.fireEvent === "function") {
+			this.fireEvent("closed");
+		}
+		this.wrapper.parentNode.removeChild(this.wrapper);
 	}
-};
 
-FloatingPane.prototype.close = function () {
-	if (typeof this.fireEvent === "function") {
-		this.fireEvent("closed");
+	addHeader() {
+		const css = gadgetui.util.setStyle;
+		this.header = document.createElement("div");
+		this.header.innerHTML = this.title;
+
+		this.header.classList.add(
+			this.headerClass || "gadget-ui-floatingPane-header",
+		);
+
+		if (this.enableShrink) {
+			this.shrinker = document.createElement("span");
+			this.shrinker.setAttribute("name", "maxmin");
+			css(this.shrinker, "position", "absolute");
+			css(this.shrinker, "right", "20px");
+			css(this.shrinker, "margin-right", ".5em");
+
+			const shrinkIcon =
+				this.iconType === "img"
+					? `<img class="${this.iconClass}" src="${this.minimizeIcon}"/>`
+					: `<svg class="${this.iconClass}"><use xlink:href="${this.minimizeIcon}"/></svg>`;
+
+			this.shrinker.innerHTML = shrinkIcon;
+			this.header.appendChild(this.shrinker);
+		}
+
+		this.wrapper.insertBefore(this.header, this.element);
+
+		if (this.enableClose) {
+			const span = document.createElement("span");
+			span.setAttribute("name", "closeIcon");
+
+			const icon =
+				this.iconType === "img"
+					? `<img class="${this.iconClass}" src="${this.closeIcon}"/>`
+					: `<svg class="${this.iconClass}"><use xlink:href="${this.closeIcon}"/></svg>`;
+
+			span.innerHTML = icon;
+			this.header.appendChild(span);
+
+			Object.assign(span.style, {
+				right: "3px",
+				position: "absolute",
+				cursor: "pointer",
+				top: "3px",
+			});
+
+			this.closer = span;
+		}
 	}
-	this.wrapper.parentNode.removeChild(this.wrapper);
-};
 
-FloatingPane.prototype.addHeader = function () {
-	const css = gadgetui.util.setStyle;
-	this.header = document.createElement("div");
-	this.header.innerHTML = this.title;
+	addCSS() {
+		const css = gadgetui.util.setStyle;
+		const styles = {
+			width: this.width,
+			"z-index": this.zIndex,
+			...(this.backgroundColor && {
+				"background-color": this.backgroundColor,
+			}),
+			...(this.top !== undefined && { top: this.top }),
+			...(this.left !== undefined && { left: this.left }),
+			...(this.bottom !== undefined && { bottom: this.bottom }),
+			...(this.right !== undefined && { right: this.right }),
+		};
 
-	gadgetui.util.addClass(
-		this.header,
-		this.headerClass || "gadget-ui-floatingPane-header",
-	);
+		Object.entries(styles).forEach(([key, value]) =>
+			css(this.wrapper, key, value),
+		);
+	}
 
-	if (this.enableShrink) {
-		this.shrinker = document.createElement("span");
-		this.shrinker.setAttribute("name", "maxmin");
-		css(this.shrinker, "position", "absolute");
-		css(this.shrinker, "right", "20px");
-		css(this.shrinker, "margin-right", ".5em");
+	addControl() {
+		const fp = document.createElement("div");
+		fp.classList.add(this.class || "gadget-ui-floatingPane");
 
-		const shrinkIcon =
+		fp.draggable = true;
+		this.element.parentNode.insertBefore(fp, this.element);
+		this.wrapper = this.element.previousSibling;
+		this.element.parentNode.removeChild(this.element);
+		fp.appendChild(this.element);
+	}
+
+	expand() {
+		const css = gadgetui.util.setStyle;
+		const offset = gadgetui.util.getOffset(this.wrapper);
+		const parentPaddingLeft = parseInt(
+			gadgetui.util.getNumberValue(
+				gadgetui.util.getStyle(this.wrapper.parentElement, "padding-left"),
+			),
+			10,
+		);
+		const icon =
 			this.iconType === "img"
 				? `<img class="${this.iconClass}" src="${this.minimizeIcon}"/>`
 				: `<svg class="${this.iconClass}"><use xlink:href="${this.minimizeIcon}"/></svg>`;
 
-		this.shrinker.innerHTML = shrinkIcon;
-		this.header.appendChild(this.shrinker);
+		if (typeof Velocity !== "undefined" && this.animate) {
+			Velocity(
+				this.wrapper,
+				{ width: this.width },
+				{ queue: false, duration: 500 },
+			);
+			Velocity(
+				this.element,
+				{ height: this.height },
+				{
+					queue: false,
+					duration: 500,
+					complete: () => {
+						this.shrinker.innerHTML = icon;
+						css(this.element, "overflow", "scroll");
+						if (typeof this.fireEvent === "function") {
+							this.fireEvent("maximized");
+						}
+					},
+				},
+			);
+		} else {
+			css(this.wrapper, "width", this.width);
+			css(this.element, "height", this.height);
+			this.shrinker.innerHTML = icon;
+			css(this.element, "overflow", "scroll");
+			if (typeof this.fireEvent === "function") {
+				this.fireEvent("maximized");
+			}
+		}
+
+		this.minimized = false;
 	}
 
-	this.wrapper.insertBefore(this.header, this.element);
-
-	if (this.enableClose) {
-		const span = document.createElement("span");
-		span.setAttribute("name", "closeIcon");
-
+	minimize() {
+		const css = gadgetui.util.setStyle;
 		const icon =
 			this.iconType === "img"
-				? `<img class="${this.iconClass}" src="${this.closeIcon}"/>`
-				: `<svg class="${this.iconClass}"><use xlink:href="${this.closeIcon}"/></svg>`;
+				? `<img class="${this.iconClass}" src="${this.maximizeIcon}"/>`
+				: `<svg class="${this.iconClass}"><use xlink:href="${this.maximizeIcon}"/></svg>`;
 
-		span.innerHTML = icon;
-		this.header.appendChild(span);
+		css(this.element, "overflow", "hidden");
 
-		Object.assign(span.style, {
-			right: "3px",
-			position: "absolute",
-			cursor: "pointer",
-			top: "3px",
-		});
-
-		this.closer = span;
-	}
-};
-
-FloatingPane.prototype.addCSS = function () {
-	const css = gadgetui.util.setStyle;
-	const styles = {
-		width: this.width,
-		"z-index": this.zIndex,
-		...(this.backgroundColor && {
-			"background-color": this.backgroundColor,
-		}),
-		...(this.top !== undefined && { top: this.top }),
-		...(this.left !== undefined && { left: this.left }),
-		...(this.bottom !== undefined && { bottom: this.bottom }),
-		...(this.right !== undefined && { right: this.right }),
-	};
-
-	Object.entries(styles).forEach(([key, value]) =>
-		css(this.wrapper, key, value),
-	);
-};
-
-FloatingPane.prototype.addControl = function () {
-	const fp = document.createElement("div");
-	gadgetui.util.addClass(fp, this.class || "gadget-ui-floatingPane");
-
-	fp.draggable = true;
-	this.element.parentNode.insertBefore(fp, this.element);
-	this.wrapper = this.element.previousSibling;
-	this.element.parentNode.removeChild(this.element);
-	fp.appendChild(this.element);
-};
-
-FloatingPane.prototype.expand = function () {
-	const css = gadgetui.util.setStyle;
-	const offset = gadgetui.util.getOffset(this.wrapper);
-	const parentPaddingLeft = parseInt(
-		gadgetui.util.getNumberValue(
-			gadgetui.util.getStyle(this.wrapper.parentElement, "padding-left"),
-		),
-		10,
-	);
-	const icon =
-		this.iconType === "img"
-			? `<img class="${this.iconClass}" src="${this.minimizeIcon}"/>`
-			: `<svg class="${this.iconClass}"><use xlink:href="${this.minimizeIcon}"/></svg>`;
-
-	if (typeof Velocity !== "undefined" && this.animate) {
-		Velocity(
-			this.wrapper,
-			{ width: this.width },
-			{ queue: false, duration: 500 },
-		);
-		Velocity(
-			this.element,
-			{ height: this.height },
-			{
-				queue: false,
-				duration: 500,
-				complete: () => {
-					this.shrinker.innerHTML = icon;
-					css(this.element, "overflow", "scroll");
-					if (typeof this.fireEvent === "function") {
-						this.fireEvent("maximized");
-					}
+		if (typeof Velocity !== "undefined" && this.animate) {
+			Velocity(
+				this.wrapper,
+				{ width: this.minWidth },
+				{
+					queue: false,
+					duration: this.delay,
+					complete: () => (this.shrinker.innerHTML = icon),
 				},
-			},
-		);
-	} else {
-		css(this.wrapper, "width", this.width);
-		css(this.element, "height", this.height);
-		this.shrinker.innerHTML = icon;
-		css(this.element, "overflow", "scroll");
-		if (typeof this.fireEvent === "function") {
-			this.fireEvent("maximized");
-		}
-	}
-
-	this.minimized = false;
-};
-
-FloatingPane.prototype.minimize = function () {
-	const css = gadgetui.util.setStyle;
-	const icon =
-		this.iconType === "img"
-			? `<img class="${this.iconClass}" src="${this.maximizeIcon}"/>`
-			: `<svg class="${this.iconClass}"><use xlink:href="${this.maximizeIcon}"/></svg>`;
-
-	css(this.element, "overflow", "hidden");
-
-	if (typeof Velocity !== "undefined" && this.animate) {
-		Velocity(
-			this.wrapper,
-			{ width: this.minWidth },
-			{
-				queue: false,
-				duration: this.delay,
-				complete: () => (this.shrinker.innerHTML = icon),
-			},
-		);
-		Velocity(
-			this.element,
-			{ height: "50px" },
-			{
-				queue: false,
-				duration: this.delay,
-				complete: () => {
-					if (typeof this.fireEvent === "function") {
-						this.fireEvent("minimized");
-					}
+			);
+			Velocity(
+				this.element,
+				{ height: "50px" },
+				{
+					queue: false,
+					duration: this.delay,
+					complete: () => {
+						if (typeof this.fireEvent === "function") {
+							this.fireEvent("minimized");
+						}
+					},
 				},
-			},
-		);
-	} else {
-		css(this.wrapper, "width", this.minWidth);
-		css(this.element, "height", "50px");
-		this.shrinker.innerHTML = icon;
-		if (typeof this.fireEvent === "function") {
-			this.fireEvent("minimized");
+			);
+		} else {
+			css(this.wrapper, "width", this.minWidth);
+			css(this.element, "height", "50px");
+			this.shrinker.innerHTML = icon;
+			if (typeof this.fireEvent === "function") {
+				this.fireEvent("minimized");
+			}
 		}
+
+		this.minimized = true;
 	}
 
-	this.minimized = true;
-};
+	config(options) {
+		this.message = options.message;
+		this.animate = options.animate ?? true;
+		this.delay = options.delay ?? 500;
+		this.title = options.title || "";
+		this.backgroundColor = options.backgroundColor || "";
+		this.zIndex = options.zIndex ?? gadgetui.util.getMaxZIndex() + 1;
+		this.width = gadgetui.util.getStyle(this.element, "width");
+		this.top = options.top;
+		this.left = options.left;
+		this.bottom = options.bottom;
+		this.right = options.right;
+		this.class = options.class || false;
+		this.headerClass = options.headerClass || false;
+		//this.featherPath = options.featherPath || "/node_modules/feather-icons";
+		this.minimized = false;
+		this.relativeOffsetLeft = 0;
+		this.enableShrink = options.enableShrink ?? true;
+		this.enableClose = options.enableClose ?? true;
 
-FloatingPane.prototype.config = function (options) {
-	this.message = options.message;
-	this.animate = options.animate ?? true;
-	this.delay = options.delay ?? 500;
-	this.title = options.title || "";
-	this.backgroundColor = options.backgroundColor || "";
-	this.zIndex = options.zIndex ?? gadgetui.util.getMaxZIndex() + 1;
-	this.width = gadgetui.util.getStyle(this.element, "width");
-	this.top = options.top;
-	this.left = options.left;
-	this.bottom = options.bottom;
-	this.right = options.right;
-	this.class = options.class || false;
-	this.headerClass = options.headerClass || false;
-	//this.featherPath = options.featherPath || "/node_modules/feather-icons";
-	this.minimized = false;
-	this.relativeOffsetLeft = 0;
-	this.enableShrink = options.enableShrink ?? true;
-	this.enableClose = options.enableClose ?? true;
-
-	this.iconClass = options.iconClass || "feather";
-	this.iconType = options.iconType || "img";
-	this.closeIcon =
-		options.closeIcon || "/node_modules/feather-icons/dist/icons/x-circle.svg";
-	this.minimizeIcon =
-		options.minimizeIcon ||
-		"/node_modules/feather-icons/dist/icons/minimize.svg";
-	this.maximizeIcon =
-		options.maximizeIcon ||
-		"/node_modules/feather-icons/dist/icons/maximize.svg";
-};
-
-function Dialog(element, options = {}) {
-	const css = gadgetui.util.setStyle;
-
-	if (element) {
-		this.element = element;
-	} else {
-		const dv = document.createElement("div");
-		dv.setAttribute("id", `gadgetui-dialog-${Math.random()}`);
-		if (options.width) {
-			css(dv, "width", options.width);
-		}
-		document.body.appendChild(dv);
-		this.element = dv;
+		this.iconClass = options.iconClass || "feather";
+		this.iconType = options.iconType || "img";
+		this.closeIcon =
+			options.closeIcon ||
+			"/node_modules/feather-icons/dist/icons/x-circle.svg";
+		this.minimizeIcon =
+			options.minimizeIcon ||
+			"/node_modules/feather-icons/dist/icons/minimize.svg";
+		this.maximizeIcon =
+			options.maximizeIcon ||
+			"/node_modules/feather-icons/dist/icons/maximize.svg";
 	}
-
-	this.config(options);
-	this.buttons = options.buttons || [];
-	this.setup(options);
-	this.addButtons();
 }
 
-Dialog.prototype = FloatingPane.prototype;
+class Dialog extends FloatingPane {
+	constructor(element, options = {}) {
+		const css = gadgetui.util.setStyle;
 
-Dialog.prototype.addButtons = function () {
-	const css = gadgetui.util.setStyle;
+		if (element) {
+			super(element, options);
+		} else {
+			const dv = document.createElement("div");
+			dv.setAttribute("id", `gadgetui-dialog-${Math.random()}`);
+			if (options.width) {
+				css(dv, "width", options.width);
+			}
+			document.body.appendChild(dv);
+			super(dv, options);
+		}
 
-	this.buttonDiv = document.createElement("div");
-	css(this.buttonDiv, "text-align", "center");
-	css(this.buttonDiv, "padding", "0.5em");
+		this.buttons = options.buttons || [];
+		this.addButtons();
+	}
 
-	this.buttons.forEach((button) => {
-		const btn = document.createElement("button");
-		btn.innerText = button.label;
-		css(btn, "margin", "0.5em");
-		btn.addEventListener("click", button.click);
-		this.buttonDiv.appendChild(btn);
-	});
+	events = ["showPrevious", "showNext"];
 
-	this.wrapper.appendChild(this.buttonDiv);
-};
+	addButtons() {
+		const css = gadgetui.util.setStyle;
+
+		this.buttonDiv = document.createElement("div");
+		css(this.buttonDiv, "text-align", "center");
+		css(this.buttonDiv, "padding", "0.5em");
+
+		this.buttons.forEach((button) => {
+			const btn = document.createElement("button");
+			btn.classList.add("gadgetui-dialog-button");
+			btn.innerHTML = button.label;
+			this.buttonDiv.appendChild(btn);
+
+			btn.addEventListener("click", () => {
+				if (typeof button.action === "function") {
+					button.action();
+				}
+			});
+		});
+
+		this.element.appendChild(this.buttonDiv);
+	}
+
+	destroy() {
+		super.destroy(); // Call the destroy method of the parent class
+		this.element.removeChild(this.buttonDiv); // Remove the button div if necessary
+	}
+}
 
 class Lightbox extends Component {
 	constructor(element, options = {}) {
@@ -1331,11 +1344,7 @@ class Lightbox extends Component {
 	events = ["showPrevious", "showNext"];
 
 	config(options = {}) {
-		this.images = options.images || [
-			"https://via.placeholder.com/300x200?text=Image+1",
-			"https://via.placeholder.com/300x200/0000FF/FFFFFF?text=Image+2",
-			"https://via.placeholder.com/300x200/FF0000/FFFFFF?text=Image+3",
-		];
+		this.images = options.images || [];
 		this.currentIndex = 0;
 		this.time = options.time || 3000;
 		this.enableModal = options.enableModal ?? true;
@@ -1353,10 +1362,7 @@ class Lightbox extends Component {
 		this.element.classList.add("gadgetui-lightbox");
 
 		this.imageContainer = document.createElement("div");
-		gadgetui.util.addClass(
-			this.imageContainer,
-			"gadgetui-lightbox-image-container",
-		);
+		this.imageContainer.classList.add("gadgetui-lightbox-image-container");
 		this.imageTag = document.createElement("img");
 		this.imageTag.setAttribute("name", "image");
 		this.imageTag.classList.add("gadgetui-lightbox-image");
@@ -1365,28 +1371,21 @@ class Lightbox extends Component {
 		this.transitionImageTag = document.createElement("img");
 		this.transitionImageTag.setAttribute("name", "transitionImage");
 		this.transitionImageTag.classList.add("gadgetui-lightbox-image");
-		gadgetui.util.addClass(
-			this.transitionImageTag,
-			"gadgetui-lightbox-transitionimage",
-		);
+		this.transitionImageTag.classList.add("gadgetui-lightbox-transitionimage");
 		this.transitionImageTag.classList.add("gadgetui-hidden");
 		this.imageContainer.appendChild(this.transitionImageTag);
 
 		this.spanPrevious = document.createElement("span");
 		this.spanNext = document.createElement("span");
-		gadgetui.util.addClass(
-			this.spanPrevious,
-			"gadgetui-lightbox-previousControl",
-		);
+		this.spanPrevious.classList.add("gadgetui-lightbox-previousControl");
 		this.spanNext.classList.add("gadgetui-lightbox-nextControl");
 		this.spanPrevious.innerHTML =
 			this.iconType === "img"
-				? `<img class="${this.iconClass}" src="${this.leftIcon}">`
+				? `<img class="${this.iconClass}" src="${this.leftIcon}" alt="Previous">`
 				: `<svg class="${this.iconClass}"><use xlink:href="${this.leftIcon}"/></svg>`;
-
 		this.spanNext.innerHTML =
 			this.iconType === "img"
-				? `<img class="${this.iconClass}" src="${this.rightIcon}">`
+				? `<img class="${this.iconClass}" src="${this.rightIcon}" alt="Next">`
 				: `<svg class="${this.iconClass}"><use xlink:href="${this.rightIcon}"/></svg>`;
 
 		this.element.appendChild(this.spanPrevious);
@@ -1402,28 +1401,26 @@ class Lightbox extends Component {
 			this.modal.classList.add("gadgetui-hidden");
 
 			this.modalImageContainer = document.createElement("div");
-			gadgetui.util.addClass(
-				this.modalImageContainer,
+			this.modalImageContainer.classList.add(
 				"gadgetui-lightbox-modal-imagecontainer",
 			);
 			this.modalImageTag = document.createElement("img");
-			this.modalImageTag.classList.add("gadgetui-lightbox-image"); // Fixed typo: this.imageTab -> this.modalImageTag
+			this.modalImageTag.classList.add("gadgetui-lightbox-image");
 			this.modalImageContainer.appendChild(this.modalImageTag);
 
 			this.modal.appendChild(this.modalImageContainer);
-
 			document.body.appendChild(this.modal);
 
 			this.imageContainer.addEventListener("click", () => {
 				this.setModalImage();
 				this.element.classList.add("gadgetui-hidden");
-				gadgetui.util.removeClass(this.modal, "gadgetui-hidden");
+				this.modal.classList.remove("gadgetui-hidden");
 				this.stopAnimation();
 			});
 
 			this.modal.addEventListener("click", () => {
 				this.modal.classList.add("gadgetui-hidden");
-				gadgetui.util.removeClass(this.element, "gadgetui-hidden");
+				this.element.classList.remove("gadgetui-hidden");
 				this.animate();
 			});
 		}
@@ -1443,7 +1440,7 @@ class Lightbox extends Component {
 	}
 
 	setImage() {
-		this.imageTag.src = `${this.images[this.currentIndex]}`;
+		this.imageTag.src = this.images[this.currentIndex];
 		this.imageTag.alt = `Image ${this.currentIndex + 1}`;
 	}
 
@@ -1455,8 +1452,13 @@ class Lightbox extends Component {
 		this.transitionImageTag.src = newSrc;
 		this.transitionImageTag.alt = newAlt;
 
-		// Remove hidden class to make transition image visible
-		gadgetui.util.removeClass(this.transitionImageTag, "gadgetui-hidden");
+		// Remove hidden class and reset any previous animation classes
+		this.transitionImageTag.classList.remove("gadgetui-hidden");
+		this.transitionImageTag.classList.remove(
+			"gadgetui-slide-left",
+			"gadgetui-slide-right",
+			"gadgetui-slide-in",
+		);
 
 		// Apply slide direction
 		const directionClass = isNext
@@ -1472,13 +1474,13 @@ class Lightbox extends Component {
 
 			// Reset transition image
 			this.transitionImageTag.classList.add("gadgetui-hidden");
-			gadgetui.util.removeClass(this.transitionImageTag, "gadgetui-slide-left");
-			gadgetui.util.removeClass(
-				this.transitionImageTag,
+			this.transitionImageTag.classList.remove(
+				"gadgetui-slide-left",
 				"gadgetui-slide-right",
+				"gadgetui-slide-in",
 			);
 
-			// Remove event listener to avoid multiple triggers
+			// Remove event listener
 			this.transitionImageTag.removeEventListener(
 				"transitionend",
 				handleTransitionEnd,
@@ -1490,9 +1492,11 @@ class Lightbox extends Component {
 			handleTransitionEnd,
 		);
 
-		// Trigger reflow to ensure animation plays
-		this.transitionImageTag.offsetWidth; // Force reflow
-		this.transitionImageTag.classList.add("gadgetui-slide-in");
+		// Trigger animation
+		requestAnimationFrame(() => {
+			this.transitionImageTag.offsetWidth; // Force reflow
+			this.transitionImageTag.classList.add("gadgetui-slide-in");
+		});
 	}
 
 	animate() {
@@ -1504,170 +1508,183 @@ class Lightbox extends Component {
 	}
 
 	setModalImage() {
-		this.modalImageTag.src = `${this.images[this.currentIndex]}`;
+		this.modalImageTag.src = this.images[this.currentIndex];
 		this.modalImageTag.alt = `Image ${this.currentIndex + 1}`;
 	}
 }
 
-function Menu(element, options = {}) {
-	this.element = element;
-	this.elements = [];
-	this.config(options);
+class Menu extends Component {
+	constructor(element, options = {}) {
+		super();
+		this.element = element;
+		this.elements = [];
+		this.config(options);
 
-	if (this.datasource) {
-		this.retrieveData();
-	} else if (this.data) {
-		this.addControl();
-		this.addBindings();
+		if (this.datasource) {
+			this.retrieveData();
+		} else if (this.data) {
+			this.addControl();
+			this.addBindings();
+		}
+	}
+
+	//events = ["clicked"];
+
+	retrieveData() {
+		this.datasource().then((data) => {
+			this.data = data;
+			this.addControl();
+		});
+	}
+
+	addControl() {
+		const processItem = (item, parent) => {
+			const element = document.createElement("div");
+			element.classList.add("gadget-ui-menu-item");
+			element.innerText = item.label || "";
+
+			if (item.image?.length) {
+				const imgEl = document.createElement("img");
+				imgEl.src = item.image;
+				imgEl.classList.add("gadget-ui-menu-icon");
+				element.appendChild(imgEl);
+			}
+
+			if (
+				item.link &&
+				(item.link.length > 0 || typeof item.link === "function")
+			) {
+				element.style.cursor = "pointer";
+				element.addEventListener("click", () => {
+					if (typeof this.fireEvent === "function") {
+						this.fireEvent("clicked", item);
+					}
+					typeof item.link === "function"
+						? item.link()
+						: window.open(item.link);
+				});
+			}
+
+			if (item.menuItem) {
+				element.appendChild(processMenuItem(item.menuItem, element));
+			}
+			return element;
+		};
+
+		const processMenuItem = (menuItemData, parent) => {
+			const element = document.createElement("div");
+			element.classList.add("gadget-ui-menu-menuItem");
+			menuItemData.items.forEach((item) =>
+				element.appendChild(processItem(item, element)),
+			);
+			return element;
+		};
+
+		const generateMenu = (menuData) => {
+			const element = document.createElement("div");
+			element.classList.add("gadget-ui-menu");
+			element.innerText = menuData.label || "";
+
+			if (menuData.image?.length) {
+				const imgEl = document.createElement("img");
+				imgEl.src = menuData.image;
+				imgEl.classList.add("gadget-ui-menu-icon");
+				element.appendChild(imgEl);
+			}
+
+			element.appendChild(processMenuItem(menuData.menuItem, element));
+			return element;
+		};
+
+		this.data.forEach((menu) => {
+			const element = generateMenu(menu);
+			this.element.appendChild(element);
+			this.elements.push(element);
+		});
+	}
+
+	addBindings() {
+		const menus = this.element.querySelectorAll(".gadget-ui-menu");
+		const activateEvent = this.options.menuActivate || "mouseenter";
+		const deactivateEvent = activateEvent === "click" ? "click" : "mouseleave";
+
+		document.addEventListener("click", (evt) => {
+			if (!this.element.contains(evt.target)) {
+				this.close();
+			}
+		});
+
+		menus.forEach((mu) => {
+			const menuItem = mu.querySelector(".gadget-ui-menu-menuItem");
+			const items = menuItem.querySelectorAll(".gadget-ui-menu-item");
+			const menuItems = menuItem.querySelectorAll(".gadget-ui-menu-menuItem");
+
+			items.forEach((item) => {
+				const mItem = item.querySelector(".gadget-ui-menu-menuItem");
+
+				item.addEventListener(activateEvent, (evt) => {
+					if (mItem) mItem.classList.add("gadget-ui-menu-hovering");
+					item.classList.add("gadget-ui-menu-selected");
+					Array.from(item.parentNode.children).forEach((child) => {
+						if (child !== item)
+							child.classList.remove("gadget-ui-menu-selected");
+					});
+					evt.preventDefault();
+				});
+
+				if (activateEvent === "mouseenter") {
+					item.addEventListener("mouseleave", () => {
+						if (mItem) mItem.classList.remove("gadget-ui-menu-hovering");
+					});
+				}
+			});
+
+			mu.addEventListener(activateEvent, () =>
+				menuItem.classList.add("gadget-ui-menu-hovering"),
+			);
+
+			if (activateEvent === "mouseenter") {
+				mu.addEventListener("mouseleave", () =>
+					menuItem.classList.remove("gadget-ui-menu-hovering"),
+				);
+			}
+
+			menuItems.forEach((mItem) => {
+				mItem.addEventListener(activateEvent, () =>
+					mItem.classList.add("gadget-ui-menu-hovering"),
+				);
+				if (activateEvent === "mouseenter") {
+					mItem.addEventListener("mouseleave", () => {
+						if (!mItem.parentNode.classList.contains("selected")) {
+							mItem.classList.remove("gadget-ui-menu-hovering");
+						}
+					});
+				}
+			});
+		});
+	}
+
+	close() {
+		this.elements.forEach((menu) => {
+			const menuItem = menu.querySelector(".gadget-ui-menu-menuItem");
+			if (menuItem) {
+				menuItem.classList.remove("gadget-ui-menu-hovering");
+			}
+		});
+	}
+
+	destroy() {
+		this.element.querySelectorAll(".gadget-ui-menu").forEach((menu) => {
+			this.element.removeChild(menu);
+		});
+	}
+
+	config(options) {
+		this.datasource = options.datasource;
+		this.data = options.data || [];
+		this.options = options;
 	}
 }
-
-Menu.prototype.events = ["clicked"];
-
-Menu.prototype.retrieveData = function () {
-	this.datasource().then((data) => {
-		this.data = data;
-		this.addControl();
-	});
-};
-
-Menu.prototype.addControl = function () {
-	const processItem = (item, parent) => {
-		const element = document.createElement("div");
-		element.classList.add("gadget-ui-menu-item");
-		element.innerText = item.label || "";
-
-		if (item.image?.length) {
-			const imgEl = document.createElement("img");
-			imgEl.src = item.image;
-			imgEl.classList.add("gadget-ui-menu-icon");
-			element.appendChild(imgEl);
-		}
-
-		if (
-			item.link &&
-			(item.link.length > 0 || typeof item.link === "function")
-		) {
-			element.style.cursor = "pointer";
-			element.addEventListener("click", () => {
-				if (typeof this.fireEvent === "function") {
-					this.fireEvent("clicked", item);
-				}
-				typeof item.link === "function" ? item.link() : window.open(item.link);
-			});
-		}
-
-		if (item.menuItem) {
-			element.appendChild(processMenuItem(item.menuItem, element));
-		}
-		return element;
-	};
-
-	const processMenuItem = (menuItemData, parent) => {
-		const element = document.createElement("div");
-		element.classList.add("gadget-ui-menu-menuItem");
-		menuItemData.items.forEach((item) =>
-			element.appendChild(processItem(item, element)),
-		);
-		return element;
-	};
-
-	const generateMenu = (menuData) => {
-		const element = document.createElement("div");
-		element.classList.add("gadget-ui-menu");
-		element.innerText = menuData.label || "";
-
-		if (menuData.image?.length) {
-			const imgEl = document.createElement("img");
-			imgEl.src = menuData.image;
-			imgEl.classList.add("gadget-ui-menu-icon");
-			element.appendChild(imgEl);
-		}
-
-		element.appendChild(processMenuItem(menuData.menuItem, element));
-		return element;
-	};
-
-	this.data.forEach((menu) => {
-		const element = generateMenu(menu);
-		this.element.appendChild(element);
-		this.elements.push(element);
-	});
-};
-
-Menu.prototype.addBindings = function () {
-	const menus = this.element.querySelectorAll(".gadget-ui-menu");
-	const activateEvent = this.options.menuActivate || "mouseenter";
-	const deactivateEvent = activateEvent === "click" ? "click" : "mouseleave";
-
-	document.addEventListener("click", (evt) => {
-		if (!this.element.contains(evt.target)) {
-			this.close();
-		}
-	});
-
-	menus.forEach((mu) => {
-		const menuItem = mu.querySelector(".gadget-ui-menu-menuItem");
-		const items = menuItem.querySelectorAll(".gadget-ui-menu-item");
-		const menuItems = menuItem.querySelectorAll(".gadget-ui-menu-menuItem");
-
-		items.forEach((item) => {
-			const mItem = item.querySelector(".gadget-ui-menu-menuItem");
-
-			item.addEventListener(activateEvent, (evt) => {
-				if (mItem) mItem.classList.add("gadget-ui-menu-hovering");
-				item.classList.add("gadget-ui-menu-selected");
-				Array.from(item.parentNode.children).forEach((child) => {
-					if (child !== item) child.classList.remove("gadget-ui-menu-selected");
-				});
-				evt.preventDefault();
-			});
-
-			// item.addEventListener("mouseleave", () => {
-			// 	if (mItem) mItem.classList.remove("gadget-ui-menu-hovering");
-			// });
-		});
-
-		mu.addEventListener(activateEvent, () =>
-			menuItem.classList.add("gadget-ui-menu-hovering"),
-		);
-		// mu.addEventListener("mouseleave", () =>
-		// 	menuItem.classList.remove("gadget-ui-menu-hovering"),
-		// );
-
-		menuItems.forEach((mItem) => {
-			mItem.addEventListener(activateEvent, () =>
-				mItem.classList.add("gadget-ui-menu-hovering"),
-			);
-			// mItem.addEventListener("mouseleave", () => {
-			// 	if (!mItem.parentNode.classList.contains("selected")) {
-			// 		mItem.classList.remove("gadget-ui-menu-hovering");
-			// 	}
-			// });
-		});
-	});
-};
-
-Menu.prototype.close = function () {
-	this.elements.forEach((menu) => {
-		const menuItem = menu.querySelector(".gadget-ui-menu-menuItem");
-		if (menuItem) {
-			menuItem.classList.remove("gadget-ui-menu-hovering");
-		}
-	});
-};
-
-Menu.prototype.destroy = function () {
-	this.element.querySelectorAll(".gadget-ui-menu").forEach((menu) => {
-		this.element.removeChild(menu);
-	});
-};
-
-Menu.prototype.config = function (options) {
-	this.options = options;
-	this.data = options.data;
-	this.datasource = options.datasource;
-};
 
 class Modal extends Component {
 	constructor(element, options = {}) {
@@ -1687,9 +1704,9 @@ class Modal extends Component {
 	addControl() {
 		this.wrapper = document.createElement("div");
 		if (this.class) {
-			gadgetui.util.addClass(this.wrapper, this.class);
+			this.wrapper.classList.add(this.class);
 		}
-		gadgetui.util.addClass(this.wrapper, "gadgetui-modal");
+		this.wrapper.classList.add("gadgetui-modal");
 
 		this.element.parentNode.insertBefore(this.wrapper, this.element);
 		this.element.parentNode.removeChild(this.element);
@@ -1700,7 +1717,7 @@ class Modal extends Component {
 				? `<img class="${this.iconClass}" src="${this.closeIcon}"/>`
 				: `<svg class="${this.iconClass}"><use xlink:href="${this.closeIcon}"/></svg>`;
 
-		gadgetui.util.addClass(this.element, "gadgetui-modalWindow");
+		this.element.classList.add("gadgetui-modalWindow");
 		this.element.innerHTML = `
     <span name="close" class="gadgetui-right-align">
       <a name="close">${icon}</a>
@@ -1715,12 +1732,12 @@ class Modal extends Component {
 	}
 
 	open() {
-		gadgetui.util.addClass(this.wrapper, "gadgetui-showModal");
+		this.wrapper.classList.add("gadgetui-showModal");
 		this.fireEvent("opened");
 	}
 
 	close() {
-		gadgetui.util.removeClass(this.wrapper, "gadgetui-showModal");
+		this.wrapper.classList.remove("gadgetui-showModal");
 		this.fireEvent("closed");
 	}
 
@@ -1745,77 +1762,87 @@ class Modal extends Component {
 }
 
 
-function ProgressBar(element, options = {}) {
-	this.element = element;
-	this.configure(options);
+class ProgressBar extends Component {
+	constructor(element, options = {}) {
+		super();
+		this.element = element;
+		this.configure(options);
+		this.render();
+	}
+
+	events = ["start", "updatePercent", "update"];
+
+	configure(options) {
+		this.id = options.id;
+		this.label = options.label || "";
+		this.width = options.width;
+		this.percent = 0;
+	}
+
+	render() {
+		const css = gadgetui.util.setStyle;
+
+		const pbDiv = document.createElement("div");
+		pbDiv.setAttribute("name", `progressbox_${this.id}`);
+		pbDiv.classList.add("gadgetui-progressbar-progressbox");
+
+		const fileDiv = document.createElement("div");
+		fileDiv.setAttribute("name", "label");
+		fileDiv.classList.add("gadgetui-progressbar-label");
+		fileDiv.innerText = ` ${this.label} `;
+
+		const pbarDiv = document.createElement("div");
+		pbarDiv.classList.add("gadget-ui-progressbar");
+		pbarDiv.setAttribute("name", `progressbar_${this.id}`);
+
+		const statusDiv = document.createElement("div");
+		statusDiv.setAttribute("name", "statustxt");
+		statusDiv.classList.add("gadgetui-progressbar-statustxt");
+		statusDiv.innerHTML = "0%"; // Fixed typo from innertText to innerHTML
+
+		pbDiv.appendChild(fileDiv);
+		pbDiv.appendChild(pbarDiv);
+		pbDiv.appendChild(statusDiv);
+		this.element.appendChild(pbDiv);
+
+		this.progressbox = this.element.querySelector(
+			`div[name='progressbox_${this.id}']`,
+		);
+		this.progressbar = this.element.querySelector(
+			`div[name='progressbar_${this.id}']`,
+		);
+		this.statustxt = this.element.querySelector(`div[name='statustxt']`);
+
+		css(pbarDiv, { width: "0%" });
+	}
+
+	start() {
+		const css = gadgetui.util.setStyle;
+		css(this.progressbar, "width", "0%");
+		this.statustxt.innerHTML = "0%";
+		this.fireEvent("start");
+	}
+
+	updatePercent(percent) {
+		const css = gadgetui.util.setStyle;
+		this.percent = percent;
+		const percentage = `${percent}%`;
+		css(this.progressbar, "width", percentage);
+		this.statustxt.innerHTML = percentage;
+		this.fireEvent("updatePercent", { percent });
+	}
+
+	update(text) {
+		this.statustxt.innerHTML = text;
+		this.fireEvent("update", { text });
+	}
+
+	destroy() {
+		if (this.progressbox && this.progressbox.parentNode) {
+			this.progressbox.parentNode.removeChild(this.progressbox);
+		}
+	}
 }
-
-ProgressBar.prototype.configure = function (options) {
-	this.id = options.id;
-	this.label = options.label || "";
-	this.width = options.width;
-};
-
-ProgressBar.prototype.events = ["start", "updatePercent", "update"];
-
-ProgressBar.prototype.render = function () {
-	const css = gadgetui.util.setStyle;
-
-	const pbDiv = document.createElement("div");
-	pbDiv.setAttribute("name", `progressbox_${this.id}`);
-	gadgetui.util.addClass(pbDiv, "gadgetui-progressbar-progressbox");
-
-	const fileDiv = document.createElement("div");
-	fileDiv.setAttribute("name", "label");
-	gadgetui.util.addClass(fileDiv, "gadgetui-progressbar-label");
-	fileDiv.innerText = ` ${this.label} `;
-
-	const pbarDiv = document.createElement("div");
-	gadgetui.util.addClass(pbarDiv, "gadget-ui-progressbar");
-	pbarDiv.setAttribute("name", `progressbar_${this.id}`);
-
-	const statusDiv = document.createElement("div");
-	statusDiv.setAttribute("name", "statustxt");
-	gadgetui.util.addClass(statusDiv, "statustxt");
-	statusDiv.innerHTML = "0%"; // Fixed typo from innertText to innerHTML
-
-	pbDiv.appendChild(fileDiv);
-	pbDiv.appendChild(pbarDiv);
-	pbDiv.appendChild(statusDiv);
-	this.element.appendChild(pbDiv);
-
-	this.progressbox = this.element.querySelector(
-		`div[name='progressbox_${this.id}']`,
-	);
-	this.progressbar = this.element.querySelector(
-		`div[name='progressbar_${this.id}']`,
-	);
-	this.statustxt = this.element.querySelector(
-		`div[name='progressbox_${this.id}'] div[name='statustxt']`,
-	);
-};
-
-ProgressBar.prototype.start = function () {
-	const css = gadgetui.util.setStyle;
-	css(this.progressbar, "width", "0");
-	this.statustxt.innerHTML = "0%";
-};
-
-ProgressBar.prototype.updatePercent = function (percent) {
-	const css = gadgetui.util.setStyle;
-	const percentage = `${percent}%`;
-	this.percent = percent;
-	css(this.progressbar, "width", percentage);
-	this.statustxt.innerHTML = percentage;
-};
-
-ProgressBar.prototype.update = function (text) {
-	this.statustxt.innerHTML = text;
-};
-
-ProgressBar.prototype.destroy = function () {
-	this.progressbox.parentNode.removeChild(this.progressbox);
-};
 
 class Sidebar extends Component {
 	constructor(selector, options = {}) {
@@ -1847,14 +1874,14 @@ class Sidebar extends Component {
 	addControl() {
 		this.wrapper = document.createElement("div");
 		if (this.class) {
-			gadgetui.util.addClass(this.wrapper, this.class);
+			this.wrapper.classList.add(this.class);
 		}
-		gadgetui.util.addClass(this.wrapper, "gadgetui-sidebar");
+		this.wrapper.classList.add("gadgetui-sidebar");
 
 		this.span = document.createElement("span");
 		this.span.setAttribute("title", this.toggleTitle);
-		gadgetui.util.addClass(this.span, "gadgetui-right-align");
-		gadgetui.util.addClass(this.span, "gadgetui-sidebar-toggle");
+		this.span.classList.add("gadgetui-right-align");
+		this.span.classList.add("gadgetui-sidebar-toggle");
 
 		this.span.innerHTML =
 			this.iconType === "img"
@@ -1871,7 +1898,7 @@ class Sidebar extends Component {
 	maximize() {
 		this.minimized = false;
 		this.setChevron(this.minimized);
-		gadgetui.util.removeClass(this.wrapper, "gadgetui-sidebar-minimized");
+		this.wrapper.classList.remove("gadgetui-sidebar-minimized");
 
 		if (typeof Velocity !== "undefined" && this.animate) {
 			Velocity(
@@ -1901,7 +1928,7 @@ class Sidebar extends Component {
 	minimize() {
 		this.minimized = true;
 		this.setChevron(this.minimized);
-		gadgetui.util.addClass(this.selector, "gadgetui-sidebarContent-minimized");
+		this.selector.classList.add("gadgetui-sidebarContent-minimized");
 
 		if (typeof Velocity !== "undefined" && this.animate) {
 			Velocity(
@@ -1911,13 +1938,13 @@ class Sidebar extends Component {
 					queue: false,
 					duration: this.delay,
 					complete: () => {
-						gadgetui.util.addClass(this.wrapper, "gadgetui-sidebar-minimized");
+						this.wrapper.classList.add("gadgetui-sidebar-minimized");
 						this.fireEvent("minimized");
 					},
 				},
 			);
 		} else {
-			gadgetui.util.addClass(this.wrapper, "gadgetui-sidebar-minimized");
+			this.wrapper.classList.add("gadgetui-sidebar-minimized");
 			this.fireEvent("minimized");
 		}
 	}
@@ -2041,76 +2068,74 @@ gadgetui.input = (function() {
 	
 	
 function ComboBox(element, options) {
-	this.emitEvents = true
-	this.model = gadgetui.model
-	this.func = undefined // Initialized to avoid undefined property
-	this.element = element
+	this.emitEvents = true;
+	this.model = gadgetui.model;
+	this.func = undefined; // Initialized to avoid undefined property
+	this.element = element;
 
-	this.config(options)
-	this.setSaveFunc()
-	this.setDataProviderRefresh()
-	this.addControl()
-	this.addCSS()
-	gadgetui.util.bind(this.element, this.model)
-	gadgetui.util.bind(this.label, this.model)
-	this.addBehaviors()
-	this.setStartingValues()
+	this.config(options);
+	this.setSaveFunc();
+	this.setDataProviderRefresh();
+	this.addControl();
+	this.addCSS();
+	gadgetui.util.bind(this.element, this.model);
+	gadgetui.util.bind(this.label, this.model);
+	this.addBehaviors();
+	this.setStartingValues();
 }
 
 ComboBox.prototype.events = [
-	'change',
-	'click',
-	'focus',
-	'mouseenter',
-	'keyup',
-	'mouseleave',
-	'blur',
-]
+	"change",
+	"click",
+	"focus",
+	"mouseenter",
+	"keyup",
+	"mouseleave",
+	"blur",
+];
 
 ComboBox.prototype.addControl = function () {
-	var css = gadgetui.util.setStyle
-	this.comboBox = gadgetui.util.createElement('div')
-	this.input = gadgetui.util.createElement('input')
-	this.label = gadgetui.util.createElement('div')
-	this.inputWrapper = gadgetui.util.createElement('div')
-	this.selectWrapper = gadgetui.util.createElement('div')
+	var css = gadgetui.util.setStyle;
+	this.comboBox = gadgetui.util.createElement("div");
+	this.input = gadgetui.util.createElement("input");
+	this.label = gadgetui.util.createElement("div");
+	this.inputWrapper = gadgetui.util.createElement("div");
+	this.selectWrapper = gadgetui.util.createElement("div");
 
-	gadgetui.util.addClass(this.comboBox, 'gadgetui-combobox')
-	gadgetui.util.addClass(this.input, 'gadgetui-combobox-input')
-	gadgetui.util.addClass(this.label, 'gadgetui-combobox-label')
-	gadgetui.util.addClass(this.inputWrapper, 'gadgetui-combobox-inputwrapper')
-	gadgetui.util.addClass(
-		this.selectWrapper,
-		'gadgetui-combobox-selectwrapper'
-	)
+	this.comboBox.classList.add("gadgetui-combobox");
+	this.input.classList.add("gadgetui-combobox-input");
+	this.label.classList.add("gadgetui-combobox-label");
+	this.inputWrapper.classList.add("gadgetui-combobox-inputwrapper");
 
-	this.element.parentNode.insertBefore(this.comboBox, this.element)
-	this.element.parentNode.removeChild(this.element)
-	this.comboBox.appendChild(this.label)
-	this.selectWrapper.appendChild(this.element)
-	this.comboBox.appendChild(this.selectWrapper)
-	this.inputWrapper.appendChild(this.input)
-	this.comboBox.appendChild(this.inputWrapper)
-	this.label.setAttribute('data-id', this.id)
+	this.selectWrapper.classList.add("gadgetui-combobox-selectwrapper");
+
+	this.element.parentNode.insertBefore(this.comboBox, this.element);
+	this.element.parentNode.removeChild(this.element);
+	this.comboBox.appendChild(this.label);
+	this.selectWrapper.appendChild(this.element);
+	this.comboBox.appendChild(this.selectWrapper);
+	this.inputWrapper.appendChild(this.input);
+	this.comboBox.appendChild(this.inputWrapper);
+	this.label.setAttribute("data-id", this.id);
 	this.label.setAttribute(
-		'gadgetui-bind',
-		this.element.getAttribute('gadgetui-bind')
-	)
-	this.label.innerHTML = this.text
-	this.input.setAttribute('placeholder', this.newOption.text)
-	this.input.setAttribute('type', 'text')
-	this.input.setAttribute('name', 'custom')
+		"gadgetui-bind",
+		this.element.getAttribute("gadgetui-bind"),
+	);
+	this.label.innerHTML = this.text;
+	this.input.setAttribute("placeholder", this.newOption.text);
+	this.input.setAttribute("type", "text");
+	this.input.setAttribute("name", "custom");
 
-	css(this.comboBox, 'opacity', '.0')
-}
+	css(this.comboBox, "opacity", ".0");
+};
 
 ComboBox.prototype.addCSS = function () {
-	var css = gadgetui.util.setStyle
-	gadgetui.util.addClass(this.element, 'gadgetui-combobox-select')
-	css(this.element, 'width', this.width)
-	css(this.element, 'border', 0)
-	css(this.element, 'display', 'inline')
-	css(this.comboBox, 'position', 'relative')
+	var css = gadgetui.util.setStyle;
+	this.element.classList.add("gadgetui-combobox-select");
+	css(this.element, "width", this.width);
+	css(this.element, "border", 0);
+	css(this.element, "display", "inline");
+	css(this.comboBox, "position", "relative");
 
 	var styles = gadgetui.util.getStyle(this.element),
 		inputWidth = this.element.clientWidth,
@@ -2121,337 +2146,326 @@ ComboBox.prototype.addCSS = function () {
 		leftOffset = 0,
 		inputWrapperTop = this.borderWidth,
 		inputLeftMargin,
-		leftPosition
+		leftPosition;
 
-	leftPosition = gadgetui.util.getNumberValue(this.borderWidth) + 4
+	leftPosition = gadgetui.util.getNumberValue(this.borderWidth) + 4;
 
 	if (this.borderRadius > 5) {
-		selectLeftPadding = this.borderRadius - 5
+		selectLeftPadding = this.borderRadius - 5;
 		leftPosition =
 			gadgetui.util.getNumberValue(leftPosition) +
-			gadgetui.util.getNumberValue(selectLeftPadding)
+			gadgetui.util.getNumberValue(selectLeftPadding);
 	}
-	inputLeftMargin = leftPosition
+	inputLeftMargin = leftPosition;
 	inputWidthAdjusted =
 		inputWidth -
 		this.arrowWidth -
 		gadgetui.util.getNumberValue(this.borderRadius) -
-		4
-	console.log(navigator.userAgent)
+		4;
+	console.log(navigator.userAgent);
 	if (
 		navigator.userAgent.match(/(Safari)/) &&
 		!navigator.userAgent.match(/(Chrome)/)
 	) {
-		inputWrapperTop = this.borderWidth - 2
-		selectLeftPadding = selectLeftPadding < 4 ? 4 : this.borderRadius - 1
-		selectMarginTop = 1
+		inputWrapperTop = this.borderWidth - 2;
+		selectLeftPadding = selectLeftPadding < 4 ? 4 : this.borderRadius - 1;
+		selectMarginTop = 1;
 	} else if (navigator.userAgent.match(/Edge/)) {
-		selectLeftPadding = selectLeftPadding < 1 ? 1 : this.borderRadius - 4
-		inputLeftMargin--
+		selectLeftPadding = selectLeftPadding < 1 ? 1 : this.borderRadius - 4;
+		inputLeftMargin--;
 	} else if (navigator.userAgent.match(/MSIE/)) {
-		selectLeftPadding = selectLeftPadding < 1 ? 1 : this.borderRadius - 4
+		selectLeftPadding = selectLeftPadding < 1 ? 1 : this.borderRadius - 4;
 	} else if (navigator.userAgent.match(/Trident/)) {
-		selectLeftPadding = selectLeftPadding < 2 ? 2 : this.borderRadius - 3
+		selectLeftPadding = selectLeftPadding < 2 ? 2 : this.borderRadius - 3;
 	} else if (navigator.userAgent.match(/Chrome/)) {
-		selectLeftPadding = selectLeftPadding < 4 ? 4 : this.borderRadius - 1
-		selectMarginTop = 1
+		selectLeftPadding = selectLeftPadding < 4 ? 4 : this.borderRadius - 1;
+		selectMarginTop = 1;
 	}
 
-	css(this.element, 'margin-top', selectMarginTop)
-	css(this.element, 'padding-left', selectLeftPadding)
-	css(this.inputWrapper, 'top', inputWrapperTop)
-	css(this.inputWrapper, 'left', leftOffset)
-	css(this.input, 'width', inputWidthAdjusted)
-	css(this.input, 'font-size', styles.fontSize)
-	css(this.comboBox, 'font-size', styles.fontSize)
-	css(this.label, 'left', leftPosition)
-	css(this.label, 'font-family', styles.fontFamily)
-	css(this.label, 'font-size', styles.fontSize)
-	css(this.label, 'font-weight', styles.fontWeight)
+	css(this.element, "margin-top", selectMarginTop);
+	css(this.element, "padding-left", selectLeftPadding);
+	css(this.inputWrapper, "top", inputWrapperTop);
+	css(this.inputWrapper, "left", leftOffset);
+	css(this.input, "width", inputWidthAdjusted);
+	css(this.input, "font-size", styles.fontSize);
+	css(this.comboBox, "font-size", styles.fontSize);
+	css(this.label, "left", leftPosition);
+	css(this.label, "font-family", styles.fontFamily);
+	css(this.label, "font-size", styles.fontSize);
+	css(this.label, "font-weight", styles.fontWeight);
 
 	if (navigator.userAgent.match(/Firefox/)) {
 		if (this.scaleIconHeight === true) {
 			css(
 				this.selectWrapper,
-				'background-size',
-				this.arrowWidth + 'px ' + inputHeight + 'px'
-			)
+				"background-size",
+				this.arrowWidth + "px " + inputHeight + "px",
+			);
 		}
 	}
-	css(this.element, '-webkit-appearance', 'none')
-	css(this.element, '-moz-appearance', 'window')
+	css(this.element, "-webkit-appearance", "none");
+	css(this.element, "-moz-appearance", "window");
 
 	if (this.scaleIconHeight === true) {
 		css(
 			this.element,
-			'background-size',
-			this.arrowWidth + 'px ' + inputHeight + 'px'
-		)
+			"background-size",
+			this.arrowWidth + "px " + inputHeight + "px",
+		);
 	}
 
-	css(this.comboBox, 'opacity', 1)
+	css(this.comboBox, "opacity", 1);
 
 	if (this.hideable) {
-		css(this.inputWrapper, 'display', 'none')
-		css(this.selectWrapper, 'display', 'none')
+		css(this.inputWrapper, "display", "none");
+		css(this.selectWrapper, "display", "none");
 	} else {
-		css(this.selectWrapper, 'display', 'inline')
-		css(this.label, 'display', 'none')
+		css(this.selectWrapper, "display", "inline");
+		css(this.label, "display", "none");
 		if (this.element.selectedIndex <= 0) {
-			css(this.inputWrapper, 'display', 'inline')
+			css(this.inputWrapper, "display", "inline");
 		}
 	}
-}
+};
 
 ComboBox.prototype.setSelectOptions = function () {
 	var _this = this,
 		id,
 		text,
-		option
+		option;
 
 	while (_this.element.options.length > 0) {
-		_this.element.remove(0)
+		_this.element.remove(0);
 	}
-	option = gadgetui.util.createElement('option')
-	option.value = _this.newOption.id
-	option.text = _this.newOption.text
-	_this.element.add(option)
+	option = gadgetui.util.createElement("option");
+	option.value = _this.newOption.id;
+	option.text = _this.newOption.text;
+	_this.element.add(option);
 
 	this.dataProvider.data.forEach(function (obj) {
-		id = obj.id
-		text = obj.text
+		id = obj.id;
+		text = obj.text;
 		if (text === undefined) {
-			text = id
+			text = id;
 		}
-		option = gadgetui.util.createElement('option')
-		option.value = id
-		option.text = text
-		_this.element.add(option)
-	})
-}
+		option = gadgetui.util.createElement("option");
+		option.value = id;
+		option.text = text;
+		_this.element.add(option);
+	});
+};
 
 ComboBox.prototype.find = function (text) {
-	var ix
+	var ix;
 	for (ix = 0; ix < this.dataProvider.data.length; ix++) {
 		if (this.dataProvider.data[ix].text === text) {
-			return this.dataProvider.data[ix].id
+			return this.dataProvider.data[ix].id;
 		}
 	}
-	return
-}
+	return;
+};
 
 ComboBox.prototype.getText = function (id) {
 	var ix,
-		compId = parseInt(id, 10)
+		compId = parseInt(id, 10);
 	if (isNaN(compId) === true) {
-		compId = id
+		compId = id;
 	}
 	for (ix = 0; ix < this.dataProvider.data.length; ix++) {
 		if (this.dataProvider.data[ix].id === compId) {
-			return this.dataProvider.data[ix].text
+			return this.dataProvider.data[ix].text;
 		}
 	}
-	return
-}
+	return;
+};
 
 ComboBox.prototype.showLabel = function () {
-	var css = gadgetui.util.setStyle
-	css(this.label, 'display', 'inline-block')
-	css(this.selectWrapper, 'display', 'none')
-	css(this.inputWrapper, 'display', 'none')
-}
+	var css = gadgetui.util.setStyle;
+	css(this.label, "display", "inline-block");
+	css(this.selectWrapper, "display", "none");
+	css(this.inputWrapper, "display", "none");
+};
 
 ComboBox.prototype.addBehaviors = function (obj) {
-	var _this = this
+	var _this = this;
 	if (this.hideable) {
 		this.comboBox.addEventListener(this.activate, function () {
 			setTimeout(function () {
-				if (_this.label.style.display != 'none') {
-					console.log('combo mouseenter ')
-					_this.selectWrapper.style.display = 'inline'
-					_this.label.style.display = 'none'
+				if (_this.label.style.display != "none") {
+					console.log("combo mouseenter ");
+					_this.selectWrapper.style.display = "inline";
+					_this.label.style.display = "none";
 					if (_this.element.selectedIndex <= 0) {
-						_this.inputWrapper.style.display = 'inline'
+						_this.inputWrapper.style.display = "inline";
 					}
 				}
-			}, _this.delay)
-		})
-		this.comboBox.addEventListener('mouseleave', function () {
-			console.log('combo mouseleave ')
+			}, _this.delay);
+		});
+		this.comboBox.addEventListener("mouseleave", function () {
+			console.log("combo mouseleave ");
 			if (
 				_this.element != document.activeElement &&
 				_this.input != document.activeElement
 			) {
-				_this.showLabel()
+				_this.showLabel();
 			}
-			if (typeof _this.fireEvent === 'function') {
-				_this.fireEvent('mouseleave')
+			if (typeof _this.fireEvent === "function") {
+				_this.fireEvent("mouseleave");
 			}
-		})
+		});
 	}
-	_this.input.addEventListener('click', function (e) {
-		console.log('input click ')
-		if (typeof _this.fireEvent === 'function') {
-			_this.fireEvent('click')
+	_this.input.addEventListener("click", function (e) {
+		console.log("input click ");
+		if (typeof _this.fireEvent === "function") {
+			_this.fireEvent("click");
 		}
-	})
-	_this.input.addEventListener('keyup', function (event) {
-		console.log('input keyup')
+	});
+	_this.input.addEventListener("keyup", function (event) {
+		console.log("input keyup");
 		if (event.which === 13) {
-			var inputText = gadgetui.util.encode(_this.input.value)
-			_this.handleInput(inputText)
+			var inputText = gadgetui.util.encode(_this.input.value);
+			_this.handleInput(inputText);
 		}
-		if (typeof _this.fireEvent === 'function') {
-			_this.fireEvent('keyup')
+		if (typeof _this.fireEvent === "function") {
+			_this.fireEvent("keyup");
 		}
-	})
+	});
 	if (this.hideable) {
-		_this.input.addEventListener('blur', function () {
-			console.log('input blur')
+		_this.input.addEventListener("blur", function () {
+			console.log("input blur");
 			if (
-				gadgetui.util.mouseWithin(
-					_this.element,
-					gadgetui.mousePosition
-				) === true
+				gadgetui.util.mouseWithin(_this.element, gadgetui.mousePosition) ===
+				true
 			) {
-				_this.inputWrapper.style.display = 'none'
-				_this.element.focus()
+				_this.inputWrapper.style.display = "none";
+				_this.element.focus();
 			} else {
-				_this.showLabel()
+				_this.showLabel();
 			}
-			if (typeof _this.fireEvent === 'function') {
-				_this.fireEvent('blur')
+			if (typeof _this.fireEvent === "function") {
+				_this.fireEvent("blur");
 			}
-		})
+		});
 	}
 	if (this.hideable) {
-		this.element.addEventListener('mouseenter', function (ev) {
-			_this.element.style.display = 'inline'
-			if (typeof _this.fireEvent === 'function') {
-				_this.fireEvent('mouseenter')
+		this.element.addEventListener("mouseenter", function (ev) {
+			_this.element.style.display = "inline";
+			if (typeof _this.fireEvent === "function") {
+				_this.fireEvent("mouseenter");
 			}
-		})
+		});
 	}
-	this.element.addEventListener('click', function (ev) {
-		console.log('select click')
-		ev.stopPropagation()
-		if (typeof _this.fireEvent === 'function') {
-			_this.fireEvent('click')
+	this.element.addEventListener("click", function (ev) {
+		console.log("select click");
+		ev.stopPropagation();
+		if (typeof _this.fireEvent === "function") {
+			_this.fireEvent("click");
 		}
-	})
-	this.element.addEventListener('change', function (event) {
-		var idx =
-			event.target.selectedIndex >= 0 ? event.target.selectedIndex : 0
+	});
+	this.element.addEventListener("change", function (event) {
+		var idx = event.target.selectedIndex >= 0 ? event.target.selectedIndex : 0;
 		if (parseInt(event.target[idx].value, 10) !== parseInt(_this.id, 10)) {
-			console.log('select change')
+			console.log("select change");
 			if (event.target.selectedIndex > 0) {
-				_this.inputWrapper.style.display = 'none'
-				_this.setValue(event.target[event.target.selectedIndex].value)
+				_this.inputWrapper.style.display = "none";
+				_this.setValue(event.target[event.target.selectedIndex].value);
 			} else {
-				_this.inputWrapper.style.display = 'block'
-				_this.setValue(_this.newOption.value)
-				_this.input.focus()
+				_this.inputWrapper.style.display = "block";
+				_this.setValue(_this.newOption.value);
+				_this.input.focus();
 			}
-			gadgetui.util.trigger(_this.element, 'gadgetui-combobox-change', {
+			gadgetui.util.trigger(_this.element, "gadgetui-combobox-change", {
 				id: event.target[event.target.selectedIndex].value,
 				text: event.target[event.target.selectedIndex].innerHTML,
-			})
-			if (typeof _this.fireEvent === 'function') {
-				_this.fireEvent('change')
+			});
+			if (typeof _this.fireEvent === "function") {
+				_this.fireEvent("change");
 			}
 		}
-	})
+	});
 	if (this.hideable) {
-		this.element.addEventListener('blur', function (event) {
-			console.log('select blur ')
-			event.stopPropagation()
+		this.element.addEventListener("blur", function (event) {
+			console.log("select blur ");
+			event.stopPropagation();
 			setTimeout(function () {
 				if (_this.input !== document.activeElement) {
-					_this.showLabel()
+					_this.showLabel();
 				}
-			}, 200)
-			if (typeof _this.fireEvent === 'function') {
-				_this.fireEvent('blur')
+			}, 200);
+			if (typeof _this.fireEvent === "function") {
+				_this.fireEvent("blur");
 			}
-		})
+		});
 	}
-}
+};
 
 ComboBox.prototype.handleInput = function (inputText) {
 	var id = this.find(inputText),
-		css = gadgetui.util.setStyle
+		css = gadgetui.util.setStyle;
 	if (id !== undefined) {
-		this.element.value = id
-		this.label.innerText = inputText
-		this.element.focus()
-		this.input.value = ''
-		css(this.inputWrapper, 'display', 'none')
+		this.element.value = id;
+		this.label.innerText = inputText;
+		this.element.focus();
+		this.input.value = "";
+		css(this.inputWrapper, "display", "none");
 	} else if (id === undefined && inputText.length > 0) {
-		this.save(inputText)
+		this.save(inputText);
 	}
-}
+};
 
 ComboBox.prototype.triggerSelectChange = function () {
-	console.log('select change')
-	var ev = new Event('change', {
+	console.log("select change");
+	var ev = new Event("change", {
 		view: window,
 		bubbles: true,
 		cancelable: true,
-	})
-	this.element.dispatchEvent(ev)
-}
+	});
+	this.element.dispatchEvent(ev);
+};
 
 ComboBox.prototype.setSaveFunc = function () {
-	var _this = this
+	var _this = this;
 
 	if (this.save !== undefined) {
-		var save = this.save
+		var save = this.save;
 		this.save = function (text) {
 			var _this = this,
 				func,
 				promise,
 				args = [text],
-				value = this.find(text)
+				value = this.find(text);
 			if (value === undefined) {
-				console.log('save: ' + text)
+				console.log("save: " + text);
 
 				promise = new Promise(function (resolve, reject) {
-					args.push(resolve)
-					args.push(reject)
-					func = save.apply(_this, args)
-					console.log(func)
-				})
+					args.push(resolve);
+					args.push(reject);
+					func = save.apply(_this, args);
+					console.log(func);
+				});
 				promise.then(function (value) {
 					function callback() {
-						gadgetui.util.trigger(
-							_this.element,
-							'gadgetui-combobox-save',
-							{
-								id: value,
-								text: text,
-							}
-						)
-						_this.input.value = ''
-						_this.inputWrapper.style.display = 'none'
-						_this.id = value
-						_this.dataProvider.refresh()
+						gadgetui.util.trigger(_this.element, "gadgetui-combobox-save", {
+							id: value,
+							text: text,
+						});
+						_this.input.value = "";
+						_this.inputWrapper.style.display = "none";
+						_this.id = value;
+						_this.dataProvider.refresh();
 					}
-					if (
-						_this.animate === true &&
-						typeof Velocity !== 'undefined'
-					) {
+					if (_this.animate === true && typeof Velocity !== "undefined") {
 						Velocity(
 							_this.selectWrapper,
 							{
-								boxShadow: '0 0 15px ' + _this.glowColor,
+								boxShadow: "0 0 15px " + _this.glowColor,
 								borderColor: _this.glowColor,
 							},
 							_this.animateDelay / 2,
 							function () {
-								_this.selectWrapper.style.borderColor =
-									_this.glowColor
-							}
-						)
+								_this.selectWrapper.style.borderColor = _this.glowColor;
+							},
+						);
 						Velocity(
 							_this.selectWrapper,
 							{
@@ -2459,144 +2473,139 @@ ComboBox.prototype.setSaveFunc = function () {
 								borderColor: _this.borderColor,
 							},
 							_this.animateDelay / 2,
-							callback
-						)
+							callback,
+						);
 					} else {
-						callback()
+						callback();
 					}
-				})
-				promise['catch'](function (message) {
-					_this.input.value = ''
-					_this.inputWrapper.hide()
-					console.log(message)
-					_this.dataProvider.refresh()
-				})
+				});
+				promise["catch"](function (message) {
+					_this.input.value = "";
+					_this.inputWrapper.hide();
+					console.log(message);
+					_this.dataProvider.refresh();
+				});
 			}
-			return func
-		}
+			return func;
+		};
 	}
-}
+};
 
 ComboBox.prototype.setStartingValues = function () {
 	this.dataProvider.data === undefined
 		? this.dataProvider.refresh()
-		: this.setControls()
-}
+		: this.setControls();
+};
 
 ComboBox.prototype.setControls = function () {
-	console.log(this)
-	this.setSelectOptions()
-	this.setValue(this.id)
-	this.triggerSelectChange()
-}
+	console.log(this);
+	this.setSelectOptions();
+	this.setValue(this.id);
+	this.triggerSelectChange();
+};
 
 ComboBox.prototype.setValue = function (id) {
-	var text = this.getText(id)
-	console.log('setting id:' + id)
-	this.id = text === undefined ? this.newOption.id : id
-	text = text === undefined ? this.newOption.text : text
-	this.text = text
-	this.label.innerText = this.text
-	this.element.value = this.id
-}
+	var text = this.getText(id);
+	console.log("setting id:" + id);
+	this.id = text === undefined ? this.newOption.id : id;
+	text = text === undefined ? this.newOption.text : text;
+	this.text = text;
+	this.label.innerText = this.text;
+	this.element.value = this.id;
+};
 
 ComboBox.prototype.setDataProviderRefresh = function () {
 	var _this = this,
 		promise,
 		refresh = this.dataProvider.refresh,
-		func
+		func;
 	this.dataProvider.refresh = function () {
-		var scope = this
+		var scope = this;
 		if (refresh !== undefined) {
 			promise = new Promise(function (resolve, reject) {
-				var args = [scope, resolve, reject]
-				func = refresh.apply(this, args)
-			})
+				var args = [scope, resolve, reject];
+				func = refresh.apply(this, args);
+			});
 			promise.then(function () {
-				gadgetui.util.trigger(
-					_this.element,
-					'gadgetui-combobox-refresh'
-				)
-				_this.setControls()
-			})
-			promise['catch'](function (message) {
-				console.log('message')
-				_this.setControls()
-			})
+				gadgetui.util.trigger(_this.element, "gadgetui-combobox-refresh");
+				_this.setControls();
+			});
+			promise["catch"](function (message) {
+				console.log("message");
+				_this.setControls();
+			});
 		}
-		return func
-	}
-}
+		return func;
+	};
+};
 
 ComboBox.prototype.config = function (options) {
-	options = options === undefined ? {} : options
-	this.model = options.model === undefined ? this.model : options.model
+	options = options === undefined ? {} : options;
+	this.model = options.model === undefined ? this.model : options.model;
 	this.emitEvents =
-		options.emitEvents === undefined ? true : options.emitEvents
+		options.emitEvents === undefined ? true : options.emitEvents;
 	this.dataProvider =
-		options.dataProvider === undefined ? undefined : options.dataProvider
-	this.save = options.save === undefined ? undefined : options.save
+		options.dataProvider === undefined ? undefined : options.dataProvider;
+	this.save = options.save === undefined ? undefined : options.save;
 	this.activate =
-		options.activate === undefined ? 'mouseenter' : options.activate
-	this.delay = options.delay === undefined ? 10 : options.delay
-	this.borderWidth = gadgetui.util.getStyle(this.element, 'border-width') || 1
+		options.activate === undefined ? "mouseenter" : options.activate;
+	this.delay = options.delay === undefined ? 10 : options.delay;
+	this.borderWidth = gadgetui.util.getStyle(this.element, "border-width") || 1;
 	this.borderRadius =
-		gadgetui.util.getStyle(this.element, 'border-radius') || 5
+		gadgetui.util.getStyle(this.element, "border-radius") || 5;
 	this.borderColor =
-		gadgetui.util.getStyle(this.element, 'border-color') || 'silver'
-	this.arrowWidth = options.arrowWidth || 25
-	this.width = options.width === undefined ? 150 : options.width
+		gadgetui.util.getStyle(this.element, "border-color") || "silver";
+	this.arrowWidth = options.arrowWidth || 25;
+	this.width = options.width === undefined ? 150 : options.width;
 	this.newOption =
 		options.newOption === undefined
-			? { text: '...', id: 0 }
-			: options.newOption
-	this.id = options.id === undefined ? this.newOption.id : options.id
+			? { text: "...", id: 0 }
+			: options.newOption;
+	this.id = options.id === undefined ? this.newOption.id : options.id;
 	this.scaleIconHeight =
-		options.scaleIconHeight === undefined ? false : options.scaleIconHeight
-	this.animate = options.animate === undefined ? true : options.animate
+		options.scaleIconHeight === undefined ? false : options.scaleIconHeight;
+	this.animate = options.animate === undefined ? true : options.animate;
 	this.glowColor =
-		options.glowColor === undefined
-			? 'rgb(82, 168, 236)'
-			: options.glowColor
+		options.glowColor === undefined ? "rgb(82, 168, 236)" : options.glowColor;
 	this.animateDelay =
-		options.animateDelay === undefined ? 500 : options.animateDelay
+		options.animateDelay === undefined ? 500 : options.animateDelay;
 	this.border =
-		this.borderWidth + 'px ' + this.borderStyle + ' ' + this.borderColor
+		this.borderWidth + "px " + this.borderStyle + " " + this.borderColor;
 	this.saveBorder =
-		this.borderWidth + 'px ' + this.borderStyle + ' ' + this.glowColor
-	this.hideable = options.hideable || false
-}
+		this.borderWidth + "px " + this.borderStyle + " " + this.glowColor;
+	this.hideable = options.hideable || false;
+};
 
 // Author: Robert Munn <robertdmunn@gmail.com>
 
 function FileUploader(element, options = {}) {
-	this.element = element
-	this.droppedFiles = []
-	this.configure(options)
-	this.render(options.title)
-	this.setEventHandlers()
-	this.setDimensions()
-	this.token = this.useTokens && sessionStorage ? sessionStorage.token : null
+	this.element = element;
+	this.droppedFiles = [];
+	this.configure(options);
+	this.render(options.title);
+	this.setEventHandlers();
+	this.setDimensions();
+	this.token = this.useTokens && sessionStorage ? sessionStorage.token : null;
 }
 
 FileUploader.prototype.events = [
-	'uploadComplete',
-	'uploadStart',
-	'show',
-	'dragover',
-	'dragstart',
-	'dragenter',
-	'dragleave',
-	'drop',
-]
+	"uploadComplete",
+	"uploadStart",
+	"show",
+	"dragover",
+	"dragstart",
+	"dragenter",
+	"dragleave",
+	"drop",
+];
 
-FileUploader.prototype.render = function (title = '') {
-	const css = gadgetui.util.setStyle
+FileUploader.prototype.render = function (title = "") {
+	const css = gadgetui.util.setStyle;
 	const uploadClass =
-		`gadgetui-fileuploader-uploadIcon ${this.uploadClass || ''}`.trim()
-	const icon = this.uploadIcon.includes('.svg')
+		`gadgetui-fileuploader-uploadIcon ${this.uploadClass || ""}`.trim();
+	const icon = this.uploadIcon.includes(".svg")
 		? `<svg name="gadgetui-fileuploader-uploadIcon" class="${uploadClass}"><use xlink:href="${this.uploadIcon}"/></svg>`
-		: `<img name="gadgetui-fileuploader-uploadIcon" class="${uploadClass}" src="${this.uploadIcon}">`
+		: `<img name="gadgetui-fileuploader-uploadIcon" class="${uploadClass}" src="${this.uploadIcon}">`;
 
 	this.element.innerHTML = `
     <div class="gadgetui-fileuploader-wrapper">
@@ -2610,264 +2619,262 @@ FileUploader.prototype.render = function (title = '') {
         </div>
       </div>
     </div>
-  `.trim()
+  `.trim();
 
 	if (!this.showUploadButton)
 		css(
 			this.element.querySelector(
-				'input[name="gadgetui-fileuploader-fileselect"]'
+				'input[name="gadgetui-fileuploader-fileselect"]',
 			),
-			'display',
-			'none'
-		)
+			"display",
+			"none",
+		);
 	if (!this.showDropZone)
 		css(
-			this.element.querySelector(
-				'div[name="gadgetui-fileuploader-dropzone"]'
-			),
-			'display',
-			'none'
-		)
+			this.element.querySelector('div[name="gadgetui-fileuploader-dropzone"]'),
+			"display",
+			"none",
+		);
 	if (!this.showUploadIcon) {
 		const iconSelector = this.element.querySelector(
-			'[name="gadgetui-fileuploader-uploadIcon"]'
-		)
-		if (iconSelector) css(iconSelector, 'display', 'none')
+			'[name="gadgetui-fileuploader-uploadIcon"]',
+		);
+		if (iconSelector) css(iconSelector, "display", "none");
 	}
 
-	this.renderDropZone()
-}
+	this.renderDropZone();
+};
 
 FileUploader.prototype.configure = function (options) {
-	this.message = options.message
-	this.tags = options.tags || ''
-	this.uploadURI = options.uploadURI
-	this.onUploadComplete = options.onUploadComplete
-	this.willGenerateThumbnails = options.willGenerateThumbnails ?? false
-	this.showUploadButton = options.showUploadButton ?? true
-	this.showDropZone = options.showDropZone ?? true
+	this.message = options.message;
+	this.tags = options.tags || "";
+	this.uploadURI = options.uploadURI;
+	this.onUploadComplete = options.onUploadComplete;
+	this.willGenerateThumbnails = options.willGenerateThumbnails ?? false;
+	this.showUploadButton = options.showUploadButton ?? true;
+	this.showDropZone = options.showDropZone ?? true;
 	this.uploadIcon =
 		options.uploadIcon ||
-		'/node_modules/feather-icons/dist/feather-sprite.svg#image'
-	this.uploadClass = options.uploadClass || ''
-	this.showUploadIcon = !!(options.uploadIcon && options.showUploadIcon)
-	this.addFileMessage = options.addFileMessage || 'Add a File'
-	this.dropMessage = options.dropMessage || 'Drop Files Here'
-	this.uploadErrorMessage = options.uploadErrorMessage || 'Upload error.'
-	this.useTokens = options.useTokens ?? false
-	this.tokenType = options.tokenType ?? 'access_token' // old default is 'X-Token' for backward compatibility
-}
+		"/node_modules/feather-icons/dist/feather-sprite.svg#image";
+	this.uploadClass = options.uploadClass || "";
+	this.showUploadIcon = !!(options.uploadIcon && options.showUploadIcon);
+	this.addFileMessage = options.addFileMessage || "Add a File";
+	this.dropMessage = options.dropMessage || "Drop Files Here";
+	this.uploadErrorMessage = options.uploadErrorMessage || "Upload error.";
+	this.useTokens = options.useTokens ?? false;
+	this.tokenType = options.tokenType ?? "access_token"; // old default is 'X-Token' for backward compatibility
+};
 
 FileUploader.prototype.setDimensions = function () {
-	const css = gadgetui.util.setStyle
+	const css = gadgetui.util.setStyle;
 	const dropzone = this.element.querySelector(
-		'.gadgetui-fileuploader-dropzone'
-	)
+		".gadgetui-fileuploader-dropzone",
+	);
 	const filedisplay = this.element.querySelector(
-		'.gadgetui-fileuploader-filedisplay'
-	)
-	const buttons = this.element.querySelector('.buttons')
+		".gadgetui-fileuploader-filedisplay",
+	);
+	const buttons = this.element.querySelector(".buttons");
 	// Height and width calculations could be added here if needed
-}
+};
 
 FileUploader.prototype.setEventHandlers = function () {
 	this.element
 		.querySelector('input[name="gadgetui-fileuploader-fileselect"]')
-		.addEventListener('change', (evt) => {
+		.addEventListener("change", (evt) => {
 			const dropzone = this.element.querySelector(
-				'div[name="gadgetui-fileuploader-dropzone"]'
-			)
+				'div[name="gadgetui-fileuploader-dropzone"]',
+			);
 			const filedisplay = this.element.querySelector(
-				'div[name="gadgetui-fileuploader-filedisplay"]'
-			)
-			this.processUpload(evt, evt.target.files, dropzone, filedisplay)
-		})
-}
+				'div[name="gadgetui-fileuploader-filedisplay"]',
+			);
+			this.processUpload(evt, evt.target.files, dropzone, filedisplay);
+		});
+};
 
 FileUploader.prototype.renderDropZone = function () {
 	const dropzone = this.element.querySelector(
-		'div[name="gadgetui-fileuploader-dropzone"]'
-	)
+		'div[name="gadgetui-fileuploader-dropzone"]',
+	);
 	const filedisplay = this.element.querySelector(
-		'div[name="gadgetui-fileuploader-filedisplay"]'
-	)
+		'div[name="gadgetui-fileuploader-filedisplay"]',
+	);
 
-	this.element.addEventListener('dragstart', (ev) => {
-		ev.dataTransfer.setData('text', 'data')
-		ev.dataTransfer.effectAllowed = 'copy'
-		if (typeof this.fireEvent === 'function') this.fireEvent('dragstart')
-	})
+	this.element.addEventListener("dragstart", (ev) => {
+		ev.dataTransfer.setData("text", "data");
+		ev.dataTransfer.effectAllowed = "copy";
+		if (typeof this.fireEvent === "function") this.fireEvent("dragstart");
+	});
 
-	dropzone.addEventListener('dragenter', (ev) => {
-		ev.preventDefault()
-		ev.stopPropagation()
-		gadgetui.util.addClass(dropzone, 'highlighted')
-		if (typeof this.fireEvent === 'function') this.fireEvent('dragenter')
-	})
+	dropzone.addEventListener("dragenter", (ev) => {
+		ev.preventDefault();
+		ev.stopPropagation();
+		dropzone.classList.add("highlighted");
+		if (typeof this.fireEvent === "function") this.fireEvent("dragenter");
+	});
 
-	dropzone.addEventListener('dragleave', (ev) => {
-		ev.preventDefault()
-		ev.stopPropagation()
-		gadgetui.util.removeClass(dropzone, 'highlighted')
-		if (typeof this.fireEvent === 'function') this.fireEvent('dragleave')
-	})
+	dropzone.addEventListener("dragleave", (ev) => {
+		ev.preventDefault();
+		ev.stopPropagation();
+		dropzone.classList.remove("highlighted");
+		if (typeof this.fireEvent === "function") this.fireEvent("dragleave");
+	});
 
-	dropzone.addEventListener('dragover', (ev) => {
-		this.handleDragOver(ev)
-		ev.dataTransfer.dropEffect = 'copy'
-		if (typeof this.fireEvent === 'function') this.fireEvent('dragover')
-	})
+	dropzone.addEventListener("dragover", (ev) => {
+		this.handleDragOver(ev);
+		ev.dataTransfer.dropEffect = "copy";
+		if (typeof this.fireEvent === "function") this.fireEvent("dragover");
+	});
 
-	dropzone.addEventListener('drop', (ev) => {
-		ev.preventDefault()
-		ev.stopPropagation()
-		if (typeof this.fireEvent === 'function') this.fireEvent('drop')
-		this.processUpload(ev, ev.dataTransfer.files, dropzone, filedisplay)
-	})
-}
+	dropzone.addEventListener("drop", (ev) => {
+		ev.preventDefault();
+		ev.stopPropagation();
+		if (typeof this.fireEvent === "function") this.fireEvent("drop");
+		this.processUpload(ev, ev.dataTransfer.files, dropzone, filedisplay);
+	});
+};
 
 FileUploader.prototype.processUpload = function (
 	event,
 	files,
 	dropzone,
-	filedisplay
+	filedisplay,
 ) {
-	const css = gadgetui.util.setStyle
-	this.uploadingFiles = []
-	css(filedisplay, 'display', 'inline')
+	const css = gadgetui.util.setStyle;
+	this.uploadingFiles = [];
+	css(filedisplay, "display", "inline");
 
 	Array.from(files).forEach((file) => {
 		const wrappedFile = gadgetui.objects.Constructor(
 			gadgetui.display.FileUploadWrapper,
-			[file, filedisplay, true]
-		)
-		this.uploadingFiles.push(wrappedFile)
-		wrappedFile.on('uploadComplete', (fileWrapper) => {
+			[file, filedisplay, true],
+		);
+		this.uploadingFiles.push(wrappedFile);
+		wrappedFile.on("uploadComplete", (fileWrapper) => {
 			const index = this.uploadingFiles.findIndex(
-				(f) => f.id === fileWrapper.id
-			)
-			if (index !== -1) this.uploadingFiles.splice(index, 1)
+				(f) => f.id === fileWrapper.id,
+			);
+			if (index !== -1) this.uploadingFiles.splice(index, 1);
 			if (!this.uploadingFiles.length) {
-				if (this.showDropZone) this.show('dropzone')
-				this.setDimensions()
+				if (this.showDropZone) this.show("dropzone");
+				this.setDimensions();
 			}
-			if (typeof this.fireEvent === 'function')
-				this.fireEvent('uploadComplete')
-		})
-	})
+			if (typeof this.fireEvent === "function")
+				this.fireEvent("uploadComplete");
+		});
+	});
 
-	gadgetui.util.removeClass(dropzone, 'highlighted')
-	this.handleFileSelect(this.uploadingFiles, event)
-}
+	dropzone.classList.remove("highlighted");
+	this.handleFileSelect(this.uploadingFiles, event);
+};
 
 FileUploader.prototype.handleFileSelect = function (wrappedFiles, evt) {
-	evt.preventDefault()
-	evt.stopPropagation()
+	evt.preventDefault();
+	evt.stopPropagation();
 	this.willGenerateThumbnails
 		? this.generateThumbnails(wrappedFiles)
-		: this.upload(wrappedFiles)
-}
+		: this.upload(wrappedFiles);
+};
 
 FileUploader.prototype.generateThumbnails = function (wrappedFiles) {
-	this.upload(wrappedFiles) // Placeholder for future thumbnail generation
-}
+	this.upload(wrappedFiles); // Placeholder for future thumbnail generation
+};
 
 FileUploader.prototype.upload = function (wrappedFiles) {
 	wrappedFiles.forEach((wrappedFile) => {
-		if (typeof this.fireEvent === 'function') this.fireEvent('uploadStart')
-		wrappedFile.progressbar.start()
-	})
-	this.uploadFile(wrappedFiles)
-}
+		if (typeof this.fireEvent === "function") this.fireEvent("uploadStart");
+		wrappedFile.progressbar.start();
+	});
+	this.uploadFile(wrappedFiles);
+};
 
 FileUploader.prototype.uploadFile = function (wrappedFiles) {
 	wrappedFiles.forEach((wrappedFile) => {
-		const blob = wrappedFile.file
-		const BYTES_PER_CHUNK = 1024 * 1024 // 1MB chunks
-		const parts = Math.ceil(blob.size / BYTES_PER_CHUNK)
-		const chunks = []
-		let start = 0
+		const blob = wrappedFile.file;
+		const BYTES_PER_CHUNK = 1024 * 1024; // 1MB chunks
+		const parts = Math.ceil(blob.size / BYTES_PER_CHUNK);
+		const chunks = [];
+		let start = 0;
 
 		while (start < blob.size) {
-			const end = Math.min(start + BYTES_PER_CHUNK, blob.size)
-			chunks.push(blob.slice(start, end)) // Modern slice method
-			start = end
+			const end = Math.min(start + BYTES_PER_CHUNK, blob.size);
+			chunks.push(blob.slice(start, end)); // Modern slice method
+			start = end;
 		}
 
-		this.uploadChunk(wrappedFile, chunks, 1, parts)
-	})
-}
+		this.uploadChunk(wrappedFile, chunks, 1, parts);
+	});
+};
 
 FileUploader.prototype.uploadChunk = function (
 	wrappedFile,
 	chunks,
 	filepart,
-	parts
+	parts,
 ) {
-	const xhr = new XMLHttpRequest()
-	const tags = this.tags
+	const xhr = new XMLHttpRequest();
+	const tags = this.tags;
 
 	xhr.onreadystatechange = () => {
-		if (xhr.readyState !== 4) return
+		if (xhr.readyState !== 4) return;
 
 		if (xhr.status !== 200) {
-			this.handleUploadError(xhr, {}, wrappedFile)
+			this.handleUploadError(xhr, {}, wrappedFile);
 		} else {
 			if (this.useTokens && sessionStorage) {
-				if (this.tokenType === 'X-Token') {
-					this.token = xhr.getResponseHeader('X-Token')
+				if (this.tokenType === "X-Token") {
+					this.token = xhr.getResponseHeader("X-Token");
 				} else {
-					this.token = xhr.getResponseHeader('access_token')
+					this.token = xhr.getResponseHeader("access_token");
 				}
 
-				sessionStorage.token = this.token
+				sessionStorage.token = this.token;
 			}
 
 			if (filepart <= parts) {
 				wrappedFile.progressbar.updatePercent(
-					Math.round((filepart / parts) * 100)
-				)
+					Math.round((filepart / parts) * 100),
+				);
 			}
 
 			if (filepart < parts) {
-				wrappedFile.id = xhr.getResponseHeader('X-Id')
-				this.uploadChunk(wrappedFile, chunks, filepart + 1, parts)
+				wrappedFile.id = xhr.getResponseHeader("X-Id");
+				this.uploadChunk(wrappedFile, chunks, filepart + 1, parts);
 			} else {
-				let json
+				let json;
 				try {
-					json = { data: JSON.parse(xhr.response) }
+					json = { data: JSON.parse(xhr.response) };
 				} catch (e) {
-					json = {}
-					this.handleUploadError(xhr, json, wrappedFile)
-					return
+					json = {};
+					this.handleUploadError(xhr, json, wrappedFile);
+					return;
 				}
-				if (json.data) this.handleUploadResponse(json, wrappedFile)
-				else this.handleUploadError(xhr, json, wrappedFile)
+				if (json.data) this.handleUploadResponse(json, wrappedFile);
+				else this.handleUploadError(xhr, json, wrappedFile);
 			}
 		}
-	}
+	};
 
-	xhr.open('POST', this.uploadURI, true)
-	xhr.setRequestHeader('X-Tags', tags)
-	xhr.setRequestHeader('X-Id', wrappedFile.id || '')
-	xhr.setRequestHeader('X-FileName', wrappedFile.file.name)
-	xhr.setRequestHeader('X-FileSize', wrappedFile.file.size)
-	xhr.setRequestHeader('X-FilePart', filepart)
-	xhr.setRequestHeader('X-Parts', parts)
+	xhr.open("POST", this.uploadURI, true);
+	xhr.setRequestHeader("X-Tags", tags);
+	xhr.setRequestHeader("X-Id", wrappedFile.id || "");
+	xhr.setRequestHeader("X-FileName", wrappedFile.file.name);
+	xhr.setRequestHeader("X-FileSize", wrappedFile.file.size);
+	xhr.setRequestHeader("X-FilePart", filepart);
+	xhr.setRequestHeader("X-Parts", parts);
 	if (this.useTokens && this.token)
-		if (this.tokenType === 'X-Token') {
-			xhr.setRequestHeader('X-Token', this.token)
+		if (this.tokenType === "X-Token") {
+			xhr.setRequestHeader("X-Token", this.token);
 		} else {
-			xhr.setRequestHeader('Authorization', 'Bearer ' + this.token)
+			xhr.setRequestHeader("Authorization", "Bearer " + this.token);
 		}
 	xhr.setRequestHeader(
-		'X-MimeType',
-		wrappedFile.file.type || 'application/octet-stream'
-	)
-	xhr.setRequestHeader('X-HasTile', !!wrappedFile.tile?.length)
-	xhr.setRequestHeader('Content-Type', 'application/octet-stream')
-	xhr.send(chunks[filepart - 1])
-}
+		"X-MimeType",
+		wrappedFile.file.type || "application/octet-stream",
+	);
+	xhr.setRequestHeader("X-HasTile", !!wrappedFile.tile?.length);
+	xhr.setRequestHeader("Content-Type", "application/octet-stream");
+	xhr.send(chunks[filepart - 1]);
+};
 
 FileUploader.prototype.handleUploadResponse = function (json, wrappedFile) {
 	const fileItem = gadgetui.objects.Constructor(
@@ -2885,41 +2892,41 @@ FileUploader.prototype.handleUploadResponse = function (json, wrappedFile) {
 				path: json.data.path,
 			},
 		],
-		false
-	)
+		false,
+	);
 
-	wrappedFile.completeUpload(fileItem)
-	if (this.onUploadComplete) this.onUploadComplete(fileItem)
-}
+	wrappedFile.completeUpload(fileItem);
+	if (this.onUploadComplete) this.onUploadComplete(fileItem);
+};
 
 FileUploader.prototype.handleUploadError = function (xhr, json, wrappedFile) {
-	wrappedFile.progressbar.progressbox.innerText = this.uploadErrorMessage
-	wrappedFile.abortUpload(wrappedFile)
-}
+	wrappedFile.progressbar.progressbox.innerText = this.uploadErrorMessage;
+	wrappedFile.abortUpload(wrappedFile);
+};
 
 FileUploader.prototype.show = function (name) {
-	const css = gadgetui.util.setStyle
+	const css = gadgetui.util.setStyle;
 	const dropzone = this.element.querySelector(
-		'.gadgetui-fileuploader-dropzone'
-	)
+		".gadgetui-fileuploader-dropzone",
+	);
 	const filedisplay = this.element.querySelector(
-		'.gadgetui-fileuploader-filedisplay'
-	)
+		".gadgetui-fileuploader-filedisplay",
+	);
 
-	if (name === 'dropzone') {
-		css(dropzone, 'display', 'table-cell')
-		css(filedisplay, 'display', 'none')
+	if (name === "dropzone") {
+		css(dropzone, "display", "table-cell");
+		css(filedisplay, "display", "none");
 	} else {
-		css(filedisplay, 'display', 'table-cell')
-		css(dropzone, 'display', 'none')
+		css(filedisplay, "display", "table-cell");
+		css(dropzone, "display", "none");
 	}
-}
+};
 
 FileUploader.prototype.handleDragOver = function (evt) {
-	evt.preventDefault()
-	evt.stopPropagation()
-	evt.dataTransfer.dropEffect = 'copy'
-}
+	evt.preventDefault();
+	evt.stopPropagation();
+	evt.dataTransfer.dropEffect = "copy";
+};
 
 // Author: Robert Munn <robertdmunn@gmail.com>
 // Adapted from jQuery UI autocomplete
@@ -3481,336 +3488,316 @@ LookupListInput.prototype.config = function (options) {
 };
 
 function SelectInput(selector, options = {}) {
-	this.selector = selector
-	this.config(options)
-	this.setSelectOptions()
-	this.setInitialValue(options)
-	this.addControl()
-	this.addCSS()
+	this.selector = selector;
+	this.config(options);
+	this.setSelectOptions();
+	this.setInitialValue(options);
+	this.addControl();
+	this.addCSS();
 
-	const css = gadgetui.util.setStyle
+	const css = gadgetui.util.setStyle;
 	if (this.hideable) {
-		css(this.selector, 'display', 'none')
+		css(this.selector, "display", "none");
 	} else {
-		css(this.label, 'display', 'none')
-		css(this.selector, 'display', 'inline-block')
+		css(this.label, "display", "none");
+		css(this.selector, "display", "inline-block");
 	}
 
-	gadgetui.util.bind(this.selector, this.model)
-	gadgetui.util.bind(this.label, this.model)
-	this.addBindings()
+	gadgetui.util.bind(this.selector, this.model);
+	gadgetui.util.bind(this.label, this.model);
+	this.addBindings();
 }
 
 SelectInput.prototype.events = [
-	'change',
-	'focus',
-	'mouseenter',
-	'mouseleave',
-	'blur',
-]
+	"change",
+	"focus",
+	"mouseenter",
+	"mouseleave",
+	"blur",
+];
 
 SelectInput.prototype.setInitialValue = function (options) {
-	const selectedIndex = this.selector.selectedIndex || 0
+	const selectedIndex = this.selector.selectedIndex || 0;
 	this.value = options.value || {
 		id: this.selector.options[selectedIndex].value,
 		text: this.selector.options[selectedIndex].innerHTML,
-	}
-	this.selector.value = this.value.id
-}
+	};
+	this.selector.value = this.value.id;
+};
 
 SelectInput.prototype.addControl = function () {
-	this.wrapper = document.createElement('div')
-	this.label = document.createElement('div')
+	this.wrapper = document.createElement("div");
+	this.label = document.createElement("div");
 
-	gadgetui.util.addClass(this.wrapper, 'gadgetui-selectinput-div')
-	gadgetui.util.addClass(this.label, 'gadgetui-selectinput-label')
+	this.wrapper.classList.add("gadgetui-selectinput-div");
+	this.label.classList.add("gadgetui-selectinput-label");
 	this.label.setAttribute(
-		'gadgetui-bind',
-		this.selector.getAttribute('gadgetui-bind') || ''
-	)
-	this.label.innerHTML = this.value.text
+		"gadgetui-bind",
+		this.selector.getAttribute("gadgetui-bind") || "",
+	);
+	this.label.innerHTML = this.value.text;
 
-	this.selector.parentNode.insertBefore(this.wrapper, this.selector)
-	this.selector.parentNode.removeChild(this.selector)
-	this.wrapper.appendChild(this.selector)
-	this.wrapper.insertBefore(this.label, this.selector)
-}
+	this.selector.parentNode.insertBefore(this.wrapper, this.selector);
+	this.selector.parentNode.removeChild(this.selector);
+	this.wrapper.appendChild(this.selector);
+	this.wrapper.insertBefore(this.label, this.selector);
+};
 
 SelectInput.prototype.setSelectOptions = function () {
-	const bindOptions = this.selector.getAttribute('gadgetui-bind-options')
-	if (!bindOptions && !this.dataProvider) return
+	const bindOptions = this.selector.getAttribute("gadgetui-bind-options");
+	if (!bindOptions && !this.dataProvider) return;
 
-	while (this.selector.options.length > 0) this.selector.remove(0)
+	while (this.selector.options.length > 0) this.selector.remove(0);
 
 	const addOption = (value, text) => {
-		const opt = document.createElement('option')
-		opt.value = value
-		opt.text = text
-		this.selector.add(opt)
-	}
+		const opt = document.createElement("option");
+		opt.value = value;
+		opt.text = text;
+		this.selector.add(opt);
+	};
 
 	if (bindOptions) {
-		const optionsArray = this.model.get(bindOptions)
+		const optionsArray = this.model.get(bindOptions);
 		optionsArray.forEach((item) => {
-			const isObject = typeof item === 'object'
-			addOption(isObject ? item.id : item, isObject ? item.text : item)
-		})
+			const isObject = typeof item === "object";
+			addOption(isObject ? item.id : item, isObject ? item.text : item);
+		});
 	} else if (this.dataProvider) {
 		this.dataProvider.data.forEach((obj) =>
-			addOption(obj.id, obj.text || obj.id)
-		)
+			addOption(obj.id, obj.text || obj.id),
+		);
 	}
-}
+};
 
 SelectInput.prototype.addCSS = function () {
-	const css = gadgetui.util.setStyle
-	const style = gadgetui.util.getStyle(this.selector)
+	const css = gadgetui.util.setStyle;
+	const style = gadgetui.util.getStyle(this.selector);
 	const parentHeight =
 		gadgetui.util.getNumberValue(
-			gadgetui.util.getStyle(this.selector.parentNode).height
-		) - 2
+			gadgetui.util.getStyle(this.selector.parentNode).height,
+		) - 2;
 
-	css(this.selector, 'min-width', '100px')
-	css(this.selector, 'font-size', style.fontSize)
-	css(this.label, 'padding-top', '2px')
-	css(this.label, 'height', `${parentHeight}px`)
-	css(this.label, 'margin-left', '9px')
+	css(this.selector, "min-width", "100px");
+	css(this.selector, "font-size", style.fontSize);
+	css(this.label, "padding-top", "2px");
+	css(this.label, "height", `${parentHeight}px`);
+	css(this.label, "margin-left", "9px");
 
-	const ua = navigator.userAgent
-	if (ua.match(/Edge/)) css(this.selector, 'margin-left', '5px')
+	const ua = navigator.userAgent;
+	if (ua.match(/Edge/)) css(this.selector, "margin-left", "5px");
 	else if (ua.match(/MSIE/)) {
-		css(this.selector, 'margin-top', '0px')
-		css(this.selector, 'margin-left', '5px')
+		css(this.selector, "margin-top", "0px");
+		css(this.selector, "margin-left", "5px");
 	}
-}
+};
 
 SelectInput.prototype.addBindings = function () {
-	const css = gadgetui.util.setStyle
+	const css = gadgetui.util.setStyle;
 
 	if (this.hideable) {
 		this.label.addEventListener(this.activate, (event) => {
-			event.preventDefault()
-			css(this.label, 'display', 'none')
-			css(this.selector, 'display', 'inline-block')
-			if (typeof this.fireEvent === 'function')
-				this.fireEvent(this.activate)
-		})
+			event.preventDefault();
+			css(this.label, "display", "none");
+			css(this.selector, "display", "inline-block");
+			if (typeof this.fireEvent === "function") this.fireEvent(this.activate);
+		});
 
-		this.selector.addEventListener('blur', () => {
-			css(this.label, 'display', 'inline-block')
-			css(this.selector, 'display', 'none')
-			if (typeof this.fireEvent === 'function') this.fireEvent('blur')
-		})
+		this.selector.addEventListener("blur", () => {
+			css(this.label, "display", "inline-block");
+			css(this.selector, "display", "none");
+			if (typeof this.fireEvent === "function") this.fireEvent("blur");
+		});
 
-		this.selector.addEventListener('mouseleave', () => {
+		this.selector.addEventListener("mouseleave", () => {
 			if (this.selector !== document.activeElement) {
-				css(this.label, 'display', 'inline-block')
-				css(this.selector, 'display', 'none')
+				css(this.label, "display", "inline-block");
+				css(this.selector, "display", "none");
 			}
-			if (typeof this.fireEvent === 'function')
-				this.fireEvent('mouseleave')
-		})
+			if (typeof this.fireEvent === "function") this.fireEvent("mouseleave");
+		});
 	}
 
-	this.selector.addEventListener('change', (ev) => {
+	this.selector.addEventListener("change", (ev) => {
 		setTimeout(() => {
-			const value = ev.target.value || '0'
-			const text = ev.target[ev.target.selectedIndex].innerHTML
-			this.label.innerText = text
-			const data = { id: value, text }
+			const value = ev.target.value || "0";
+			const text = ev.target[ev.target.selectedIndex].innerHTML;
+			this.label.innerText = text;
+			const data = { id: value, text };
 
-			if (this.model && !this.selector.getAttribute('gadgetui-bind')) {
-				this.model.set(this.selector.name, data)
+			if (this.model && !this.selector.getAttribute("gadgetui-bind")) {
+				this.model.set(this.selector.name, data);
 			}
 			if (this.emitEvents)
-				gadgetui.util.trigger(
-					this.selector,
-					'gadgetui-input-change',
-					data
-				)
-			if (this.func) this.func(data)
-			this.value = data
-		}, 100)
+				gadgetui.util.trigger(this.selector, "gadgetui-input-change", data);
+			if (this.func) this.func(data);
+			this.value = data;
+		}, 100);
 
-		if (typeof this.fireEvent === 'function') this.fireEvent('change')
-	})
-}
+		if (typeof this.fireEvent === "function") this.fireEvent("change");
+	});
+};
 
 SelectInput.prototype.config = function (options) {
-	this.model = options.model
-	this.dataProvider = options.dataProvider
-	this.func = options.func
-	this.emitEvents = options.emitEvents ?? true
-	this.activate = options.activate || 'mouseenter'
-	this.hideable = options.hideable || false
-}
+	this.model = options.model;
+	this.dataProvider = options.dataProvider;
+	this.func = options.func;
+	this.emitEvents = options.emitEvents ?? true;
+	this.activate = options.activate || "mouseenter";
+	this.hideable = options.hideable || false;
+};
 
 function TextInput(selector, options = {}) {
-	this.emitEvents = true
-	this.model = gadgetui.model
-	this.selector = selector
+	this.emitEvents = true;
+	this.model = gadgetui.model;
+	this.selector = selector;
 
-	this.config(options)
-	this.setInitialValue()
-	this.addControl()
-	this.setLineHeight()
-	this.setFont()
-	this.setWidth()
-	this.addCSS()
-	gadgetui.util.bind(this.selector, this.model)
-	this.addBindings()
+	this.config(options);
+	this.setInitialValue();
+	this.addControl();
+	this.setLineHeight();
+	this.setFont();
+	this.setWidth();
+	this.addCSS();
+	gadgetui.util.bind(this.selector, this.model);
+	this.addBindings();
 }
 
 TextInput.prototype.events = [
-	'change',
-	'focus',
-	'mouseenter',
-	'keyup',
-	'mouseleave',
-	'blur',
-]
+	"change",
+	"focus",
+	"mouseenter",
+	"keyup",
+	"mouseleave",
+	"blur",
+];
 
 TextInput.prototype.addControl = function () {
 	if (this.hideable) {
-		this.blockSize = gadgetui.util.getStyle(this.selector, 'block-size')
-		gadgetui.util.setStyle(this.selector, 'block-size', this.blockSize)
-		this.selector.classList.add(this.browserHideBorderCSS)
+		this.blockSize = gadgetui.util.getStyle(this.selector, "block-size");
+		gadgetui.util.setStyle(this.selector, "block-size", this.blockSize);
+		this.selector.classList.add(this.browserHideBorderCSS);
 	}
-}
+};
 
 TextInput.prototype.setInitialValue = function () {
-	const val = this.selector.value
-	const ph = this.selector.getAttribute('placeholder')
-	this.value = val || (ph && ph.length > 0 ? ph : ' ... ')
-}
+	const val = this.selector.value;
+	const ph = this.selector.getAttribute("placeholder");
+	this.value = val || (ph && ph.length > 0 ? ph : " ... ");
+};
 
 TextInput.prototype.setLineHeight = function () {
-	this.lineHeight = this.selector.offsetHeight
-}
+	this.lineHeight = this.selector.offsetHeight;
+};
 
 TextInput.prototype.setFont = function () {
-	const style = gadgetui.util.getStyle(this.selector)
-	this.font = `${style.fontFamily} ${style.fontSize} ${style.fontWeight} ${style.fontVariant}`
-}
+	const style = gadgetui.util.getStyle(this.selector);
+	this.font = `${style.fontFamily} ${style.fontSize} ${style.fontWeight} ${style.fontVariant}`;
+};
 
 TextInput.prototype.setWidth = function () {
 	this.width =
 		gadgetui.util.textWidth(this.selector.value, this.font) + 10 ||
-		this.maxWidth
-}
+		this.maxWidth;
+};
 
 TextInput.prototype.addCSS = function () {
-	const css = gadgetui.util.setStyle
-	gadgetui.util.addClass(this.selector, 'gadgetui-textinput')
+	const css = gadgetui.util.setStyle;
+	this.selector.classList.add("gadgetui-textinput");
 
 	if (this.maxWidth > 10 && this.enforceMaxWidth) {
-		css(this.selector, 'max-width', this.maxWidth)
+		css(this.selector, "max-width", this.maxWidth);
 	}
-}
+};
 
 TextInput.prototype.setControlWidth = function (text) {
 	const textWidth = Math.max(
 		parseInt(gadgetui.util.textWidth(text, this.font), 10),
-		this.minWidth
-	)
-	gadgetui.util.setStyle(this.selector, 'width', `${textWidth + 30}px`)
-}
+		this.minWidth,
+	);
+	gadgetui.util.setStyle(this.selector, "width", `${textWidth + 30}px`);
+};
 
 TextInput.prototype.addBindings = function () {
 	const events = {
 		mouseenter: () => {
 			if (this.hideable)
-				this.selector.classList.remove(this.browserHideBorderCSS)
-			if (typeof this.fireEvent === 'function')
-				this.fireEvent('mouseenter')
+				this.selector.classList.remove(this.browserHideBorderCSS);
+			if (typeof this.fireEvent === "function") this.fireEvent("mouseenter");
 		},
 		focus: () => {
 			if (this.hideable)
-				this.selector.classList.remove(this.browserHideBorderCSS)
-			if (typeof this.fireEvent === 'function') this.fireEvent('focus')
+				this.selector.classList.remove(this.browserHideBorderCSS);
+			if (typeof this.fireEvent === "function") this.fireEvent("focus");
 		},
 		keyup: (event) => {
-			if (event.keyCode === 13) this.selector.blur()
-			this.setControlWidth(this.selector.value)
-			if (typeof this.fireEvent === 'function') this.fireEvent('keyup')
+			if (event.keyCode === 13) this.selector.blur();
+			this.setControlWidth(this.selector.value);
+			if (typeof this.fireEvent === "function") this.fireEvent("keyup");
 		},
 		change: (event) => {
 			setTimeout(() => {
 				let value =
-					event.target.value ||
-					this.selector.getAttribute('placeholder') ||
-					''
-				const txtWidth = gadgetui.util.textWidth(value, this.font)
+					event.target.value || this.selector.getAttribute("placeholder") || "";
+				const txtWidth = gadgetui.util.textWidth(value, this.font);
 
 				if (this.maxWidth < txtWidth) {
-					value = gadgetui.util.fitText(
-						value,
-						this.font,
-						this.maxWidth
-					)
+					value = gadgetui.util.fitText(value, this.font, this.maxWidth);
 				}
-				if (
-					this.model &&
-					!this.selector.getAttribute('gadgetui-bind')
-				) {
-					this.model.set(this.selector.name, event.target.value)
+				if (this.model && !this.selector.getAttribute("gadgetui-bind")) {
+					this.model.set(this.selector.name, event.target.value);
 				}
 				if (this.emitEvents) {
-					gadgetui.util.trigger(
-						this.selector,
-						'gadgetui-input-change',
-						{ text: event.target.value }
-					)
+					gadgetui.util.trigger(this.selector, "gadgetui-input-change", {
+						text: event.target.value,
+					});
 				}
-				if (this.func) this.func({ text: event.target.value })
-				if (typeof this.fireEvent === 'function')
-					this.fireEvent('change')
-			}, 200)
+				if (this.func) this.func({ text: event.target.value });
+				if (typeof this.fireEvent === "function") this.fireEvent("change");
+			}, 200);
 		},
-	}
+	};
 
 	Object.entries(events).forEach(([event, handler]) => {
 		this.selector.addEventListener(event, (e) => {
-			e.preventDefault()
-			handler(e)
-		})
-	})
+			e.preventDefault();
+			handler(e);
+		});
+	});
 
 	if (this.hideable) {
-		this.selector.addEventListener('mouseleave', () => {
+		this.selector.addEventListener("mouseleave", () => {
 			if (this.selector !== document.activeElement) {
-				this.selector.classList.add(this.browserHideBorderCSS)
+				this.selector.classList.add(this.browserHideBorderCSS);
 			}
-			if (typeof this.fireEvent === 'function')
-				this.fireEvent('mouseleave')
-		})
+			if (typeof this.fireEvent === "function") this.fireEvent("mouseleave");
+		});
 
-		this.selector.addEventListener('blur', () => {
-			gadgetui.util.setStyle(this.selector, 'maxWidth', this.maxWidth)
-			this.selector.classList.add(this.browserHideBorderCSS)
-			if (typeof this.fireEvent === 'function') this.fireEvent('blur')
-		})
+		this.selector.addEventListener("blur", () => {
+			gadgetui.util.setStyle(this.selector, "maxWidth", this.maxWidth);
+			this.selector.classList.add(this.browserHideBorderCSS);
+			if (typeof this.fireEvent === "function") this.fireEvent("blur");
+		});
 	}
-}
+};
 
 TextInput.prototype.config = function (options) {
-	this.borderColor = options.borderColor || '#d0d0d0'
-	this.useActive = options.useActive || false
-	this.model = options.model || this.model
-	this.func = options.func
-	this.emitEvents = options.emitEvents ?? true
-	this.activate = options.activate || 'mouseenter'
-	this.delay = options.delay || 10
-	this.minWidth = options.minWidth || 100
-	this.enforceMaxWidth = options.enforceMaxWidth || false
-	this.hideable = options.hideable || false
+	this.borderColor = options.borderColor || "#d0d0d0";
+	this.useActive = options.useActive || false;
+	this.model = options.model || this.model;
+	this.func = options.func;
+	this.emitEvents = options.emitEvents ?? true;
+	this.activate = options.activate || "mouseenter";
+	this.delay = options.delay || 10;
+	this.minWidth = options.minWidth || 100;
+	this.enforceMaxWidth = options.enforceMaxWidth || false;
+	this.hideable = options.hideable || false;
 	this.maxWidth =
 		options.maxWidth ||
 		gadgetui.util.getNumberValue(
-			gadgetui.util.getStyle(this.selector.parentNode).width
-		)
-	this.browserHideBorderCSS = `gadget-ui-textinput-hideBorder-${gadgetui.util.checkBrowser()}`
-}
+			gadgetui.util.getStyle(this.selector.parentNode).width,
+		);
+	this.browserHideBorderCSS = `gadget-ui-textinput-hideBorder-${gadgetui.util.checkBrowser()}`;
+};
 
 function Toggle(options) {
 	this.configure(options)
@@ -3981,8 +3968,7 @@ FileItem.prototype.set = function(args) {
 	};
 }());
 
-gadgetui.util = ( function() {
-
+gadgetui.util = (function () {
 	// canvas-txt code
 	const C = {
 		debug: !1,
@@ -3994,209 +3980,196 @@ gadgetui.util = ( function() {
 		fontVariant: "",
 		font: "Arial",
 		lineHeight: null,
-		justify: !1
-	  };
-	  
-	  const W = " ";
+		justify: !1,
+	};
+
+	const W = " ";
 
 	return {
-		split : function( val ) {
-			return val.split( /,\s*/ );
+		split: function (val) {
+			return val.split(/,\s*/);
 		},
-		extractLast : function( term ) {
-			return this.split( term ).pop();
+		extractLast: function (term) {
+			return this.split(term).pop();
 		},
-		getNumberValue : function( pixelValue ) {
-			return ( isNaN( Number( pixelValue ) ) ? Number( pixelValue.substring( 0, pixelValue.length - 2 ) ) : pixelValue );
+		getNumberValue: function (pixelValue) {
+			return isNaN(Number(pixelValue))
+				? Number(pixelValue.substring(0, pixelValue.length - 2))
+				: pixelValue;
 		},
 
-		checkBrowser: function(){
-
+		checkBrowser: function () {
 			// Opera 8.0+
-			var isOpera = (!!window.opr && !!opr.addons) || !!window.opera || navigator.userAgent.indexOf(' OPR/') >= 0;
+			var isOpera =
+				(!!window.opr && !!opr.addons) ||
+				!!window.opera ||
+				navigator.userAgent.indexOf(" OPR/") >= 0;
 
 			// Firefox 1.0+
-			var isFirefox = typeof InstallTrigger !== 'undefined';
+			var isFirefox = typeof InstallTrigger !== "undefined";
 
 			// Safari 3.0+ "[object HTMLElementConstructor]"
-			var isSafari = /constructor/i.test(window.HTMLElement) || (function (p) { return p.toString() === "[object SafariRemoteNotification]"; })(!window['safari'] || (typeof safari !== 'undefined' && safari.pushNotification));
+			var isSafari =
+				/constructor/i.test(window.HTMLElement) ||
+				(function (p) {
+					return p.toString() === "[object SafariRemoteNotification]";
+				})(
+					!window["safari"] ||
+						(typeof safari !== "undefined" && safari.pushNotification),
+				);
 
 			// Internet Explorer 6-11
-			var isIE = /*@cc_on!@*/false || !!document.documentMode;
+			var isIE = /*@cc_on!@*/ false || !!document.documentMode;
 
 			// Edge 20+
 			var isEdge = !isIE && !!window.StyleMedia;
 
 			// Chrome 1 - 79
-			var isChrome = !!window.chrome && (!!window.chrome.webstore || !!window.chrome.runtime);
+			var isChrome =
+				!!window.chrome &&
+				(!!window.chrome.webstore || !!window.chrome.runtime);
 
 			// Edge (based on chromium) detection
-			var isEdgeChromium = isChrome && (navigator.userAgent.indexOf("Edg") != -1);
+			var isEdgeChromium = isChrome && navigator.userAgent.indexOf("Edg") != -1;
 
 			// Blink engine detection
 			var isBlink = (isChrome || isOpera) && !!window.CSS;
 
-			let browser = 'generic';
-			if( isOpera ) browser = 'opera';
-			if( isFirefox ) browser = 'firefox';
-			if( isSafari ) browser = 'safari';
-			if( isIE ) browser = 'ie';
-			if( isEdge ) browser = 'edge';
-			if( isChrome ) browser = 'chrome';
-			if( isEdgeChromium ) browser = 'edgechromium';
-			if( isBlink ) browser = 'blink';
+			let browser = "generic";
+			if (isOpera) browser = "opera";
+			if (isFirefox) browser = "firefox";
+			if (isSafari) browser = "safari";
+			if (isIE) browser = "ie";
+			if (isEdge) browser = "edge";
+			if (isChrome) browser = "chrome";
+			if (isEdgeChromium) browser = "edgechromium";
+			if (isBlink) browser = "blink";
 
 			return browser;
 		},
-		addClass : function( sel, className ) {
-			if ( sel.classList ) {
-				sel.classList.add( className );
-			} else {
-				sel.className += ' ' + className;
-			}
-		},
 
-    removeClass: function(sel, className) {
-      if (sel.classList) {
-        sel.classList.remove(className);
-      } else {
-        //sel.className += " " + className;
-        var classes = sel.className;
-        var regex = new RegExp(className,"g");
-        classes.replace( regex, "" );
-        sel.className = classes;
-      }
-    },
-
-		getOffset : function( selector ) {
+		getOffset: function (selector) {
 			var rect = selector.getBoundingClientRect();
 
 			return {
-				top : rect.top + document.body.scrollTop,
-				left : rect.left + document.body.scrollLeft
+				top: rect.top + document.body.scrollTop,
+				left: rect.left + document.body.scrollLeft,
 			};
 		},
 		// http://gomakethings.com/climbing-up-and-down-the-dom-tree-with-vanilla-javascript/
 		// getParentsUntil - MIT License
-		getParentsUntil : function( elem, parent, selector ) {
-
+		getParentsUntil: function (elem, parent, selector) {
 			var parents = [];
-			if ( parent ) {
-				var parentType = parent.charAt( 0 );
+			if (parent) {
+				var parentType = parent.charAt(0);
 			}
-			if ( selector ) {
-				var selectorType = selector.charAt( 0 );
+			if (selector) {
+				var selectorType = selector.charAt(0);
 			}
 
 			// Get matches
-			for ( ; elem && elem !== document; elem = elem.parentNode ) {
-
+			for (; elem && elem !== document; elem = elem.parentNode) {
 				// Check if parent has been reached
-				if ( parent ) {
-
+				if (parent) {
 					// If parent is a class
-					if ( parentType === '.' ) {
-						if ( elem.classList.contains( parent.substr( 1 ) ) ) {
+					if (parentType === ".") {
+						if (elem.classList.contains(parent.substr(1))) {
 							break;
 						}
 					}
 
 					// If parent is an ID
-					if ( parentType === '#' ) {
-						if ( elem.id === parent.substr( 1 ) ) {
+					if (parentType === "#") {
+						if (elem.id === parent.substr(1)) {
 							break;
 						}
 					}
 
 					// If parent is a data attribute
-					if ( parentType === '[' ) {
-						if ( elem.hasAttribute( parent.substr( 1,
-								parent.length - 1 ) ) ) {
+					if (parentType === "[") {
+						if (elem.hasAttribute(parent.substr(1, parent.length - 1))) {
 							break;
 						}
 					}
 
 					// If parent is a tag
-					if ( elem.tagName.toLowerCase() === parent ) {
+					if (elem.tagName.toLowerCase() === parent) {
 						break;
 					}
-
 				}
 
-				if ( selector ) {
-
+				if (selector) {
 					// If selector is a class
-					if ( selectorType === '.' ) {
-						if ( elem.classList.contains( selector.substr( 1 ) ) ) {
-							parents.push( elem );
+					if (selectorType === ".") {
+						if (elem.classList.contains(selector.substr(1))) {
+							parents.push(elem);
 						}
 					}
 
 					// If selector is an ID
-					if ( selectorType === '#' ) {
-						if ( elem.id === selector.substr( 1 ) ) {
-							parents.push( elem );
+					if (selectorType === "#") {
+						if (elem.id === selector.substr(1)) {
+							parents.push(elem);
 						}
 					}
 
 					// If selector is a data attribute
-					if ( selectorType === '[' ) {
-						if ( elem.hasAttribute( selector.substr( 1,
-								selector.length - 1 ) ) ) {
-							parents.push( elem );
+					if (selectorType === "[") {
+						if (elem.hasAttribute(selector.substr(1, selector.length - 1))) {
+							parents.push(elem);
 						}
 					}
 
 					// If selector is a tag
-					if ( elem.tagName.toLowerCase() === selector ) {
-						parents.push( elem );
+					if (elem.tagName.toLowerCase() === selector) {
+						parents.push(elem);
 					}
-
 				} else {
-					parents.push( elem );
+					parents.push(elem);
 				}
-
 			}
 
 			// Return parents if any exist
-			if ( parents.length === 0 ) {
+			if (parents.length === 0) {
 				return null;
 			} else {
 				return parents;
 			}
-
 		},
-		getRelativeParentOffset : function( selector ) {
-			var i, offset, parents = gadgetui.util.getParentsUntil( selector,
-					"body" ), relativeOffsetLeft = 0, relativeOffsetTop = 0;
+		getRelativeParentOffset: function (selector) {
+			var i,
+				offset,
+				parents = gadgetui.util.getParentsUntil(selector, "body"),
+				relativeOffsetLeft = 0,
+				relativeOffsetTop = 0;
 
-			for ( i = 0; i < parents.length; i++ ) {
-				if ( parents[ i ].style.position === "relative" ) {
-					offset = gadgetui.util.getOffset( parents[ i ] );
+			for (i = 0; i < parents.length; i++) {
+				if (parents[i].style.position === "relative") {
+					offset = gadgetui.util.getOffset(parents[i]);
 					// set the largest offset values of the ancestors
-					if ( offset.left > relativeOffsetLeft ) {
+					if (offset.left > relativeOffsetLeft) {
 						relativeOffsetLeft = offset.left;
 					}
 
-					if ( offset.top > relativeOffsetTop ) {
+					if (offset.top > relativeOffsetTop) {
 						relativeOffsetTop = offset.top;
 					}
 				}
 			}
 			return {
-				left : relativeOffsetLeft,
-				top : relativeOffsetTop
+				left: relativeOffsetLeft,
+				top: relativeOffsetTop,
 			};
 		},
-		Id : function() {
-			return ( ( Math.random() * 100 ).toString() ).replace( /\./g, "" );
+		Id: function () {
+			return (Math.random() * 100).toString().replace(/\./g, "");
 		},
-		bind : function( selector, model ) {
-			var bindVar = selector.getAttribute( "gadgetui-bind" );
+		bind: function (selector, model) {
+			var bindVar = selector.getAttribute("gadgetui-bind");
 
 			// if binding was specified, make it so
-			if ( bindVar !== undefined && bindVar !== null && model !== undefined ) {
-				model.bind( bindVar, selector );
+			if (bindVar !== undefined && bindVar !== null && model !== undefined) {
+				model.bind(bindVar, selector);
 			}
 		},
 		/*
@@ -4214,39 +4187,39 @@ gadgetui.util = ( function() {
 		 * "url": result = $.encoder.encodeForURL( result ); break; }
 		 *  } return result; },
 		 */
-		mouseCoords : function( ev ) {
+		mouseCoords: function (ev) {
 			// from
 			// http://www.webreference.com/programming/javascript/mk/column2/
-			if ( ev.pageX || ev.pageY ) {
+			if (ev.pageX || ev.pageY) {
 				return {
-					x : ev.pageX,
-					y : ev.pageY
+					x: ev.pageX,
+					y: ev.pageY,
 				};
 			}
 			return {
-				x : ev.clientX + document.body.scrollLeft
-						- document.body.clientLeft,
-				y : ev.clientY + document.body.scrollTop
-						- document.body.clientTop
+				x: ev.clientX + document.body.scrollLeft - document.body.clientLeft,
+				y: ev.clientY + document.body.scrollTop - document.body.clientTop,
 			};
 		},
-		mouseWithin : function( selector, coords ) {
+		mouseWithin: function (selector, coords) {
 			var rect = selector.getBoundingClientRect();
-			return ( coords.x >= rect.left && coords.x <= rect.right
-					&& coords.y >= rect.top && coords.y <= rect.bottom ) ? true
-					: false;
+			return coords.x >= rect.left &&
+				coords.x <= rect.right &&
+				coords.y >= rect.top &&
+				coords.y <= rect.bottom
+				? true
+				: false;
 		},
-		getStyle : function( el, prop ) {
-			if ( window.getComputedStyle !== undefined ) {
-				if ( prop !== undefined ) {
-					return window.getComputedStyle( el, null )
-							.getPropertyValue( prop );
+		getStyle: function (el, prop) {
+			if (window.getComputedStyle !== undefined) {
+				if (prop !== undefined) {
+					return window.getComputedStyle(el, null).getPropertyValue(prop);
 				} else {
-					return window.getComputedStyle( el, null );
+					return window.getComputedStyle(el, null);
 				}
 			} else {
-				if ( prop !== undefined ) {
-					return el.currentStyle[ prop ];
+				if (prop !== undefined) {
+					return el.currentStyle[prop];
 				} else {
 					return el.currentStyle;
 				}
@@ -4256,84 +4229,85 @@ gadgetui.util = ( function() {
 		//author: Taufik Nurrohman
 		// code belongs to author
 		// no license enforced
-		draggable : function( selector ){
+		draggable: function (selector) {
 			var selected = null, // Object of the element to be moved
-		    x_pos = 0, y_pos = 0, // Stores x & y coordinates of the mouse pointer
-		    x_elem = 0, y_elem = 0; // Stores top, left values (edge) of the element
+				x_pos = 0,
+				y_pos = 0, // Stores x & y coordinates of the mouse pointer
+				x_elem = 0,
+				y_elem = 0; // Stores top, left values (edge) of the element
 
 			// Will be called when user starts dragging an element
 			function _drag_init(elem) {
-			    // Store the object of the element which needs to be moved
-			    selected = elem;
-			    x_elem = x_pos - selected.offsetLeft;
-			    y_elem = y_pos - selected.offsetTop;
+				// Store the object of the element which needs to be moved
+				selected = elem;
+				x_elem = x_pos - selected.offsetLeft;
+				y_elem = y_pos - selected.offsetTop;
 			}
 
 			// Will be called when user dragging an element
 			function _move_elem(e) {
-			    x_pos = document.all ? window.event.clientX : e.pageX;
-			    y_pos = document.all ? window.event.clientY : e.pageY;
-			    if (selected !== null) {
-			        selected.style.left = (x_pos - x_elem) + 'px';
-			        selected.style.top = (y_pos - y_elem) + 'px';
-			    }
+				x_pos = document.all ? window.event.clientX : e.pageX;
+				y_pos = document.all ? window.event.clientY : e.pageY;
+				if (selected !== null) {
+					selected.style.left = x_pos - x_elem + "px";
+					selected.style.top = y_pos - y_elem + "px";
+				}
 			}
 
 			// Destroy the object when we are done
-			function _destroy( event ) {
-				console.log( event );
+			function _destroy(event) {
+				console.log(event);
 				var myEvent = new CustomEvent("drag_end", {
 					detail: {
-						top : gadgetui.util.getStyle( selector, "top" ),
-						left : gadgetui.util.getStyle( selector, "left" )
-					}
+						top: gadgetui.util.getStyle(selector, "top"),
+						left: gadgetui.util.getStyle(selector, "left"),
+					},
 				});
 
 				// Trigger it!
 				selector.dispatchEvent(myEvent);
-			  selected = null;
+				selected = null;
 			}
 
 			// Bind the functions...
 			selector.onmousedown = function () {
-			    _drag_init(this);
-			    return false;
+				_drag_init(this);
+				return false;
 			};
 
 			document.onmousemove = _move_elem;
 			document.onmouseup = _destroy;
 		},
 
-		textWidth : function( text, style ) {
+		textWidth: function (text, style) {
 			// http://stackoverflow.com/questions/1582534/calculating-text-width-with-jquery
 			// based on edsioufi's solution
-			if ( !gadgetui.util.textWidthEl ) {
-				gadgetui.util.textWidthEl = document.createElement( "div" );
-				gadgetui.util.textWidthEl.setAttribute( "id",
-						"gadgetui-textWidth" );
-				gadgetui.util.textWidthEl.setAttribute( "style",
-						"display: none;" );
-				document.body.appendChild( gadgetui.util.textWidthEl );
+			if (!gadgetui.util.textWidthEl) {
+				gadgetui.util.textWidthEl = document.createElement("div");
+				gadgetui.util.textWidthEl.setAttribute("id", "gadgetui-textWidth");
+				gadgetui.util.textWidthEl.setAttribute("style", "display: none;");
+				document.body.appendChild(gadgetui.util.textWidthEl);
 			}
 			// gadgetui.util.fakeEl = $('<span
 			// id="gadgetui-textWidth">').appendTo(document.body);
 
 			// var width, htmlText = text || selector.value ||
 			// selector.innerHTML;
-			var width, htmlText = text;
-			if ( htmlText.length > 0 ) {
+			var width,
+				htmlText = text;
+			if (htmlText.length > 0) {
 				// htmlText =
 				// gadgetui.util.TextWidth.fakeEl.text(htmlText).html();
 				// //encode to Html
 				gadgetui.util.textWidthEl.innerText = htmlText;
-				if ( htmlText === undefined ) {
+				if (htmlText === undefined) {
 					htmlText = "";
 				} else {
-					htmlText = htmlText.replace( /\s/g, "&nbsp;" ); // replace
-																	// trailing
-																	// and
-																	// leading
-																	// spaces
+					htmlText = htmlText.replace(/\s/g, "&nbsp;"); // replace
+					// trailing
+					// and
+					// leading
+					// spaces
 				}
 			}
 			gadgetui.util.textWidthEl.innertText = htmlText;
@@ -4352,131 +4326,138 @@ gadgetui.util = ( function() {
 			return width;
 		},
 
-		fitText : function( text, style, width ) {
-			var midpoint, txtWidth = gadgetui.util.TextWidth( text, style ), ellipsisWidth = gadgetui.util
-					.TextWidth( "...", style );
-			if ( txtWidth < width ) {
+		fitText: function (text, style, width) {
+			var midpoint,
+				txtWidth = gadgetui.util.TextWidth(text, style),
+				ellipsisWidth = gadgetui.util.TextWidth("...", style);
+			if (txtWidth < width) {
 				return text;
 			} else {
-				midpoint = Math.floor( text.length / 2 ) - 1;
-				while ( txtWidth + ellipsisWidth >= width ) {
-					text = text.slice( 0, midpoint )
-							+ text.slice( midpoint + 1, text.length );
+				midpoint = Math.floor(text.length / 2) - 1;
+				while (txtWidth + ellipsisWidth >= width) {
+					text =
+						text.slice(0, midpoint) + text.slice(midpoint + 1, text.length);
 
-					midpoint = Math.floor( text.length / 2 ) - 1;
-					txtWidth = gadgetui.util.TextWidth( text, font );
-
+					midpoint = Math.floor(text.length / 2) - 1;
+					txtWidth = gadgetui.util.TextWidth(text, font);
 				}
-				midpoint = Math.floor( text.length / 2 ) - 1;
-				text = text.slice( 0, midpoint ) + "..."
-						+ text.slice( midpoint, text.length );
+				midpoint = Math.floor(text.length / 2) - 1;
+				text =
+					text.slice(0, midpoint) + "..." + text.slice(midpoint, text.length);
 
 				// remove spaces around the ellipsis
-				while ( text.substring( midpoint - 1, midpoint ) === " " ) {
-					text = text.slice( 0, midpoint - 1 )
-							+ text.slice( midpoint, text.length );
+				while (text.substring(midpoint - 1, midpoint) === " ") {
+					text =
+						text.slice(0, midpoint - 1) + text.slice(midpoint, text.length);
 					midpoint = midpoint - 1;
 				}
 
-				while ( text.substring( midpoint + 3, midpoint + 4 ) === " " ) {
-					text = text.slice( 0, midpoint + 3 )
-							+ text.slice( midpoint + 4, text.length );
+				while (text.substring(midpoint + 3, midpoint + 4) === " ") {
+					text =
+						text.slice(0, midpoint + 3) + text.slice(midpoint + 4, text.length);
 					midpoint = midpoint - 1;
 				}
 				return text;
 			}
 		},
 
-		createElement : function( tagName ) {
-			var el = document.createElement( tagName );
-			el.setAttribute( "style", "" );
+		createElement: function (tagName) {
+			var el = document.createElement(tagName);
+			el.setAttribute("style", "");
 			return el;
 		},
 
-		addStyle : function( element, style ) {
-			var estyles = element.getAttribute( "style" ), currentStyles = ( estyles !== null ? estyles
-					: "" );
-			element.setAttribute( "style", currentStyles + " " + style + ";" );
+		addStyle: function (element, style) {
+			var estyles = element.getAttribute("style"),
+				currentStyles = estyles !== null ? estyles : "";
+			element.setAttribute("style", currentStyles + " " + style + ";");
 		},
 
-		isNumeric : function( num ) {
-			return !isNaN( parseFloat( num ) ) && isFinite( num );
+		isNumeric: function (num) {
+			return !isNaN(parseFloat(num)) && isFinite(num);
 		},
 
-		setStyle : function( element, style, value ) {
-			var newStyles, estyles = element.getAttribute( "style" ), currentStyles = ( estyles !== null ? estyles
-					: "" ), str = '(' + style + ')+ *\\:[^\\;]*\\;', re = new RegExp(
-					str, "g" );
+		setStyle: function (element, style, value) {
+			var newStyles,
+				estyles = element.getAttribute("style"),
+				currentStyles = estyles !== null ? estyles : "",
+				str = "(" + style + ")+ *\\:[^\\;]*\\;",
+				re = new RegExp(str, "g");
 			// find styles in the style string
 			// ([\w\-]+)+ *\:[^\;]*\;
 
 			// assume
-			if ( gadgetui.util.isNumeric( value ) === true ) {
+			if (gadgetui.util.isNumeric(value) === true) {
 				// don't modify properties that accept a straight numeric value
-				switch ( style ) {
-				case "opacity":
-				case "z-index":
-				case "font-weight":
-					break;
-				default:
-					value = value + "px";
+				switch (style) {
+					case "opacity":
+					case "z-index":
+					case "font-weight":
+						break;
+					default:
+						value = value + "px";
 				}
 			}
 
-			if ( currentStyles.search( re ) >= 0 ) {
-				newStyles = currentStyles.replace( re, style + ": " + value
-						+ ";" );
+			if (currentStyles.search(re) >= 0) {
+				newStyles = currentStyles.replace(re, style + ": " + value + ";");
 			} else {
 				newStyles = currentStyles + " " + style + ": " + value + ";";
 			}
-			element.setAttribute( "style", newStyles );
+			element.setAttribute("style", newStyles);
 		},
-		encode : function( str ) {
+		encode: function (str) {
 			return str;
 		},
 
-		trigger : function( selector, eventType, data ) {
-			selector.dispatchEvent( new CustomEvent( eventType, {
-				detail : data
-			} ) );
+		trigger: function (selector, eventType, data) {
+			selector.dispatchEvent(
+				new CustomEvent(eventType, {
+					detail: data,
+				}),
+			);
 		},
-		getMaxZIndex : function() {
-			var elems = document.querySelectorAll( "*" );
+		getMaxZIndex: function () {
+			var elems = document.querySelectorAll("*");
 			var highest = 0;
-			for ( var ix = 0; ix < elems.length; ix++ ) {
-				var zindex = gadgetui.util.getStyle( elems[ ix ], "z-index" );
-				if ( ( zindex > highest ) && ( zindex != 'auto' ) ) {
+			for (var ix = 0; ix < elems.length; ix++) {
+				var zindex = gadgetui.util.getStyle(elems[ix], "z-index");
+				if (zindex > highest && zindex != "auto") {
 					highest = zindex;
 				}
 			}
 			return highest;
 		},
 		// copied from jQuery core, re-distributed per MIT License
-		grep : function( elems, callback, invert ) {
-			var callbackInverse, matches = [], i = 0, length = elems.length, callbackExpect = !invert;
+		grep: function (elems, callback, invert) {
+			var callbackInverse,
+				matches = [],
+				i = 0,
+				length = elems.length,
+				callbackExpect = !invert;
 
 			// Go through the array, only saving the items
 			// _this pass the validator function
-			for ( ; i < length; i++ ) {
-				callbackInverse = !callback( elems[ i ], i );
-				if ( callbackInverse !== callbackExpect ) {
-					matches.push( elems[ i ] );
+			for (; i < length; i++) {
+				callbackInverse = !callback(elems[i], i);
+				if (callbackInverse !== callbackExpect) {
+					matches.push(elems[i]);
 				}
 			}
 
 			return matches;
 		},
-		delay : function( handler, delay ) {
+		delay: function (handler, delay) {
 			function handlerProxy() {
-				return handler.apply( instance, arguments );
+				return handler.apply(instance, arguments);
 			}
 			var instance = this;
-			return setTimeout( handlerProxy, delay || 0 );
+			return setTimeout(handlerProxy, delay || 0);
 		},
-		contains : function( child, parent ) {
+		contains: function (child, parent) {
 			var node = child.parentNode;
-			while ( node != null ) {
-				if ( node == parent ) {
+			while (node != null) {
+				if (node == parent) {
 					return true;
 				}
 				node = node.parentNode;
@@ -4484,9 +4465,7 @@ gadgetui.util = ( function() {
 			return false;
 		},
 
-
 		// code below for drawing multi-line text on a canvas adapted from  https://github.com/geongeorge/Canvas-Txt
-
 
 		/* 		MIT License
 
@@ -4512,122 +4491,172 @@ gadgetui.util = ( function() {
 
 		*/
 		/*
- 		drawText(ctx,text, config) 	
+ 		drawText(ctx,text, config)
 		splitText({ ctx, text, justify, width }
 		getTextHeight({ ctx, text, style })
  		*/
 
-		B: function({
-			ctx: e,
-			line: c,
-			spaceWidth: p,
-			spaceChar: n,
-			width: a
-		  }) {
-			const i = c.trim(), o = i.split(/\s+/), s = o.length - 1;
-			if (s === 0)
-			  return i;
-			const m = e.measureText(o.join("")).width, d = (a - m) / p, b = Math.floor(d / s);
-			if (d < 1)
-			  return i;
+		B: function ({ ctx: e, line: c, spaceWidth: p, spaceChar: n, width: a }) {
+			const i = c.trim(),
+				o = i.split(/\s+/),
+				s = o.length - 1;
+			if (s === 0) return i;
+			const m = e.measureText(o.join("")).width,
+				d = (a - m) / p,
+				b = Math.floor(d / s);
+			if (d < 1) return i;
 			const r = n.repeat(b);
 			return o.join(r);
-		  },
+		},
 
-		  splitText: function({
-			ctx: e,
-			text: c,
-			justify: p,
-			width: n
-		  }) {
-			const a = /* @__PURE__ */ new Map(), i = (r) => {
-			  let g = a.get(r);
-			  return g !== void 0 || (g = e.measureText(r).width, a.set(r, g)), g;
-			};
-			let o = [], s = c.split(`
+		splitText: function ({ ctx: e, text: c, justify: p, width: n }) {
+			const a = /* @__PURE__ */ new Map(),
+				i = (r) => {
+					let g = a.get(r);
+					return g !== void 0 || ((g = e.measureText(r).width), a.set(r, g)), g;
+				};
+			let o = [],
+				s = c.split(`
 		  `);
 			const m = p ? i(W) : 0;
-			let d = 0, b = 0;
+			let d = 0,
+				b = 0;
 			for (const r of s) {
-			  let g = i(r);
-			  const y = r.length;
-			  if (g <= n) {
-				o.push(r);
-				continue;
-			  }
-			  let h = r, t, f, l = "";
-			  for (; g > n; ) {
-				if (d++, t = b, f = t === 0 ? 0 : i(r.substring(0, t)), f < n)
-				  for (; f < n && t < y && (t++, f = i(h.substring(0, t)), t !== y); )
-					;
-				else if (f > n)
-				  for (; f > n && (t = Math.max(1, t - 1), f = i(h.substring(0, t)), !(t === 0 || t === 1)); )
-					;
-				if (b = Math.round(
-				  b + (t - b) / d
-				), t--, t > 0) {
-				  let u = t;
-				  if (h.substring(u, u + 1) != " ") {
-					for (; h.substring(u, u + 1) != " " && u >= 0; )
-					  u--;
-					u > 0 && (t = u);
-				  }
+				let g = i(r);
+				const y = r.length;
+				if (g <= n) {
+					o.push(r);
+					continue;
 				}
-				t === 0 && (t = 1), l = h.substring(0, t), l = p ? gadgetui.util.B({
-				  ctx: e,
-				  line: l,
-				  spaceWidth: m,
-				  spaceChar: W,
-				  width: n
-				}) : l, o.push(l), h = h.substring(t), g = i(h);
-			  }
-			  g > 0 && (l = p ? gadgetui.util.B({
-				ctx: e,
-				line: h,
-				spaceWidth: m,
-				spaceChar: W,
-				width: n
-			  }) : h, o.push(l));
+				let h = r,
+					t,
+					f,
+					l = "";
+				for (; g > n; ) {
+					if ((d++, (t = b), (f = t === 0 ? 0 : i(r.substring(0, t))), f < n))
+						for (
+							;
+							f < n && t < y && (t++, (f = i(h.substring(0, t))), t !== y);
+
+						);
+					else if (f > n)
+						for (
+							;
+							f > n &&
+							((t = Math.max(1, t - 1)),
+							(f = i(h.substring(0, t))),
+							!(t === 0 || t === 1));
+
+						);
+					if (((b = Math.round(b + (t - b) / d)), t--, t > 0)) {
+						let u = t;
+						if (h.substring(u, u + 1) != " ") {
+							for (; h.substring(u, u + 1) != " " && u >= 0; ) u--;
+							u > 0 && (t = u);
+						}
+					}
+					t === 0 && (t = 1),
+						(l = h.substring(0, t)),
+						(l = p
+							? gadgetui.util.B({
+									ctx: e,
+									line: l,
+									spaceWidth: m,
+									spaceChar: W,
+									width: n,
+								})
+							: l),
+						o.push(l),
+						(h = h.substring(t)),
+						(g = i(h));
+				}
+				g > 0 &&
+					((l = p
+						? gadgetui.util.B({
+								ctx: e,
+								line: h,
+								spaceWidth: m,
+								spaceChar: W,
+								width: n,
+							})
+						: h),
+					o.push(l));
 			}
 			return o;
-		  },
-		  getTextHeight: function({
-			ctx: e,
-			text: c,
-			style: p
-		  }) {
-			const n = e.textBaseline, a = e.font;
-			e.textBaseline = "bottom", e.font = p;
+		},
+		getTextHeight: function ({ ctx: e, text: c, style: p }) {
+			const n = e.textBaseline,
+				a = e.font;
+			(e.textBaseline = "bottom"), (e.font = p);
 			const { actualBoundingBoxAscent: i } = e.measureText(c);
-			return e.textBaseline = n, e.font = a, i;
-		  },
-		  
-		  drawText: function(e, c, p) {
-			const { width: n, height: a, x: i, y: o } = p, s = { ...C, ...p };
-			if (n <= 0 || a <= 0 || s.fontSize <= 0)
-			  return { height: 0 };
-			const m = i + n, d = o + a, { fontStyle: b, fontVariant: r, fontWeight: g, fontSize: y, font: h } = s, t = `${b} ${r} ${g} ${y}px ${h}`;
+			return (e.textBaseline = n), (e.font = a), i;
+		},
+
+		drawText: function (e, c, p) {
+			const { width: n, height: a, x: i, y: o } = p,
+				s = { ...C, ...p };
+			if (n <= 0 || a <= 0 || s.fontSize <= 0) return { height: 0 };
+			const m = i + n,
+				d = o + a,
+				{
+					fontStyle: b,
+					fontVariant: r,
+					fontWeight: g,
+					fontSize: y,
+					font: h,
+				} = s,
+				t = `${b} ${r} ${g} ${y}px ${h}`;
 			e.font = t;
-			let f = o + a / 2 + s.fontSize / 2, l;
-			s.align === "right" ? (l = m, e.textAlign = "right") : s.align === "left" ? (l = i, e.textAlign = "left") : (l = i + n / 2, e.textAlign = "center");
+			let f = o + a / 2 + s.fontSize / 2,
+				l;
+			s.align === "right"
+				? ((l = m), (e.textAlign = "right"))
+				: s.align === "left"
+					? ((l = i), (e.textAlign = "left"))
+					: ((l = i + n / 2), (e.textAlign = "center"));
 			const u = gadgetui.util.splitText({
-			  ctx: e,
-			  text: c,
-			  justify: s.justify,
-			  width: n
-			}), S = s.lineHeight ? s.lineHeight : gadgetui.util.getTextHeight({ ctx: e, text: "M", style: t }), v = S * (u.length - 1), P = v / 2;
+					ctx: e,
+					text: c,
+					justify: s.justify,
+					width: n,
+				}),
+				S = s.lineHeight
+					? s.lineHeight
+					: gadgetui.util.getTextHeight({ ctx: e, text: "M", style: t }),
+				v = S * (u.length - 1),
+				P = v / 2;
 			let A = o;
-			if (s.vAlign === "top" ? (e.textBaseline = "top", f = o) : s.vAlign === "bottom" ? (e.textBaseline = "bottom", f = d - v, A = d) : (e.textBaseline = "bottom", A = o + a / 2, f -= P), u.forEach((T) => {
-			  T = T.trim(), e.fillText(T, l, f), f += S;
-			}), s.debug) {
-			  const T = "#0C8CE9";
-			  e.lineWidth = 1, e.strokeStyle = T, e.strokeRect(i, o, n, a), e.lineWidth = 1, e.strokeStyle = T, e.beginPath(), e.moveTo(l, o), e.lineTo(l, d), e.stroke(), e.strokeStyle = T, e.beginPath(), e.moveTo(i, A), e.lineTo(m, A), e.stroke();
+			if (
+				(s.vAlign === "top"
+					? ((e.textBaseline = "top"), (f = o))
+					: s.vAlign === "bottom"
+						? ((e.textBaseline = "bottom"), (f = d - v), (A = d))
+						: ((e.textBaseline = "bottom"), (A = o + a / 2), (f -= P)),
+				u.forEach((T) => {
+					(T = T.trim()), e.fillText(T, l, f), (f += S);
+				}),
+				s.debug)
+			) {
+				const T = "#0C8CE9";
+				(e.lineWidth = 1),
+					(e.strokeStyle = T),
+					e.strokeRect(i, o, n, a),
+					(e.lineWidth = 1),
+					(e.strokeStyle = T),
+					e.beginPath(),
+					e.moveTo(l, o),
+					e.lineTo(l, d),
+					e.stroke(),
+					(e.strokeStyle = T),
+					e.beginPath(),
+					e.moveTo(i, A),
+					e.lineTo(m, A),
+					e.stroke();
 			}
 			return { height: v + S };
-		  }
-
+		},
 	};
-}() );
+})();
 
 export var gadgetui = gadgetui;
 export var model = gadgetui.model;
@@ -4650,9 +4679,8 @@ export var fileuploader = gadgetui.input.FileUploader;
 export var lookuplistinput = gadgetui.input.LookupListInput;
 export var selectinput = gadgetui.input.SelectInput;
 export var textinput = gadgetui.input.TextInput;
-export var toggle = gadgetui.input.Toggle;
 export var component = gadgetui.objects.Component;
-export var constructor = gadgetui.objects.Constructor;
+//export var constructor = gadgetui.objects.Constructor;
 export var util = gadgetui.util;
 
 //# sourceMappingURL=gadget-ui.es.js.map

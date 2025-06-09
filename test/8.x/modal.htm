@@ -1,0 +1,61 @@
+<!doctype html>
+<html>
+	<head>
+		<title>gadget-ui Modal Test</title>
+		<link rel="stylesheet" href="/dist/gadget-ui.css" />
+
+		<script type="module">
+			import { gadgetui } from "/dist/gadget-ui.es.js";
+
+			var md = new gadgetui.display.Modal(
+				document.querySelector("#modal"),
+				{
+					autoOpen: false,
+					iconType: "svg",
+					featherClass: "feather",
+					closeIcon:
+						"/node_modules/feather-icons/dist/feather-sprite.svg#x-circle",
+				},
+			);
+
+			md.on("opened", function (obj) {
+				console.log("opened");
+				console.log(obj);
+			});
+
+			md.on("closed", function (obj) {
+				console.log("closed");
+				console.log(obj);
+			});
+
+			document
+				.querySelector("button[name='show']")
+				.addEventListener("click", function () {
+					md.open();
+				});
+		</script>
+
+		<style>
+			body {
+				font-size: 1em;
+			}
+			input,
+			select,
+			select option {
+				font-size: 1em;
+			}
+			#modal {
+				width: 500px;
+				height: 300px;
+				overflow: hidden;
+			}
+		</style>
+	</head>
+
+	<body>
+		<p>Test the Modal control.</p>
+		<button name="show">Show</button>
+
+		<div id="modal">Hi@</div>
+	</body>
+</html>

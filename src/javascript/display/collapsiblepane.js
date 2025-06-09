@@ -26,9 +26,9 @@ class CollapsiblePane extends Component {
 		const pane = document.createElement("div");
 
 		if (this.class) {
-			gadgetui.util.addClass(pane, this.class);
+			pane.classList.add(this.class);
 		}
-		gadgetui.util.addClass(pane, "gadget-ui-collapsiblePane");
+		pane.classList.add("gadget-ui-collapsiblePane");
 
 		this.element.parentNode.insertBefore(pane, this.element);
 		this.wrapper = this.element.previousSibling;
@@ -40,9 +40,9 @@ class CollapsiblePane extends Component {
 		const header = document.createElement("div");
 		const css = gadgetui.util.setStyle;
 
-		gadgetui.util.addClass(header, "gadget-ui-collapsiblePane-header");
+		header.classList.add("gadget-ui-collapsiblePane-header");
 		if (this.headerClass) {
-			gadgetui.util.addClass(header, this.headerClass);
+			header.classList.add(this.headerClass);
 		}
 		header.innerHTML = this.title;
 

@@ -1,0 +1,32 @@
+<!doctype html>
+<html>
+	<head>
+		<title>gadget-ui File Uploader Test</title>
+		 <script src='../bower_components/modlazy/dist/modlazy.min.js'></script>
+		 <script>
+		 modlazy.load(
+  [
+    "jquery.fileuploader.js < ../dist/jquery.gadget-ui.js < ../bower_components/canvasResize/dist/jquery.canvasResize.min.js < ../bower_components/canvasResize/dist/canvasResize.min.js < ../bower_components/exif-js-dist/dist/jquery.exif.min.js < ../bower_components/jquery-ui/jquery-ui.js < ../bower_components/jquery/dist/jquery.js",
+		"../bower_components/pdfjs-dist/build/pdf.min.js",
+    "../dist/gadget-ui.css",
+    "../bower_components/jquery-ui/themes/humanity/jquery-ui.min.css"
+  ],
+  function() {
+    console.log("All files have been loaded");
+  }
+);
+</script>
+
+		<style>
+			body {font-size: 1em;}
+			input, select, select option{ font-size: 1em;}
+		</style>
+
+	</head>
+
+	<body>
+		<p>Test the FileUploader control.</p>
+
+		<div id="modalDialog"></div>
+	</body>
+</html>

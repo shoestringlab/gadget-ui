@@ -1,0 +1,29 @@
+<!doctype html>
+<html>
+	<head>
+		<title>gadget-ui LookupListInput Test</title>
+		 
+		<link rel="stylesheet" href="/dist/gadget-ui.css"/>
+		<script src='/node_modules/velocity/velocity.js'></script>
+		<style>
+			body {font-size: 2em;}
+			input, select, select option{ font-size: 1em;}
+		</style>
+		<script src="lookuplistinput.advanced.js" type="module"></script>
+	</head>
+
+	<body>
+		<p>Test the LookupListInput control</p>
+	<p>Type into the box to find icons in the Open Iconic collection.</p>
+				<div>
+					<input name="icons" type="text" gadgetui-bind="user.icons" placeholder="Icons"/>
+					<input type="button" value="Reset Icon list" name="resetLookupList" />
+				</div>
+	<p>The lookup function matches against the label of the set of icons for open-iconic in PNG format in /bower_components/open-iconic/png/.
+		The renderer uses the "-8x" version of the icons to provide a large item display.
+	</p>
+
+	</p>
+
+	</body>
+</html>

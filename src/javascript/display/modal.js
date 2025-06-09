@@ -16,9 +16,9 @@ class Modal extends Component {
 	addControl() {
 		this.wrapper = document.createElement("div");
 		if (this.class) {
-			gadgetui.util.addClass(this.wrapper, this.class);
+			this.wrapper.classList.add(this.class);
 		}
-		gadgetui.util.addClass(this.wrapper, "gadgetui-modal");
+		this.wrapper.classList.add("gadgetui-modal");
 
 		this.element.parentNode.insertBefore(this.wrapper, this.element);
 		this.element.parentNode.removeChild(this.element);
@@ -29,7 +29,7 @@ class Modal extends Component {
 				? `<img class="${this.iconClass}" src="${this.closeIcon}"/>`
 				: `<svg class="${this.iconClass}"><use xlink:href="${this.closeIcon}"/></svg>`;
 
-		gadgetui.util.addClass(this.element, "gadgetui-modalWindow");
+		this.element.classList.add("gadgetui-modalWindow");
 		this.element.innerHTML = `
     <span name="close" class="gadgetui-right-align">
       <a name="close">${icon}</a>
@@ -44,12 +44,12 @@ class Modal extends Component {
 	}
 
 	open() {
-		gadgetui.util.addClass(this.wrapper, "gadgetui-showModal");
+		this.wrapper.classList.add("gadgetui-showModal");
 		this.fireEvent("opened");
 	}
 
 	close() {
-		gadgetui.util.removeClass(this.wrapper, "gadgetui-showModal");
+		this.wrapper.classList.remove("gadgetui-showModal");
 		this.fireEvent("closed");
 	}
 

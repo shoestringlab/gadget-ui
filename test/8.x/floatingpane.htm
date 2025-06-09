@@ -1,0 +1,69 @@
+<!doctype html>
+<html>
+	<head>
+		<title>gadget-ui FloatingPane Test</title>
+		<link rel="stylesheet" href="/dist/gadget-ui.css" />
+		<script src="/node_modules/velocity-animate/velocity.js"></script>
+		<script type="module">
+			import { gadgetui } from "/dist/gadget-ui.es.js";
+
+			var fp1 = new gadgetui.display.FloatingPane(
+				document.querySelector("#fp1"),
+				{
+					title: "Random Text",
+					enableShrink: true,
+				},
+			);
+
+			fp1.on("closed", function (obj) {
+				console.log("closed");
+				console.log(obj);
+			});
+
+			fp1.on("moved", function (obj) {
+				console.log("moved");
+				console.log(obj);
+			});
+
+			fp1.on("maximized", function (obj) {
+				console.log("maximized");
+				console.log(obj);
+			});
+
+			fp1.on("minimized", function (obj) {
+				console.log("minimized");
+				console.log(obj);
+			});
+		</script>
+
+		<style>
+			body {
+				font-size: 1em;
+			}
+			input,
+			select,
+			select option {
+				font-size: 1em;
+			}
+			#fp1 {
+				width: 500px;
+				height: 300px;
+				overflow: hidden;
+			}
+		</style>
+	</head>
+
+	<body>
+		<p>Test the FloatingPane control.</p>
+		<img src="art/avila.jpg" />
+		<div
+			name="collapser"
+			id="fp1"
+			style="background-color: rgba(255, 255, 255, 0.7)"
+		>
+			The newest possible... FloatingPane.prototype.config = function(
+			options ){ options = ( options === undefined ? {} : options );
+			this.title = ( options.title === undefined ? "": options.title ); };
+		</div>
+	</body>
+</html>

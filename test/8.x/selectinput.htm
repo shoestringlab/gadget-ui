@@ -1,0 +1,52 @@
+<!doctype html>
+<html>
+	<head>
+		<title>gadget-ui SelectInput Test</title>
+		<link rel="stylesheet" href="/dist/gadget-ui.css"/>
+		<style>
+			body {font-size: 2em;}
+			input, select, select option{ font-size: 1em;}
+		</style>
+		<script src="selectinput.js" type="module"></script>
+
+		<style>
+			body {
+			font-size: 1em;
+			font-family:Arial, serif;
+			}
+			input, select, select option{
+			font-size: 1em;
+			font-family:Arial, serif;}
+		</style>
+
+	</head>
+
+	<body>
+		<p>Test the SelectInput control.</p>
+
+		<p>Role One - SelectInput with static options:</p>
+	<div>
+
+	<select name="role" class="gadgetui-selectinput" gadgetui-bind="user.role">
+ 		<option value="0">choose ...</option>
+		<option value="1">Friend</option>
+		<option value="2">Sibling</option>
+		<option value="3">co-worker</option>
+		<option value="4">President</option>
+	</select>
+	</div>
+
+	<p>Role Two - SelectInput with options specified by gadgetui-bind-options:</p>
+<div>
+
+<select name="role2" class="gadgetui-selectinput" gadgetui-bind-options="roles" gadgetui-bind="user2.role">
+</select>
+</div>
+<p>Role Three - SelectInput with options specified by dataProvider option:</p>
+<div>
+
+<select name="role3" class="gadgetui-selectinput" gadgetui-bind="user3.role">
+</select>
+</div>
+	</body>
+</html>

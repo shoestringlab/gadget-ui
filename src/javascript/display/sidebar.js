@@ -28,14 +28,14 @@ class Sidebar extends Component {
 	addControl() {
 		this.wrapper = document.createElement("div");
 		if (this.class) {
-			gadgetui.util.addClass(this.wrapper, this.class);
+			this.wrapper.classList.add(this.class);
 		}
-		gadgetui.util.addClass(this.wrapper, "gadgetui-sidebar");
+		this.wrapper.classList.add("gadgetui-sidebar");
 
 		this.span = document.createElement("span");
 		this.span.setAttribute("title", this.toggleTitle);
-		gadgetui.util.addClass(this.span, "gadgetui-right-align");
-		gadgetui.util.addClass(this.span, "gadgetui-sidebar-toggle");
+		this.span.classList.add("gadgetui-right-align");
+		this.span.classList.add("gadgetui-sidebar-toggle");
 
 		this.span.innerHTML =
 			this.iconType === "img"
@@ -52,7 +52,7 @@ class Sidebar extends Component {
 	maximize() {
 		this.minimized = false;
 		this.setChevron(this.minimized);
-		gadgetui.util.removeClass(this.wrapper, "gadgetui-sidebar-minimized");
+		this.wrapper.classList.remove("gadgetui-sidebar-minimized");
 
 		if (typeof Velocity !== "undefined" && this.animate) {
 			Velocity(
@@ -82,7 +82,7 @@ class Sidebar extends Component {
 	minimize() {
 		this.minimized = true;
 		this.setChevron(this.minimized);
-		gadgetui.util.addClass(this.selector, "gadgetui-sidebarContent-minimized");
+		this.selector.classList.add("gadgetui-sidebarContent-minimized");
 
 		if (typeof Velocity !== "undefined" && this.animate) {
 			Velocity(
@@ -92,13 +92,13 @@ class Sidebar extends Component {
 					queue: false,
 					duration: this.delay,
 					complete: () => {
-						gadgetui.util.addClass(this.wrapper, "gadgetui-sidebar-minimized");
+						this.wrapper.classList.add("gadgetui-sidebar-minimized");
 						this.fireEvent("minimized");
 					},
 				},
 			);
 		} else {
-			gadgetui.util.addClass(this.wrapper, "gadgetui-sidebar-minimized");
+			this.wrapper.classList.add("gadgetui-sidebar-minimized");
 			this.fireEvent("minimized");
 		}
 	}

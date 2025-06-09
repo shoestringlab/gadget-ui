@@ -10,11 +10,7 @@ class Lightbox extends Component {
 	events = ["showPrevious", "showNext"];
 
 	config(options = {}) {
-		this.images = options.images || [
-			"https://via.placeholder.com/300x200?text=Image+1",
-			"https://via.placeholder.com/300x200/0000FF/FFFFFF?text=Image+2",
-			"https://via.placeholder.com/300x200/FF0000/FFFFFF?text=Image+3",
-		];
+		this.images = options.images || [];
 		this.currentIndex = 0;
 		this.time = options.time || 3000;
 		this.enableModal = options.enableModal ?? true;
@@ -32,10 +28,7 @@ class Lightbox extends Component {
 		this.element.classList.add("gadgetui-lightbox");
 
 		this.imageContainer = document.createElement("div");
-		gadgetui.util.addClass(
-			this.imageContainer,
-			"gadgetui-lightbox-image-container",
-		);
+		this.imageContainer.classList.add("gadgetui-lightbox-image-container");
 		this.imageTag = document.createElement("img");
 		this.imageTag.setAttribute("name", "image");
 		this.imageTag.classList.add("gadgetui-lightbox-image");
@@ -44,28 +37,21 @@ class Lightbox extends Component {
 		this.transitionImageTag = document.createElement("img");
 		this.transitionImageTag.setAttribute("name", "transitionImage");
 		this.transitionImageTag.classList.add("gadgetui-lightbox-image");
-		gadgetui.util.addClass(
-			this.transitionImageTag,
-			"gadgetui-lightbox-transitionimage",
-		);
+		this.transitionImageTag.classList.add("gadgetui-lightbox-transitionimage");
 		this.transitionImageTag.classList.add("gadgetui-hidden");
 		this.imageContainer.appendChild(this.transitionImageTag);
 
 		this.spanPrevious = document.createElement("span");
 		this.spanNext = document.createElement("span");
-		gadgetui.util.addClass(
-			this.spanPrevious,
-			"gadgetui-lightbox-previousControl",
-		);
+		this.spanPrevious.classList.add("gadgetui-lightbox-previousControl");
 		this.spanNext.classList.add("gadgetui-lightbox-nextControl");
 		this.spanPrevious.innerHTML =
 			this.iconType === "img"
-				? `<img class="${this.iconClass}" src="${this.leftIcon}">`
+				? `<img class="${this.iconClass}" src="${this.leftIcon}" alt="Previous">`
 				: `<svg class="${this.iconClass}"><use xlink:href="${this.leftIcon}"/></svg>`;
-
 		this.spanNext.innerHTML =
 			this.iconType === "img"
-				? `<img class="${this.iconClass}" src="${this.rightIcon}">`
+				? `<img class="${this.iconClass}" src="${this.rightIcon}" alt="Next">`
 				: `<svg class="${this.iconClass}"><use xlink:href="${this.rightIcon}"/></svg>`;
 
 		this.element.appendChild(this.spanPrevious);
@@ -81,28 +67,26 @@ class Lightbox extends Component {
 			this.modal.classList.add("gadgetui-hidden");
 
 			this.modalImageContainer = document.createElement("div");
-			gadgetui.util.addClass(
-				this.modalImageContainer,
+			this.modalImageContainer.classList.add(
 				"gadgetui-lightbox-modal-imagecontainer",
 			);
 			this.modalImageTag = document.createElement("img");
-			this.modalImageTag.classList.add("gadgetui-lightbox-image"); // Fixed typo: this.imageTab -> this.modalImageTag
+			this.modalImageTag.classList.add("gadgetui-lightbox-image");
 			this.modalImageContainer.appendChild(this.modalImageTag);
 
 			this.modal.appendChild(this.modalImageContainer);
-
 			document.body.appendChild(this.modal);
 
 			this.imageContainer.addEventListener("click", () => {
 				this.setModalImage();
 				this.element.classList.add("gadgetui-hidden");
-				gadgetui.util.removeClass(this.modal, "gadgetui-hidden");
+				this.modal.classList.remove("gadgetui-hidden");
 				this.stopAnimation();
 			});
 
 			this.modal.addEventListener("click", () => {
 				this.modal.classList.add("gadgetui-hidden");
-				gadgetui.util.removeClass(this.element, "gadgetui-hidden");
+				this.element.classList.remove("gadgetui-hidden");
 				this.animate();
 			});
 		}
@@ -122,7 +106,7 @@ class Lightbox extends Component {
 	}
 
 	setImage() {
-		this.imageTag.src = `${this.images[this.currentIndex]}`;
+		this.imageTag.src = this.images[this.currentIndex];
 		this.imageTag.alt = `Image ${this.currentIndex + 1}`;
 	}
 
@@ -134,8 +118,13 @@ class Lightbox extends Component {
 		this.transitionImageTag.src = newSrc;
 		this.transitionImageTag.alt = newAlt;
 
-		// Remove hidden class to make transition image visible
-		gadgetui.util.removeClass(this.transitionImageTag, "gadgetui-hidden");
+		// Remove hidden class and reset any previous animation classes
+		this.transitionImageTag.classList.remove("gadgetui-hidden");
+		this.transitionImageTag.classList.remove(
+			"gadgetui-slide-left",
+			"gadgetui-slide-right",
+			"gadgetui-slide-in",
+		);
 
 		// Apply slide direction
 		const directionClass = isNext
@@ -151,13 +140,13 @@ class Lightbox extends Component {
 
 			// Reset transition image
 			this.transitionImageTag.classList.add("gadgetui-hidden");
-			gadgetui.util.removeClass(this.transitionImageTag, "gadgetui-slide-left");
-			gadgetui.util.removeClass(
-				this.transitionImageTag,
+			this.transitionImageTag.classList.remove(
+				"gadgetui-slide-left",
 				"gadgetui-slide-right",
+				"gadgetui-slide-in",
 			);
 
-			// Remove event listener to avoid multiple triggers
+			// Remove event listener
 			this.transitionImageTag.removeEventListener(
 				"transitionend",
 				handleTransitionEnd,
@@ -169,9 +158,11 @@ class Lightbox extends Component {
 			handleTransitionEnd,
 		);
 
-		// Trigger reflow to ensure animation plays
-		this.transitionImageTag.offsetWidth; // Force reflow
-		this.transitionImageTag.classList.add("gadgetui-slide-in");
+		// Trigger animation
+		requestAnimationFrame(() => {
+			this.transitionImageTag.offsetWidth; // Force reflow
+			this.transitionImageTag.classList.add("gadgetui-slide-in");
+		});
 	}
 
 	animate() {
@@ -183,7 +174,7 @@ class Lightbox extends Component {
 	}
 
 	setModalImage() {
-		this.modalImageTag.src = `${this.images[this.currentIndex]}`;
+		this.modalImageTag.src = this.images[this.currentIndex];
 		this.modalImageTag.alt = `Image ${this.currentIndex + 1}`;
 	}
 }

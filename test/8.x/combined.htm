@@ -1,0 +1,407 @@
+<!doctype html>
+<html>
+
+<head>
+	<title>gadget-ui Tests</title>
+	<link rel="stylesheet" href="/dist/gadget-ui.css" />
+	<link rel="stylesheet" href="/node_modules/open-iconic/font/css/open-iconic.css" />
+	<script src='/node_modules/velocity/velocity.js'></script>
+	<script type="module">
+		import { gadgetui } from '/dist/gadget-ui.es.js'
+
+		var user = {
+			firstname: '',
+			lastname: '',
+			nickname: '',
+			tagline: '',
+			role: '',
+			friends: [],
+			food: {},
+		}
+
+		var lookuplist = [
+			{
+				label: 'Abby',
+				email: 'abby@abby',
+				value: '123',
+				title: 'Abby abby@abby',
+			},
+			{
+				label: 'Andy',
+				email: 'andy@andy',
+				value: '123',
+				title: 'Andy andy@andy',
+			},
+			{
+				label: 'Anne',
+				email: 'anne@anne',
+				value: '123',
+				title: 'Anne anne@anne',
+			},
+			{
+				label: 'Bobby',
+				email: 'bobby@bobby',
+				value: '456',
+			},
+			{
+				label: 'Cara',
+				email: 'cara@cara',
+				value: '789',
+			},
+			{
+				label: 'Dan',
+				email: 'dan@dan',
+				value: '102',
+			},
+		]
+
+		var foods = [
+			{ text: 'cereal', id: 1 },
+			{ text: 'eggs', id: 2 },
+			{ text: 'danish', id: 3 },
+		]
+
+		function renderLabel(item) {
+			return item.label + '(' + item.email + ')'
+		}
+
+		// set the model first if we're using auto data-binding
+		gadgetui.model.set('user', user)
+
+		//showModel();
+
+		var textinputs = document.querySelectorAll("input[gadgetui-textinput='true']")
+		Array.prototype.forEach.call(textinputs, function (input, ix) {
+			gadgetui.objects.Constructor(gadgetui.input.TextInput, [
+				input,
+				{
+					emitEvents: false,
+					func: logChanges,
+					enforceMaxWidth: true,
+					activate: 'mouseover',
+				},
+			])
+		})
+
+		gadgetui.objects.Constructor(gadgetui.input.ComboBox, [
+			document.querySelector("select[name='food']"),
+			{
+				id: 2,
+				emitEvents: true,
+				borderWidth: 1,
+				arrowIcon: '/dist/img/arrow.png',
+				save: function (text, resolve, reject) {
+					console.log('saving new value')
+					var newId = foods.length + 1
+					foods.push({ text: text, id: newId })
+					resolve(newId)
+				},
+				dataProvider: {
+					// you can pre-populate 'data' or the refresh() function will be called when you instantiate the ComboBox
+					//data : undefined,
+					refresh: function (dataProvider, resolve, reject) {
+						dataProvider.data = foods
+						resolve()
+					},
+				},
+			},
+		])
+
+		var foodEle = document.querySelector("select[name='food']")
+
+		foodEle.addEventListener('gadgetui-combobox-save', function (event, o) {
+			console.log('save: ' + o)
+		})
+
+		foodEle.addEventListener('gadgetui-combobox-change', function (event, o) {
+			console.log('change:' + o)
+		})
+
+		gadgetui.objects.Constructor(gadgetui.input.SelectInput, [
+			document.querySelector("select[name='role']"),
+			{
+				emitEvents: false,
+				func: logChanges,
+				model: gadgetui.model,
+			},
+		])
+		/*	var ll = new gadgetui.input.LookupListInput(
+									document.querySelector( "input[name='friends']" ),
+									{
+										emitEvents : false,
+										datasource : lookuplist,
+										model : gadgetui.model,
+										menuItemRenderer : renderLabel
+									}
+								);	*/
+
+		gadgetui.objects.Constructor(gadgetui.display.CollapsiblePane, [
+			document.getElementById('InputsDiv'),
+			{
+				title: 'Inputs',
+				path: '/dist/',
+			},
+		])
+
+		gadgetui.objects.Constructor(gadgetui.display.CollapsiblePane, [
+			document.getElementById('NarrowDiv'),
+			{
+				title: 'Nickname',
+				path: '/dist/',
+			},
+		])
+
+		gadgetui.objects.Constructor(gadgetui.display.CollapsiblePane, [
+			document.getElementById('modelDiv'),
+			{
+				title: 'Model',
+				path: '/dist/',
+				collapse: true,
+			},
+		])
+
+		var fp = gadgetui.objects.Constructor(gadgetui.display.FloatingPane, [
+			document.getElementById('debugDiv'),
+			{
+				title: 'Floating debug pane',
+				path: '/dist/',
+				opacity: 0.5,
+				position: {
+					my: 'right top',
+					at: 'right top',
+					of: window,
+				},
+			},
+		])
+		// no IE 7 support
+		if (!navigator.userAgent.match(/(MSIE 7)/)) {
+			gadgetui.objects.Constructor(gadgetui.display.Bubble, [
+				document.querySelector("input[name='friends']").parentNode,
+				'Start typing to add friends - Abby, Andy, Anne, Bobby, Cara, Dan are the names in the list.',
+				{
+					arrowPosition: 'left bottom',
+					position: 'top right',
+					arrowDirection: 'middle',
+					font: ".7em 'Arial'",
+					borderWidth: 10,
+					height: 150,
+					padding: 15,
+					arrowSize: 30,
+					borderRadius: 15,
+					closable: true,
+				},
+			])
+		}
+
+		gadgetui.model.bind(
+			'user.firstname',
+			document.querySelector("span[name='firstname']")
+		)
+
+		document.addEventListener('gadgetui-input-change', function (evt, obj) {
+			console.log(evt)
+			console.log(obj)
+		})
+
+		function logChanges(obj) {
+			console.log(obj)
+			//showModel();
+		}
+
+		document
+			.querySelector("input[name='resetLookupList']")
+			.addEventListener('click', function () {
+				ll.reset()
+			})
+
+		function showModel() {
+			document.querySelector("span[name='firstname']").innerText = gadgetui.model.get('user.firstname');
+			document.querySelector("span[name='lastname']").innerText = gadgetui.model.get('user.lastname');
+			document.querySelector("span[name='tagline']").innerText = gadgetui.model.get('user.tagline');
+			var role = gadgetui.model.get('user.role');
+			document.querySelector("span[name='role']").innerText = "text : " + role.text + ", id : " + role.id;
+			var myfriends = gadgetui.model.get('user.friends');
+			var friendsStr = '';
+			for (var jx = 0; jx < myfriends.length; jx++) {
+				friendsStr = (jx > 0) ? friendsStr + ", " : friendsStr;
+				friendsStr += myfriends[jx].label + " " + myfriends[jx].email;
+			}
+			document.querySelector("span[name='friends']").innerText = friendsStr;
+			document.querySelector("span[name='nickname']").innerText = gadgetui.model.get('user.nickname');
+			var food = gadgetui.model.get('user.food');
+			document.querySelector("span[name='food']").innerText = "text : " + food.text + ", id : " + food.id;
+		}
+
+		function setModel() {
+			gadgetui.model.set('user', {
+				firstname: 'Theodore',
+				lastname: 'Roosevelt',
+				tagline: 'Square Deal',
+				nickname: 'Teddy',
+				role: { text: 'President', id: 'President' },
+				friends: [{
+					label: "Bobby",
+					email: "bobby@bobby",
+					value: "456"
+				}],
+				food: { text: 'cereal', id: 1 }
+			});
+		}
+
+		window.showModel = showModel;
+		window.setModel = setModel;
+	</script>
+	<style>
+		body,
+		div,
+		span,
+		select,
+		input {
+			font-family: Arial, Helvetica, sans-serif;
+
+		}
+
+		/*
+			body{
+				font-size:2em;
+			}
+
+				input {
+				height:1.5em;
+				font-size:1em;
+			  -webkit-box-sizing: border-box;
+			  -moz-box-sizing: border-box;
+			  box-sizing: border-box;
+			}
+
+			#InputDiv > div{
+				margin-top: 2em;
+			}
+			*/
+	</style>
+
+
+</head>
+
+<body>
+	<p>
+		Basic test page for jquery-gadget-ui. Three dots indicate presence of a ui element. Relationship is a select
+		box, the others are text inputs.
+	</p>
+	<p>
+		Tests:
+	<ul>
+		<li>
+			Text inputs should activate on click.
+		</li>
+		<li>
+			Select should activate on mouseenter.
+		</li>
+		<li>
+			Changing the value of a field should change the label that appears when the input is hidden and should
+			change the value of the bound field in the model.
+		<li>
+			Clicking 'Change Model' should change the values stored in the model to preset values.
+			<br />
+			The model, in turn, should change the labels and input fields of the bound elements
+			to the same values.
+		</li>
+	</ul>
+	</p>
+
+	<div id="InputsDiv" style="width: 50%;">
+		<form>
+			<div>
+				First Name - bound to user.firstname
+				<input name="firstname" type="text" class="gadgetui-textinput" gadgetui-textinput="true"
+					gadgetui-bind="user.firstname" value="" />
+			</div>
+			<div>
+				Last Name - bound to user.lastname
+				<input name="lastname" type="text" class="gadgetui-textinput" gadgetui-textinput="true"
+					gadgetui-bind="user.lastname" placeholder="" value="" />
+			</div>
+			<div>
+				Tag Line - bound to user.tagline
+				<input name="tagline" type="text" class="gadgetui-textinput" gadgetui-textinput="true"
+					gadgetui-bind="user.tagline" placeholder="" value="" />
+			</div>
+			<div>
+				Relationship - bound to user.role
+				<select name="role" class="gadgetui-selectinput" gadgetui-selectinput="true" gadgetui-bind="user.role">
+					<option value="">choose ...</option>
+					<option value="Friend">Friend</option>
+					<option value="Sibling">Sibling</option>
+					<option value="co-worker">co-worker</option>
+					<option value="President">President</option>
+				</select>
+			</div>
+			<div>
+				<input name="friends" type="text" gadgetui-bind="user.friends" placeholder="Friends" />
+			</div>
+
+
+			<div>
+				Favorite breakfast food:<br>
+				<select name="food" gadgetui-bind="user.food">
+					<option value=""></option>
+				</select>
+				<br><br>
+			</div>
+
+		</form>
+	</div>
+
+	<div id="NarrowDiv" style="width: 700px;">
+		<div style="display:inline-table; width:300px;">
+			<input name="nickname" type="text" gadgetui-textinput="true" gadgetui-bind="user.nickname" value="" />
+		</div>
+		<div style="display:inline-table; width:300px; float:right;">
+			Some Text For Testing
+		</div>
+
+	</div>
+	<br />
+	<div>
+		<input type="button" value="Change Model" onclick="setModel();" />
+		<p>
+			<input type="button" value="Show Model Values" onclick="showModel();" />
+		</p>
+		<p>
+			<input type="button" value="Reset Friends list" name="resetLookupList" />
+		</p>
+	</div>
+
+
+
+	<div id="modelDiv" style="width: 50%;">
+		<div>firstname: <span name="firstname"></span></div>
+		<div>lastname: <span name="lastname"></span></div>
+		<div>tagline: <span name="tagline"></span></div>
+		<div>role: <span name="role"></span></div>
+		<div>friends: <span name="friends"></span></div>
+		<div>nickname: <span name="nickname"></span></div>
+		<div>favorite food: <span name="food"></span></div>
+	</div>
+
+	<div id="debugDiv" style="width: 50%; height:300px;">
+		When push.default is set to 'matching', git will push local branches
+		to the remote branches that already exist with the same name.
+
+		Since Git 2.0, Git defaults to the more conservative 'simple'
+		behavior, which only pushes the current branch to the corresponding
+		remote branch that 'git pull' uses to update the current branch.
+
+		See 'git help config' and search for 'push.default' for further information.
+		(the 'simple' mode was introduced in Git 1.7.11. Use the similar mode
+		'current' instead of 'simple' if you sometimes use older versions of Git)
+
+		To https://github.com/robertdmunn/gadget-ui.git
+		10f2ee7..7231ab0 master -> master
+
+		Need some content.
+	</div>
+
+</body>
+
+</html>
