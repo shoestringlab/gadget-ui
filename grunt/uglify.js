@@ -1,28 +1,22 @@
 module.exports = {
-
-	javascript : {
-		options:{
+	javascript: {
+		options: {
 			sourceMap: true,
-			sourceMapName: '<%= pkg.name %>.min.js.map',
-			mangle: true
-			},
-		files : {
-			'dist/<%= pkg.name %>.min.js' : [ '<%= concat.javascript.dest %>' ]
-		}
+			sourceMapName: "<%= pkg.name %>.min.js.map",
+			mangle: true,
+		},
+		files: {
+			"dist/<%= pkg.name %>.min.js": ["<%= concat.javascript.dest %>"],
+		},
 	},
-	javascriptes6 : {
-		options:{
+	javascriptes6: {
+		options: {
 			sourceMap: true,
-			sourceMapName: '<%= pkg.name %>.min.es.js.map',
-			mangle: true
-			},
-		files : {
-			'dist/<%= pkg.name %>.min.es.js' : [ '<%= concat.javascriptes6.dest %>' ]
-		}
+			sourceMapName: "<%= pkg.name %>.min.es.js.map",
+			mangle: true,
+		},
+		files: {
+			"dist/<%= pkg.name %>.min.es.js": ["<%= concat.javascriptes6.dest %>"],
+		},
 	},
-	jquery : {
-		files : {
-			'dist/jquery.<%= pkg.name %>.min.js' : [ '<%= concat.jquery.dest %>' ]
-		}
-	}
 };

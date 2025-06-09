@@ -1,3 +1,0 @@
-gadgetui.input = (function($) {
-	
-	

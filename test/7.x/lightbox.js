@@ -8,9 +8,13 @@ const imageArray = [
 	"/test/img/5.jpg",
 ];
 
-const lightbox = new gadgetui.display.Lightbox(
-	document.getElementById("lightbox"),
-	{ images: imageArray, time: 3000, enableModal: false },
+const lightbox = gadgetui.objects.Constructor(
+	gadgetui.display.Lightbox,
+	[
+		document.getElementById("lightbox"),
+		{ images: imageArray, time: 3000, enableModal: false },
+	],
+	true,
 );
 
 document.getElementById("animate").addEventListener("click", function (event) {

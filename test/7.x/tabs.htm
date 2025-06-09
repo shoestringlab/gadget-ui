@@ -3,15 +3,23 @@
 	<head>
 		<title>gadget-ui Tabs Test</title>
 		<link rel="stylesheet" href="/dist/gadget-ui.css" />
-		<script src="/node_modules/velocity-animate/velocity.js"></script>
-		<script type="module">
-			import { tabs } from "/dist/gadget-ui.es.js";
 
-			var tbs = new tabs(document.querySelector("#tabsHContainer"), {});
+		<script type="module">
+			import { tabs, constructor } from "/dist/gadget-ui.es.js";
+
+			var tbs = constructor(tabs, [
+				document.querySelector("#tabsHContainer"),
+				{},
+			]);
 			// show bindings
-			var tbs3 = new tabs(document.querySelector("#vertTabContainer"), {
-				direction: "vertical",
-			});
+			var tbs3 = constructor(
+				tabs,
+				[
+					document.querySelector("#vertTabContainer"),
+					{ direction: "vertical" },
+				],
+				true,
+			);
 
 			tbs3.on("tabSelected", function (event, tab) {
 				console.log(event);
