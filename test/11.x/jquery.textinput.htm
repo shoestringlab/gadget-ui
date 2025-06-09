@@ -2,14 +2,13 @@
 <html>
 	<head>
 		<title>gadget-ui TextInput Test</title>
-		<link rel="stylesheet" href="/dist/gadget-ui.css"/>
-		<link rel="stylesheet" href="/node_modules/open-iconic/font/css/open-iconic.css"/>
-		<script src='/node_modules/velocity/velocity.js'></script>
-		<style>
-			body {font-size: 2em;}
-			input, select, select option{ font-size: 1em;}
-		</style>
-		<script src="textinput.js" type="module"></script>
+		 <script src='../bower_components/modlazy/dist/modlazy.min.js'></script>
+		 <script>
+		 	modlazy.load(['textinput.js < ../dist/gadget-ui.js', "/bower_components/velocity-animate/velocity.js", '../dist/gadget-ui.css', "/bower_components/open-iconic/font/css/open-iconic.css" ], function(){
+  				console.log('All files have been loaded');
+			});
+		 </script>
+
 		<style>
 			body {font-size: 1em;}
 			input, select, select option{ font-size: 1em;}
@@ -27,10 +26,6 @@
 		<div>
 			<p>Last Name	- bound to user.lastname</p>
 			<input name="lastname" type="text" class="gadgetui-textinput" gadgetui-textinput="true" gadgetui-bind="user.lastname" placeholder="" value=""/>
-		</div>
-		<div>
-			<p>Nickname	- not bound</p>
-			<input name="nickname" type="text" placeholder="" value=""/>
 		</div>
 
 		<div name="display">

@@ -1,0 +1,33 @@
+<!doctype html>
+<html>
+	<head>
+		<title>gadget-ui ComboBox Test</title>
+		<link rel="stylesheet" href="/dist/gadget-ui.css" />
+		<link
+			rel="stylesheet"
+			href="/node_modules/open-iconic/font/css/open-iconic.css"
+		/>
+
+		<script src="combobox.js" type="module"></script>
+
+		<style>
+			body {
+				font-size: 2em;
+			}
+			input,
+			select,
+			select option {
+				font-size: 1em;
+			}
+		</style>
+	</head>
+
+	<body>
+		<p>Test the ComboBox control.</p>
+
+		<p>Select your favorite breakfast food, or enter something new:</p>
+		<div style="margin-left: 50px">
+			<select name="food" gadgetui-bind="user.food"></select>
+		</div>
+	</body>
+</html>

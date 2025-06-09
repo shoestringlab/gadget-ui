@@ -62,19 +62,13 @@ class Sidebar extends Component {
 					queue: false,
 					duration: this.delay,
 					complete: () => {
-						gadgetui.util.removeClass(
-							this.selector,
-							"gadgetui-sidebarContent-minimized",
-						);
+						this.selector.classList.remove("gadgetui-sidebarContent-minimized");
 						this.fireEvent("maximized");
 					},
 				},
 			);
 		} else {
-			gadgetui.util.removeClass(
-				this.selector,
-				"gadgetui-sidebarContent-minimized",
-			);
+			this.selector.classList.remove("gadgetui-sidebarContent-minimized");
 			this.fireEvent("maximized");
 		}
 	}

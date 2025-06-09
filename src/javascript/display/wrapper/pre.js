@@ -1,5 +1,7 @@
+
+
 gadgetui.display = (function() {
-	
+
 	function getStyleRuleValue(style, selector, sheet) {
 	    var sheets = typeof sheet !== 'undefined' ? [sheet] : document.styleSheets;
 	    for (var i = 0, l = sheets.length; i < l; i++) {

@@ -40,6 +40,43 @@ var gadgetui = {
 // 		gadgetui.mousePosition = gadgetui.util.mouseCoords(ev);
 // 	});
 
+class Component {
+	constructor() {
+		this.events = {};
+	}
+
+	// event bindings
+	on(event, func) {
+		if (this.events[event] === undefined) {
+			this.events[event] = [];
+		}
+		this.events[event].push(func);
+		return this;
+	}
+
+	off(event) {
+		// Clear listeners
+		this.events[event] = [];
+		return this;
+	}
+
+	fireEvent(key, args) {
+		if (this.events[key] !== undefined) {
+			this.events[key].forEach((func) => {
+				func(this, args);
+			});
+		}
+	}
+
+	getAll() {
+		return [
+			{ name: "on", func: this.on },
+			{ name: "off", func: this.off },
+			{ name: "fireEvent", func: this.fireEvent },
+		];
+	}
+}
+
 gadgetui.model = (() => {
 	'use strict'
 
@@ -492,8 +529,10 @@ if (!Array.prototype.forEach) {
         return undefined;
     };
 }
+
+
 gadgetui.display = (function() {
-	
+
 	function getStyleRuleValue(style, selector, sheet) {
 	    var sheets = typeof sheet !== 'undefined' ? [sheet] : document.styleSheets;
 	    for (var i = 0, l = sheets.length; i < l; i++) {
@@ -508,42 +547,6 @@ gadgetui.display = (function() {
 	    }
 	    return null;
 	}
-class Component {
-	constructor() {
-		this.events = {};
-	}
-
-	// event bindings
-	on(event, func) {
-		if (this.events[event] === undefined) {
-			this.events[event] = [];
-		}
-		this.events[event].push(func);
-		return this;
-	}
-
-	off(event) {
-		// Clear listeners
-		this.events[event] = [];
-		return this;
-	}
-
-	fireEvent(key, args) {
-		if (this.events[key] !== undefined) {
-			this.events[key].forEach((func) => {
-				func(this, args);
-			});
-		}
-	}
-
-	getAll() {
-		return [
-			{ name: "on", func: this.on },
-			{ name: "off", func: this.off },
-			{ name: "fireEvent", func: this.fireEvent },
-		];
-	}
-}
 
 class Bubble extends Component {
 	constructor(options = {}) {
@@ -1908,19 +1911,13 @@ class Sidebar extends Component {
 					queue: false,
 					duration: this.delay,
 					complete: () => {
-						gadgetui.util.removeClass(
-							this.selector,
-							"gadgetui-sidebarContent-minimized",
-						);
+						this.selector.classList.remove("gadgetui-sidebarContent-minimized");
 						this.fireEvent("maximized");
 					},
 				},
 			);
 		} else {
-			gadgetui.util.removeClass(
-				this.selector,
-				"gadgetui-sidebarContent-minimized",
-			);
+			this.selector.classList.remove("gadgetui-sidebarContent-minimized");
 			this.fireEvent("maximized");
 		}
 	}
@@ -2064,1428 +2061,1424 @@ class Tabs extends Component {
 	};
 }());
 
+
 gadgetui.input = (function() {
-	
-	
-function ComboBox(element, options) {
-	this.emitEvents = true;
-	this.model = gadgetui.model;
-	this.func = undefined; // Initialized to avoid undefined property
-	this.element = element;
 
-	this.config(options);
-	this.setSaveFunc();
-	this.setDataProviderRefresh();
-	this.addControl();
-	this.addCSS();
-	gadgetui.util.bind(this.element, this.model);
-	gadgetui.util.bind(this.label, this.model);
-	this.addBehaviors();
-	this.setStartingValues();
-}
+class ComboBox extends Component {
+	constructor(element, options) {
+		super();
+		this.emitEvents = true;
+		this.model = gadgetui.model;
+		this.func = undefined; // Initialized to avoid undefined property
+		this.element = element;
 
-ComboBox.prototype.events = [
-	"change",
-	"click",
-	"focus",
-	"mouseenter",
-	"keyup",
-	"mouseleave",
-	"blur",
-];
-
-ComboBox.prototype.addControl = function () {
-	var css = gadgetui.util.setStyle;
-	this.comboBox = gadgetui.util.createElement("div");
-	this.input = gadgetui.util.createElement("input");
-	this.label = gadgetui.util.createElement("div");
-	this.inputWrapper = gadgetui.util.createElement("div");
-	this.selectWrapper = gadgetui.util.createElement("div");
-
-	this.comboBox.classList.add("gadgetui-combobox");
-	this.input.classList.add("gadgetui-combobox-input");
-	this.label.classList.add("gadgetui-combobox-label");
-	this.inputWrapper.classList.add("gadgetui-combobox-inputwrapper");
-
-	this.selectWrapper.classList.add("gadgetui-combobox-selectwrapper");
-
-	this.element.parentNode.insertBefore(this.comboBox, this.element);
-	this.element.parentNode.removeChild(this.element);
-	this.comboBox.appendChild(this.label);
-	this.selectWrapper.appendChild(this.element);
-	this.comboBox.appendChild(this.selectWrapper);
-	this.inputWrapper.appendChild(this.input);
-	this.comboBox.appendChild(this.inputWrapper);
-	this.label.setAttribute("data-id", this.id);
-	this.label.setAttribute(
-		"gadgetui-bind",
-		this.element.getAttribute("gadgetui-bind"),
-	);
-	this.label.innerHTML = this.text;
-	this.input.setAttribute("placeholder", this.newOption.text);
-	this.input.setAttribute("type", "text");
-	this.input.setAttribute("name", "custom");
-
-	css(this.comboBox, "opacity", ".0");
-};
-
-ComboBox.prototype.addCSS = function () {
-	var css = gadgetui.util.setStyle;
-	this.element.classList.add("gadgetui-combobox-select");
-	css(this.element, "width", this.width);
-	css(this.element, "border", 0);
-	css(this.element, "display", "inline");
-	css(this.comboBox, "position", "relative");
-
-	var styles = gadgetui.util.getStyle(this.element),
-		inputWidth = this.element.clientWidth,
-		inputWidthAdjusted,
-		inputLeftOffset = 0,
-		selectMarginTop = 0,
-		selectLeftPadding = 0,
-		leftOffset = 0,
-		inputWrapperTop = this.borderWidth,
-		inputLeftMargin,
-		leftPosition;
-
-	leftPosition = gadgetui.util.getNumberValue(this.borderWidth) + 4;
-
-	if (this.borderRadius > 5) {
-		selectLeftPadding = this.borderRadius - 5;
-		leftPosition =
-			gadgetui.util.getNumberValue(leftPosition) +
-			gadgetui.util.getNumberValue(selectLeftPadding);
-	}
-	inputLeftMargin = leftPosition;
-	inputWidthAdjusted =
-		inputWidth -
-		this.arrowWidth -
-		gadgetui.util.getNumberValue(this.borderRadius) -
-		4;
-	console.log(navigator.userAgent);
-	if (
-		navigator.userAgent.match(/(Safari)/) &&
-		!navigator.userAgent.match(/(Chrome)/)
-	) {
-		inputWrapperTop = this.borderWidth - 2;
-		selectLeftPadding = selectLeftPadding < 4 ? 4 : this.borderRadius - 1;
-		selectMarginTop = 1;
-	} else if (navigator.userAgent.match(/Edge/)) {
-		selectLeftPadding = selectLeftPadding < 1 ? 1 : this.borderRadius - 4;
-		inputLeftMargin--;
-	} else if (navigator.userAgent.match(/MSIE/)) {
-		selectLeftPadding = selectLeftPadding < 1 ? 1 : this.borderRadius - 4;
-	} else if (navigator.userAgent.match(/Trident/)) {
-		selectLeftPadding = selectLeftPadding < 2 ? 2 : this.borderRadius - 3;
-	} else if (navigator.userAgent.match(/Chrome/)) {
-		selectLeftPadding = selectLeftPadding < 4 ? 4 : this.borderRadius - 1;
-		selectMarginTop = 1;
+		this.config(options);
+		this.setSaveFunc();
+		this.setDataProviderRefresh();
+		this.addControl();
+		this.addCSS();
+		gadgetui.util.bind(this.element, this.model);
+		gadgetui.util.bind(this.label, this.model);
+		this.addBehaviors();
+		this.setStartingValues();
 	}
 
-	css(this.element, "margin-top", selectMarginTop);
-	css(this.element, "padding-left", selectLeftPadding);
-	css(this.inputWrapper, "top", inputWrapperTop);
-	css(this.inputWrapper, "left", leftOffset);
-	css(this.input, "width", inputWidthAdjusted);
-	css(this.input, "font-size", styles.fontSize);
-	css(this.comboBox, "font-size", styles.fontSize);
-	css(this.label, "left", leftPosition);
-	css(this.label, "font-family", styles.fontFamily);
-	css(this.label, "font-size", styles.fontSize);
-	css(this.label, "font-weight", styles.fontWeight);
+	// events = [
+	// 	"change",
+	// 	"click",
+	// 	"focus",
+	// 	"mouseenter",
+	// 	"keyup",
+	// 	"mouseleave",
+	// 	"blur",
+	// ];
 
-	if (navigator.userAgent.match(/Firefox/)) {
+	addControl() {
+		var css = gadgetui.util.setStyle;
+		this.comboBox = gadgetui.util.createElement("div");
+		this.input = gadgetui.util.createElement("input");
+		this.label = gadgetui.util.createElement("div");
+		this.inputWrapper = gadgetui.util.createElement("div");
+		this.selectWrapper = gadgetui.util.createElement("div");
+
+		this.comboBox.classList.add("gadgetui-combobox");
+		this.input.classList.add("gadgetui-combobox-input");
+		this.label.classList.add("gadgetui-combobox-label");
+		this.inputWrapper.classList.add("gadgetui-combobox-inputwrapper");
+
+		this.selectWrapper.classList.add("gadgetui-combobox-selectwrapper");
+
+		this.element.parentNode.insertBefore(this.comboBox, this.element);
+		this.element.parentNode.removeChild(this.element);
+		this.comboBox.appendChild(this.label);
+		this.selectWrapper.appendChild(this.element);
+		this.comboBox.appendChild(this.selectWrapper);
+		this.inputWrapper.appendChild(this.input);
+		this.comboBox.appendChild(this.inputWrapper);
+		this.label.setAttribute("data-id", this.id);
+		this.label.setAttribute(
+			"gadgetui-bind",
+			this.element.getAttribute("gadgetui-bind"),
+		);
+		this.label.innerHTML = this.text;
+		this.input.setAttribute("placeholder", this.newOption.text);
+		this.input.setAttribute("type", "text");
+		this.input.setAttribute("name", "custom");
+
+		css(this.comboBox, "opacity", ".0");
+	}
+
+	addCSS() {
+		var css = gadgetui.util.setStyle;
+		this.element.classList.add("gadgetui-combobox-select");
+		css(this.element, "width", this.width);
+		css(this.element, "border", 0);
+		css(this.element, "display", "inline");
+		css(this.comboBox, "position", "relative");
+
+		var styles = gadgetui.util.getStyle(this.element),
+			inputWidth = this.element.clientWidth,
+			inputWidthAdjusted,
+			inputLeftOffset = 0,
+			selectMarginTop = 0,
+			selectLeftPadding = 0,
+			leftOffset = 0,
+			inputWrapperTop = this.borderWidth,
+			inputLeftMargin,
+			leftPosition;
+
+		leftPosition = gadgetui.util.getNumberValue(this.borderWidth) + 4;
+
+		if (this.borderRadius > 5) {
+			selectLeftPadding = this.borderRadius - 5;
+			leftPosition =
+				gadgetui.util.getNumberValue(leftPosition) +
+				gadgetui.util.getNumberValue(selectLeftPadding);
+		}
+		inputLeftMargin = leftPosition;
+		inputWidthAdjusted =
+			inputWidth -
+			this.arrowWidth -
+			gadgetui.util.getNumberValue(this.borderRadius) -
+			4;
+		console.log(navigator.userAgent);
+		if (
+			navigator.userAgent.match(/(Safari)/) &&
+			!navigator.userAgent.match(/(Chrome)/)
+		) {
+			inputWrapperTop = this.borderWidth - 2;
+			selectLeftPadding = selectLeftPadding < 4 ? 4 : this.borderRadius - 1;
+			selectMarginTop = 1;
+		} else if (navigator.userAgent.match(/Edge/)) {
+			selectLeftPadding = selectLeftPadding < 1 ? 1 : this.borderRadius - 4;
+			inputLeftMargin--;
+		} else if (navigator.userAgent.match(/MSIE/)) {
+			selectLeftPadding = selectLeftPadding < 1 ? 1 : this.borderRadius - 4;
+		} else if (navigator.userAgent.match(/Trident/)) {
+			selectLeftPadding = selectLeftPadding < 2 ? 2 : this.borderRadius - 3;
+		} else if (navigator.userAgent.match(/Chrome/)) {
+			selectLeftPadding = selectLeftPadding < 4 ? 4 : this.borderRadius - 1;
+			selectMarginTop = 1;
+		}
+
+		css(this.element, "margin-top", selectMarginTop);
+		css(this.element, "padding-left", selectLeftPadding);
+		css(this.inputWrapper, "top", inputWrapperTop);
+		css(this.inputWrapper, "left", leftOffset);
+		css(this.input, "width", inputWidthAdjusted);
+		css(this.input, "font-size", styles.fontSize);
+		css(this.comboBox, "font-size", styles.fontSize);
+		css(this.label, "left", leftPosition);
+		css(this.label, "font-family", styles.fontFamily);
+		css(this.label, "font-size", styles.fontSize);
+		css(this.label, "font-weight", styles.fontWeight);
+
+		if (navigator.userAgent.match(/Firefox/)) {
+			if (this.scaleIconHeight === true) {
+				css(
+					this.selectWrapper,
+					"background-size",
+					this.arrowWidth + "px " + inputHeight + "px",
+				);
+			}
+		}
+		css(this.element, "-webkit-appearance", "none");
+		css(this.element, "-moz-appearance", "window");
+
 		if (this.scaleIconHeight === true) {
 			css(
-				this.selectWrapper,
+				this.element,
 				"background-size",
 				this.arrowWidth + "px " + inputHeight + "px",
 			);
 		}
-	}
-	css(this.element, "-webkit-appearance", "none");
-	css(this.element, "-moz-appearance", "window");
 
-	if (this.scaleIconHeight === true) {
-		css(
-			this.element,
-			"background-size",
-			this.arrowWidth + "px " + inputHeight + "px",
-		);
-	}
+		css(this.comboBox, "opacity", 1);
 
-	css(this.comboBox, "opacity", 1);
-
-	if (this.hideable) {
-		css(this.inputWrapper, "display", "none");
-		css(this.selectWrapper, "display", "none");
-	} else {
-		css(this.selectWrapper, "display", "inline");
-		css(this.label, "display", "none");
-		if (this.element.selectedIndex <= 0) {
-			css(this.inputWrapper, "display", "inline");
+		if (this.hideable) {
+			css(this.inputWrapper, "display", "none");
+			css(this.selectWrapper, "display", "none");
+		} else {
+			css(this.selectWrapper, "display", "inline");
+			css(this.label, "display", "none");
+			if (this.element.selectedIndex <= 0) {
+				css(this.inputWrapper, "display", "inline");
+			}
 		}
 	}
-};
 
-ComboBox.prototype.setSelectOptions = function () {
-	var _this = this,
-		id,
-		text,
-		option;
+	setSelectOptions() {
+		var _this = this,
+			id,
+			text,
+			option;
 
-	while (_this.element.options.length > 0) {
-		_this.element.remove(0);
-	}
-	option = gadgetui.util.createElement("option");
-	option.value = _this.newOption.id;
-	option.text = _this.newOption.text;
-	_this.element.add(option);
-
-	this.dataProvider.data.forEach(function (obj) {
-		id = obj.id;
-		text = obj.text;
-		if (text === undefined) {
-			text = id;
+		while (_this.element.options.length > 0) {
+			_this.element.remove(0);
 		}
 		option = gadgetui.util.createElement("option");
-		option.value = id;
-		option.text = text;
+		option.value = _this.newOption.id;
+		option.text = _this.newOption.text;
 		_this.element.add(option);
-	});
-};
 
-ComboBox.prototype.find = function (text) {
-	var ix;
-	for (ix = 0; ix < this.dataProvider.data.length; ix++) {
-		if (this.dataProvider.data[ix].text === text) {
-			return this.dataProvider.data[ix].id;
+		this.dataProvider.data.forEach(function (obj) {
+			id = obj.id;
+			text = obj.text;
+			if (text === undefined) {
+				text = id;
+			}
+			option = gadgetui.util.createElement("option");
+			option.value = id;
+			option.text = text;
+			_this.element.add(option);
+		});
+	}
+
+	find(text) {
+		var ix;
+		for (ix = 0; ix < this.dataProvider.data.length; ix++) {
+			if (this.dataProvider.data[ix].text === text) {
+				return this.dataProvider.data[ix].id;
+			}
 		}
+		return;
 	}
-	return;
-};
 
-ComboBox.prototype.getText = function (id) {
-	var ix,
-		compId = parseInt(id, 10);
-	if (isNaN(compId) === true) {
-		compId = id;
-	}
-	for (ix = 0; ix < this.dataProvider.data.length; ix++) {
-		if (this.dataProvider.data[ix].id === compId) {
-			return this.dataProvider.data[ix].text;
+	getText(id) {
+		var ix,
+			compId = parseInt(id, 10);
+		if (isNaN(compId) === true) {
+			compId = id;
 		}
+		for (ix = 0; ix < this.dataProvider.data.length; ix++) {
+			if (this.dataProvider.data[ix].id === compId) {
+				return this.dataProvider.data[ix].text;
+			}
+		}
+		return;
 	}
-	return;
-};
 
-ComboBox.prototype.showLabel = function () {
-	var css = gadgetui.util.setStyle;
-	css(this.label, "display", "inline-block");
-	css(this.selectWrapper, "display", "none");
-	css(this.inputWrapper, "display", "none");
-};
+	showLabel() {
+		var css = gadgetui.util.setStyle;
+		css(this.label, "display", "inline-block");
+		css(this.selectWrapper, "display", "none");
+		css(this.inputWrapper, "display", "none");
+	}
 
-ComboBox.prototype.addBehaviors = function (obj) {
-	var _this = this;
-	if (this.hideable) {
-		this.comboBox.addEventListener(this.activate, function () {
-			setTimeout(function () {
-				if (_this.label.style.display != "none") {
-					console.log("combo mouseenter ");
-					_this.selectWrapper.style.display = "inline";
-					_this.label.style.display = "none";
-					if (_this.element.selectedIndex <= 0) {
-						_this.inputWrapper.style.display = "inline";
+	addBehaviors(obj) {
+		var _this = this;
+		if (this.hideable) {
+			this.comboBox.addEventListener(this.activate, function () {
+				setTimeout(function () {
+					if (_this.label.style.display != "none") {
+						console.log("combo mouseenter ");
+						_this.selectWrapper.style.display = "inline";
+						_this.label.style.display = "none";
+						if (_this.element.selectedIndex <= 0) {
+							_this.inputWrapper.style.display = "inline";
+						}
 					}
-				}
-			}, _this.delay);
-		});
-		this.comboBox.addEventListener("mouseleave", function () {
-			console.log("combo mouseleave ");
-			if (
-				_this.element != document.activeElement &&
-				_this.input != document.activeElement
-			) {
-				_this.showLabel();
-			}
-			if (typeof _this.fireEvent === "function") {
-				_this.fireEvent("mouseleave");
-			}
-		});
-	}
-	_this.input.addEventListener("click", function (e) {
-		console.log("input click ");
-		if (typeof _this.fireEvent === "function") {
-			_this.fireEvent("click");
-		}
-	});
-	_this.input.addEventListener("keyup", function (event) {
-		console.log("input keyup");
-		if (event.which === 13) {
-			var inputText = gadgetui.util.encode(_this.input.value);
-			_this.handleInput(inputText);
-		}
-		if (typeof _this.fireEvent === "function") {
-			_this.fireEvent("keyup");
-		}
-	});
-	if (this.hideable) {
-		_this.input.addEventListener("blur", function () {
-			console.log("input blur");
-			if (
-				gadgetui.util.mouseWithin(_this.element, gadgetui.mousePosition) ===
-				true
-			) {
-				_this.inputWrapper.style.display = "none";
-				_this.element.focus();
-			} else {
-				_this.showLabel();
-			}
-			if (typeof _this.fireEvent === "function") {
-				_this.fireEvent("blur");
-			}
-		});
-	}
-	if (this.hideable) {
-		this.element.addEventListener("mouseenter", function (ev) {
-			_this.element.style.display = "inline";
-			if (typeof _this.fireEvent === "function") {
-				_this.fireEvent("mouseenter");
-			}
-		});
-	}
-	this.element.addEventListener("click", function (ev) {
-		console.log("select click");
-		ev.stopPropagation();
-		if (typeof _this.fireEvent === "function") {
-			_this.fireEvent("click");
-		}
-	});
-	this.element.addEventListener("change", function (event) {
-		var idx = event.target.selectedIndex >= 0 ? event.target.selectedIndex : 0;
-		if (parseInt(event.target[idx].value, 10) !== parseInt(_this.id, 10)) {
-			console.log("select change");
-			if (event.target.selectedIndex > 0) {
-				_this.inputWrapper.style.display = "none";
-				_this.setValue(event.target[event.target.selectedIndex].value);
-			} else {
-				_this.inputWrapper.style.display = "block";
-				_this.setValue(_this.newOption.value);
-				_this.input.focus();
-			}
-			gadgetui.util.trigger(_this.element, "gadgetui-combobox-change", {
-				id: event.target[event.target.selectedIndex].value,
-				text: event.target[event.target.selectedIndex].innerHTML,
+				}, _this.delay);
 			});
-			if (typeof _this.fireEvent === "function") {
-				_this.fireEvent("change");
-			}
-		}
-	});
-	if (this.hideable) {
-		this.element.addEventListener("blur", function (event) {
-			console.log("select blur ");
-			event.stopPropagation();
-			setTimeout(function () {
-				if (_this.input !== document.activeElement) {
+			this.comboBox.addEventListener("mouseleave", function () {
+				console.log("combo mouseleave ");
+				if (
+					_this.element != document.activeElement &&
+					_this.input != document.activeElement
+				) {
 					_this.showLabel();
 				}
-			}, 200);
+				if (typeof _this.fireEvent === "function") {
+					_this.fireEvent("mouseleave");
+				}
+			});
+		}
+		_this.input.addEventListener("click", function (e) {
+			console.log("input click ");
 			if (typeof _this.fireEvent === "function") {
-				_this.fireEvent("blur");
+				_this.fireEvent("click");
 			}
 		});
-	}
-};
-
-ComboBox.prototype.handleInput = function (inputText) {
-	var id = this.find(inputText),
-		css = gadgetui.util.setStyle;
-	if (id !== undefined) {
-		this.element.value = id;
-		this.label.innerText = inputText;
-		this.element.focus();
-		this.input.value = "";
-		css(this.inputWrapper, "display", "none");
-	} else if (id === undefined && inputText.length > 0) {
-		this.save(inputText);
-	}
-};
-
-ComboBox.prototype.triggerSelectChange = function () {
-	console.log("select change");
-	var ev = new Event("change", {
-		view: window,
-		bubbles: true,
-		cancelable: true,
-	});
-	this.element.dispatchEvent(ev);
-};
-
-ComboBox.prototype.setSaveFunc = function () {
-	var _this = this;
-
-	if (this.save !== undefined) {
-		var save = this.save;
-		this.save = function (text) {
-			var _this = this,
-				func,
-				promise,
-				args = [text],
-				value = this.find(text);
-			if (value === undefined) {
-				console.log("save: " + text);
-
-				promise = new Promise(function (resolve, reject) {
-					args.push(resolve);
-					args.push(reject);
-					func = save.apply(_this, args);
-					console.log(func);
+		_this.input.addEventListener("keyup", function (event) {
+			console.log("input keyup");
+			if (event.which === 13) {
+				var inputText = gadgetui.util.encode(_this.input.value);
+				_this.handleInput(inputText);
+			}
+			if (typeof _this.fireEvent === "function") {
+				_this.fireEvent("keyup");
+			}
+		});
+		if (this.hideable) {
+			_this.input.addEventListener("blur", function () {
+				console.log("input blur");
+				if (
+					gadgetui.util.mouseWithin(_this.element, gadgetui.mousePosition) ===
+					true
+				) {
+					_this.inputWrapper.style.display = "none";
+					_this.element.focus();
+				} else {
+					_this.showLabel();
+				}
+				if (typeof _this.fireEvent === "function") {
+					_this.fireEvent("blur");
+				}
+			});
+		}
+		if (this.hideable) {
+			this.element.addEventListener("mouseenter", function (ev) {
+				_this.element.style.display = "inline";
+				if (typeof _this.fireEvent === "function") {
+					_this.fireEvent("mouseenter");
+				}
+			});
+		}
+		this.element.addEventListener("click", function (ev) {
+			console.log("select click");
+			ev.stopPropagation();
+			if (typeof _this.fireEvent === "function") {
+				_this.fireEvent("click");
+			}
+		});
+		this.element.addEventListener("change", function (event) {
+			var idx =
+				event.target.selectedIndex >= 0 ? event.target.selectedIndex : 0;
+			if (parseInt(event.target[idx].value, 10) !== parseInt(_this.id, 10)) {
+				console.log("select change");
+				if (event.target.selectedIndex > 0) {
+					_this.inputWrapper.style.display = "none";
+					_this.setValue(event.target[event.target.selectedIndex].value);
+				} else {
+					_this.inputWrapper.style.display = "block";
+					_this.setValue(_this.newOption.value);
+					_this.input.focus();
+				}
+				gadgetui.util.trigger(_this.element, "gadgetui-combobox-change", {
+					id: event.target[event.target.selectedIndex].value,
+					text: event.target[event.target.selectedIndex].innerHTML,
 				});
-				promise.then(function (value) {
-					function callback() {
-						gadgetui.util.trigger(_this.element, "gadgetui-combobox-save", {
-							id: value,
-							text: text,
-						});
+				if (typeof _this.fireEvent === "function") {
+					_this.fireEvent("change");
+				}
+			}
+		});
+		if (this.hideable) {
+			this.element.addEventListener("blur", function (event) {
+				console.log("select blur ");
+				event.stopPropagation();
+				setTimeout(function () {
+					if (_this.input !== document.activeElement) {
+						_this.showLabel();
+					}
+				}, 200);
+				if (typeof _this.fireEvent === "function") {
+					_this.fireEvent("blur");
+				}
+			});
+		}
+	}
+
+	handleInput(inputText) {
+		var id = this.find(inputText),
+			css = gadgetui.util.setStyle;
+		if (id !== undefined) {
+			this.element.value = id;
+			this.label.innerText = inputText;
+			this.element.focus();
+			this.input.value = "";
+			css(this.inputWrapper, "display", "none");
+		} else if (id === undefined && inputText.length > 0) {
+			this.save(inputText);
+		}
+	}
+
+	triggerSelectChange() {
+		console.log("select change");
+		var ev = new Event("change", {
+			view: window,
+			bubbles: true,
+			cancelable: true,
+		});
+		this.element.dispatchEvent(ev);
+	}
+
+	setSaveFunc() {
+		var _this = this;
+
+		if (this.save !== undefined) {
+			var save = this.save;
+			this.save = function (text) {
+				var _this = this,
+					func,
+					promise,
+					args = [text],
+					value = this.find(text);
+				if (value === undefined) {
+					console.log("save: " + text);
+
+					promise = new Promise(function (resolve, reject) {
+						args.push(resolve);
+						args.push(reject);
+						func = save.apply(_this, args);
+						console.log(func);
+					});
+					promise.then(function (value) {
+						function callback() {
+							gadgetui.util.trigger(_this.element, "gadgetui-combobox-save", {
+								id: value,
+								text: text,
+							});
+							_this.input.value = "";
+							_this.inputWrapper.style.display = "none";
+							_this.id = value;
+							_this.dataProvider.refresh();
+						}
+						if (_this.animate === true && typeof Velocity !== "undefined") {
+							Velocity(
+								_this.selectWrapper,
+								{
+									boxShadow: "0 0 15px " + _this.glowColor,
+									borderColor: _this.glowColor,
+								},
+								_this.animateDelay / 2,
+								function () {
+									_this.selectWrapper.style.borderColor = _this.glowColor;
+								},
+							);
+							Velocity(
+								_this.selectWrapper,
+								{
+									boxShadow: 0,
+									borderColor: _this.borderColor,
+								},
+								_this.animateDelay / 2,
+								callback,
+							);
+						} else {
+							callback();
+						}
+					});
+					promise["catch"](function (message) {
 						_this.input.value = "";
-						_this.inputWrapper.style.display = "none";
-						_this.id = value;
+						_this.inputWrapper.hide();
+						console.log(message);
 						_this.dataProvider.refresh();
-					}
-					if (_this.animate === true && typeof Velocity !== "undefined") {
-						Velocity(
-							_this.selectWrapper,
-							{
-								boxShadow: "0 0 15px " + _this.glowColor,
-								borderColor: _this.glowColor,
-							},
-							_this.animateDelay / 2,
-							function () {
-								_this.selectWrapper.style.borderColor = _this.glowColor;
-							},
-						);
-						Velocity(
-							_this.selectWrapper,
-							{
-								boxShadow: 0,
-								borderColor: _this.borderColor,
-							},
-							_this.animateDelay / 2,
-							callback,
-						);
-					} else {
-						callback();
-					}
+					});
+				}
+				return func;
+			};
+		}
+	}
+
+	setStartingValues() {
+		this.dataProvider.data === undefined
+			? this.dataProvider.refresh()
+			: this.setControls();
+	}
+
+	setControls() {
+		console.log(this);
+		this.setSelectOptions();
+		this.setValue(this.id);
+		this.triggerSelectChange();
+	}
+
+	setValue(id) {
+		var text = this.getText(id);
+		console.log("setting id:" + id);
+		this.id = text === undefined ? this.newOption.id : id;
+		text = text === undefined ? this.newOption.text : text;
+		this.text = text;
+		this.label.innerText = this.text;
+		this.element.value = this.id;
+	}
+
+	setDataProviderRefresh() {
+		var _this = this,
+			promise,
+			refresh = this.dataProvider.refresh,
+			func;
+		this.dataProvider.refresh = function () {
+			var scope = this;
+			if (refresh !== undefined) {
+				promise = new Promise(function (resolve, reject) {
+					var args = [scope, resolve, reject];
+					func = refresh.apply(this, args);
+				});
+				promise.then(function () {
+					gadgetui.util.trigger(_this.element, "gadgetui-combobox-refresh");
+					_this.setControls();
 				});
 				promise["catch"](function (message) {
-					_this.input.value = "";
-					_this.inputWrapper.hide();
-					console.log(message);
-					_this.dataProvider.refresh();
+					console.log("message");
+					_this.setControls();
 				});
 			}
 			return func;
 		};
 	}
-};
 
-ComboBox.prototype.setStartingValues = function () {
-	this.dataProvider.data === undefined
-		? this.dataProvider.refresh()
-		: this.setControls();
-};
-
-ComboBox.prototype.setControls = function () {
-	console.log(this);
-	this.setSelectOptions();
-	this.setValue(this.id);
-	this.triggerSelectChange();
-};
-
-ComboBox.prototype.setValue = function (id) {
-	var text = this.getText(id);
-	console.log("setting id:" + id);
-	this.id = text === undefined ? this.newOption.id : id;
-	text = text === undefined ? this.newOption.text : text;
-	this.text = text;
-	this.label.innerText = this.text;
-	this.element.value = this.id;
-};
-
-ComboBox.prototype.setDataProviderRefresh = function () {
-	var _this = this,
-		promise,
-		refresh = this.dataProvider.refresh,
-		func;
-	this.dataProvider.refresh = function () {
-		var scope = this;
-		if (refresh !== undefined) {
-			promise = new Promise(function (resolve, reject) {
-				var args = [scope, resolve, reject];
-				func = refresh.apply(this, args);
-			});
-			promise.then(function () {
-				gadgetui.util.trigger(_this.element, "gadgetui-combobox-refresh");
-				_this.setControls();
-			});
-			promise["catch"](function (message) {
-				console.log("message");
-				_this.setControls();
-			});
-		}
-		return func;
-	};
-};
-
-ComboBox.prototype.config = function (options) {
-	options = options === undefined ? {} : options;
-	this.model = options.model === undefined ? this.model : options.model;
-	this.emitEvents =
-		options.emitEvents === undefined ? true : options.emitEvents;
-	this.dataProvider =
-		options.dataProvider === undefined ? undefined : options.dataProvider;
-	this.save = options.save === undefined ? undefined : options.save;
-	this.activate =
-		options.activate === undefined ? "mouseenter" : options.activate;
-	this.delay = options.delay === undefined ? 10 : options.delay;
-	this.borderWidth = gadgetui.util.getStyle(this.element, "border-width") || 1;
-	this.borderRadius =
-		gadgetui.util.getStyle(this.element, "border-radius") || 5;
-	this.borderColor =
-		gadgetui.util.getStyle(this.element, "border-color") || "silver";
-	this.arrowWidth = options.arrowWidth || 25;
-	this.width = options.width === undefined ? 150 : options.width;
-	this.newOption =
-		options.newOption === undefined
-			? { text: "...", id: 0 }
-			: options.newOption;
-	this.id = options.id === undefined ? this.newOption.id : options.id;
-	this.scaleIconHeight =
-		options.scaleIconHeight === undefined ? false : options.scaleIconHeight;
-	this.animate = options.animate === undefined ? true : options.animate;
-	this.glowColor =
-		options.glowColor === undefined ? "rgb(82, 168, 236)" : options.glowColor;
-	this.animateDelay =
-		options.animateDelay === undefined ? 500 : options.animateDelay;
-	this.border =
-		this.borderWidth + "px " + this.borderStyle + " " + this.borderColor;
-	this.saveBorder =
-		this.borderWidth + "px " + this.borderStyle + " " + this.glowColor;
-	this.hideable = options.hideable || false;
-};
-
-// Author: Robert Munn <robertdmunn@gmail.com>
-
-function FileUploader(element, options = {}) {
-	this.element = element;
-	this.droppedFiles = [];
-	this.configure(options);
-	this.render(options.title);
-	this.setEventHandlers();
-	this.setDimensions();
-	this.token = this.useTokens && sessionStorage ? sessionStorage.token : null;
+	config(options) {
+		options = options === undefined ? {} : options;
+		this.model = options.model === undefined ? this.model : options.model;
+		this.emitEvents =
+			options.emitEvents === undefined ? true : options.emitEvents;
+		this.dataProvider =
+			options.dataProvider === undefined ? undefined : options.dataProvider;
+		this.save = options.save === undefined ? undefined : options.save;
+		this.activate =
+			options.activate === undefined ? "mouseenter" : options.activate;
+		this.delay = options.delay === undefined ? 10 : options.delay;
+		this.borderWidth =
+			gadgetui.util.getStyle(this.element, "border-width") || 1;
+		this.borderRadius =
+			gadgetui.util.getStyle(this.element, "border-radius") || 5;
+		this.borderColor =
+			gadgetui.util.getStyle(this.element, "border-color") || "silver";
+		this.arrowWidth = options.arrowWidth || 25;
+		this.width = options.width === undefined ? 150 : options.width;
+		this.newOption =
+			options.newOption === undefined
+				? { text: "...", id: 0 }
+				: options.newOption;
+		this.id = options.id === undefined ? this.newOption.id : options.id;
+		this.scaleIconHeight =
+			options.scaleIconHeight === undefined ? false : options.scaleIconHeight;
+		this.animate = options.animate === undefined ? true : options.animate;
+		this.glowColor =
+			options.glowColor === undefined ? "rgb(82, 168, 236)" : options.glowColor;
+		this.animateDelay =
+			options.animateDelay === undefined ? 500 : options.animateDelay;
+		this.border =
+			this.borderWidth + "px " + this.borderStyle + " " + this.borderColor;
+		this.saveBorder =
+			this.borderWidth + "px " + this.borderStyle + " " + this.glowColor;
+		this.hideable = options.hideable || false;
+	}
 }
 
-FileUploader.prototype.events = [
-	"uploadComplete",
-	"uploadStart",
-	"show",
-	"dragover",
-	"dragstart",
-	"dragenter",
-	"dragleave",
-	"drop",
-];
+class FileUploader extends Component {
+	constructor(element, options = {}) {
+		super();
+		this.element = element;
+		this.droppedFiles = [];
+		this.configure(options);
+		this.render(options.title);
+		this.setEventHandlers();
+		this.setDimensions();
+		this.token = this.useTokens && sessionStorage ? sessionStorage.token : null;
+	}
 
-FileUploader.prototype.render = function (title = "") {
-	const css = gadgetui.util.setStyle;
-	const uploadClass =
-		`gadgetui-fileuploader-uploadIcon ${this.uploadClass || ""}`.trim();
-	const icon = this.uploadIcon.includes(".svg")
-		? `<svg name="gadgetui-fileuploader-uploadIcon" class="${uploadClass}"><use xlink:href="${this.uploadIcon}"/></svg>`
-		: `<img name="gadgetui-fileuploader-uploadIcon" class="${uploadClass}" src="${this.uploadIcon}">`;
+	render(title = "") {
+		const css = gadgetui.util.setStyle;
+		const uploadClass =
+			`gadgetui-fileuploader-uploadIcon ${this.uploadClass || ""}`.trim();
+		const icon = this.uploadIcon.includes(".svg")
+			? `<svg name="gadgetui-fileuploader-uploadIcon" class="${uploadClass}"><use xlink:href="${this.uploadIcon}"/></svg>`
+			: `<img name="gadgetui-fileuploader-uploadIcon" class="${uploadClass}" src="${this.uploadIcon}">`;
 
-	this.element.innerHTML = `
-    <div class="gadgetui-fileuploader-wrapper">
-      <div name="gadgetui-fileuploader-dropzone" class="gadgetui-fileuploader-dropzone">
-        <div name="gadgetui-fileuploader-filedisplay" class="gadgetui-fileuploader-filedisplay" style="display:none;"></div>
-        <div class="gadgetui-fileuploader-dropmessage" name="gadgetui-fileuploader-dropMessageDiv">${this.dropMessage}</div>
-      </div>
-      <div class="buttons full">
-        <div class="gadgetui-fileuploader-fileUpload" name="gadgetui-fileuploader-fileUpload">
-          <label>${icon}<input type="file" name="gadgetui-fileuploader-fileselect" class="gadgetui-fileuploader-upload" title=""></label>
+		this.element.innerHTML = `
+      <div class="gadgetui-fileuploader-wrapper">
+        <div name="gadgetui-fileuploader-dropzone" class="gadgetui-fileuploader-dropzone">
+          <div name="gadgetui-fileuploader-filedisplay" class="gadgetui-fileuploader-filedisplay" style="display:none;"></div>
+          <div class="gadgetui-fileuploader-dropmessage" name="gadgetui-fileuploader-dropMessageDiv">${this.dropMessage}</div>
+        </div>
+        <div class="buttons full">
+          <div class="gadgetui-fileuploader-fileUpload" name="gadgetui-fileuploader-fileUpload">
+            <label>${icon}<input type="file" name="gadgetui-fileuploader-fileselect" class="gadgetui-fileuploader-upload" title=""></label>
+          </div>
         </div>
       </div>
-    </div>
-  `.trim();
+    `.trim();
 
-	if (!this.showUploadButton)
-		css(
-			this.element.querySelector(
-				'input[name="gadgetui-fileuploader-fileselect"]',
-			),
-			"display",
-			"none",
-		);
-	if (!this.showDropZone)
-		css(
-			this.element.querySelector('div[name="gadgetui-fileuploader-dropzone"]'),
-			"display",
-			"none",
-		);
-	if (!this.showUploadIcon) {
-		const iconSelector = this.element.querySelector(
-			'[name="gadgetui-fileuploader-uploadIcon"]',
-		);
-		if (iconSelector) css(iconSelector, "display", "none");
-	}
-
-	this.renderDropZone();
-};
-
-FileUploader.prototype.configure = function (options) {
-	this.message = options.message;
-	this.tags = options.tags || "";
-	this.uploadURI = options.uploadURI;
-	this.onUploadComplete = options.onUploadComplete;
-	this.willGenerateThumbnails = options.willGenerateThumbnails ?? false;
-	this.showUploadButton = options.showUploadButton ?? true;
-	this.showDropZone = options.showDropZone ?? true;
-	this.uploadIcon =
-		options.uploadIcon ||
-		"/node_modules/feather-icons/dist/feather-sprite.svg#image";
-	this.uploadClass = options.uploadClass || "";
-	this.showUploadIcon = !!(options.uploadIcon && options.showUploadIcon);
-	this.addFileMessage = options.addFileMessage || "Add a File";
-	this.dropMessage = options.dropMessage || "Drop Files Here";
-	this.uploadErrorMessage = options.uploadErrorMessage || "Upload error.";
-	this.useTokens = options.useTokens ?? false;
-	this.tokenType = options.tokenType ?? "access_token"; // old default is 'X-Token' for backward compatibility
-};
-
-FileUploader.prototype.setDimensions = function () {
-	const css = gadgetui.util.setStyle;
-	const dropzone = this.element.querySelector(
-		".gadgetui-fileuploader-dropzone",
-	);
-	const filedisplay = this.element.querySelector(
-		".gadgetui-fileuploader-filedisplay",
-	);
-	const buttons = this.element.querySelector(".buttons");
-	// Height and width calculations could be added here if needed
-};
-
-FileUploader.prototype.setEventHandlers = function () {
-	this.element
-		.querySelector('input[name="gadgetui-fileuploader-fileselect"]')
-		.addEventListener("change", (evt) => {
-			const dropzone = this.element.querySelector(
-				'div[name="gadgetui-fileuploader-dropzone"]',
+		if (!this.showUploadButton)
+			css(
+				this.element.querySelector(
+					'input[name="gadgetui-fileuploader-fileselect"]',
+				),
+				"display",
+				"none",
 			);
-			const filedisplay = this.element.querySelector(
-				'div[name="gadgetui-fileuploader-filedisplay"]',
+		if (!this.showDropZone)
+			css(
+				this.element.querySelector(
+					'div[name="gadgetui-fileuploader-dropzone"]',
+				),
+				"display",
+				"none",
 			);
-			this.processUpload(evt, evt.target.files, dropzone, filedisplay);
-		});
-};
-
-FileUploader.prototype.renderDropZone = function () {
-	const dropzone = this.element.querySelector(
-		'div[name="gadgetui-fileuploader-dropzone"]',
-	);
-	const filedisplay = this.element.querySelector(
-		'div[name="gadgetui-fileuploader-filedisplay"]',
-	);
-
-	this.element.addEventListener("dragstart", (ev) => {
-		ev.dataTransfer.setData("text", "data");
-		ev.dataTransfer.effectAllowed = "copy";
-		if (typeof this.fireEvent === "function") this.fireEvent("dragstart");
-	});
-
-	dropzone.addEventListener("dragenter", (ev) => {
-		ev.preventDefault();
-		ev.stopPropagation();
-		dropzone.classList.add("highlighted");
-		if (typeof this.fireEvent === "function") this.fireEvent("dragenter");
-	});
-
-	dropzone.addEventListener("dragleave", (ev) => {
-		ev.preventDefault();
-		ev.stopPropagation();
-		dropzone.classList.remove("highlighted");
-		if (typeof this.fireEvent === "function") this.fireEvent("dragleave");
-	});
-
-	dropzone.addEventListener("dragover", (ev) => {
-		this.handleDragOver(ev);
-		ev.dataTransfer.dropEffect = "copy";
-		if (typeof this.fireEvent === "function") this.fireEvent("dragover");
-	});
-
-	dropzone.addEventListener("drop", (ev) => {
-		ev.preventDefault();
-		ev.stopPropagation();
-		if (typeof this.fireEvent === "function") this.fireEvent("drop");
-		this.processUpload(ev, ev.dataTransfer.files, dropzone, filedisplay);
-	});
-};
-
-FileUploader.prototype.processUpload = function (
-	event,
-	files,
-	dropzone,
-	filedisplay,
-) {
-	const css = gadgetui.util.setStyle;
-	this.uploadingFiles = [];
-	css(filedisplay, "display", "inline");
-
-	Array.from(files).forEach((file) => {
-		const wrappedFile = gadgetui.objects.Constructor(
-			gadgetui.display.FileUploadWrapper,
-			[file, filedisplay, true],
-		);
-		this.uploadingFiles.push(wrappedFile);
-		wrappedFile.on("uploadComplete", (fileWrapper) => {
-			const index = this.uploadingFiles.findIndex(
-				(f) => f.id === fileWrapper.id,
+		if (!this.showUploadIcon) {
+			const iconSelector = this.element.querySelector(
+				'[name="gadgetui-fileuploader-uploadIcon"]',
 			);
-			if (index !== -1) this.uploadingFiles.splice(index, 1);
-			if (!this.uploadingFiles.length) {
-				if (this.showDropZone) this.show("dropzone");
-				this.setDimensions();
-			}
-			if (typeof this.fireEvent === "function")
-				this.fireEvent("uploadComplete");
-		});
-	});
-
-	dropzone.classList.remove("highlighted");
-	this.handleFileSelect(this.uploadingFiles, event);
-};
-
-FileUploader.prototype.handleFileSelect = function (wrappedFiles, evt) {
-	evt.preventDefault();
-	evt.stopPropagation();
-	this.willGenerateThumbnails
-		? this.generateThumbnails(wrappedFiles)
-		: this.upload(wrappedFiles);
-};
-
-FileUploader.prototype.generateThumbnails = function (wrappedFiles) {
-	this.upload(wrappedFiles); // Placeholder for future thumbnail generation
-};
-
-FileUploader.prototype.upload = function (wrappedFiles) {
-	wrappedFiles.forEach((wrappedFile) => {
-		if (typeof this.fireEvent === "function") this.fireEvent("uploadStart");
-		wrappedFile.progressbar.start();
-	});
-	this.uploadFile(wrappedFiles);
-};
-
-FileUploader.prototype.uploadFile = function (wrappedFiles) {
-	wrappedFiles.forEach((wrappedFile) => {
-		const blob = wrappedFile.file;
-		const BYTES_PER_CHUNK = 1024 * 1024; // 1MB chunks
-		const parts = Math.ceil(blob.size / BYTES_PER_CHUNK);
-		const chunks = [];
-		let start = 0;
-
-		while (start < blob.size) {
-			const end = Math.min(start + BYTES_PER_CHUNK, blob.size);
-			chunks.push(blob.slice(start, end)); // Modern slice method
-			start = end;
+			if (iconSelector) css(iconSelector, "display", "none");
 		}
 
-		this.uploadChunk(wrappedFile, chunks, 1, parts);
-	});
-};
+		this.renderDropZone();
+	}
 
-FileUploader.prototype.uploadChunk = function (
-	wrappedFile,
-	chunks,
-	filepart,
-	parts,
-) {
-	const xhr = new XMLHttpRequest();
-	const tags = this.tags;
+	configure(options) {
+		this.message = options.message;
+		this.tags = options.tags || "";
+		this.uploadURI = options.uploadURI;
+		this.onUploadComplete = options.onUploadComplete;
+		this.willGenerateThumbnails = options.willGenerateThumbnails ?? false;
+		this.showUploadButton = options.showUploadButton ?? true;
+		this.showDropZone = options.showDropZone ?? true;
+		this.uploadIcon =
+			options.uploadIcon ||
+			"/node_modules/feather-icons/dist/feather-sprite.svg#image";
+		this.uploadClass = options.uploadClass || "";
+		this.showUploadIcon = !!(options.uploadIcon && options.showUploadIcon);
+		this.addFileMessage = options.addFileMessage || "Add a File";
+		this.dropMessage = options.dropMessage || "Drop Files Here";
+		this.uploadErrorMessage = options.uploadErrorMessage || "Upload error.";
+		this.useTokens = options.useTokens ?? false;
+		this.tokenType = options.tokenType ?? "access_token"; // old default is 'X-Token' for backward compatibility
+	}
 
-	xhr.onreadystatechange = () => {
-		if (xhr.readyState !== 4) return;
+	setDimensions() {
+		const css = gadgetui.util.setStyle;
+		const dropzone = this.element.querySelector(
+			".gadgetui-fileuploader-dropzone",
+		);
+		const filedisplay = this.element.querySelector(
+			".gadgetui-fileuploader-filedisplay",
+		);
+		const buttons = this.element.querySelector(".buttons");
+		// Height and width calculations could be added here if needed
+	}
 
-		if (xhr.status !== 200) {
-			this.handleUploadError(xhr, {}, wrappedFile);
-		} else {
-			if (this.useTokens && sessionStorage) {
-				if (this.tokenType === "X-Token") {
-					this.token = xhr.getResponseHeader("X-Token");
-				} else {
-					this.token = xhr.getResponseHeader("access_token");
-				}
-
-				sessionStorage.token = this.token;
-			}
-
-			if (filepart <= parts) {
-				wrappedFile.progressbar.updatePercent(
-					Math.round((filepart / parts) * 100),
+	setEventHandlers() {
+		this.element
+			.querySelector('input[name="gadgetui-fileuploader-fileselect"]')
+			.addEventListener("change", (evt) => {
+				const dropzone = this.element.querySelector(
+					'div[name="gadgetui-fileuploader-dropzone"]',
 				);
-			}
-
-			if (filepart < parts) {
-				wrappedFile.id = xhr.getResponseHeader("X-Id");
-				this.uploadChunk(wrappedFile, chunks, filepart + 1, parts);
-			} else {
-				let json;
-				try {
-					json = { data: JSON.parse(xhr.response) };
-				} catch (e) {
-					json = {};
-					this.handleUploadError(xhr, json, wrappedFile);
-					return;
-				}
-				if (json.data) this.handleUploadResponse(json, wrappedFile);
-				else this.handleUploadError(xhr, json, wrappedFile);
-			}
-		}
-	};
-
-	xhr.open("POST", this.uploadURI, true);
-	xhr.setRequestHeader("X-Tags", tags);
-	xhr.setRequestHeader("X-Id", wrappedFile.id || "");
-	xhr.setRequestHeader("X-FileName", wrappedFile.file.name);
-	xhr.setRequestHeader("X-FileSize", wrappedFile.file.size);
-	xhr.setRequestHeader("X-FilePart", filepart);
-	xhr.setRequestHeader("X-Parts", parts);
-	if (this.useTokens && this.token)
-		if (this.tokenType === "X-Token") {
-			xhr.setRequestHeader("X-Token", this.token);
-		} else {
-			xhr.setRequestHeader("Authorization", "Bearer " + this.token);
-		}
-	xhr.setRequestHeader(
-		"X-MimeType",
-		wrappedFile.file.type || "application/octet-stream",
-	);
-	xhr.setRequestHeader("X-HasTile", !!wrappedFile.tile?.length);
-	xhr.setRequestHeader("Content-Type", "application/octet-stream");
-	xhr.send(chunks[filepart - 1]);
-};
-
-FileUploader.prototype.handleUploadResponse = function (json, wrappedFile) {
-	const fileItem = gadgetui.objects.Constructor(
-		gadgetui.objects.FileItem,
-		[
-			{
-				mimetype: json.data.mimetype,
-				fileid: json.data.fileId,
-				filename: json.data.filename,
-				filesize: json.data.filesize,
-				tags: json.data.tags,
-				created: json.data.created,
-				createdStr: json.data.created,
-				disabled: json.data.disabled,
-				path: json.data.path,
-			},
-		],
-		false,
-	);
-
-	wrappedFile.completeUpload(fileItem);
-	if (this.onUploadComplete) this.onUploadComplete(fileItem);
-};
-
-FileUploader.prototype.handleUploadError = function (xhr, json, wrappedFile) {
-	wrappedFile.progressbar.progressbox.innerText = this.uploadErrorMessage;
-	wrappedFile.abortUpload(wrappedFile);
-};
-
-FileUploader.prototype.show = function (name) {
-	const css = gadgetui.util.setStyle;
-	const dropzone = this.element.querySelector(
-		".gadgetui-fileuploader-dropzone",
-	);
-	const filedisplay = this.element.querySelector(
-		".gadgetui-fileuploader-filedisplay",
-	);
-
-	if (name === "dropzone") {
-		css(dropzone, "display", "table-cell");
-		css(filedisplay, "display", "none");
-	} else {
-		css(filedisplay, "display", "table-cell");
-		css(dropzone, "display", "none");
+				const filedisplay = this.element.querySelector(
+					'div[name="gadgetui-fileuploader-filedisplay"]',
+				);
+				this.processUpload(evt, evt.target.files, dropzone, filedisplay);
+			});
 	}
-};
 
-FileUploader.prototype.handleDragOver = function (evt) {
-	evt.preventDefault();
-	evt.stopPropagation();
-	evt.dataTransfer.dropEffect = "copy";
-};
+	renderDropZone() {
+		const dropzone = this.element.querySelector(
+			'div[name="gadgetui-fileuploader-dropzone"]',
+		);
+		const filedisplay = this.element.querySelector(
+			'div[name="gadgetui-fileuploader-filedisplay"]',
+		);
 
-// Author: Robert Munn <robertdmunn@gmail.com>
-// Adapted from jQuery UI autocomplete
+		this.element.addEventListener("dragstart", (ev) => {
+			ev.dataTransfer.setData("text", "data");
+			ev.dataTransfer.effectAllowed = "copy";
+			if (typeof this.fireEvent === "function") this.fireEvent("dragstart");
+		});
 
-function LookupListInput(element, options = {}) {
-	this.element = element;
-	this.items = [];
-	this.config(options);
-	this.setIsMultiLine();
-	this.addControl();
-	this.initSource();
-	this.addMenu();
-	this.addBindings();
+		dropzone.addEventListener("dragenter", (ev) => {
+			ev.preventDefault();
+			ev.stopPropagation();
+			dropzone.classList.add("highlighted");
+			if (typeof this.fireEvent === "function") this.fireEvent("dragenter");
+		});
+
+		dropzone.addEventListener("dragleave", (ev) => {
+			ev.preventDefault();
+			ev.stopPropagation();
+			dropzone.classList.remove("highlighted");
+			if (typeof this.fireEvent === "function") this.fireEvent("dragleave");
+		});
+
+		dropzone.addEventListener("dragover", (ev) => {
+			this.handleDragOver(ev);
+			ev.dataTransfer.dropEffect = "copy";
+			if (typeof this.fireEvent === "function") this.fireEvent("dragover");
+		});
+
+		dropzone.addEventListener("drop", (ev) => {
+			ev.preventDefault();
+			ev.stopPropagation();
+			if (typeof this.fireEvent === "function") this.fireEvent("drop");
+			this.processUpload(ev, ev.dataTransfer.files, dropzone, filedisplay);
+		});
+	}
+
+	processUpload(event, files, dropzone, filedisplay) {
+		const css = gadgetui.util.setStyle;
+		this.uploadingFiles = [];
+		css(filedisplay, "display", "inline");
+
+		Array.from(files).forEach((file) => {
+			const wrappedFile = gadgetui.objects.Constructor(
+				gadgetui.display.FileUploadWrapper,
+				[file, filedisplay, true],
+			);
+			this.uploadingFiles.push(wrappedFile);
+			wrappedFile.on("uploadComplete", (fileWrapper) => {
+				const index = this.uploadingFiles.findIndex(
+					(f) => f.id === fileWrapper.id,
+				);
+				if (index !== -1) this.uploadingFiles.splice(index, 1);
+				if (!this.uploadingFiles.length) {
+					if (this.showDropZone) this.show("dropzone");
+					this.setDimensions();
+				}
+				if (typeof this.fireEvent === "function")
+					this.fireEvent("uploadComplete");
+			});
+		});
+
+		dropzone.classList.remove("highlighted");
+		this.handleFileSelect(this.uploadingFiles, event);
+	}
+
+	handleFileSelect(wrappedFiles, evt) {
+		evt.preventDefault();
+		evt.stopPropagation();
+		this.willGenerateThumbnails
+			? this.generateThumbnails(wrappedFiles)
+			: this.upload(wrappedFiles);
+	}
+
+	generateThumbnails(wrappedFiles) {
+		this.upload(wrappedFiles); // Placeholder for future thumbnail generation
+	}
+
+	upload(wrappedFiles) {
+		wrappedFiles.forEach((wrappedFile) => {
+			if (typeof this.fireEvent === "function") this.fireEvent("uploadStart");
+			wrappedFile.progressbar.start();
+		});
+		this.uploadFile(wrappedFiles);
+	}
+
+	uploadFile(wrappedFiles) {
+		wrappedFiles.forEach((wrappedFile) => {
+			const blob = wrappedFile.file;
+			const BYTES_PER_CHUNK = 1024 * 1024; // 1MB chunks
+			const parts = Math.ceil(blob.size / BYTES_PER_CHUNK);
+			const chunks = [];
+			let start = 0;
+
+			while (start < blob.size) {
+				const end = Math.min(start + BYTES_PER_CHUNK, blob.size);
+				chunks.push(blob.slice(start, end)); // Modern slice method
+				start = end;
+			}
+
+			this.uploadChunk(wrappedFile, chunks, 1, parts);
+		});
+	}
+
+	uploadChunk(wrappedFile, chunks, filepart, parts) {
+		const xhr = new XMLHttpRequest();
+		const tags = this.tags;
+
+		xhr.onreadystatechange = () => {
+			if (xhr.readyState !== 4) return;
+
+			if (xhr.status !== 200) {
+				this.handleUploadError(xhr, {}, wrappedFile);
+			} else {
+				if (this.useTokens && sessionStorage) {
+					if (this.tokenType === "X-Token") {
+						this.token = xhr.getResponseHeader("X-Token");
+					} else {
+						this.token = xhr.getResponseHeader("access_token");
+					}
+
+					sessionStorage.token = this.token;
+				}
+
+				if (filepart <= parts) {
+					wrappedFile.progressbar.updatePercent(
+						Math.round((filepart / parts) * 100),
+					);
+				}
+
+				if (filepart < parts) {
+					wrappedFile.id = xhr.getResponseHeader("X-Id");
+					this.uploadChunk(wrappedFile, chunks, filepart + 1, parts);
+				} else {
+					let json;
+					try {
+						json = { data: JSON.parse(xhr.response) };
+					} catch (e) {
+						json = {};
+						this.handleUploadError(xhr, json, wrappedFile);
+						return;
+					}
+					if (json.data) this.handleUploadResponse(json, wrappedFile);
+					else this.handleUploadError(xhr, json, wrappedFile);
+				}
+			}
+		};
+
+		xhr.open("POST", this.uploadURI, true);
+		xhr.setRequestHeader("X-Tags", tags);
+		xhr.setRequestHeader("X-Id", wrappedFile.id || "");
+		xhr.setRequestHeader("X-FileName", wrappedFile.file.name);
+		xhr.setRequestHeader("X-FileSize", wrappedFile.file.size);
+		xhr.setRequestHeader("X-FilePart", filepart);
+		xhr.setRequestHeader("X-Parts", parts);
+		if (this.useTokens && this.token)
+			if (this.tokenType === "X-Token") {
+				xhr.setRequestHeader("X-Token", this.token);
+			} else {
+				xhr.setRequestHeader("Authorization", "Bearer " + this.token);
+			}
+		xhr.setRequestHeader(
+			"X-MimeType",
+			wrappedFile.file.type || "application/octet-stream",
+		);
+		xhr.setRequestHeader("X-HasTile", !!wrappedFile.tile?.length);
+		xhr.setRequestHeader("Content-Type", "application/octet-stream");
+		xhr.send(chunks[filepart - 1]);
+	}
+
+	handleUploadResponse(json, wrappedFile) {
+		const fileItem = gadgetui.objects.Constructor(
+			gadgetui.objects.FileItem,
+			[
+				{
+					mimetype: json.data.mimetype,
+					fileid: json.data.fileId,
+					filename: json.data.filename,
+					filesize: json.data.filesize,
+					tags: json.data.tags,
+					created: json.data.created,
+					createdStr: json.data.created,
+					disabled: json.data.disabled,
+					path: json.data.path,
+				},
+			],
+			false,
+		);
+
+		wrappedFile.completeUpload(fileItem);
+		if (this.onUploadComplete) this.onUploadComplete(fileItem);
+	}
+
+	handleUploadError(xhr, json, wrappedFile) {
+		wrappedFile.progressbar.progressbox.innerText = this.uploadErrorMessage;
+		wrappedFile.abortUpload(wrappedFile);
+	}
+
+	show(name) {
+		const css = gadgetui.util.setStyle;
+		const dropzone = this.element.querySelector(
+			".gadgetui-fileuploader-dropzone",
+		);
+		const filedisplay = this.element.querySelector(
+			".gadgetui-fileuploader-filedisplay",
+		);
+
+		if (name === "dropzone") {
+			css(dropzone, "display", "table-cell");
+			css(filedisplay, "display", "none");
+		} else {
+			css(filedisplay, "display", "table-cell");
+			css(dropzone, "display", "none");
+		}
+	}
+
+	handleDragOver(evt) {
+		evt.preventDefault();
+		evt.stopPropagation();
+		evt.dataTransfer.dropEffect = "copy";
+	}
 }
 
-LookupListInput.prototype.events = [
-	"change",
-	"focus",
-	"mouseenter",
-	"keyup",
-	"mouseleave",
-	"blur",
-	"click",
-	"input",
-	"keypress",
-	"keydown",
-	"menuselect",
-	"mousedown",
-	"response",
-];
-
-LookupListInput.prototype.addControl = function () {
-	this.wrapper = document.createElement("div");
-	if (this.width) gadgetui.util.setStyle(this.wrapper, "width", this.width);
-	gadgetui.util.addClass(this.wrapper, "gadgetui-lookuplist-input");
-
-	this.element.parentNode.insertBefore(this.wrapper, this.element);
-	this.element.parentNode.removeChild(this.element);
-	this.wrapper.appendChild(this.element);
-};
-
-LookupListInput.prototype.addMenu = function () {
-	const div = document.createElement("div");
-	gadgetui.util.addClass(div, "gadgetui-lookuplist-menu");
-	gadgetui.util.setStyle(div, "display", "none");
-	this.menu = { element: div };
-	this.wrapper.appendChild(div);
-};
-
-LookupListInput.prototype.initSource = function () {
-	if (Array.isArray(this.datasource)) {
-		this.source = (request, response) =>
-			response(this.filter(this.datasource, request.term));
-	} else if (typeof this.datasource === "string") {
-		this.source = (request, response) => {
-			if (this.xhr) this.xhr.abort();
-			this.xhr = fetch({
-				url: this.datasource,
-				data: request,
-				dataType: "json",
-				success: (data) => response(data),
-				error: () => response([]),
-			});
-		};
-	} else {
-		this.source = this.datasource;
+class LookupListInput extends Component {
+	constructor(element, options = {}) {
+		super();
+		this.element = element;
+		this.items = [];
+		this.config(options);
+		this.setIsMultiLine();
+		this.addControl();
+		this.initSource();
+		this.addMenu();
+		this.addBindings();
 	}
-};
 
-LookupListInput.prototype.escapeRegex = function (value) {
-	return value.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, "\\$&");
-};
+	// events = [
+	// 	"change",
+	// 	"focus",
+	// 	"mouseenter",
+	// 	"keyup",
+	// 	"mouseleave",
+	// 	"blur",
+	// 	"click",
+	// 	"input",
+	// 	"keypress",
+	// 	"keydown",
+	// 	"menuselect",
+	// 	"mousedown",
+	// 	"response",
+	// ];
 
-LookupListInput.prototype._filter = function (array, term) {
-	const matcher = new RegExp(this.escapeRegex(term), "i");
-	return gadgetui.util.grep(array, (value) =>
-		matcher.test(value.label || value.value || value),
-	);
-};
+	addControl() {
+		this.wrapper = document.createElement("div");
+		if (this.width) gadgetui.util.setStyle(this.wrapper, "width", this.width);
+		this.wrapper.classList.add("gadgetui-lookuplist-input");
 
-LookupListInput.prototype.checkForDuplicate = function (item) {
-	return this.items.some((existing) => existing.value === item.value);
-};
+		this.element.parentNode.insertBefore(this.wrapper, this.element);
+		this.element.parentNode.removeChild(this.element);
+		this.wrapper.appendChild(this.element);
+	}
 
-LookupListInput.prototype.makeUnique = function (content) {
-	return content.filter((item) => !this.checkForDuplicate(item));
-};
+	addMenu() {
+		const div = document.createElement("div");
+		div.classList.add("gadgetui-lookuplist-menu");
+		gadgetui.util.setStyle(div, "display", "none");
+		this.menu = { element: div };
+		this.wrapper.appendChild(div);
+	}
 
-LookupListInput.prototype.setIsMultiLine = function () {
-	const nodeName = this.element.nodeName.toLowerCase();
-	this.isMultiLine =
-		nodeName === "textarea" ||
-		(nodeName !== "input" && this.element.getAttribute("isContentEditable"));
-};
+	initSource() {
+		if (Array.isArray(this.datasource)) {
+			this.source = (request, response) =>
+				response(this.filter(this.datasource, request.term));
+		} else if (typeof this.datasource === "string") {
+			this.source = (request, response) => {
+				if (this.xhr) this.xhr.abort();
+				this.xhr = fetch({
+					url: this.datasource,
+					data: request,
+					dataType: "json",
+					success: (data) => response(data),
+					error: () => response([]),
+				});
+			};
+		} else {
+			this.source = this.datasource;
+		}
+	}
 
-LookupListInput.prototype.addBindings = function () {
-	const nodeName = this.element.nodeName.toLowerCase();
-	this.isTextarea = nodeName === "textarea";
-	this.isInput = nodeName === "input";
-	this.valueMethod = this.isTextarea || this.isInput ? "value" : "innerText";
-	this.element.setAttribute("autocomplete", "off");
+	escapeRegex(value) {
+		return value.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, "\\$&");
+	}
 
-	let suppressKeyPress, suppressKeyPressRepeat, suppressInput;
+	_filter(array, term) {
+		const matcher = new RegExp(this.escapeRegex(term), "i");
+		return gadgetui.util.grep(array, (value) =>
+			matcher.test(value.label || value.value || value),
+		);
+	}
 
-	this.wrapper.addEventListener("click", () => {
-		this.element.focus();
-		if (typeof this.fireEvent === "function") this.fireEvent("click");
-	});
+	checkForDuplicate(item) {
+		return this.items.some((existing) => existing.value === item.value);
+	}
 
-	const keyEvents = {
-		keydown: (event) => {
-			if (this.element.getAttribute("readOnly")) {
-				suppressKeyPress = suppressInput = suppressKeyPressRepeat = true;
-				return;
-			}
-			suppressKeyPress = suppressInput = suppressKeyPressRepeat = false;
-			const keyCode = gadgetui.keyCode;
+	makeUnique(content) {
+		return content.filter((item) => !this.checkForDuplicate(item));
+	}
 
-			switch (event.keyCode) {
-				case keyCode.PAGE_UP:
-					suppressKeyPress = true;
-					this._move("previousPage", event);
-					break;
-				case keyCode.PAGE_DOWN:
-					suppressKeyPress = true;
-					this._move("nextPage", event);
-					break;
-				case keyCode.UP:
-					suppressKeyPress = true;
-					this._keyEvent("previous", event);
-					break;
-				case keyCode.DOWN:
-					suppressKeyPress = true;
-					this._keyEvent("next", event);
-					break;
-				case keyCode.ENTER:
-					if (this.menu.active) {
-						suppressKeyPress = true;
-						event.preventDefault();
-						this.menu.select(event);
-					}
-					break;
-				case keyCode.BACKSPACE:
-					if (!this.element.value.length && this.items.length) {
-						this.remove(this.element.previousSibling);
-					}
-					break;
-				case keyCode.TAB:
-					if (this.menu.active) this.menu.select(event);
-					break;
-				case keyCode.ESCAPE:
-					if (this.menu.element.style.display !== "none") {
-						if (!this.isMultiLine) this._value(this.term);
-						this.close(event);
-						event.preventDefault();
-					}
-					break;
-				default:
-					suppressKeyPressRepeat = true;
-					this._searchTimeout(event);
-					break;
-			}
-			if (typeof this.fireEvent === "function") this.fireEvent("keydown");
-		},
+	setIsMultiLine() {
+		const nodeName = this.element.nodeName.toLowerCase();
+		this.isMultiLine =
+			nodeName === "textarea" ||
+			(nodeName !== "input" && this.element.getAttribute("isContentEditable"));
+	}
 
-		keypress: (event) => {
-			if (suppressKeyPress) {
-				suppressKeyPress = false;
-				if (!this.isMultiLine || this.menu.element.style.display !== "none") {
-					event.preventDefault();
+	addBindings() {
+		const nodeName = this.element.nodeName.toLowerCase();
+		this.isTextarea = nodeName === "textarea";
+		this.isInput = nodeName === "input";
+		this.valueMethod = this.isTextarea || this.isInput ? "value" : "innerText";
+		this.element.setAttribute("autocomplete", "off");
+
+		let suppressKeyPress, suppressKeyPressRepeat, suppressInput;
+
+		this.wrapper.addEventListener("click", () => {
+			this.element.focus();
+			if (typeof this.fireEvent === "function") this.fireEvent("click");
+		});
+
+		const keyEvents = {
+			keydown: (event) => {
+				if (this.element.getAttribute("readOnly")) {
+					suppressKeyPress = suppressInput = suppressKeyPressRepeat = true;
+					return;
 				}
-				return;
-			}
-			if (suppressKeyPressRepeat) return;
+				suppressKeyPress = suppressInput = suppressKeyPressRepeat = false;
+				const keyCode = gadgetui.keyCode;
 
-			const keyCode = gadgetui.keyCode;
-			switch (event.keyCode) {
-				case keyCode.PAGE_UP:
-					this._move("previousPage", event);
-					break;
-				case keyCode.PAGE_DOWN:
-					this._move("nextPage", event);
-					break;
-				case keyCode.UP:
-					this._keyEvent("previous", event);
-					break;
-				case keyCode.DOWN:
-					this._keyEvent("next", event);
-					break;
-			}
-			if (typeof this.fireEvent === "function") this.fireEvent("keypress");
-		},
+				switch (event.keyCode) {
+					case keyCode.PAGE_UP:
+						suppressKeyPress = true;
+						this._move("previousPage", event);
+						break;
+					case keyCode.PAGE_DOWN:
+						suppressKeyPress = true;
+						this._move("nextPage", event);
+						break;
+					case keyCode.UP:
+						suppressKeyPress = true;
+						this._keyEvent("previous", event);
+						break;
+					case keyCode.DOWN:
+						suppressKeyPress = true;
+						this._keyEvent("next", event);
+						break;
+					case keyCode.ENTER:
+						if (this.menu.active) {
+							suppressKeyPress = true;
+							event.preventDefault();
+							this.menu.select(event);
+						}
+						break;
+					case keyCode.BACKSPACE:
+						if (!this.element.value.length && this.items.length) {
+							this.remove(this.element.previousSibling);
+						}
+						break;
+					case keyCode.TAB:
+						if (this.menu.active) this.menu.select(event);
+						break;
+					case keyCode.ESCAPE:
+						if (this.menu.element.style.display !== "none") {
+							if (!this.isMultiLine) this._value(this.term);
+							this.close(event);
+							event.preventDefault();
+						}
+						break;
+					default:
+						suppressKeyPressRepeat = true;
+						this._searchTimeout(event);
+						break;
+				}
+				if (typeof this.fireEvent === "function") this.fireEvent("keydown");
+			},
 
-		input: (event) => {
-			if (suppressInput) {
-				suppressInput = false;
-				event.preventDefault();
-				return;
-			}
-			this._searchTimeout(event);
-			if (typeof this.fireEvent === "function") this.fireEvent("input");
-		},
+			keypress: (event) => {
+				if (suppressKeyPress) {
+					suppressKeyPress = false;
+					if (!this.isMultiLine || this.menu.element.style.display !== "none") {
+						event.preventDefault();
+					}
+					return;
+				}
+				if (suppressKeyPressRepeat) return;
 
-		focus: () => {
-			this.selectedItem = null;
-			this.previous = this.element[this.valueMethod];
-			if (typeof this.fireEvent === "function") this.fireEvent("focus");
-		},
+				const keyCode = gadgetui.keyCode;
+				switch (event.keyCode) {
+					case keyCode.PAGE_UP:
+						this._move("previousPage", event);
+						break;
+					case keyCode.PAGE_DOWN:
+						this._move("nextPage", event);
+						break;
+					case keyCode.UP:
+						this._keyEvent("previous", event);
+						break;
+					case keyCode.DOWN:
+						this._keyEvent("next", event);
+						break;
+				}
+				if (typeof this.fireEvent === "function") this.fireEvent("keypress");
+			},
 
-		blur: (event) => {
-			if (this.cancelBlur) {
-				delete this.cancelBlur;
-				return;
-			}
-			clearTimeout(this.searching);
-			this.close(event);
-			if (typeof this.fireEvent === "function") this.fireEvent("blur");
-		},
+			input: (event) => {
+				if (suppressInput) {
+					suppressInput = false;
+					event.preventDefault();
+					return;
+				}
+				this._searchTimeout(event);
+				if (typeof this.fireEvent === "function") this.fireEvent("input");
+			},
 
-		change: () => this.fireEvent("change"),
-	};
+			focus: () => {
+				this.selectedItem = null;
+				this.previous = this.element[this.valueMethod];
+				if (typeof this.fireEvent === "function") this.fireEvent("focus");
+			},
 
-	Object.entries(keyEvents).forEach(([event, handler]) => {
-		this.element.addEventListener(event, handler);
-	});
+			blur: (event) => {
+				if (this.cancelBlur) {
+					delete this.cancelBlur;
+					return;
+				}
+				clearTimeout(this.searching);
+				this.close(event);
+				if (typeof this.fireEvent === "function") this.fireEvent("blur");
+			},
 
-	this.menu.element.addEventListener("mousedown", (event) => {
-		event.preventDefault();
-		this.cancelBlur = true;
-		gadgetui.util.delay(() => delete this.cancelBlur);
-		if (typeof this.fireEvent === "function") this.fireEvent("mousedown");
-	});
+			change: () => this.fireEvent("change"),
+		};
 
-	this.menu.element.addEventListener("menuselect", (event) => {
-		const item = event.detail;
-		const previous = this.previous;
+		Object.entries(keyEvents).forEach(([event, handler]) => {
+			this.element.addEventListener(event, handler);
+		});
 
-		if (this.menu.element !== document.activeElement) {
-			this.menu.element.focus();
-			this.previous = previous;
-			gadgetui.util.delay(() => {
+		this.menu.element.addEventListener("mousedown", (event) => {
+			event.preventDefault();
+			this.cancelBlur = true;
+			gadgetui.util.delay(() => delete this.cancelBlur);
+			if (typeof this.fireEvent === "function") this.fireEvent("mousedown");
+		});
+
+		this.menu.element.addEventListener("menuselect", (event) => {
+			const item = event.detail;
+			const previous = this.previous;
+
+			if (this.menu.element !== document.activeElement) {
+				this.menu.element.focus();
 				this.previous = previous;
-				this.selectedItem = item;
-			});
-		}
+				gadgetui.util.delay(() => {
+					this.previous = previous;
+					this.selectedItem = item;
+				});
+			}
 
-		this._value(item.value);
-		this.term = this._value();
-		this.close(event);
-		this.selectedItem = item;
+			this._value(item.value);
+			this.term = this._value();
+			this.close(event);
+			this.selectedItem = item;
 
-		if (!this.checkForDuplicate(item)) this.add(item);
-		if (typeof this.fireEvent === "function") this.fireEvent("menuselect");
-	});
-};
-
-LookupListInput.prototype._renderItem = function (item) {
-	const wrapper = document.createElement("div");
-	gadgetui.util.addClass(wrapper, "gadgetui-lookuplist-input-item-wrapper");
-	const itemNode = document.createElement("div");
-	gadgetui.util.addClass(itemNode, "gadgetui-lookuplist-input-item");
-	itemNode.innerHTML = this.labelRenderer(item);
-	wrapper.appendChild(itemNode);
-	return wrapper;
-};
-
-LookupListInput.prototype._renderItemCancel = function (item, wrapper) {
-	const css = gadgetui.util.setStyle;
-	const itemCancel = document.createElement("span");
-	const leftOffset =
-		gadgetui.util.getNumberValue(gadgetui.util.getStyle(wrapper, "width")) + 6;
-
-	gadgetui.util.addClass(itemCancel, "oi");
-	itemCancel.setAttribute("data-glyph", "circle-x");
-	css(itemCancel, "font-size", 12);
-	css(itemCancel, "opacity", ".5");
-	css(itemCancel, "left", leftOffset);
-	css(itemCancel, "position", "absolute");
-	css(itemCancel, "cursor", "pointer");
-	css(itemCancel, "top", 3);
-	return itemCancel;
-};
-
-LookupListInput.prototype.add = function (item) {
-	const wrapper = this.itemRenderer(item);
-	wrapper.setAttribute("data-value", item.value);
-	this.wrapper.insertBefore(wrapper, this.element);
-
-	const itemCancel = this.itemCancelRenderer(item, wrapper);
-	if (itemCancel) {
-		wrapper.appendChild(itemCancel);
-		itemCancel.addEventListener("click", () => this.remove(wrapper));
+			if (!this.checkForDuplicate(item)) this.add(item);
+			if (typeof this.fireEvent === "function") this.fireEvent("menuselect");
+		});
 	}
 
-	this.element.value = "";
-	this.items.push(item);
-
-	if (this.emitEvents)
-		gadgetui.util.trigger(this.element, "gadgetui-lookuplist-input-add", item);
-	if (this.func) this.func(item, "add");
-	if (this.model) {
-		const prop = this.element.getAttribute("gadgetui-bind");
-		if (prop) {
-			const list = this.model.get(prop) || [];
-			list.push(item);
-			this.model.set(prop, list);
-		}
+	_renderItem(item) {
+		const wrapper = document.createElement("div");
+		wrapper.classList.add("gadgetui-lookuplist-input-item-wrapper");
+		const itemNode = document.createElement("div");
+		itemNode.classList.add("gadgetui-lookuplist-input-item");
+		itemNode.innerHTML = this.labelRenderer(item);
+		wrapper.appendChild(itemNode);
+		return wrapper;
 	}
-};
 
-LookupListInput.prototype.remove = function (element) {
-	const value = element.getAttribute("data-value");
-	element.parentNode.removeChild(element);
+	_renderItemCancel(item, wrapper) {
+		const css = gadgetui.util.setStyle;
+		const itemCancel = document.createElement("span");
+		const leftOffset =
+			gadgetui.util.getNumberValue(gadgetui.util.getStyle(wrapper, "width")) +
+			6;
 
-	const index = this.items.findIndex((item) => item.value === value);
-	if (index !== -1) {
-		const [removed] = this.items.splice(index, 1);
+		itemCancel.classList.add("oi");
+		itemCancel.setAttribute("data-glyph", "circle-x");
+		css(itemCancel, "font-size", 12);
+		css(itemCancel, "opacity", ".5");
+		css(itemCancel, "left", leftOffset);
+		css(itemCancel, "position", "absolute");
+		css(itemCancel, "cursor", "pointer");
+		css(itemCancel, "top", 3);
+		return itemCancel;
+	}
+
+	add(item) {
+		const wrapper = this.itemRenderer(item);
+		wrapper.setAttribute("data-value", item.value);
+		this.wrapper.insertBefore(wrapper, this.element);
+
+		const itemCancel = this.itemCancelRenderer(item, wrapper);
+		if (itemCancel) {
+			wrapper.appendChild(itemCancel);
+			itemCancel.addEventListener("click", () => this.remove(wrapper));
+		}
+
+		this.element.value = "";
+		this.items.push(item);
+
+		if (this.emitEvents)
+			gadgetui.util.trigger(
+				this.element,
+				"gadgetui-lookuplist-input-add",
+				item,
+			);
+		if (this.func) this.func(item, "add");
 		if (this.model) {
 			const prop = this.element.getAttribute("gadgetui-bind");
 			if (prop) {
-				const list = this.model.get(prop);
-				const listIndex = list.findIndex((obj) => obj.value === value);
-				if (listIndex !== -1) {
-					list.splice(listIndex, 1);
-					if (this.func) this.func(removed, "remove");
-					if (this.emitEvents)
-						gadgetui.util.trigger(
-							this.element,
-							"gadgetui-lookuplist-input-remove",
-							removed,
-						);
-					this.model.set(prop, list);
+				const list = this.model.get(prop) || [];
+				list.push(item);
+				this.model.set(prop, list);
+			}
+		}
+	}
+
+	remove(element) {
+		const value = element.getAttribute("data-value");
+		element.parentNode.removeChild(element);
+
+		const index = this.items.findIndex((item) => item.value === value);
+		if (index !== -1) {
+			const [removed] = this.items.splice(index, 1);
+			if (this.model) {
+				const prop = this.element.getAttribute("gadgetui-bind");
+				if (prop) {
+					const list = this.model.get(prop);
+					const listIndex = list.findIndex((obj) => obj.value === value);
+					if (listIndex !== -1) {
+						list.splice(listIndex, 1);
+						if (this.func) this.func(removed, "remove");
+						if (this.emitEvents)
+							gadgetui.util.trigger(
+								this.element,
+								"gadgetui-lookuplist-input-remove",
+								removed,
+							);
+						this.model.set(prop, list);
+					}
 				}
 			}
 		}
 	}
-};
 
-LookupListInput.prototype.reset = function () {
-	while (this.wrapper.firstChild && this.wrapper.firstChild !== this.element) {
-		this.wrapper.removeChild(this.wrapper.firstChild);
-	}
-	this.items = [];
-	if (this.model) {
-		const prop = this.element.getAttribute("gadgetui-bind");
-		if (prop) this.model.set(prop, []);
-	}
-};
-
-LookupListInput.prototype.destroy = function () {
-	clearTimeout(this.searching);
-	this.menu.element.remove();
-	if (this.liveRegion) this.liveRegion.remove();
-};
-
-LookupListInput.prototype._setOption = function (key, value) {
-	this._super(key, value);
-	if (key === "source") this._initSource();
-	if (key === "appendTo") this.menu.element.appendTo(this._appendTo());
-	if (key === "disabled" && value && this.xhr) this.xhr.abort();
-};
-
-LookupListInput.prototype._appendTo = function () {
-	let element = this.options.appendTo;
-	if (!element) element = this.element.closest(".ui-front") || document.body;
-	return element.jquery || element.nodeType
-		? $(element)
-		: this.document.find(element).eq(0);
-};
-
-LookupListInput.prototype._searchTimeout = function (event) {
-	clearTimeout(this.searching);
-	this.searching = gadgetui.util.delay(() => {
-		const termChanged = this.term !== this.element.value;
-		const menuVisible = this.menu.element.style.display !== "none";
-		const modifierKey =
-			event.altKey || event.ctrlKey || event.metaKey || event.shiftKey;
-
-		if (termChanged || (!termChanged && !menuVisible && !modifierKey)) {
-			this.selectedItem = null;
-			this.search(null, event);
+	reset() {
+		while (
+			this.wrapper.firstChild &&
+			this.wrapper.firstChild !== this.element
+		) {
+			this.wrapper.removeChild(this.wrapper.firstChild);
 		}
-	}, this.delay);
-};
-
-LookupListInput.prototype.search = function (value, event) {
-	value = value ?? this.element.value;
-	this.term = this._value();
-	return value.length < this.minLength
-		? this.close(event)
-		: this._search(value);
-};
-
-LookupListInput.prototype._search = function (value) {
-	this.pending++;
-	this.cancelSearch = false;
-	this.source({ term: value }, this._response());
-};
-
-LookupListInput.prototype._response = function () {
-	const index = ++this.requestIndex;
-	return (content) => {
-		if (index === this.requestIndex) {
-			this.__response(content);
-			this.pending--;
+		this.items = [];
+		if (this.model) {
+			const prop = this.element.getAttribute("gadgetui-bind");
+			if (prop) this.model.set(prop, []);
 		}
-	};
-};
-
-LookupListInput.prototype.__response = function (content) {
-	content = this.makeUnique(content);
-	if (content?.length) content = this._normalize(content);
-
-	this.element.dispatchEvent(
-		new CustomEvent("response", { detail: { content } }),
-	);
-	// response event
-	if (typeof this.fireEvent === "function") this.fireEvent("response", content);
-
-	if (
-		!this.disabled &&
-		content?.length &&
-		!this.cancelSearch &&
-		!this.suppressSuggestions
-	) {
-		this._suggest(content);
-		this.element.dispatchEvent(new Event("open"));
-	} else {
-		this._close();
 	}
-};
 
-LookupListInput.prototype.close = function (event) {
-	this.cancelSearch = true;
-	this._close(event);
-};
+	destroy() {
+		clearTimeout(this.searching);
+		this.menu.element.remove();
+		if (this.liveRegion) this.liveRegion.remove();
+	}
 
-LookupListInput.prototype._close = function (event) {
-	if (this.menu.element.style.display !== "none") {
-		this.menu.element.style.display = "none";
-		this.menu.element.blur();
+	_setOption(key, value) {
+		this._super(key, value);
+		if (key === "source") this._initSource();
+		if (key === "appendTo") this.menu.element.appendTo(this._appendTo());
+		if (key === "disabled" && value && this.xhr) this.xhr.abort();
+	}
+
+	_appendTo() {
+		let element = this.options.appendTo;
+		if (!element) element = this.element.closest(".ui-front") || document.body;
+		return element.jquery || element.nodeType
+			? $(element)
+			: this.document.find(element).eq(0);
+	}
+
+	_searchTimeout(event) {
+		clearTimeout(this.searching);
+		this.searching = gadgetui.util.delay(() => {
+			const termChanged = this.term !== this.element.value;
+			const menuVisible = this.menu.element.style.display !== "none";
+			const modifierKey =
+				event.altKey || event.ctrlKey || event.metaKey || event.shiftKey;
+
+			if (termChanged || (!termChanged && !menuVisible && !modifierKey)) {
+				this.selectedItem = null;
+				this.search(null, event);
+			}
+		}, this.delay);
+	}
+
+	search(value, event) {
+		value = value ?? this.element.value;
+		this.term = this._value();
+		return value.length < this.minLength
+			? this.close(event)
+			: this._search(value);
+	}
+
+	_search(value) {
+		this.pending++;
+		this.cancelSearch = false;
+		this.source({ term: value }, this._response());
+	}
+
+	_response() {
+		const index = ++this.requestIndex;
+		return (content) => {
+			if (index === this.requestIndex) {
+				this.__response(content);
+				this.pending--;
+			}
+		};
+	}
+
+	__response(content) {
+		content = this.makeUnique(content);
+		if (content?.length) content = this._normalize(content);
+
+		this.element.dispatchEvent(
+			new CustomEvent("response", { detail: { content } }),
+		);
+		// response event
+		if (typeof this.fireEvent === "function")
+			this.fireEvent("response", content);
+
+		if (
+			!this.disabled &&
+			content?.length &&
+			!this.cancelSearch &&
+			!this.suppressSuggestions
+		) {
+			this._suggest(content);
+			this.element.dispatchEvent(new Event("open"));
+		} else {
+			this._close();
+		}
+	}
+
+	close(event) {
+		this.cancelSearch = true;
+		this._close(event);
+	}
+
+	_close() {
+		if (this.menu.element.style.display !== "none") {
+			this.menu.element.style.display = "none";
+			this.menu.element.blur();
+			this.isNewMenu = true;
+		}
+	}
+
+	_normalize(items) {
+		if (items.length && items[0].label && items[0].value) return items;
+		return items.map((item) =>
+			typeof item === "string"
+				? { label: item, value: item }
+				: {
+						label: item.label || item.value,
+						value: item.value || item.label,
+					},
+		);
+	}
+
+	_suggest(items) {
+		const div = this.menu.element;
+		while (div.firstChild) div.removeChild(div.firstChild);
+
+		this._renderMenu(items);
+		div.style.display = "block";
+		this._resizeMenu();
+		this.position.of = this.element;
 		this.isNewMenu = true;
 	}
-};
 
-LookupListInput.prototype._normalize = function (items) {
-	if (items.length && items[0].label && items[0].value) return items;
-	return items.map((item) =>
-		typeof item === "string"
-			? { label: item, value: item }
-			: {
-					label: item.label || item.value,
-					value: item.value || item.label,
-				},
-	);
-};
-
-LookupListInput.prototype._suggest = function (items) {
-	const div = this.menu.element;
-	while (div.firstChild) div.removeChild(div.firstChild);
-
-	this._renderMenu(items);
-	div.style.display = "block";
-	this._resizeMenu();
-	this.position.of = this.element;
-	this.isNewMenu = true;
-};
-
-LookupListInput.prototype._resizeMenu = function () {
-	// No resizing implemented currently
-};
-
-LookupListInput.prototype._renderMenu = function (items) {
-	const maxItems = Math.min(this.maxSuggestions, items.length);
-	for (let i = 0; i < maxItems; i++) this._renderItemData(items[i]);
-};
-
-LookupListInput.prototype._renderItemData = function (item) {
-	const menuItem = this.menuItemRenderer(item);
-	menuItem.addEventListener("click", () => {
-		this.menu.element.dispatchEvent(
-			new CustomEvent("menuselect", { detail: item }),
-		);
-	});
-	this.menu.element.appendChild(menuItem);
-};
-
-LookupListInput.prototype._renderMenuItem = function (item) {
-	const menuItem = document.createElement("div");
-	gadgetui.util.addClass(menuItem, "gadgetui-lookuplist-item");
-	menuItem.setAttribute("value", item.value);
-	menuItem.innerText = this.labelRenderer(item);
-	return menuItem;
-};
-
-LookupListInput.prototype._renderLabel = function (item) {
-	return item.label;
-};
-
-LookupListInput.prototype._move = function (direction, event) {
-	if (this.menu.element.style.display === "none") {
-		this.search(null, event);
-		return;
+	_resizeMenu() {
+		// No resizing implemented currently
 	}
-	if (
-		(this.menu.element.isFirstItem() && /^previous/.test(direction)) ||
-		(this.menu.element.isLastItem() && /^next/.test(direction))
-	) {
-		if (!this.isMultiLine) this._value(this.term);
-		this.menu.blur();
-		return;
+
+	_renderMenu(items) {
+		const maxItems = Math.min(this.maxSuggestions, items.length);
+		for (let i = 0; i < maxItems; i++) this._renderItemData(items[i]);
 	}
-	this.menu[direction](event);
-};
 
-LookupListInput.prototype.widget = function () {
-	return this.menu.element;
-};
-
-LookupListInput.prototype._value = function (value) {
-	if (value !== undefined) this.element[this.valueMethod] = value;
-	return this.element[this.valueMethod];
-};
-
-LookupListInput.prototype._keyEvent = function (keyEvent, event) {
-	if (!this.isMultiLine || this.menu.element.style.display !== "none") {
-		this._move(keyEvent, event);
-		event.preventDefault();
+	_renderItemData(item) {
+		const menuItem = this.menuItemRenderer(item);
+		menuItem.addEventListener("click", () => {
+			this.menu.element.dispatchEvent(
+				new CustomEvent("menuselect", { detail: item }),
+			);
+		});
+		this.menu.element.appendChild(menuItem);
 	}
-};
 
-LookupListInput.prototype.config = function (options) {
-	this.model =
-		this.element.getAttribute("gadgetui-bind") && !options.model
-			? gadgetui.model
-			: options.model;
-	this.width = options.width;
-	this.func = options.func;
-	this.filter = options.filter || this._filter;
-	this.labelRenderer = options.labelRenderer || this._renderLabel;
-	this.itemRenderer = options.itemRenderer || this._renderItem;
-	this.menuItemRenderer = options.menuItemRenderer || this._renderMenuItem;
-	this.itemCancelRenderer =
-		options.itemCancelRenderer || this._renderItemCancel;
-	this.emitEvents = options.emitEvents ?? true;
-	this.datasource = options.datasource ?? (options.lookupList || true);
-	this.minLength = options.minLength || 0;
-	this.disabled = options.disabled || false;
-	this.maxSuggestions = options.maxSuggestions || 20;
-	this.position = options.position || {
-		my: "left top",
-		at: "left bottom",
-		collision: "none",
-	};
-	this.suppressSuggestions = options.suppressSuggestions || false;
-	this.autoFocus = options.autoFocus || false;
-	this.requestIndex = 0;
-	this.delay = options.delay || 300; // Added default delay for search timeout
-};
+	_renderMenuItem(item) {
+		const menuItem = document.createElement("div");
+		menuItem.classList.add("gadgetui-lookuplist-item");
+		menuItem.setAttribute("value", item.value);
+		menuItem.innerText = this.labelRenderer(item);
+		return menuItem;
+	}
+
+	_renderLabel(item) {
+		return item.label;
+	}
+
+	_move(direction, event) {
+		if (this.menu.element.style.display === "none") {
+			this.search(null, event);
+			return;
+		}
+		if (
+			(this.menu.element.isFirstItem() && /^previous/.test(direction)) ||
+			(this.menu.element.isLastItem() && /^next/.test(direction))
+		) {
+			if (!this.isMultiLine) this._value(this.term);
+			this.menu.blur();
+			return;
+		}
+		this.menu[direction](event);
+	}
+
+	widget() {
+		return this.menu.element;
+	}
+
+	_value(value) {
+		if (value !== undefined) this.element[this.valueMethod] = value;
+		return this.element[this.valueMethod];
+	}
+
+	_keyEvent(keyEvent, event) {
+		if (!this.isMultiLine || this.menu.element.style.display !== "none") {
+			this._move(keyEvent, event);
+			event.preventDefault();
+		}
+	}
+
+	config(options) {
+		this.model =
+			this.element.getAttribute("gadgetui-bind") && !options.model
+				? gadgetui.model
+				: options.model;
+		this.width = options.width;
+		this.func = options.func;
+		this.filter = options.filter || this._filter;
+		this.labelRenderer = options.labelRenderer || this._renderLabel;
+		this.itemRenderer = options.itemRenderer || this._renderItem;
+		this.menuItemRenderer = options.menuItemRenderer || this._renderMenuItem;
+		this.itemCancelRenderer =
+			options.itemCancelRenderer || this._renderItemCancel;
+		this.emitEvents = options.emitEvents ?? true;
+		this.datasource = options.datasource ?? (options.lookupList || true);
+		this.minLength = options.minLength || 0;
+		this.disabled = options.disabled || false;
+		this.maxSuggestions = options.maxSuggestions || 20;
+		this.position = options.position || {
+			my: "left top",
+			at: "left bottom",
+			collision: "none",
+		};
+		this.suppressSuggestions = options.suppressSuggestions || false;
+		this.autoFocus = options.autoFocus || false;
+		this.requestIndex = 0;
+		this.delay = options.delay || 300; // Added default delay for search timeout
+	}
+}
 
 function SelectInput(selector, options = {}) {
 	this.selector = selector;
@@ -3799,60 +3792,58 @@ TextInput.prototype.config = function (options) {
 	this.browserHideBorderCSS = `gadget-ui-textinput-hideBorder-${gadgetui.util.checkBrowser()}`;
 };
 
-function Toggle(options) {
-	this.configure(options)
-	this.create()
-}
-
-Toggle.prototype.events = ['changed']
-
-Toggle.prototype.configure = function (options) {
-	this.selector = options.selector
-	this.parentSelector = options.parentSelector
-	this.shape = options.shape === undefined ? 'square' : options.shape
-	this.value = parseInt(options.initialValue, 10) === 1 ? 1 : 0
-}
-
-Toggle.prototype.create = function () {
-	this.element
-	if (this.selector !== undefined) {
-		this.element = document.querySelector(this.selector)
-	} else {
-		let ele = document.createElement('input')
-		ele.type = 'range'
-		ele.min = 0
-		ele.max = 1
-		let parent = document.querySelector(this.parentSelector)
-		parent.appendChild(ele)
-		this.element = ele
-	}
-	this.element.value = this.value
-	this.element.classList.add('gadget-ui-toggle')
-	if (this.shape === 'round') {
-		this.element.classList.add('gadget-ui-toggle-round')
+class Toggle extends Component {
+	constructor(options) {
+		super();
+		this.configure(options);
+		this.create();
 	}
 
-	if (this.value === 0) {
-		this.element.classList.add('gadget-ui-toggle-off')
+	configure(options) {
+		this.selector = options.selector;
+		this.parentSelector = options.parentSelector;
+		this.shape = options.shape === undefined ? "square" : options.shape;
+		this.value = parseInt(options.initialValue, 10) === 1 ? 1 : 0;
 	}
-	this.element.addEventListener(
-		'click',
-		function () {
-			if (this.value === 1) {
-				this.value = 0
-				this.element.classList.add('gadget-ui-toggle-off')
-			} else {
-				this.value = 1
-				this.element.classList.remove('gadget-ui-toggle-off')
-			}
-			this.element.value = this.value
-			if (typeof this.fireEvent === 'function') {
-				this.fireEvent('changed')
-			}
 
-			// event.currentTarget.css.backgroundColor='#ccc';
-		}.bind(this)
-	)
+	create() {
+		if (this.selector !== undefined) {
+			this.element = document.querySelector(this.selector);
+		} else {
+			const ele = document.createElement("input");
+			ele.type = "range";
+			ele.min = 0;
+			ele.max = 1;
+			const parent = document.querySelector(this.parentSelector);
+			parent.appendChild(ele);
+			this.element = ele;
+		}
+		this.element.value = this.value;
+		this.element.classList.add("gadget-ui-toggle");
+		if (this.shape === "round") {
+			this.element.classList.add("gadget-ui-toggle-round");
+		}
+
+		if (this.value === 0) {
+			this.element.classList.add("gadget-ui-toggle-off");
+		}
+		this.element.addEventListener(
+			"click",
+			function () {
+				if (this.value === 1) {
+					this.value = 0;
+					this.element.classList.add("gadget-ui-toggle-off");
+				} else {
+					this.value = 1;
+					this.element.classList.remove("gadget-ui-toggle-off");
+				}
+				this.element.value = this.value;
+				this.fireEvent("changed");
+
+				// event.currentTarget.css.backgroundColor='#ccc';
+			}.bind(this),
+		);
+	}
 }
 
 
