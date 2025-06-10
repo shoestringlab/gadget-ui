@@ -69,9 +69,7 @@ class FloatingPane extends Component {
 				this.element,
 			).left;
 
-			if (typeof this.fireEvent === "function") {
-				this.fireEvent("moved");
-			}
+			this.fireEvent("moved");
 		});
 
 		if (this.enableShrink) {
@@ -90,9 +88,8 @@ class FloatingPane extends Component {
 	}
 
 	close() {
-		if (typeof this.fireEvent === "function") {
-			this.fireEvent("closed");
-		}
+		this.fireEvent("closed");
+
 		this.wrapper.parentNode.removeChild(this.wrapper);
 	}
 
@@ -205,9 +202,8 @@ class FloatingPane extends Component {
 					complete: () => {
 						this.shrinker.innerHTML = icon;
 						css(this.element, "overflow", "scroll");
-						if (typeof this.fireEvent === "function") {
-							this.fireEvent("maximized");
-						}
+
+						this.fireEvent("maximized");
 					},
 				},
 			);
@@ -216,9 +212,8 @@ class FloatingPane extends Component {
 			css(this.element, "height", this.height);
 			this.shrinker.innerHTML = icon;
 			css(this.element, "overflow", "scroll");
-			if (typeof this.fireEvent === "function") {
-				this.fireEvent("maximized");
-			}
+
+			this.fireEvent("maximized");
 		}
 
 		this.minimized = false;
@@ -250,9 +245,7 @@ class FloatingPane extends Component {
 					queue: false,
 					duration: this.delay,
 					complete: () => {
-						if (typeof this.fireEvent === "function") {
-							this.fireEvent("minimized");
-						}
+						this.fireEvent("minimized");
 					},
 				},
 			);
@@ -260,9 +253,7 @@ class FloatingPane extends Component {
 			css(this.wrapper, "width", this.minWidth);
 			css(this.element, "height", "50px");
 			this.shrinker.innerHTML = icon;
-			if (typeof this.fireEvent === "function") {
-				this.fireEvent("minimized");
-			}
+			this.fireEvent("minimized");
 		}
 
 		this.minimized = true;

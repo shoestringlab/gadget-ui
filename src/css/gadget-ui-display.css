@@ -7,11 +7,11 @@ div.gadget-ui-floatingPane {
 	padding: 0px;
 	border-radius: 5px;
 	border: 1px solid silver;
+	overflow: hidden;
 }
 
 div.gadget-ui-floatingPane {
 	position: absolute;
-	overflow: hidden;
 }
 
 div.gadget-ui-collapsiblePane > div:nth-child(2),

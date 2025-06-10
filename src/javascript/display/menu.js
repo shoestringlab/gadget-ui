@@ -27,6 +27,9 @@ class Menu extends Component {
 			const element = document.createElement("div");
 			element.classList.add("gadget-ui-menu-item");
 			element.innerText = item.label || "";
+			if (item.dataId?.length) {
+				element.setAttribute("data-id", item.dataId);
+			}
 
 			if (item.image?.length) {
 				const imgEl = document.createElement("img");
@@ -41,9 +44,8 @@ class Menu extends Component {
 			) {
 				element.style.cursor = "pointer";
 				element.addEventListener("click", (evt) => {
-					if (typeof this.fireEvent === "function") {
-						this.fireEvent("clicked", item);
-					}
+					this.fireEvent("clicked", item);
+
 					typeof item.link === "function"
 						? item.link(evt)
 						: window.open(item.link);
@@ -162,6 +164,7 @@ class Menu extends Component {
 			const menuItem = menu.querySelector(".gadget-ui-menu-menuItem");
 			if (menuItem) {
 				menuItem.classList.remove("gadget-ui-menu-hovering");
+				this.fireEvent("menuClosed", this);
 			}
 		});
 	}
@@ -170,6 +173,7 @@ class Menu extends Component {
 		this.element.querySelectorAll(".gadget-ui-menu").forEach((menu) => {
 			this.element.removeChild(menu);
 		});
+		this.fireEvent("menuRemoved", this);
 	}
 
 	config(options) {

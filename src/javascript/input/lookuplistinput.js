@@ -11,22 +11,6 @@ class LookupListInput extends Component {
 		this.addBindings();
 	}
 
-	// events = [
-	// 	"change",
-	// 	"focus",
-	// 	"mouseenter",
-	// 	"keyup",
-	// 	"mouseleave",
-	// 	"blur",
-	// 	"click",
-	// 	"input",
-	// 	"keypress",
-	// 	"keydown",
-	// 	"menuselect",
-	// 	"mousedown",
-	// 	"response",
-	// ];
-
 	addControl() {
 		this.wrapper = document.createElement("div");
 		if (this.width) gadgetui.util.setStyle(this.wrapper, "width", this.width);
@@ -102,7 +86,7 @@ class LookupListInput extends Component {
 
 		this.wrapper.addEventListener("click", () => {
 			this.element.focus();
-			if (typeof this.fireEvent === "function") this.fireEvent("click");
+			this.fireEvent("click");
 		});
 
 		const keyEvents = {
@@ -158,7 +142,7 @@ class LookupListInput extends Component {
 						this._searchTimeout(event);
 						break;
 				}
-				if (typeof this.fireEvent === "function") this.fireEvent("keydown");
+				this.fireEvent("keydown");
 			},
 
 			keypress: (event) => {
@@ -186,7 +170,7 @@ class LookupListInput extends Component {
 						this._keyEvent("next", event);
 						break;
 				}
-				if (typeof this.fireEvent === "function") this.fireEvent("keypress");
+				this.fireEvent("keypress");
 			},
 
 			input: (event) => {
@@ -196,13 +180,13 @@ class LookupListInput extends Component {
 					return;
 				}
 				this._searchTimeout(event);
-				if (typeof this.fireEvent === "function") this.fireEvent("input");
+				this.fireEvent("input");
 			},
 
 			focus: () => {
 				this.selectedItem = null;
 				this.previous = this.element[this.valueMethod];
-				if (typeof this.fireEvent === "function") this.fireEvent("focus");
+				this.fireEvent("focus");
 			},
 
 			blur: (event) => {
@@ -212,7 +196,7 @@ class LookupListInput extends Component {
 				}
 				clearTimeout(this.searching);
 				this.close(event);
-				if (typeof this.fireEvent === "function") this.fireEvent("blur");
+				this.fireEvent("blur");
 			},
 
 			change: () => this.fireEvent("change"),
@@ -226,7 +210,7 @@ class LookupListInput extends Component {
 			event.preventDefault();
 			this.cancelBlur = true;
 			gadgetui.util.delay(() => delete this.cancelBlur);
-			if (typeof this.fireEvent === "function") this.fireEvent("mousedown");
+			this.fireEvent("mousedown");
 		});
 
 		this.menu.element.addEventListener("menuselect", (event) => {
@@ -248,7 +232,7 @@ class LookupListInput extends Component {
 			this.selectedItem = item;
 
 			if (!this.checkForDuplicate(item)) this.add(item);
-			if (typeof this.fireEvent === "function") this.fireEvent("menuselect");
+			this.fireEvent("menuselect");
 		});
 	}
 
@@ -271,7 +255,7 @@ class LookupListInput extends Component {
 
 		itemCancel.classList.add("oi");
 		itemCancel.setAttribute("data-glyph", "circle-x");
-		css(itemCancel, "font-size", 12);
+
 		css(itemCancel, "opacity", ".5");
 		css(itemCancel, "left", leftOffset);
 		css(itemCancel, "position", "absolute");
@@ -421,8 +405,8 @@ class LookupListInput extends Component {
 			new CustomEvent("response", { detail: { content } }),
 		);
 		// response event
-		if (typeof this.fireEvent === "function")
-			this.fireEvent("response", content);
+
+		this.fireEvent("response", content);
 
 		if (
 			!this.disabled &&

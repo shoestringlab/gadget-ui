@@ -60,6 +60,7 @@ class Modal extends Component {
 		this.element.removeChild(
 			this.element.querySelector(".gadgetui-right-align"),
 		);
+		this.fireEvent("removed");
 	}
 
 	config(options) {

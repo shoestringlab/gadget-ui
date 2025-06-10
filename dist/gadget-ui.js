@@ -78,302 +78,281 @@ class Component {
 }
 
 gadgetui.model = (() => {
-	'use strict'
+	"use strict";
 
-	const modelStore = new Map()
-	const mementoStore = new Map()
-	let maxMementos = 20 // Default value
+	const modelStore = new Map();
+	const mementoStore = new Map();
+	let maxMementos = 20; // Default value
 
 	class BindableObject {
 		constructor(data, element) {
-			this.data = this.processValue(data)
-			this.elements = []
-			this.mementos = []
-			this.currentMementoIndex = -1
+			this.data = this.processValue(data);
+			this.elements = [];
+			this.mementos = [];
+			this.currentMementoIndex = -1;
 			if (element) {
-				this.bind(element)
+				this.bind(element);
 			}
-			this.saveMemento() // Save initial state
+			this.saveMemento(); // Save initial state
 		}
 
 		handleEvent(event) {
-			if (event.type !== 'change') return
+			if (event.type !== "change") return;
 
-			event.originalSource ??= 'BindableObject.handleEvent[change]'
+			event.originalSource ??= "BindableObject.handleEvent[change]";
 
 			for (const { elem, prop } of this.elements) {
 				if (
 					event.target.name === prop &&
-					event.originalSource !== 'BindableObject.updateDomElement'
+					event.originalSource !== "BindableObject.updateDomElement"
 				) {
-					const value = event.target.type.includes('select')
+					const value = event.target.type.includes("select")
 						? {
 								id: event.target.value,
-								text: event.target.options[
-									event.target.selectedIndex
-								].textContent,
+								text: event.target.options[event.target.selectedIndex]
+									.textContent,
 							}
-						: event.target.value
+						: event.target.value;
 
-					this.change(value, event, prop)
+					this.change(value, event, prop);
 				}
 			}
 		}
 
 		change(value, event, property) {
-			event.originalSource ??= 'BindableObject.change'
-			console.log(`change : Source: ${event.originalSource}`)
+			event.originalSource ??= "BindableObject.change";
+			console.log(`change : Source: ${event.originalSource}`);
 
-			const processedValue = this.processValue(value)
+			const processedValue = this.processValue(value);
 
 			if (!property) {
-				this.data = processedValue
-			} else if (typeof this.data === 'object' && this.data !== null) {
+				this.data = processedValue;
+			} else if (typeof this.data === "object" && this.data !== null) {
 				if (!(property in this.data)) {
-					throw new Error(
-						`Property '${property}' of object is undefined.`
-					)
+					throw new Error(`Property '${property}' of object is undefined.`);
 				}
-				this.data[property] = processedValue
+				this.data[property] = processedValue;
 			} else {
 				throw new Error(
-					'Attempt to treat a simple value as an object with properties.'
-				)
+					"Attempt to treat a simple value as an object with properties.",
+				);
 			}
 
-			this.saveMemento()
+			this.saveMemento();
 
 			this.elements
 				.filter(
 					({ prop, elem }) =>
-						(!property || property === prop) &&
-						elem !== event.target
+						(!property || property === prop) && elem !== event.target,
 				)
 				.forEach(({ elem }) =>
-					this.updateDomElement(event, elem, processedValue)
-				)
+					this.updateDomElement(event, elem, processedValue),
+				);
 		}
 
 		updateDom(event, value, property) {
-			event.originalSource ??= 'BindableObject.updateDom'
+			event.originalSource ??= "BindableObject.updateDom";
 
 			this.elements.forEach(({ elem, prop }) => {
 				if (!property) {
-					if (typeof value === 'object' && value !== null) {
+					if (typeof value === "object" && value !== null) {
 						if (prop in value) {
-							this.updateDomElement(event, elem, value[prop])
+							this.updateDomElement(event, elem, value[prop]);
 						}
 					} else {
-						this.updateDomElement(event, elem, value)
+						this.updateDomElement(event, elem, value);
 					}
 				} else if (prop === property) {
-					this.updateDomElement(event, elem, value)
+					this.updateDomElement(event, elem, value);
 				}
-			})
+			});
 		}
 
 		updateDomElement(event, element, value) {
-			event.originalSource ??= 'BindableObject.updateDomElement'
+			event.originalSource ??= "BindableObject.updateDomElement";
 
 			const updateOptions = () => {
-				element.innerHTML = ''
+				element.innerHTML = "";
 				const items = Array.isArray(value)
 					? value
 					: value instanceof Map
 						? Array.from(value.entries())
-						: [value]
+						: [value];
 
-				if (element.tagName === 'SELECT') {
+				if (element.tagName === "SELECT") {
 					items.forEach((item, idx) => {
-						const opt = document.createElement('option')
-						opt.value =
-							typeof item === 'object'
-								? (item.id ?? item[0])
-								: item
+						const opt = document.createElement("option");
+						opt.value = typeof item === "object" ? (item.id ?? item[0]) : item;
 						opt.textContent =
-							typeof item === 'object'
-								? (item.text ?? item[1])
-								: item
-						element.appendChild(opt)
-					})
-				} else if (['UL', 'OL'].includes(element.tagName)) {
+							typeof item === "object" ? (item.text ?? item[1]) : item;
+						element.appendChild(opt);
+					});
+				} else if (["UL", "OL"].includes(element.tagName)) {
 					items.forEach((item) => {
-						const li = document.createElement('li')
+						const li = document.createElement("li");
 						li.textContent =
-							typeof item === 'object'
-								? (item.text ?? item[1])
-								: item
-						element.appendChild(li)
-					})
+							typeof item === "object" ? (item.text ?? item[1]) : item;
+						element.appendChild(li);
+					});
 				}
-			}
+			};
 
-			const isInput = ['INPUT', 'TEXTAREA'].includes(element.tagName)
-			const isArrayElement = ['OL', 'UL', 'SELECT'].includes(
-				element.tagName
-			)
+			const isInput = ["INPUT", "TEXTAREA"].includes(element.tagName);
+			const isArrayElement = ["OL", "UL", "SELECT"].includes(element.tagName);
 			const textElements = [
-				'DIV', // Generic container, often contains text
-				'SPAN', // Inline container, typically for text styling
-				'H1', // Heading level 1
-				'H2', // Heading level 2
-				'H3', // Heading level 3
-				'H4', // Heading level 4
-				'H5', // Heading level 5
-				'H6', // Heading level 6
-				'P', // Paragraph
-				'LABEL', // Caption for form elements, displays text
-				'BUTTON', // Clickable button, often with text content
-				'A', // Anchor (hyperlink), typically contains text
-				'STRONG', // Bold text for emphasis
-				'EM', // Italic text for emphasis
-				'B', // Bold text (presentational)
-				'I', // Italic text (presentational)
-				'U', // Underlined text
-				'SMALL', // Smaller text, often for fine print
-				'SUB', // Subscript text
-				'SUP', // Superscript text
-				'Q', // Short inline quotation
-				'BLOCKQUOTE', // Long quotation
-				'CITE', // Citation or reference
-				'CODE', // Code snippet
-				'PRE', // Preformatted text
-				'ABBR', // Abbreviation with optional title attribute
-				'DFN', // Defining instance of a term
-				'SAMP', // Sample output from a program
-				'KBD', // Keyboard input
-				'VAR', // Variable in programming/math context
-				'LI', // List item (in UL or OL)
-				'DT', // Term in a description list
-				'DD', // Description in a description list
-				'TH', // Table header cell
-				'TD', // Table data cell
-				'CAPTION', // Table caption
-				'FIGCAPTION', // Caption for a figure
-				'SUMMARY', // Summary for a details element
-				'LEGEND', // Caption for a fieldset in a form
-				'TITLE', // Document title (displayed in browser tab)
-			]
-			const isTextElement = textElements.includes(element.tagName)
+				"DIV", // Generic container, often contains text
+				"SPAN", // Inline container, typically for text styling
+				"H1", // Heading level 1
+				"H2", // Heading level 2
+				"H3", // Heading level 3
+				"H4", // Heading level 4
+				"H5", // Heading level 5
+				"H6", // Heading level 6
+				"P", // Paragraph
+				"LABEL", // Caption for form elements, displays text
+				"BUTTON", // Clickable button, often with text content
+				"A", // Anchor (hyperlink), typically contains text
+				"STRONG", // Bold text for emphasis
+				"EM", // Italic text for emphasis
+				"B", // Bold text (presentational)
+				"I", // Italic text (presentational)
+				"U", // Underlined text
+				"SMALL", // Smaller text, often for fine print
+				"SUB", // Subscript text
+				"SUP", // Superscript text
+				"Q", // Short inline quotation
+				"BLOCKQUOTE", // Long quotation
+				"CITE", // Citation or reference
+				"CODE", // Code snippet
+				"PRE", // Preformatted text
+				"ABBR", // Abbreviation with optional title attribute
+				"DFN", // Defining instance of a term
+				"SAMP", // Sample output from a program
+				"KBD", // Keyboard input
+				"VAR", // Variable in programming/math context
+				"LI", // List item (in UL or OL)
+				"DT", // Term in a description list
+				"DD", // Description in a description list
+				"TH", // Table header cell
+				"TD", // Table data cell
+				"CAPTION", // Table caption
+				"FIGCAPTION", // Caption for a figure
+				"SUMMARY", // Summary for a details element
+				"LEGEND", // Caption for a fieldset in a form
+				"TITLE", // Document title (displayed in browser tab)
+			];
+			const isTextElement = textElements.includes(element.tagName);
 
-			if (typeof value === 'object' && value !== null) {
+			if (typeof value === "object" && value !== null) {
 				if (isInput)
 					element.value =
-						value.id ?? (value instanceof Map ? '' : value[0]) ?? ''
-				else if (isArrayElement) updateOptions()
+						value.id ?? (value instanceof Map ? "" : value[0]) ?? "";
+				else if (isArrayElement) updateOptions();
 				else if (isTextElement)
 					element.textContent =
-						value.text ??
-						(value instanceof Map ? '' : value[1]) ??
-						''
+						value.text ?? (value instanceof Map ? "" : value[1]) ?? "";
 			} else {
-				if (isInput) element.value = value ?? ''
-				else if (isArrayElement) updateOptions()
-				else if (isTextElement) element.textContent = value ?? ''
+				if (isInput) element.value = value ?? "";
+				else if (isArrayElement) updateOptions();
+				else if (isTextElement) element.textContent = value ?? "";
 			}
 
 			if (
-				event.originalSource !== 'model.set' &&
-				event.originalSource !== 'memento.restore'
+				event.originalSource !== "model.set" &&
+				event.originalSource !== "memento.restore"
 			) {
 				element.dispatchEvent(
-					new Event('change', {
-						originalSource: 'model.updateDomElement',
-					})
-				)
+					new Event("change", {
+						originalSource: "model.updateDomElement",
+					}),
+				);
 			}
 		}
 
 		bind(element, property) {
-			const binding = { elem: element, prop: property || '' }
-			element.value = property ? this.data[property] : this.data
+			const binding = { elem: element, prop: property || "" };
+			element.value = property ? this.data[property] : this.data;
 
-			element.addEventListener('change', this)
-			this.elements.push(binding)
+			element.addEventListener("change", this);
+			this.elements.push(binding);
 		}
 
 		processValue(value) {
 			switch (typeof value) {
-				case 'undefined':
-				case 'number':
-				case 'boolean':
-				case 'function':
-				case 'symbol':
-				case 'string':
-					return value
-				case 'object':
-					if (value === null) return null
-					if (value instanceof Map) return new Map(value)
-					return JSON.parse(JSON.stringify(value))
+				case "undefined":
+				case "number":
+				case "boolean":
+				case "function":
+				case "symbol":
+				case "string":
+					return value;
+				case "object":
+					if (value === null) return null;
+					if (value instanceof Map) return new Map(value);
+					return JSON.parse(JSON.stringify(value));
 				default:
-					return value
+					return value;
 			}
 		}
 
 		saveMemento() {
 			// Remove future mementos if we're adding after an undo
 			if (this.currentMementoIndex < this.mementos.length - 1) {
-				this.mementos.splice(this.currentMementoIndex + 1)
+				this.mementos.splice(this.currentMementoIndex + 1);
 			}
 
-			const memento = this.processValue(this.data)
-			this.mementos.push(memento)
+			const memento = this.processValue(this.data);
+			this.mementos.push(memento);
 
 			if (this.mementos.length > maxMementos) {
-				this.mementos.shift() // Remove oldest memento
+				this.mementos.shift(); // Remove oldest memento
 			} else {
-				this.currentMementoIndex++
+				this.currentMementoIndex++;
 			}
 		}
 
 		undo() {
 			if (this.currentMementoIndex > 0) {
-				this.currentMementoIndex--
-				this.restoreMemento()
-				return true
+				this.currentMementoIndex--;
+				this.restoreMemento();
+				return true;
 			}
-			return false
+			return false;
 		}
 
 		redo() {
 			if (this.currentMementoIndex < this.mementos.length - 1) {
-				this.currentMementoIndex++
-				this.restoreMemento()
-				return true
+				this.currentMementoIndex++;
+				this.restoreMemento();
+				return true;
 			}
-			return false
+			return false;
 		}
 
 		rewind() {
 			if (this.currentMementoIndex > 0) {
-				this.currentMementoIndex = 0
-				this.restoreMemento()
-				return true
+				this.currentMementoIndex = 0;
+				this.restoreMemento();
+				return true;
 			}
-			return false
+			return false;
 		}
 
 		fastForward() {
 			if (this.currentMementoIndex < this.mementos.length - 1) {
-				this.currentMementoIndex = this.mementos.length - 1
-				this.restoreMemento()
-				return true
+				this.currentMementoIndex = this.mementos.length - 1;
+				this.restoreMemento();
+				return true;
 			}
-			return false
+			return false;
 		}
 
 		restoreMemento() {
-			this.data = this.processValue(
-				this.mementos[this.currentMementoIndex]
-			)
-			const event = { originalSource: 'memento.restore' }
+			this.data = this.processValue(this.mementos[this.currentMementoIndex]);
+			const event = { originalSource: "memento.restore" };
 			this.elements.forEach(({ elem, prop }) => {
-				this.updateDomElement(
-					event,
-					elem,
-					prop ? this.data[prop] : this.data
-				)
-			})
+				this.updateDomElement(event, elem, prop ? this.data[prop] : this.data);
+			});
 		}
 	}
 
@@ -381,95 +360,95 @@ gadgetui.model = (() => {
 		BindableObject,
 
 		init(options = {}) {
-			maxMementos = options.maxMementos ?? 20
+			maxMementos = options.maxMementos ?? 20;
 		},
 
 		create(name, value, element) {
-			const processedValue = new BindableObject(value).processValue(value)
-			const bindable = new BindableObject(processedValue, element)
-			modelStore.set(name, bindable)
-			mementoStore.set(name, bindable)
+			const processedValue = new BindableObject(value).processValue(value);
+			const bindable = new BindableObject(processedValue, element);
+			modelStore.set(name, bindable);
+			mementoStore.set(name, bindable);
 		},
 
 		destroy(name) {
-			modelStore.delete(name)
-			mementoStore.delete(name)
+			modelStore.delete(name);
+			mementoStore.delete(name);
 		},
 
 		bind(name, element) {
-			const [base, prop] = name.split('.')
-			const model = modelStore.get(base)
+			const [base, prop] = name.split(".");
+			const model = modelStore.get(base);
 			if (model) {
-				model.bind(element, prop)
+				model.bind(element, prop);
 			}
 		},
 
 		exists(name) {
-			return modelStore.has(name)
+			return modelStore.has(name);
 		},
 
 		get(name) {
 			if (!name) {
-				console.log('Expected parameter [name] is not defined.')
-				return undefined
+				console.log("Expected parameter [name] is not defined.");
+				return undefined;
 			}
 
-			const [base, prop] = name.split('.')
-			const model = modelStore.get(base)
+			const [base, prop] = name.split(".");
+			const model = modelStore.get(base);
 
 			if (!model) {
-				console.log(`Key '${base}' does not exist in the model.`)
-				return undefined
+				console.log(`Key '${base}' does not exist in the model.`);
+				return undefined;
 			}
 
-			const value = prop ? model.data[prop] : model.data
-			return value instanceof Map ? new Map(value) : value
+			const value = prop ? model.data[prop] : model.data;
+			return value instanceof Map ? new Map(value) : value;
 		},
 
 		set(name, value) {
 			if (!name) {
-				console.log('Expected parameter [name] is not defined.')
-				return
+				console.log("Expected parameter [name] is not defined.");
+				return;
 			}
 
-			const [base, prop] = name.split('.')
-			const event = { originalSource: 'model.set' }
+			const [base, prop] = name.split(".");
+			const event = { originalSource: "model.set" };
 
 			if (!modelStore.has(base)) {
 				if (!prop) {
-					this.create(base, value)
+					this.create(base, value);
 				} else {
-					throw new Error(`Object ${base} is not yet initialized.`)
+					throw new Error(`Object ${base} is not yet initialized.`);
 				}
 			} else {
-				const model = modelStore.get(base)
-				const processedValue = model.processValue(value)
-				model.change(processedValue, event, prop)
-				model.updateDom(event, processedValue, prop)
+				const model = modelStore.get(base);
+				const processedValue = model.processValue(value);
+				model.change(processedValue, event, prop);
+				model.updateDom(event, processedValue, prop);
 			}
 		},
 
 		undo(name) {
-			const model = mementoStore.get(name)
-			return model ? model.undo() : false
+			const model = mementoStore.get(name);
+			return model ? model.undo() : false;
 		},
 
 		redo(name) {
-			const model = mementoStore.get(name)
-			return model ? model.redo() : false
+			const model = mementoStore.get(name);
+			return model ? model.redo() : false;
 		},
 
 		rewind(name) {
-			const model = mementoStore.get(name)
-			return model ? model.rewind() : false
+			const model = mementoStore.get(name);
+			return model ? model.rewind() : false;
 		},
 
 		fastForward(name) {
-			const model = mementoStore.get(name)
-			return model ? model.fastForward() : false
+			const model = mementoStore.get(name);
+			return model ? model.fastForward() : false;
 		},
-	}
-})()
+	};
+})();
 
 /*
 // Initialize with custom memento limit
@@ -864,7 +843,6 @@ class CollapsiblePane extends Component {
 	addCSS() {
 		const css = gadgetui.util.setStyle;
 		css(this.wrapper, "width", this.width);
-		css(this.wrapper, "overflow", "hidden");
 	}
 
 	addBindings() {
@@ -919,9 +897,7 @@ class CollapsiblePane extends Component {
 					queue: false,
 					duration: this.delay,
 					complete: () => {
-						if (typeof this.fireEvent === "function") {
-							this.fireEvent(newEventName);
-						}
+						this.fireEvent(newEventName);
 					},
 				},
 			);
@@ -1051,9 +1027,7 @@ class FloatingPane extends Component {
 				this.element,
 			).left;
 
-			if (typeof this.fireEvent === "function") {
-				this.fireEvent("moved");
-			}
+			this.fireEvent("moved");
 		});
 
 		if (this.enableShrink) {
@@ -1072,9 +1046,8 @@ class FloatingPane extends Component {
 	}
 
 	close() {
-		if (typeof this.fireEvent === "function") {
-			this.fireEvent("closed");
-		}
+		this.fireEvent("closed");
+
 		this.wrapper.parentNode.removeChild(this.wrapper);
 	}
 
@@ -1187,9 +1160,8 @@ class FloatingPane extends Component {
 					complete: () => {
 						this.shrinker.innerHTML = icon;
 						css(this.element, "overflow", "scroll");
-						if (typeof this.fireEvent === "function") {
-							this.fireEvent("maximized");
-						}
+
+						this.fireEvent("maximized");
 					},
 				},
 			);
@@ -1198,9 +1170,8 @@ class FloatingPane extends Component {
 			css(this.element, "height", this.height);
 			this.shrinker.innerHTML = icon;
 			css(this.element, "overflow", "scroll");
-			if (typeof this.fireEvent === "function") {
-				this.fireEvent("maximized");
-			}
+
+			this.fireEvent("maximized");
 		}
 
 		this.minimized = false;
@@ -1232,9 +1203,7 @@ class FloatingPane extends Component {
 					queue: false,
 					duration: this.delay,
 					complete: () => {
-						if (typeof this.fireEvent === "function") {
-							this.fireEvent("minimized");
-						}
+						this.fireEvent("minimized");
 					},
 				},
 			);
@@ -1242,9 +1211,7 @@ class FloatingPane extends Component {
 			css(this.wrapper, "width", this.minWidth);
 			css(this.element, "height", "50px");
 			this.shrinker.innerHTML = icon;
-			if (typeof this.fireEvent === "function") {
-				this.fireEvent("minimized");
-			}
+			this.fireEvent("minimized");
 		}
 
 		this.minimized = true;
@@ -1545,6 +1512,9 @@ class Menu extends Component {
 			const element = document.createElement("div");
 			element.classList.add("gadget-ui-menu-item");
 			element.innerText = item.label || "";
+			if (item.dataId?.length) {
+				element.setAttribute("data-id", item.dataId);
+			}
 
 			if (item.image?.length) {
 				const imgEl = document.createElement("img");
@@ -1559,9 +1529,8 @@ class Menu extends Component {
 			) {
 				element.style.cursor = "pointer";
 				element.addEventListener("click", (evt) => {
-					if (typeof this.fireEvent === "function") {
-						this.fireEvent("clicked", item);
-					}
+					this.fireEvent("clicked", item);
+
 					typeof item.link === "function"
 						? item.link(evt)
 						: window.open(item.link);
@@ -1680,6 +1649,7 @@ class Menu extends Component {
 			const menuItem = menu.querySelector(".gadget-ui-menu-menuItem");
 			if (menuItem) {
 				menuItem.classList.remove("gadget-ui-menu-hovering");
+				this.fireEvent("menuClosed", this);
 			}
 		});
 	}
@@ -1688,6 +1658,7 @@ class Menu extends Component {
 		this.element.querySelectorAll(".gadget-ui-menu").forEach((menu) => {
 			this.element.removeChild(menu);
 		});
+		this.fireEvent("menuRemoved", this);
 	}
 
 	config(options) {
@@ -1759,6 +1730,7 @@ class Modal extends Component {
 		this.element.removeChild(
 			this.element.querySelector(".gadgetui-right-align"),
 		);
+		this.fireEvent("removed");
 	}
 
 	config(options) {
@@ -1780,8 +1752,6 @@ class ProgressBar extends Component {
 		this.configure(options);
 		this.render();
 	}
-
-	events = ["start", "updatePercent", "update"];
 
 	configure(options) {
 		this.id = options.id;
@@ -1852,6 +1822,7 @@ class ProgressBar extends Component {
 		if (this.progressbox && this.progressbox.parentNode) {
 			this.progressbox.parentNode.removeChild(this.progressbox);
 		}
+		this.fireEvent("removed");
 	}
 }
 
@@ -2043,9 +2014,7 @@ class Tabs extends Component {
 
 		this.activeTab = activeTab;
 
-		if (typeof this.fireEvent === "function") {
-			this.fireEvent("tabSelected", { activeTab });
-		}
+		this.fireEvent("tabSelected", { activeTab });
 	}
 
 	destroy() {
@@ -2091,16 +2060,6 @@ class ComboBox extends Component {
 		this.setStartingValues();
 	}
 
-	// events = [
-	// 	"change",
-	// 	"click",
-	// 	"focus",
-	// 	"mouseenter",
-	// 	"keyup",
-	// 	"mouseleave",
-	// 	"blur",
-	// ];
-
 	addControl() {
 		var css = gadgetui.util.setStyle;
 		this.comboBox = gadgetui.util.createElement("div");
@@ -2133,16 +2092,13 @@ class ComboBox extends Component {
 		this.input.setAttribute("type", "text");
 		this.input.setAttribute("name", "custom");
 
-		css(this.comboBox, "opacity", ".0");
+		//css(this.comboBox, "opacity", ".0");
 	}
 
 	addCSS() {
 		var css = gadgetui.util.setStyle;
 		this.element.classList.add("gadgetui-combobox-select");
 		css(this.element, "width", this.width);
-		css(this.element, "border", 0);
-		css(this.element, "display", "inline");
-		css(this.comboBox, "position", "relative");
 
 		var styles = gadgetui.util.getStyle(this.element),
 			inputWidth = this.element.clientWidth,
@@ -2169,7 +2125,6 @@ class ComboBox extends Component {
 			this.arrowWidth -
 			gadgetui.util.getNumberValue(this.borderRadius) -
 			4;
-		console.log(navigator.userAgent);
 		if (
 			navigator.userAgent.match(/(Safari)/) &&
 			!navigator.userAgent.match(/(Chrome)/)
@@ -2194,12 +2149,7 @@ class ComboBox extends Component {
 		css(this.inputWrapper, "top", inputWrapperTop);
 		css(this.inputWrapper, "left", leftOffset);
 		css(this.input, "width", inputWidthAdjusted);
-		css(this.input, "font-size", styles.fontSize);
-		css(this.comboBox, "font-size", styles.fontSize);
 		css(this.label, "left", leftPosition);
-		css(this.label, "font-family", styles.fontFamily);
-		css(this.label, "font-size", styles.fontSize);
-		css(this.label, "font-weight", styles.fontWeight);
 
 		if (navigator.userAgent.match(/Firefox/)) {
 			if (this.scaleIconHeight === true) {
@@ -2221,8 +2171,6 @@ class ComboBox extends Component {
 			);
 		}
 
-		css(this.comboBox, "opacity", 1);
-
 		if (this.hideable) {
 			css(this.inputWrapper, "display", "none");
 			css(this.selectWrapper, "display", "none");
@@ -2236,20 +2184,17 @@ class ComboBox extends Component {
 	}
 
 	setSelectOptions() {
-		var _this = this,
-			id,
-			text,
-			option;
+		var id, text, option;
 
-		while (_this.element.options.length > 0) {
-			_this.element.remove(0);
+		while (this.element.options.length > 0) {
+			this.element.remove(0);
 		}
 		option = gadgetui.util.createElement("option");
-		option.value = _this.newOption.id;
-		option.text = _this.newOption.text;
-		_this.element.add(option);
+		option.value = this.newOption.id;
+		option.text = this.newOption.text;
+		this.element.add(option);
 
-		this.dataProvider.data.forEach(function (obj) {
+		this.dataProvider.data.forEach((obj) => {
 			id = obj.id;
 			text = obj.text;
 			if (text === undefined) {
@@ -2258,7 +2203,7 @@ class ComboBox extends Component {
 			option = gadgetui.util.createElement("option");
 			option.value = id;
 			option.text = text;
-			_this.element.add(option);
+			this.element.add(option);
 		});
 	}
 
@@ -2294,114 +2239,105 @@ class ComboBox extends Component {
 	}
 
 	addBehaviors(obj) {
-		var _this = this;
 		if (this.hideable) {
-			this.comboBox.addEventListener(this.activate, function () {
-				setTimeout(function () {
-					if (_this.label.style.display != "none") {
-						console.log("combo mouseenter ");
-						_this.selectWrapper.style.display = "inline";
-						_this.label.style.display = "none";
-						if (_this.element.selectedIndex <= 0) {
-							_this.inputWrapper.style.display = "inline";
+			this.comboBox.addEventListener(this.activate, () => {
+				setTimeout(() => {
+					if (this.label.style.display != "none") {
+						this.selectWrapper.style.display = "inline";
+						this.label.style.display = "none";
+						if (this.element.selectedIndex <= 0) {
+							this.inputWrapper.style.display = "inline";
 						}
 					}
-				}, _this.delay);
+				}, this.delay);
 			});
-			this.comboBox.addEventListener("mouseleave", function () {
-				console.log("combo mouseleave ");
+			this.comboBox.addEventListener("mouseleave", () => {
 				if (
-					_this.element != document.activeElement &&
-					_this.input != document.activeElement
+					this.element != document.activeElement &&
+					this.input != document.activeElement
 				) {
-					_this.showLabel();
+					this.showLabel();
 				}
-				if (typeof _this.fireEvent === "function") {
-					_this.fireEvent("mouseleave");
+				if (typeof this.fireEvent === "function") {
+					this.fireEvent("mouseleave");
 				}
 			});
 		}
-		_this.input.addEventListener("click", function (e) {
-			console.log("input click ");
-			if (typeof _this.fireEvent === "function") {
-				_this.fireEvent("click");
+		this.input.addEventListener("click", (e) => {
+			if (typeof this.fireEvent === "function") {
+				this.fireEvent("click");
 			}
 		});
-		_this.input.addEventListener("keyup", function (event) {
-			console.log("input keyup");
+		this.input.addEventListener("keyup", (event) => {
 			if (event.which === 13) {
-				var inputText = gadgetui.util.encode(_this.input.value);
-				_this.handleInput(inputText);
+				var inputText = gadgetui.util.encode(this.input.value);
+				this.handleInput(inputText);
 			}
-			if (typeof _this.fireEvent === "function") {
-				_this.fireEvent("keyup");
+			if (typeof this.fireEvent === "function") {
+				this.fireEvent("keyup");
 			}
 		});
 		if (this.hideable) {
-			_this.input.addEventListener("blur", function () {
-				console.log("input blur");
+			this.input.addEventListener("blur", () => {
 				if (
-					gadgetui.util.mouseWithin(_this.element, gadgetui.mousePosition) ===
+					gadgetui.util.mouseWithin(this.element, gadgetui.mousePosition) ===
 					true
 				) {
-					_this.inputWrapper.style.display = "none";
-					_this.element.focus();
+					this.inputWrapper.style.display = "none";
+					this.element.focus();
 				} else {
-					_this.showLabel();
+					this.showLabel();
 				}
-				if (typeof _this.fireEvent === "function") {
-					_this.fireEvent("blur");
+				if (typeof this.fireEvent === "function") {
+					this.fireEvent("blur");
 				}
 			});
 		}
 		if (this.hideable) {
-			this.element.addEventListener("mouseenter", function (ev) {
-				_this.element.style.display = "inline";
-				if (typeof _this.fireEvent === "function") {
-					_this.fireEvent("mouseenter");
+			this.element.addEventListener("mouseenter", (ev) => {
+				this.element.style.display = "inline";
+				if (typeof this.fireEvent === "function") {
+					this.fireEvent("mouseenter");
 				}
 			});
 		}
-		this.element.addEventListener("click", function (ev) {
-			console.log("select click");
+		this.element.addEventListener("click", (ev) => {
 			ev.stopPropagation();
-			if (typeof _this.fireEvent === "function") {
-				_this.fireEvent("click");
+			if (typeof this.fireEvent === "function") {
+				this.fireEvent("click");
 			}
 		});
-		this.element.addEventListener("change", function (event) {
+		this.element.addEventListener("change", (event) => {
 			var idx =
 				event.target.selectedIndex >= 0 ? event.target.selectedIndex : 0;
-			if (parseInt(event.target[idx].value, 10) !== parseInt(_this.id, 10)) {
-				console.log("select change");
+			if (parseInt(event.target[idx].value, 10) !== parseInt(this.id, 10)) {
 				if (event.target.selectedIndex > 0) {
-					_this.inputWrapper.style.display = "none";
-					_this.setValue(event.target[event.target.selectedIndex].value);
+					this.inputWrapper.style.display = "none";
+					this.setValue(event.target[event.target.selectedIndex].value);
 				} else {
-					_this.inputWrapper.style.display = "block";
-					_this.setValue(_this.newOption.value);
-					_this.input.focus();
+					this.inputWrapper.style.display = "block";
+					this.setValue(this.newOption.value);
+					this.input.focus();
 				}
-				gadgetui.util.trigger(_this.element, "gadgetui-combobox-change", {
+				gadgetui.util.trigger(this.element, "gadgetui-combobox-change", {
 					id: event.target[event.target.selectedIndex].value,
 					text: event.target[event.target.selectedIndex].innerHTML,
 				});
-				if (typeof _this.fireEvent === "function") {
-					_this.fireEvent("change");
+				if (typeof this.fireEvent === "function") {
+					this.fireEvent("change");
 				}
 			}
 		});
 		if (this.hideable) {
-			this.element.addEventListener("blur", function (event) {
-				console.log("select blur ");
+			this.element.addEventListener("blur", (event) => {
 				event.stopPropagation();
-				setTimeout(function () {
-					if (_this.input !== document.activeElement) {
-						_this.showLabel();
+				setTimeout(() => {
+					if (this.input !== document.activeElement) {
+						this.showLabel();
 					}
 				}, 200);
-				if (typeof _this.fireEvent === "function") {
-					_this.fireEvent("blur");
+				if (typeof this.fireEvent === "function") {
+					this.fireEvent("blur");
 				}
 			});
 		}
@@ -2422,7 +2358,6 @@ class ComboBox extends Component {
 	}
 
 	triggerSelectChange() {
-		console.log("select change");
 		var ev = new Event("change", {
 			view: window,
 			bubbles: true,
@@ -2453,10 +2388,13 @@ class ComboBox extends Component {
 					});
 					promise.then(function (value) {
 						function callback() {
-							gadgetui.util.trigger(_this.element, "gadgetui-combobox-save", {
-								id: value,
-								text: text,
-							});
+							// trigger save event if we're triggering events
+							if (_this.emitEvents === true) {
+								gadgetui.util.trigger(_this.element, "gadgetui-combobox-save", {
+									id: value,
+									text: text,
+								});
+							}
 							_this.input.value = "";
 							_this.inputWrapper.style.display = "none";
 							_this.id = value;
@@ -2506,7 +2444,6 @@ class ComboBox extends Component {
 	}
 
 	setControls() {
-		console.log(this);
 		this.setSelectOptions();
 		this.setValue(this.id);
 		this.triggerSelectChange();
@@ -2514,7 +2451,7 @@ class ComboBox extends Component {
 
 	setValue(id) {
 		var text = this.getText(id);
-		console.log("setting id:" + id);
+
 		this.id = text === undefined ? this.newOption.id : id;
 		text = text === undefined ? this.newOption.text : text;
 		this.text = text;
@@ -2703,33 +2640,33 @@ class FileUploader extends Component {
 		this.element.addEventListener("dragstart", (ev) => {
 			ev.dataTransfer.setData("text", "data");
 			ev.dataTransfer.effectAllowed = "copy";
-			if (typeof this.fireEvent === "function") this.fireEvent("dragstart");
+			this.fireEvent("dragstart");
 		});
 
 		dropzone.addEventListener("dragenter", (ev) => {
 			ev.preventDefault();
 			ev.stopPropagation();
 			dropzone.classList.add("highlighted");
-			if (typeof this.fireEvent === "function") this.fireEvent("dragenter");
+			this.fireEvent("dragenter");
 		});
 
 		dropzone.addEventListener("dragleave", (ev) => {
 			ev.preventDefault();
 			ev.stopPropagation();
 			dropzone.classList.remove("highlighted");
-			if (typeof this.fireEvent === "function") this.fireEvent("dragleave");
+			this.fireEvent("dragleave");
 		});
 
 		dropzone.addEventListener("dragover", (ev) => {
 			this.handleDragOver(ev);
 			ev.dataTransfer.dropEffect = "copy";
-			if (typeof this.fireEvent === "function") this.fireEvent("dragover");
+			this.fireEvent("dragover");
 		});
 
 		dropzone.addEventListener("drop", (ev) => {
 			ev.preventDefault();
 			ev.stopPropagation();
-			if (typeof this.fireEvent === "function") this.fireEvent("drop");
+			this.fireEvent("drop");
 			this.processUpload(ev, ev.dataTransfer.files, dropzone, filedisplay);
 		});
 	}
@@ -2754,8 +2691,8 @@ class FileUploader extends Component {
 					if (this.showDropZone) this.show("dropzone");
 					this.setDimensions();
 				}
-				if (typeof this.fireEvent === "function")
-					this.fireEvent("uploadComplete");
+
+				this.fireEvent("uploadComplete");
 			});
 		});
 
@@ -2777,7 +2714,7 @@ class FileUploader extends Component {
 
 	upload(wrappedFiles) {
 		wrappedFiles.forEach((wrappedFile) => {
-			if (typeof this.fireEvent === "function") this.fireEvent("uploadStart");
+			this.fireEvent("uploadStart");
 			wrappedFile.progressbar.start();
 		});
 		this.uploadFile(wrappedFiles);
@@ -2933,22 +2870,6 @@ class LookupListInput extends Component {
 		this.addBindings();
 	}
 
-	// events = [
-	// 	"change",
-	// 	"focus",
-	// 	"mouseenter",
-	// 	"keyup",
-	// 	"mouseleave",
-	// 	"blur",
-	// 	"click",
-	// 	"input",
-	// 	"keypress",
-	// 	"keydown",
-	// 	"menuselect",
-	// 	"mousedown",
-	// 	"response",
-	// ];
-
 	addControl() {
 		this.wrapper = document.createElement("div");
 		if (this.width) gadgetui.util.setStyle(this.wrapper, "width", this.width);
@@ -3024,7 +2945,7 @@ class LookupListInput extends Component {
 
 		this.wrapper.addEventListener("click", () => {
 			this.element.focus();
-			if (typeof this.fireEvent === "function") this.fireEvent("click");
+			this.fireEvent("click");
 		});
 
 		const keyEvents = {
@@ -3080,7 +3001,7 @@ class LookupListInput extends Component {
 						this._searchTimeout(event);
 						break;
 				}
-				if (typeof this.fireEvent === "function") this.fireEvent("keydown");
+				this.fireEvent("keydown");
 			},
 
 			keypress: (event) => {
@@ -3108,7 +3029,7 @@ class LookupListInput extends Component {
 						this._keyEvent("next", event);
 						break;
 				}
-				if (typeof this.fireEvent === "function") this.fireEvent("keypress");
+				this.fireEvent("keypress");
 			},
 
 			input: (event) => {
@@ -3118,13 +3039,13 @@ class LookupListInput extends Component {
 					return;
 				}
 				this._searchTimeout(event);
-				if (typeof this.fireEvent === "function") this.fireEvent("input");
+				this.fireEvent("input");
 			},
 
 			focus: () => {
 				this.selectedItem = null;
 				this.previous = this.element[this.valueMethod];
-				if (typeof this.fireEvent === "function") this.fireEvent("focus");
+				this.fireEvent("focus");
 			},
 
 			blur: (event) => {
@@ -3134,7 +3055,7 @@ class LookupListInput extends Component {
 				}
 				clearTimeout(this.searching);
 				this.close(event);
-				if (typeof this.fireEvent === "function") this.fireEvent("blur");
+				this.fireEvent("blur");
 			},
 
 			change: () => this.fireEvent("change"),
@@ -3148,7 +3069,7 @@ class LookupListInput extends Component {
 			event.preventDefault();
 			this.cancelBlur = true;
 			gadgetui.util.delay(() => delete this.cancelBlur);
-			if (typeof this.fireEvent === "function") this.fireEvent("mousedown");
+			this.fireEvent("mousedown");
 		});
 
 		this.menu.element.addEventListener("menuselect", (event) => {
@@ -3170,7 +3091,7 @@ class LookupListInput extends Component {
 			this.selectedItem = item;
 
 			if (!this.checkForDuplicate(item)) this.add(item);
-			if (typeof this.fireEvent === "function") this.fireEvent("menuselect");
+			this.fireEvent("menuselect");
 		});
 	}
 
@@ -3193,7 +3114,7 @@ class LookupListInput extends Component {
 
 		itemCancel.classList.add("oi");
 		itemCancel.setAttribute("data-glyph", "circle-x");
-		css(itemCancel, "font-size", 12);
+
 		css(itemCancel, "opacity", ".5");
 		css(itemCancel, "left", leftOffset);
 		css(itemCancel, "position", "absolute");
@@ -3343,8 +3264,8 @@ class LookupListInput extends Component {
 			new CustomEvent("response", { detail: { content } }),
 		);
 		// response event
-		if (typeof this.fireEvent === "function")
-			this.fireEvent("response", content);
+
+		this.fireEvent("response", content);
 
 		if (
 			!this.disabled &&
@@ -3575,7 +3496,6 @@ class SelectInput extends Component {
 			) - 2;
 
 		css(this.selector, "min-width", "100px");
-		css(this.selector, "font-size", style.fontSize);
 		css(this.label, "padding-top", "2px");
 		css(this.label, "height", `${parentHeight}px`);
 		css(this.label, "margin-left", "9px");
@@ -3596,13 +3516,13 @@ class SelectInput extends Component {
 				event.preventDefault();
 				css(this.label, "display", "none");
 				css(this.selector, "display", "inline-block");
-				if (typeof this.fireEvent === "function") this.fireEvent(this.activate);
+				this.fireEvent(this.activate);
 			});
 
 			this.selector.addEventListener("blur", () => {
 				css(this.label, "display", "inline-block");
 				css(this.selector, "display", "none");
-				if (typeof this.fireEvent === "function") this.fireEvent("blur");
+				this.fireEvent("blur");
 			});
 
 			this.selector.addEventListener("mouseleave", () => {
@@ -3610,7 +3530,7 @@ class SelectInput extends Component {
 					css(this.label, "display", "inline-block");
 					css(this.selector, "display", "none");
 				}
-				if (typeof this.fireEvent === "function") this.fireEvent("mouseleave");
+				this.fireEvent("mouseleave");
 			});
 		}
 
@@ -3630,7 +3550,7 @@ class SelectInput extends Component {
 				this.value = data;
 			}, 100);
 
-			if (typeof this.fireEvent === "function") this.fireEvent("change");
+			this.fireEvent("change");
 		});
 	}
 
@@ -3712,17 +3632,17 @@ class TextInput extends Component {
 			mouseenter: () => {
 				if (this.hideable)
 					this.selector.classList.remove(this.browserHideBorderCSS);
-				if (typeof this.fireEvent === "function") this.fireEvent("mouseenter");
+				this.fireEvent("mouseenter");
 			},
 			focus: () => {
 				if (this.hideable)
 					this.selector.classList.remove(this.browserHideBorderCSS);
-				if (typeof this.fireEvent === "function") this.fireEvent("focus");
+				this.fireEvent("focus");
 			},
 			keyup: (event) => {
 				if (event.keyCode === 13) this.selector.blur();
 				this.setControlWidth(this.selector.value);
-				if (typeof this.fireEvent === "function") this.fireEvent("keyup");
+				this.fireEvent("keyup");
 			},
 			change: (event) => {
 				setTimeout(() => {
@@ -3744,7 +3664,7 @@ class TextInput extends Component {
 						});
 					}
 					if (this.func) this.func({ text: event.target.value });
-					if (typeof this.fireEvent === "function") this.fireEvent("change");
+					this.fireEvent("change");
 				}, 200);
 			},
 		};
@@ -3761,13 +3681,13 @@ class TextInput extends Component {
 				if (this.selector !== document.activeElement) {
 					this.selector.classList.add(this.browserHideBorderCSS);
 				}
-				if (typeof this.fireEvent === "function") this.fireEvent("mouseleave");
+				this.fireEvent("mouseleave");
 			});
 
 			this.selector.addEventListener("blur", () => {
 				gadgetui.util.setStyle(this.selector, "maxWidth", this.maxWidth);
 				this.selector.classList.add(this.browserHideBorderCSS);
-				if (typeof this.fireEvent === "function") this.fireEvent("blur");
+				this.fireEvent("blur");
 			});
 		}
 	}

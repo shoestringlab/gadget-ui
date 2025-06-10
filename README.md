@@ -7,12 +7,9 @@ Gadget-ui is a UI component library that has a built-in model and data-binding m
 
 ### Current Release
 
-v 10.3.0
+v 11.0.1
 
-### Experimental Release
-11.0.0-alpha.1
-
-This release is not published to npm, you need to pull it from github. See the release notes on the direction of the 11.0.0 release.
+This release changes the library into ES6 components for modern syntax. It also removes and unifies configuration options to rationalize them across the library. There have been a few enhancements, but this release is primarily meant to modernize the codebase and set a new direction for the library.
 
 ## Installation
 
@@ -27,29 +24,58 @@ The library can be included in traditional JavaScript form using a standard scri
 The library can also be included using module imports, which allows you to only import the components needed for a particular page:
 
 ``` javascript
-import {lightbox, constructor} from "/node_modules/gadget-ui/dist/gadget-ui.es.js"
+import {lightbox} from "/node_modules/gadget-ui/dist/gadget-ui.es.js"
 ```
 
 ## Instantiating Components
 
-Use the constructor component to create new instances of a gadget-ui component, as so:
+Gadget-ui components are now ES6 classes as of version 11, instantiate as
 
 ``` javascript
-// traditional include
-const lightbox = gadgetui.objects.Constructor( gadgetui.display.Lightbox, [ document.getElementById("lightbox"),
-  {images: imageArray, time: 3000, enableModal:false }], true );
+// traditional import
+import { gadgetui } from "/dist/gadget-ui.es.js";
 
-// module import
-const lightbox = constructor( lightbox, [ document.getElementById("lightbox"),
-  {images: imageArray, time: 3000, enableModal:false }], true );
+const lb = new gadgetui.display.Lightbox(document.getElementById("lightbox"), {
+	images: imageArray,
+	time: 3000,
+	enableModal: false,
+});
 
+// module import of only lightbox
+import { lightbox } from "/dist/gadget-ui.es.js";
+
+const lb = new lightbox(document.getElementById("lightbox"), {
+	images: imageArray,
+	time: 3000,
+	enableModal: false,
+});
 ```
 
 ## Dependencies
 
-Gadget-ui has an optional dependency on velocity-animate to animate transitions in the library. Transitions will be ignored if the library is not installed. All other dependencies are solely for development purposes of the library.
+Gadget-ui has an optional dependency on velocity-animate to animate transitions in the library. Transitions will be ignored if the library is not installed.
+
+By default, gadget-ui uses feather-icons in the places icons are used for things like maximizing, minimizing, and closing components. All icons can be replaced by other icons through configuration options.
+
+All other dependencies are solely for development purposes of the library.
+
+## Documentation
+
+Documentation for 11.x is under production.
+
+## Tests
+
+If you clone the repository from Github, you can run the tests locally by running:
+
+``` javascript
+$ node index.js
+```
+
+from the project root. Then access the tests at http://127.0.0.1:8000/test/11.x/index.htm.
+
+Code in the tests demonstrates how to work with all of the components in the library.
 
 
 ***License***
 
-gadget-ui is released under the Mozilla Public License 2.0.
+As of version 11, gadget-ui is released under the MIT License.

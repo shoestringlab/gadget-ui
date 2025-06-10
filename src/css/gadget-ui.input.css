@@ -43,7 +43,7 @@ div.gadgetui-lookuplist-input .gadgetui-lookuplist-input-item {
 
 div.gadgetui-lookuplist-input-div .gadgetui-lookuplist-input-cancel,
 div.gadgetui-lookuplist-input .gadgetui-lookuplist-input-cancel {
-	background: url('img/cancel.png') 98% center no-repeat #f4f0ec;
+	background: url("img/cancel.png") 98% center no-repeat #f4f0ec;
 	border: 1px solid #f4f0ec;
 	padding: 0px 20px 0px 3px;
 	margin: 0px;
@@ -116,6 +116,8 @@ select.gadgetui-combobox-select:-moz-focusring {
 div.gadgetui-combobox {
 	line-height: normal;
 	box-sizing: initial;
+	opacity: 1;
+	position: relative;
 	-webkit-box-sizing: initial;
 	-moz-box-sizing: initial;
 }
@@ -123,6 +125,8 @@ div.gadgetui-combobox {
 select.gadgetui-combobox-select {
 	margin-left: 1px;
 	background-color: #fff;
+	border: 0px;
+	display: inline;
 }
 
 select.gadgetui-combobox-select option {

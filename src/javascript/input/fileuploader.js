@@ -115,33 +115,33 @@ class FileUploader extends Component {
 		this.element.addEventListener("dragstart", (ev) => {
 			ev.dataTransfer.setData("text", "data");
 			ev.dataTransfer.effectAllowed = "copy";
-			if (typeof this.fireEvent === "function") this.fireEvent("dragstart");
+			this.fireEvent("dragstart");
 		});
 
 		dropzone.addEventListener("dragenter", (ev) => {
 			ev.preventDefault();
 			ev.stopPropagation();
 			dropzone.classList.add("highlighted");
-			if (typeof this.fireEvent === "function") this.fireEvent("dragenter");
+			this.fireEvent("dragenter");
 		});
 
 		dropzone.addEventListener("dragleave", (ev) => {
 			ev.preventDefault();
 			ev.stopPropagation();
 			dropzone.classList.remove("highlighted");
-			if (typeof this.fireEvent === "function") this.fireEvent("dragleave");
+			this.fireEvent("dragleave");
 		});
 
 		dropzone.addEventListener("dragover", (ev) => {
 			this.handleDragOver(ev);
 			ev.dataTransfer.dropEffect = "copy";
-			if (typeof this.fireEvent === "function") this.fireEvent("dragover");
+			this.fireEvent("dragover");
 		});
 
 		dropzone.addEventListener("drop", (ev) => {
 			ev.preventDefault();
 			ev.stopPropagation();
-			if (typeof this.fireEvent === "function") this.fireEvent("drop");
+			this.fireEvent("drop");
 			this.processUpload(ev, ev.dataTransfer.files, dropzone, filedisplay);
 		});
 	}
@@ -166,8 +166,8 @@ class FileUploader extends Component {
 					if (this.showDropZone) this.show("dropzone");
 					this.setDimensions();
 				}
-				if (typeof this.fireEvent === "function")
-					this.fireEvent("uploadComplete");
+
+				this.fireEvent("uploadComplete");
 			});
 		});
 
@@ -189,7 +189,7 @@ class FileUploader extends Component {
 
 	upload(wrappedFiles) {
 		wrappedFiles.forEach((wrappedFile) => {
-			if (typeof this.fireEvent === "function") this.fireEvent("uploadStart");
+			this.fireEvent("uploadStart");
 			wrappedFile.progressbar.start();
 		});
 		this.uploadFile(wrappedFiles);

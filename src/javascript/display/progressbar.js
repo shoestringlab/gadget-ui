@@ -6,8 +6,6 @@ class ProgressBar extends Component {
 		this.render();
 	}
 
-	events = ["start", "updatePercent", "update"];
-
 	configure(options) {
 		this.id = options.id;
 		this.label = options.label || "";
@@ -77,5 +75,6 @@ class ProgressBar extends Component {
 		if (this.progressbox && this.progressbox.parentNode) {
 			this.progressbox.parentNode.removeChild(this.progressbox);
 		}
+		this.fireEvent("removed");
 	}
 }

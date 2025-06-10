@@ -17,16 +17,6 @@ class ComboBox extends Component {
 		this.setStartingValues();
 	}
 
-	// events = [
-	// 	"change",
-	// 	"click",
-	// 	"focus",
-	// 	"mouseenter",
-	// 	"keyup",
-	// 	"mouseleave",
-	// 	"blur",
-	// ];
-
 	addControl() {
 		var css = gadgetui.util.setStyle;
 		this.comboBox = gadgetui.util.createElement("div");
@@ -59,16 +49,13 @@ class ComboBox extends Component {
 		this.input.setAttribute("type", "text");
 		this.input.setAttribute("name", "custom");
 
-		css(this.comboBox, "opacity", ".0");
+		//css(this.comboBox, "opacity", ".0");
 	}
 
 	addCSS() {
 		var css = gadgetui.util.setStyle;
 		this.element.classList.add("gadgetui-combobox-select");
 		css(this.element, "width", this.width);
-		css(this.element, "border", 0);
-		css(this.element, "display", "inline");
-		css(this.comboBox, "position", "relative");
 
 		var styles = gadgetui.util.getStyle(this.element),
 			inputWidth = this.element.clientWidth,
@@ -95,7 +82,6 @@ class ComboBox extends Component {
 			this.arrowWidth -
 			gadgetui.util.getNumberValue(this.borderRadius) -
 			4;
-		console.log(navigator.userAgent);
 		if (
 			navigator.userAgent.match(/(Safari)/) &&
 			!navigator.userAgent.match(/(Chrome)/)
@@ -120,12 +106,7 @@ class ComboBox extends Component {
 		css(this.inputWrapper, "top", inputWrapperTop);
 		css(this.inputWrapper, "left", leftOffset);
 		css(this.input, "width", inputWidthAdjusted);
-		css(this.input, "font-size", styles.fontSize);
-		css(this.comboBox, "font-size", styles.fontSize);
 		css(this.label, "left", leftPosition);
-		css(this.label, "font-family", styles.fontFamily);
-		css(this.label, "font-size", styles.fontSize);
-		css(this.label, "font-weight", styles.fontWeight);
 
 		if (navigator.userAgent.match(/Firefox/)) {
 			if (this.scaleIconHeight === true) {
@@ -147,8 +128,6 @@ class ComboBox extends Component {
 			);
 		}
 
-		css(this.comboBox, "opacity", 1);
-
 		if (this.hideable) {
 			css(this.inputWrapper, "display", "none");
 			css(this.selectWrapper, "display", "none");
@@ -162,20 +141,17 @@ class ComboBox extends Component {
 	}
 
 	setSelectOptions() {
-		var _this = this,
-			id,
-			text,
-			option;
+		var id, text, option;
 
-		while (_this.element.options.length > 0) {
-			_this.element.remove(0);
+		while (this.element.options.length > 0) {
+			this.element.remove(0);
 		}
 		option = gadgetui.util.createElement("option");
-		option.value = _this.newOption.id;
-		option.text = _this.newOption.text;
-		_this.element.add(option);
+		option.value = this.newOption.id;
+		option.text = this.newOption.text;
+		this.element.add(option);
 
-		this.dataProvider.data.forEach(function (obj) {
+		this.dataProvider.data.forEach((obj) => {
 			id = obj.id;
 			text = obj.text;
 			if (text === undefined) {
@@ -184,7 +160,7 @@ class ComboBox extends Component {
 			option = gadgetui.util.createElement("option");
 			option.value = id;
 			option.text = text;
-			_this.element.add(option);
+			this.element.add(option);
 		});
 	}
 
@@ -220,114 +196,105 @@ class ComboBox extends Component {
 	}
 
 	addBehaviors(obj) {
-		var _this = this;
 		if (this.hideable) {
-			this.comboBox.addEventListener(this.activate, function () {
-				setTimeout(function () {
-					if (_this.label.style.display != "none") {
-						console.log("combo mouseenter ");
-						_this.selectWrapper.style.display = "inline";
-						_this.label.style.display = "none";
-						if (_this.element.selectedIndex <= 0) {
-							_this.inputWrapper.style.display = "inline";
+			this.comboBox.addEventListener(this.activate, () => {
+				setTimeout(() => {
+					if (this.label.style.display != "none") {
+						this.selectWrapper.style.display = "inline";
+						this.label.style.display = "none";
+						if (this.element.selectedIndex <= 0) {
+							this.inputWrapper.style.display = "inline";
 						}
 					}
-				}, _this.delay);
+				}, this.delay);
 			});
-			this.comboBox.addEventListener("mouseleave", function () {
-				console.log("combo mouseleave ");
+			this.comboBox.addEventListener("mouseleave", () => {
 				if (
-					_this.element != document.activeElement &&
-					_this.input != document.activeElement
+					this.element != document.activeElement &&
+					this.input != document.activeElement
 				) {
-					_this.showLabel();
+					this.showLabel();
 				}
-				if (typeof _this.fireEvent === "function") {
-					_this.fireEvent("mouseleave");
+				if (typeof this.fireEvent === "function") {
+					this.fireEvent("mouseleave");
 				}
 			});
 		}
-		_this.input.addEventListener("click", function (e) {
-			console.log("input click ");
-			if (typeof _this.fireEvent === "function") {
-				_this.fireEvent("click");
+		this.input.addEventListener("click", (e) => {
+			if (typeof this.fireEvent === "function") {
+				this.fireEvent("click");
 			}
 		});
-		_this.input.addEventListener("keyup", function (event) {
-			console.log("input keyup");
+		this.input.addEventListener("keyup", (event) => {
 			if (event.which === 13) {
-				var inputText = gadgetui.util.encode(_this.input.value);
-				_this.handleInput(inputText);
+				var inputText = gadgetui.util.encode(this.input.value);
+				this.handleInput(inputText);
 			}
-			if (typeof _this.fireEvent === "function") {
-				_this.fireEvent("keyup");
+			if (typeof this.fireEvent === "function") {
+				this.fireEvent("keyup");
 			}
 		});
 		if (this.hideable) {
-			_this.input.addEventListener("blur", function () {
-				console.log("input blur");
+			this.input.addEventListener("blur", () => {
 				if (
-					gadgetui.util.mouseWithin(_this.element, gadgetui.mousePosition) ===
+					gadgetui.util.mouseWithin(this.element, gadgetui.mousePosition) ===
 					true
 				) {
-					_this.inputWrapper.style.display = "none";
-					_this.element.focus();
+					this.inputWrapper.style.display = "none";
+					this.element.focus();
 				} else {
-					_this.showLabel();
+					this.showLabel();
 				}
-				if (typeof _this.fireEvent === "function") {
-					_this.fireEvent("blur");
+				if (typeof this.fireEvent === "function") {
+					this.fireEvent("blur");
 				}
 			});
 		}
 		if (this.hideable) {
-			this.element.addEventListener("mouseenter", function (ev) {
-				_this.element.style.display = "inline";
-				if (typeof _this.fireEvent === "function") {
-					_this.fireEvent("mouseenter");
+			this.element.addEventListener("mouseenter", (ev) => {
+				this.element.style.display = "inline";
+				if (typeof this.fireEvent === "function") {
+					this.fireEvent("mouseenter");
 				}
 			});
 		}
-		this.element.addEventListener("click", function (ev) {
-			console.log("select click");
+		this.element.addEventListener("click", (ev) => {
 			ev.stopPropagation();
-			if (typeof _this.fireEvent === "function") {
-				_this.fireEvent("click");
+			if (typeof this.fireEvent === "function") {
+				this.fireEvent("click");
 			}
 		});
-		this.element.addEventListener("change", function (event) {
+		this.element.addEventListener("change", (event) => {
 			var idx =
 				event.target.selectedIndex >= 0 ? event.target.selectedIndex : 0;
-			if (parseInt(event.target[idx].value, 10) !== parseInt(_this.id, 10)) {
-				console.log("select change");
+			if (parseInt(event.target[idx].value, 10) !== parseInt(this.id, 10)) {
 				if (event.target.selectedIndex > 0) {
-					_this.inputWrapper.style.display = "none";
-					_this.setValue(event.target[event.target.selectedIndex].value);
+					this.inputWrapper.style.display = "none";
+					this.setValue(event.target[event.target.selectedIndex].value);
 				} else {
-					_this.inputWrapper.style.display = "block";
-					_this.setValue(_this.newOption.value);
-					_this.input.focus();
+					this.inputWrapper.style.display = "block";
+					this.setValue(this.newOption.value);
+					this.input.focus();
 				}
-				gadgetui.util.trigger(_this.element, "gadgetui-combobox-change", {
+				gadgetui.util.trigger(this.element, "gadgetui-combobox-change", {
 					id: event.target[event.target.selectedIndex].value,
 					text: event.target[event.target.selectedIndex].innerHTML,
 				});
-				if (typeof _this.fireEvent === "function") {
-					_this.fireEvent("change");
+				if (typeof this.fireEvent === "function") {
+					this.fireEvent("change");
 				}
 			}
 		});
 		if (this.hideable) {
-			this.element.addEventListener("blur", function (event) {
-				console.log("select blur ");
+			this.element.addEventListener("blur", (event) => {
 				event.stopPropagation();
-				setTimeout(function () {
-					if (_this.input !== document.activeElement) {
-						_this.showLabel();
+				setTimeout(() => {
+					if (this.input !== document.activeElement) {
+						this.showLabel();
 					}
 				}, 200);
-				if (typeof _this.fireEvent === "function") {
-					_this.fireEvent("blur");
+				if (typeof this.fireEvent === "function") {
+					this.fireEvent("blur");
 				}
 			});
 		}
@@ -348,7 +315,6 @@ class ComboBox extends Component {
 	}
 
 	triggerSelectChange() {
-		console.log("select change");
 		var ev = new Event("change", {
 			view: window,
 			bubbles: true,
@@ -379,10 +345,13 @@ class ComboBox extends Component {
 					});
 					promise.then(function (value) {
 						function callback() {
-							gadgetui.util.trigger(_this.element, "gadgetui-combobox-save", {
-								id: value,
-								text: text,
-							});
+							// trigger save event if we're triggering events
+							if (_this.emitEvents === true) {
+								gadgetui.util.trigger(_this.element, "gadgetui-combobox-save", {
+									id: value,
+									text: text,
+								});
+							}
 							_this.input.value = "";
 							_this.inputWrapper.style.display = "none";
 							_this.id = value;
@@ -432,7 +401,6 @@ class ComboBox extends Component {
 	}
 
 	setControls() {
-		console.log(this);
 		this.setSelectOptions();
 		this.setValue(this.id);
 		this.triggerSelectChange();
@@ -440,7 +408,7 @@ class ComboBox extends Component {
 
 	setValue(id) {
 		var text = this.getText(id);
-		console.log("setting id:" + id);
+
 		this.id = text === undefined ? this.newOption.id : id;
 		text = text === undefined ? this.newOption.text : text;
 		this.text = text;

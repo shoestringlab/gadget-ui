@@ -1,11 +1,15 @@
 
 ***Release Notes***
 
+11.0.1
+======
+
+The 11.0 release changes the library into ES6 components for modern syntax. It also removes and unifies configuration options to rationalize them across the library. There have been a few enhancements, but this release is primarily meant to modernize the codebase and set a new direction for the library.
 
 11.0.0-alpha.1
 ======
 
-All components have now been re-factored as ES6 classes. Some configuration options have been changed. For details on calling components for now, check /test/11.x/index.htm to see how each new component is called and configured. I will get around to writing documentation sooner or later. For now, the test code shows you enough to build on.
+All components have now been re-factored as ES6 classes. Some configuration options have been changed. For details on calling components for now, check /test/11.x/index.htm to see how each new component is called and configured. For now, the test code shows you enough to build on.
 
 The basic conversion process is simple. Old code:
 

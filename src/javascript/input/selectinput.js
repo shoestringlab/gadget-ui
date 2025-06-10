@@ -85,7 +85,6 @@ class SelectInput extends Component {
 			) - 2;
 
 		css(this.selector, "min-width", "100px");
-		css(this.selector, "font-size", style.fontSize);
 		css(this.label, "padding-top", "2px");
 		css(this.label, "height", `${parentHeight}px`);
 		css(this.label, "margin-left", "9px");
@@ -106,13 +105,13 @@ class SelectInput extends Component {
 				event.preventDefault();
 				css(this.label, "display", "none");
 				css(this.selector, "display", "inline-block");
-				if (typeof this.fireEvent === "function") this.fireEvent(this.activate);
+				this.fireEvent(this.activate);
 			});
 
 			this.selector.addEventListener("blur", () => {
 				css(this.label, "display", "inline-block");
 				css(this.selector, "display", "none");
-				if (typeof this.fireEvent === "function") this.fireEvent("blur");
+				this.fireEvent("blur");
 			});
 
 			this.selector.addEventListener("mouseleave", () => {
@@ -120,7 +119,7 @@ class SelectInput extends Component {
 					css(this.label, "display", "inline-block");
 					css(this.selector, "display", "none");
 				}
-				if (typeof this.fireEvent === "function") this.fireEvent("mouseleave");
+				this.fireEvent("mouseleave");
 			});
 		}
 
@@ -140,7 +139,7 @@ class SelectInput extends Component {
 				this.value = data;
 			}, 100);
 
-			if (typeof this.fireEvent === "function") this.fireEvent("change");
+			this.fireEvent("change");
 		});
 	}
 

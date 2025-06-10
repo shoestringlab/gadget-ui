@@ -66,17 +66,17 @@ class TextInput extends Component {
 			mouseenter: () => {
 				if (this.hideable)
 					this.selector.classList.remove(this.browserHideBorderCSS);
-				if (typeof this.fireEvent === "function") this.fireEvent("mouseenter");
+				this.fireEvent("mouseenter");
 			},
 			focus: () => {
 				if (this.hideable)
 					this.selector.classList.remove(this.browserHideBorderCSS);
-				if (typeof this.fireEvent === "function") this.fireEvent("focus");
+				this.fireEvent("focus");
 			},
 			keyup: (event) => {
 				if (event.keyCode === 13) this.selector.blur();
 				this.setControlWidth(this.selector.value);
-				if (typeof this.fireEvent === "function") this.fireEvent("keyup");
+				this.fireEvent("keyup");
 			},
 			change: (event) => {
 				setTimeout(() => {
@@ -98,7 +98,7 @@ class TextInput extends Component {
 						});
 					}
 					if (this.func) this.func({ text: event.target.value });
-					if (typeof this.fireEvent === "function") this.fireEvent("change");
+					this.fireEvent("change");
 				}, 200);
 			},
 		};
@@ -115,13 +115,13 @@ class TextInput extends Component {
 				if (this.selector !== document.activeElement) {
 					this.selector.classList.add(this.browserHideBorderCSS);
 				}
-				if (typeof this.fireEvent === "function") this.fireEvent("mouseleave");
+				this.fireEvent("mouseleave");
 			});
 
 			this.selector.addEventListener("blur", () => {
 				gadgetui.util.setStyle(this.selector, "maxWidth", this.maxWidth);
 				this.selector.classList.add(this.browserHideBorderCSS);
-				if (typeof this.fireEvent === "function") this.fireEvent("blur");
+				this.fireEvent("blur");
 			});
 		}
 	}

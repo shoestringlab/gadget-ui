@@ -60,7 +60,6 @@ class CollapsiblePane extends Component {
 	addCSS() {
 		const css = gadgetui.util.setStyle;
 		css(this.wrapper, "width", this.width);
-		css(this.wrapper, "overflow", "hidden");
 	}
 
 	addBindings() {
@@ -115,9 +114,7 @@ class CollapsiblePane extends Component {
 					queue: false,
 					duration: this.delay,
 					complete: () => {
-						if (typeof this.fireEvent === "function") {
-							this.fireEvent(newEventName);
-						}
+						this.fireEvent(newEventName);
 					},
 				},
 			);

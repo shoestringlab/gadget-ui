@@ -62,9 +62,7 @@ class Tabs extends Component {
 
 		this.activeTab = activeTab;
 
-		if (typeof this.fireEvent === "function") {
-			this.fireEvent("tabSelected", { activeTab });
-		}
+		this.fireEvent("tabSelected", { activeTab });
 	}
 
 	destroy() {
