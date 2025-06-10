@@ -1558,12 +1558,12 @@ class Menu extends Component {
 				(item.link.length > 0 || typeof item.link === "function")
 			) {
 				element.style.cursor = "pointer";
-				element.addEventListener("click", () => {
+				element.addEventListener("click", (evt) => {
 					if (typeof this.fireEvent === "function") {
 						this.fireEvent("clicked", item);
 					}
 					typeof item.link === "function"
-						? item.link()
+						? item.link(evt)
 						: window.open(item.link);
 				});
 			}
@@ -1626,6 +1626,7 @@ class Menu extends Component {
 				const mItem = item.querySelector(".gadget-ui-menu-menuItem");
 
 				item.addEventListener(activateEvent, (evt) => {
+					evt.stopPropagation();
 					if (mItem) mItem.classList.add("gadget-ui-menu-hovering");
 					item.classList.add("gadget-ui-menu-selected");
 					Array.from(item.parentNode.children).forEach((child) => {
@@ -1636,28 +1637,35 @@ class Menu extends Component {
 				});
 
 				if (activateEvent === "mouseenter") {
-					item.addEventListener("mouseleave", () => {
+					item.addEventListener("mouseleave", (evt) => {
+						evt.stopPropagation();
 						if (mItem) mItem.classList.remove("gadget-ui-menu-hovering");
 					});
 				}
 			});
 
-			mu.addEventListener(activateEvent, () =>
-				menuItem.classList.add("gadget-ui-menu-hovering"),
-			);
+			mu.addEventListener(activateEvent, (evt) => {
+				evt.stopPropagation();
+				menuItem.classList.add("gadget-ui-menu-hovering");
+				this.fireEvent("menuOpened", this);
+			});
 
 			if (activateEvent === "mouseenter") {
-				mu.addEventListener("mouseleave", () =>
-					menuItem.classList.remove("gadget-ui-menu-hovering"),
-				);
+				mu.addEventListener("mouseleave", (evt) => {
+					evt.stopPropagation();
+					menuItem.classList.remove("gadget-ui-menu-hovering");
+					this.fireEvent("menuClosed", this);
+				});
 			}
 
 			menuItems.forEach((mItem) => {
-				mItem.addEventListener(activateEvent, () =>
-					mItem.classList.add("gadget-ui-menu-hovering"),
-				);
+				mItem.addEventListener(activateEvent, (evt) => {
+					evt.stopPropagation();
+					mItem.classList.add("gadget-ui-menu-hovering");
+				});
 				if (activateEvent === "mouseenter") {
-					mItem.addEventListener("mouseleave", () => {
+					mItem.addEventListener("mouseleave", (evt) => {
+						evt.stopPropagation();
 						if (!mItem.parentNode.classList.contains("selected")) {
 							mItem.classList.remove("gadget-ui-menu-hovering");
 						}

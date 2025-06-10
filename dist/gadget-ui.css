@@ -138,6 +138,7 @@ div.gadget-ui-menu {
 	display: inline-block;
 	padding: 0 0.25em;
 	margin: 0 0 0.25em 0;
+	cursor: pointer;
 }
 
 .gadget-ui-menu-menuItem {
@@ -148,6 +149,7 @@ div.gadget-ui-menu {
 
 .gadget-ui-menu-menuItem > div {
 	padding-top: 0.5em;
+	display: block;
 }
 
 .gadget-ui-menu-hovering {
