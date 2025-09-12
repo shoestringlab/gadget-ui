@@ -196,6 +196,7 @@ div.gadget-ui-menu {
 	font-weight: bold;
 	border-radius: 0.25em 0.25em 0 0;
 	height: 1.5em;
+	cursor: pointer;
 }
 
 .gadget-ui-tabs-h div.gadget-ui-tab-h:hover {
@@ -203,7 +204,14 @@ div.gadget-ui-menu {
 }
 
 .gadget-ui-tabs-h div.gadget-ui-tab-h-active {
+	display: inline-block;
+	padding: 0.5em 1em 0 1em;
 	background-color: #999;
+	color: white;
+	margin: 0.5em 0.5em 0 0.5em;
+	font-weight: bold;
+	border-radius: 0.25em 0.25em 0 0;
+	height: 1.5em;
 }
 
 .gadget-ui-tabs-v {
@@ -222,6 +230,7 @@ div.gadget-ui-menu {
 	border-radius: 0;
 	height: 1.5em;
 	text-align: right;
+	cursor: pointer;
 }
 
 .gadget-ui-tabs-v div.gadget-ui-tab-v:hover {
@@ -229,7 +238,15 @@ div.gadget-ui-menu {
 }
 
 .gadget-ui-tabs-v div.gadget-ui-tab-v-active {
+	display: block;
+	padding: 0.5em 0.5em 0 1em;
 	background-color: #999;
+	color: white;
+	margin: 0.5em 0 0 0.5em;
+	font-weight: bold;
+	border-radius: 0;
+	height: 1.5em;
+	text-align: right;
 }
 
 .gadgetui-progressbar-progressbox {

@@ -1,6 +1,11 @@
 
 ***Release Notes***
 
+11.1.0
+======
+
+This release adds options to the fileuploader component to limit file type and size. It also adds a 'key' field to the fileuploadwrapper that can be used to integrate uploads with S3-compatible storage services. It also adds CSS classes to the tabs component to style the tabs.
+
 11.0.1
 ======
 

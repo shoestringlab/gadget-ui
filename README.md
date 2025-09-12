@@ -7,9 +7,9 @@ Gadget-ui is a UI component library that has a built-in model and data-binding m
 
 ### Current Release
 
-v 11.0.1
+v 11.1.0
 
-This release changes the library into ES6 components for modern syntax. It also removes and unifies configuration options to rationalize them across the library. There have been a few enhancements, but this release is primarily meant to modernize the codebase and set a new direction for the library.
+This release adds options to the fileuploader component to limit file type and size. It also adds a 'key' field to the fileuploadwrapper that can be used to integrate uploads with S3-compatible storage services. It also adds CSS classes to the tabs component to style the tabs.
 
 ## Installation
 

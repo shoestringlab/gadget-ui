@@ -919,42 +919,44 @@ class CollapsiblePane extends Component {
 	}
 }
 
-function FileUploadWrapper(file, element) {
-	const id = gadgetui.util.Id()
+function FileUploadWrapper(file, element, key = "") {
+	const id = gadgetui.util.Id();
 	const options = {
 		id: id,
+		key: key,
 		filename: file.name,
-		width: gadgetui.util.getStyle(element, 'width'),
-	}
-	const bindings = gadgetui.objects.EventBindings.getAll()
+		width: gadgetui.util.getStyle(element, "width"),
+	};
+	const bindings = gadgetui.objects.EventBindings.getAll();
 
-	this.file = file
-	this.id = id
-	this.progressbar = new gadgetui.display.ProgressBar(element, options)
-	this.progressbar.render()
+	this.file = file;
+	this.id = id;
+	this.key = key;
+	this.progressbar = new gadgetui.display.ProgressBar(element, options);
+	this.progressbar.render();
 
 	bindings.forEach((binding) => {
-		this[binding.name] = binding.func
-	})
+		this[binding.name] = binding.func;
+	});
 }
 
-FileUploadWrapper.prototype.events = ['uploadComplete', 'uploadAborted']
+FileUploadWrapper.prototype.events = ["uploadComplete", "uploadAborted"];
 
 FileUploadWrapper.prototype.completeUpload = function (fileItem) {
 	const finish = () => {
-		this.progressbar.destroy()
-		this.fireEvent('uploadComplete', fileItem)
-	}
-	setTimeout(finish, 1000)
-}
+		this.progressbar.destroy();
+		this.fireEvent("uploadComplete", fileItem);
+	};
+	setTimeout(finish, 1000);
+};
 
 FileUploadWrapper.prototype.abortUpload = function (fileItem) {
 	const aborted = () => {
-		this.progressbar.destroy()
-		this.fireEvent('uploadAborted', fileItem)
-	}
-	setTimeout(aborted, 1000)
-}
+		this.progressbar.destroy();
+		this.fireEvent("uploadAborted", fileItem);
+	};
+	setTimeout(aborted, 1000);
+};
 
 class FloatingPane extends Component {
 	constructor(element, options) {
@@ -2007,7 +2009,9 @@ class Tabs extends Component {
 			const className = `gadget-ui-tab-${dir}-active`;
 			if (tabId === activeTab) {
 				tab.classList.add(className);
+				tab.classList.remove(`gadget-ui-tab-${dir}`);
 			} else {
+				tab.classList.add(`gadget-ui-tab-${dir}`);
 				tab.classList.remove(className);
 			}
 		});
@@ -2601,6 +2605,16 @@ class FileUploader extends Component {
 		this.uploadErrorMessage = options.uploadErrorMessage || "Upload error.";
 		this.useTokens = options.useTokens ?? false;
 		this.tokenType = options.tokenType ?? "access_token"; // old default is 'X-Token' for backward compatibility
+		this.allowedFileTypes = options.allowedFileTypes || null; // New option for file type restrictions
+		this.allowedExtensions = options.allowedExtensions || null; // New option for file extension restrictions
+		this.invalidFileTypeMessage =
+			options.invalidFileTypeMessage ||
+			"Invalid file type. Please select a valid file.";
+		this.maxFileSize = options.maxFileSize || null; // New option for global file size limit
+		this.maxFileSizeByType = options.maxFileSizeByType || null; // New option for file type specific limits
+		this.fileSizeExceededMessage =
+			options.fileSizeExceededMessage ||
+			"File size exceeds the maximum allowed limit.";
 	}
 
 	setDimensions() {
@@ -2677,10 +2691,23 @@ class FileUploader extends Component {
 		css(filedisplay, "display", "inline");
 
 		Array.from(files).forEach((file) => {
-			const wrappedFile = gadgetui.objects.Constructor(
-				gadgetui.display.FileUploadWrapper,
-				[file, filedisplay, true],
+			// Validate file type before processing
+			if (!this.validateFileType(file)) {
+				this.handleInvalidFileType(file);
+				return;
+			}
+
+			// Validate file size before processing
+			if (!this.validateFileSize(file)) {
+				this.handleFileSizeExceeded(file);
+				return;
+			}
+
+			const wrappedFile = new gadgetui.display.FileUploadWrapper(
+				file,
+				filedisplay,
 			);
+
 			this.uploadingFiles.push(wrappedFile);
 			wrappedFile.on("uploadComplete", (fileWrapper) => {
 				const index = this.uploadingFiles.findIndex(
@@ -2700,12 +2727,138 @@ class FileUploader extends Component {
 		this.handleFileSelect(this.uploadingFiles, event);
 	}
 
+	validateFileType(file) {
+		// If no restrictions are set, allow all files
+		if (!this.allowedFileTypes && !this.allowedExtensions) {
+			return true;
+		}
+
+		// Check file extension if allowedExtensions is specified
+		if (this.allowedExtensions) {
+			const fileExtension = file.name.split(".").pop().toLowerCase();
+			if (Array.isArray(this.allowedExtensions)) {
+				if (!this.allowedExtensions.includes(fileExtension)) {
+					return false;
+				}
+			} else {
+				// If it's a string, check if it matches the extension
+				if (this.allowedExtensions !== fileExtension) {
+					return false;
+				}
+			}
+		}
+
+		// Check MIME type if allowedFileTypes is specified
+		if (this.allowedFileTypes) {
+			if (Array.isArray(this.allowedFileTypes)) {
+				if (!this.allowedFileTypes.includes(file.type)) {
+					return false;
+				}
+			} else {
+				// If it's a string, check if it matches the MIME type
+				if (this.allowedFileTypes !== file.type) {
+					return false;
+				}
+			}
+		}
+
+		return true;
+	}
+
+	handleInvalidFileType(file) {
+		// Show error message for invalid file types
+		const errorMessage = this.invalidFileTypeMessage;
+
+		// Create an error display element or use existing one
+		const errorDiv = document.createElement("div");
+		errorDiv.className = "gadgetui-fileuploader-error";
+		errorDiv.innerText = `${errorMessage} (${file.name})`;
+
+		// Add the error message to the file display area
+		const filedisplay = this.element.querySelector(
+			".gadgetui-fileuploader-filedisplay",
+		);
+		filedisplay.appendChild(errorDiv);
+
+		// Fire an event for invalid file type
+		this.fireEvent("invalidFileType", { file: file, message: errorMessage });
+	}
+
+	validateFileSize(file) {
+		// If no size limits are set, allow all files
+		if (!this.maxFileSize && !this.maxFileSizeByType) {
+			return true;
+		}
+
+		// Check global file size limit if set
+		if (this.maxFileSize && file.size > this.maxFileSize) {
+			return false;
+		}
+
+		// Check file type specific limits if set
+		if (this.maxFileSizeByType) {
+			// Find the appropriate limit for this file type
+			let limit = null;
+
+			// If maxFileSizeByType is an array of objects with type and size properties
+			if (Array.isArray(this.maxFileSizeByType)) {
+				const fileTypeConfig = this.maxFileSizeByType.find(
+					(config) =>
+						config.type === file.type ||
+						(config.extensions &&
+							config.extensions.includes(
+								file.name.split(".").pop().toLowerCase(),
+							)),
+				);
+				limit = fileTypeConfig ? fileTypeConfig.size : null;
+			}
+			// If maxFileSizeByType is an object mapping MIME types to limits
+			else if (typeof this.maxFileSizeByType === "object") {
+				limit =
+					this.maxFileSizeByType[file.type] ||
+					this.maxFileSizeByType[file.name.split(".").pop().toLowerCase()] ||
+					null;
+			}
+
+			if (limit && file.size > limit) {
+				return false;
+			}
+		}
+
+		return true;
+	}
+
+	handleFileSizeExceeded(file) {
+		// Show error message for files exceeding size limits
+		const errorMessage = this.fileSizeExceededMessage;
+
+		// Create an error display element or use existing one
+		const errorDiv = document.createElement("div");
+		errorDiv.className = "gadgetui-fileuploader-error";
+		errorDiv.innerText = `${errorMessage} (${file.name})`;
+
+		// Add the error message to the file display area
+		const filedisplay = this.element.querySelector(
+			".gadgetui-fileuploader-filedisplay",
+		);
+		filedisplay.appendChild(errorDiv);
+
+		// Fire an event for file size exceeded
+		this.fireEvent("fileSizeExceeded", { file: file, message: errorMessage });
+	}
+
 	handleFileSelect(wrappedFiles, evt) {
 		evt.preventDefault();
 		evt.stopPropagation();
+
+		// Filter out invalid files from the upload list
+		const validFiles = wrappedFiles.filter(
+			(file) => file.isValid !== false && file.sizeValid !== false,
+		);
+
 		this.willGenerateThumbnails
-			? this.generateThumbnails(wrappedFiles)
-			: this.upload(wrappedFiles);
+			? this.generateThumbnails(validFiles)
+			: this.upload(validFiles);
 	}
 
 	generateThumbnails(wrappedFiles) {
@@ -2713,11 +2866,22 @@ class FileUploader extends Component {
 	}
 
 	upload(wrappedFiles) {
-		wrappedFiles.forEach((wrappedFile) => {
+		// Filter out invalid files from the upload list
+		const validFiles = wrappedFiles.filter(
+			(file) => file.isValid !== false && file.sizeValid !== false,
+		);
+
+		if (validFiles.length === 0) {
+			// If no valid files, don't start upload process
+			this.fireEvent("uploadComplete");
+			return;
+		}
+
+		validFiles.forEach((wrappedFile) => {
 			this.fireEvent("uploadStart");
 			wrappedFile.progressbar.start();
 		});
-		this.uploadFile(wrappedFiles);
+		this.uploadFile(validFiles);
 	}
 
 	uploadFile(wrappedFiles) {
@@ -2766,6 +2930,7 @@ class FileUploader extends Component {
 
 				if (filepart < parts) {
 					wrappedFile.id = xhr.getResponseHeader("X-Id");
+					wrappedFile.key = xhr.getResponseHeader("X-Key");
 					this.uploadChunk(wrappedFile, chunks, filepart + 1, parts);
 				} else {
 					let json;
@@ -2785,6 +2950,7 @@ class FileUploader extends Component {
 		xhr.open("POST", this.uploadURI, true);
 		xhr.setRequestHeader("X-Tags", tags);
 		xhr.setRequestHeader("X-Id", wrappedFile.id || "");
+		xhr.setRequestHeader("X-Key", wrappedFile.key || "");
 		xhr.setRequestHeader("X-FileName", wrappedFile.file.name);
 		xhr.setRequestHeader("X-FileSize", wrappedFile.file.size);
 		xhr.setRequestHeader("X-FilePart", filepart);

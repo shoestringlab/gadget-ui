@@ -55,7 +55,9 @@ class Tabs extends Component {
 			const className = `gadget-ui-tab-${dir}-active`;
 			if (tabId === activeTab) {
 				tab.classList.add(className);
+				tab.classList.remove(`gadget-ui-tab-${dir}`);
 			} else {
+				tab.classList.add(`gadget-ui-tab-${dir}`);
 				tab.classList.remove(className);
 			}
 		});

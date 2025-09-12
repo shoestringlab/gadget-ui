@@ -11,7 +11,7 @@ const imageArray = [
 const lb = new gadgetui.display.Lightbox(document.getElementById("lightbox"), {
 	images: imageArray,
 	time: 3000,
-	enableModal: false,
+	enableModal: true,
 });
 
 document.getElementById("animate").addEventListener("click", function (event) {
