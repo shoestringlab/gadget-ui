@@ -101,6 +101,9 @@ class Menu extends Component {
 			}
 		});
 
+		// Track the last clicked item for position updates
+		let lastClickedItem = null;
+
 		menus.forEach((mu) => {
 			const menuItem = mu.querySelector(".gadget-ui-menu-menuItem");
 			const items = menuItem.querySelectorAll(".gadget-ui-menu-item");
@@ -111,7 +114,13 @@ class Menu extends Component {
 
 				item.addEventListener(activateEvent, (evt) => {
 					evt.stopPropagation();
-					if (mItem) mItem.classList.add("gadget-ui-menu-hovering");
+					if (mItem) {
+						mItem.classList.add("gadget-ui-menu-hovering");
+						// Set top position to match clicked item
+						const rect = item.getBoundingClientRect();
+						mItem.style.top = rect.top + "px";
+						lastClickedItem = item;
+					}
 					item.classList.add("gadget-ui-menu-selected");
 					Array.from(item.parentNode.children).forEach((child) => {
 						if (child !== item)
@@ -156,6 +165,18 @@ class Menu extends Component {
 					});
 				}
 			});
+		});
+
+		// Add scroll event listener to update menu positions
+		window.addEventListener("scroll", () => {
+			if (
+				lastClickedItem &&
+				menuItem &&
+				menuItem.classList.contains("gadget-ui-menu-hovering")
+			) {
+				const rect = lastClickedItem.getBoundingClientRect();
+				menuItem.style.top = rect.top + "px";
+			}
 		});
 	}
 

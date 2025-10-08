@@ -7,9 +7,9 @@ Gadget-ui is a UI component library that has a built-in model and data-binding m
 
 ### Current Release
 
-v 11.1.0
+v 11.2.0
 
-This release adds options to the fileuploader component to limit file type and size. It also adds a 'key' field to the fileuploadwrapper that can be used to integrate uploads with S3-compatible storage services. It also adds CSS classes to the tabs component to style the tabs.
+This release adds the Popover component, which can be used to display a context popover with content. It also adds a scroll listener to the Menu component to move the menu with the scroll position. It also adds a beforeUpload function to the FileUploader component to allow custom validation and processing before uploading files. This function can be used to re-size images and perform other work before upload. This release also adds an async option to the datasource function of the LookupListInput component to allow asynchronous remote data retrieval.
 
 ## Installation
 

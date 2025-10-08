@@ -86,6 +86,7 @@ class FileUploader extends Component {
 		this.fileSizeExceededMessage =
 			options.fileSizeExceededMessage ||
 			"File size exceeds the maximum allowed limit.";
+		this.beforeUpload = options.beforeUpload || null;
 	}
 
 	setDimensions() {
@@ -103,14 +104,22 @@ class FileUploader extends Component {
 	setEventHandlers() {
 		this.element
 			.querySelector('input[name="gadgetui-fileuploader-fileselect"]')
-			.addEventListener("change", (evt) => {
+			.addEventListener("change", async (evt) => {
 				const dropzone = this.element.querySelector(
 					'div[name="gadgetui-fileuploader-dropzone"]',
 				);
 				const filedisplay = this.element.querySelector(
 					'div[name="gadgetui-fileuploader-filedisplay"]',
 				);
-				this.processUpload(evt, evt.target.files, dropzone, filedisplay);
+				let files;
+				// Run beforeUpload callback if it exists
+				if (this.beforeUpload && typeof this.beforeUpload === "function") {
+					files = await this.beforeUpload(evt.target.files);
+				} else {
+					files = Array.from(evt.target.files);
+				}
+
+				this.processUpload(evt, files, dropzone, filedisplay);
 			});
 	}
 
@@ -148,11 +157,20 @@ class FileUploader extends Component {
 			this.fireEvent("dragover");
 		});
 
-		dropzone.addEventListener("drop", (ev) => {
+		dropzone.addEventListener("drop", async (ev) => {
 			ev.preventDefault();
 			ev.stopPropagation();
 			this.fireEvent("drop");
-			this.processUpload(ev, ev.dataTransfer.files, dropzone, filedisplay);
+
+			let files;
+			// Run beforeUpload callback if it exists
+			if (this.beforeUpload && typeof this.beforeUpload === "function") {
+				files = await this.beforeUpload(ev.dataTransfer.files);
+			} else {
+				files = Array.from(evt.target.files);
+			}
+
+			this.processUpload(ev, files, dropzone, filedisplay);
 		});
 	}
 
@@ -161,7 +179,7 @@ class FileUploader extends Component {
 		this.uploadingFiles = [];
 		css(filedisplay, "display", "inline");
 
-		Array.from(files).forEach((file) => {
+		files.forEach((file) => {
 			// Validate file type before processing
 			if (!this.validateFileType(file)) {
 				this.handleInvalidFileType(file);

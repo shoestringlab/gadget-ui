@@ -154,7 +154,7 @@ div.gadget-ui-menu {
 
 .gadget-ui-menu-hovering {
 	display: block;
-	position: fixed;
+	position: absolute;
 }
 
 .gadget-ui-menu-item > .gadget-ui-menu-menuItem {
@@ -376,6 +376,29 @@ div.gadget-ui-menu {
 
 .gadgetui-dialog-button {
 	margin: 0 0.5em;
+}
+
+div.gadgetui-popover {
+	padding: 1em;
+	border-radius: 0.25em;
+	background: #fff;
+	border: 1px solid silver;
+	z-index: 5; /* Above modal */
+	position: absolute;
+	top: 100px;
+	left: 50%;
+	transform: translateX(-5%);
+	visibility: hidden;
+}
+
+div.gadgetui-showPopover {
+	opacity: 1;
+	visibility: visible !important;
+	transform: scale(1);
+	transition:
+		visibility 0s linear 0s,
+		opacity 0.25s 0s,
+		transform 0.25s;
 }
 
 div .gadget-ui-input-div {

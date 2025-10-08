@@ -3,6 +3,20 @@ class LookupListInput extends Component {
 		super();
 		this.element = element;
 		this.items = [];
+		this.events = [
+			"added",
+			"removed",
+			"change",
+			"focus",
+			"blur",
+			"keydown",
+			"keypress",
+			"input",
+			"mousedown",
+			"menuselect",
+			"response",
+			"click",
+		];
 		this.config(options);
 		this.setIsMultiLine();
 		this.addControl();
@@ -44,6 +58,20 @@ class LookupListInput extends Component {
 					error: () => response([]),
 				});
 			};
+		} else if (
+			typeof this.datasource === "function" &&
+			this.datasource.constructor.name === "AsyncFunction"
+		) {
+			// Handle async function datasource
+			this.source = async (request, response) => {
+				try {
+					const result = await this.datasource(request);
+					response(result);
+				} catch (error) {
+					console.error("Error in async datasource:", error);
+					response([]);
+				}
+			};
 		} else {
 			this.source = this.datasource;
 		}
@@ -61,11 +89,7 @@ class LookupListInput extends Component {
 	}
 
 	checkForDuplicate(item) {
-		return this.items.some((existing) => existing.value === item.value);
-	}
-
-	makeUnique(content) {
-		return content.filter((item) => !this.checkForDuplicate(item));
+		return this.items.some((existing) => existing === item);
 	}
 
 	setIsMultiLine() {
@@ -231,7 +255,8 @@ class LookupListInput extends Component {
 			this.close(event);
 			this.selectedItem = item;
 
-			if (!this.checkForDuplicate(item)) this.add(item);
+			//if (!this.checkForDuplicate(item))
+			this.add(item);
 			this.fireEvent("menuselect");
 		});
 	}
@@ -278,6 +303,7 @@ class LookupListInput extends Component {
 		this.element.value = "";
 		this.items.push(item);
 
+		this.fireEvent("added");
 		if (this.emitEvents)
 			gadgetui.util.trigger(
 				this.element,
@@ -320,6 +346,7 @@ class LookupListInput extends Component {
 					}
 				}
 			}
+			this.fireEvent("removed");
 		}
 	}
 
@@ -398,8 +425,12 @@ class LookupListInput extends Component {
 	}
 
 	__response(content) {
-		content = this.makeUnique(content);
-		if (content?.length) content = this._normalize(content);
+		// Only normalize if no custom renderers are provided
+		const shouldNormalize =
+			!this.labelRenderer || this.labelRenderer === this._renderLabel;
+		if (shouldNormalize && content?.length) {
+			content = this._normalize(content);
+		}
 
 		this.element.dispatchEvent(
 			new CustomEvent("response", { detail: { content } }),

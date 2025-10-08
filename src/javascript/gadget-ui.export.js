@@ -11,6 +11,7 @@ export var lightbox = gadgetui.display.Lightbox;
 export var menu = gadgetui.display.Menu;
 export var modal = gadgetui.display.Modal;
 export var overlay = gadgetui.display.Overlay;
+export var popover = gadgetui.display.Popover;
 export var progressbar = gadgetui.display.ProgressBar;
 export var sidebar = gadgetui.display.Sidebar;
 export var tabs = gadgetui.display.Tabs;

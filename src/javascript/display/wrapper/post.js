@@ -8,6 +8,7 @@
 		Menu: Menu,
 		Lightbox: Lightbox,
 		Modal: Modal,
+		Popover:Popover,
 		ProgressBar: ProgressBar,
 		Sidebar: Sidebar,
 		Tabs: Tabs

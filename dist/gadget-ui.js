@@ -1588,6 +1588,9 @@ class Menu extends Component {
 			}
 		});
 
+		// Track the last clicked item for position updates
+		let lastClickedItem = null;
+
 		menus.forEach((mu) => {
 			const menuItem = mu.querySelector(".gadget-ui-menu-menuItem");
 			const items = menuItem.querySelectorAll(".gadget-ui-menu-item");
@@ -1598,7 +1601,13 @@ class Menu extends Component {
 
 				item.addEventListener(activateEvent, (evt) => {
 					evt.stopPropagation();
-					if (mItem) mItem.classList.add("gadget-ui-menu-hovering");
+					if (mItem) {
+						mItem.classList.add("gadget-ui-menu-hovering");
+						// Set top position to match clicked item
+						const rect = item.getBoundingClientRect();
+						mItem.style.top = rect.top + "px";
+						lastClickedItem = item;
+					}
 					item.classList.add("gadget-ui-menu-selected");
 					Array.from(item.parentNode.children).forEach((child) => {
 						if (child !== item)
@@ -1643,6 +1652,18 @@ class Menu extends Component {
 					});
 				}
 			});
+		});
+
+		// Add scroll event listener to update menu positions
+		window.addEventListener("scroll", () => {
+			if (
+				lastClickedItem &&
+				menuItem &&
+				menuItem.classList.contains("gadget-ui-menu-hovering")
+			) {
+				const rect = lastClickedItem.getBoundingClientRect();
+				menuItem.style.top = rect.top + "px";
+			}
 		});
 	}
 
@@ -1746,6 +1767,56 @@ class Modal extends Component {
 	}
 }
 
+
+class Popover extends Component {
+	constructor(element, options = {}) {
+		super();
+		this.element = element;
+		this.config(options);
+		this.addControl();
+		this.addBindings();
+
+		if (this.autoOpen) {
+			this.open();
+		}
+	}
+
+	events = ["opened", "closed"];
+
+	addControl() {
+		if (this.class) {
+			this.element.classList.add(this.class);
+		}
+
+		this.element.classList.add("gadgetui-popover");
+	}
+
+	addBindings() {
+		// No close button, so no bindings needed
+	}
+
+	open() {
+		this.element.classList.add("gadgetui-showPopover");
+		this.fireEvent("opened");
+	}
+
+	close() {
+		this.element.classList.remove("gadgetui-showPopover");
+		this.fireEvent("closed");
+	}
+
+	destroy() {
+		// this.element.parentNode.removeChild(this.element);
+		// this.wrapper.parentNode.insertBefore(this.element, this.wrapper);
+		// this.wrapper.parentNode.removeChild(this.wrapper);
+		this.fireEvent("removed");
+	}
+
+	config(options) {
+		this.class = options.class || false;
+		this.autoOpen = options.autoOpen !== false; // Default to true unless explicitly false
+	}
+}
 
 class ProgressBar extends Component {
 	constructor(element, options = {}) {
@@ -2036,6 +2107,7 @@ class Tabs extends Component {
 		Menu: Menu,
 		Lightbox: Lightbox,
 		Modal: Modal,
+		Popover:Popover,
 		ProgressBar: ProgressBar,
 		Sidebar: Sidebar,
 		Tabs: Tabs
@@ -2615,6 +2687,7 @@ class FileUploader extends Component {
 		this.fileSizeExceededMessage =
 			options.fileSizeExceededMessage ||
 			"File size exceeds the maximum allowed limit.";
+		this.beforeUpload = options.beforeUpload || null;
 	}
 
 	setDimensions() {
@@ -2632,14 +2705,22 @@ class FileUploader extends Component {
 	setEventHandlers() {
 		this.element
 			.querySelector('input[name="gadgetui-fileuploader-fileselect"]')
-			.addEventListener("change", (evt) => {
+			.addEventListener("change", async (evt) => {
 				const dropzone = this.element.querySelector(
 					'div[name="gadgetui-fileuploader-dropzone"]',
 				);
 				const filedisplay = this.element.querySelector(
 					'div[name="gadgetui-fileuploader-filedisplay"]',
 				);
-				this.processUpload(evt, evt.target.files, dropzone, filedisplay);
+				let files;
+				// Run beforeUpload callback if it exists
+				if (this.beforeUpload && typeof this.beforeUpload === "function") {
+					files = await this.beforeUpload(evt.target.files);
+				} else {
+					files = Array.from(evt.target.files);
+				}
+
+				this.processUpload(evt, files, dropzone, filedisplay);
 			});
 	}
 
@@ -2677,11 +2758,20 @@ class FileUploader extends Component {
 			this.fireEvent("dragover");
 		});
 
-		dropzone.addEventListener("drop", (ev) => {
+		dropzone.addEventListener("drop", async (ev) => {
 			ev.preventDefault();
 			ev.stopPropagation();
 			this.fireEvent("drop");
-			this.processUpload(ev, ev.dataTransfer.files, dropzone, filedisplay);
+
+			let files;
+			// Run beforeUpload callback if it exists
+			if (this.beforeUpload && typeof this.beforeUpload === "function") {
+				files = await this.beforeUpload(ev.dataTransfer.files);
+			} else {
+				files = Array.from(evt.target.files);
+			}
+
+			this.processUpload(ev, files, dropzone, filedisplay);
 		});
 	}
 
@@ -2690,7 +2780,7 @@ class FileUploader extends Component {
 		this.uploadingFiles = [];
 		css(filedisplay, "display", "inline");
 
-		Array.from(files).forEach((file) => {
+		files.forEach((file) => {
 			// Validate file type before processing
 			if (!this.validateFileType(file)) {
 				this.handleInvalidFileType(file);
@@ -3028,6 +3118,20 @@ class LookupListInput extends Component {
 		super();
 		this.element = element;
 		this.items = [];
+		this.events = [
+			"added",
+			"removed",
+			"change",
+			"focus",
+			"blur",
+			"keydown",
+			"keypress",
+			"input",
+			"mousedown",
+			"menuselect",
+			"response",
+			"click",
+		];
 		this.config(options);
 		this.setIsMultiLine();
 		this.addControl();
@@ -3069,6 +3173,20 @@ class LookupListInput extends Component {
 					error: () => response([]),
 				});
 			};
+		} else if (
+			typeof this.datasource === "function" &&
+			this.datasource.constructor.name === "AsyncFunction"
+		) {
+			// Handle async function datasource
+			this.source = async (request, response) => {
+				try {
+					const result = await this.datasource(request);
+					response(result);
+				} catch (error) {
+					console.error("Error in async datasource:", error);
+					response([]);
+				}
+			};
 		} else {
 			this.source = this.datasource;
 		}
@@ -3086,11 +3204,7 @@ class LookupListInput extends Component {
 	}
 
 	checkForDuplicate(item) {
-		return this.items.some((existing) => existing.value === item.value);
-	}
-
-	makeUnique(content) {
-		return content.filter((item) => !this.checkForDuplicate(item));
+		return this.items.some((existing) => existing === item);
 	}
 
 	setIsMultiLine() {
@@ -3256,7 +3370,8 @@ class LookupListInput extends Component {
 			this.close(event);
 			this.selectedItem = item;
 
-			if (!this.checkForDuplicate(item)) this.add(item);
+			//if (!this.checkForDuplicate(item))
+			this.add(item);
 			this.fireEvent("menuselect");
 		});
 	}
@@ -3303,6 +3418,7 @@ class LookupListInput extends Component {
 		this.element.value = "";
 		this.items.push(item);
 
+		this.fireEvent("added");
 		if (this.emitEvents)
 			gadgetui.util.trigger(
 				this.element,
@@ -3345,6 +3461,7 @@ class LookupListInput extends Component {
 					}
 				}
 			}
+			this.fireEvent("removed");
 		}
 	}
 
@@ -3423,8 +3540,12 @@ class LookupListInput extends Component {
 	}
 
 	__response(content) {
-		content = this.makeUnique(content);
-		if (content?.length) content = this._normalize(content);
+		// Only normalize if no custom renderers are provided
+		const shouldNormalize =
+			!this.labelRenderer || this.labelRenderer === this._renderLabel;
+		if (shouldNormalize && content?.length) {
+			content = this._normalize(content);
+		}
 
 		this.element.dispatchEvent(
 			new CustomEvent("response", { detail: { content } }),
