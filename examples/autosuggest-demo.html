@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Autosuggest Demo - Dynamic Element & Popover</title>
+    <link rel="stylesheet" href="../dist/gadget-ui.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1200px;
+            margin: 20px auto;
+            padding: 20px;
+        }
+        .demo-section {
+            margin: 30px 0;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        .demo-section h2 {
+            margin-top: 0;
+        }
+        #editable-area {
+            min-height: 150px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            background: #f9f9f9;
+        }
+        .gadgetui-autosuggest-dynamic {
+            background: #fff;
+            padding: 2px 4px;
+            border-radius: 3px;
+            border: 1px solid #4CAF50;
+            display: inline-block;
+            min-width: 100px;
+        }
+        button {
+            padding: 10px 20px;
+            margin: 5px;
+            background: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        button:hover {
+            background: #45a049;
+        }
+    </style>
+</head>
+<body>
+    <h1>Autosuggest Component - New Features Demo</h1>
+
+    <div class="demo-section">
+        <h2>1. Standard Autosuggest (Baseline)</h2>
+        <p>Type to see suggestions (try: apple, banana, cherry, date, elderberry)</p>
+        <input type="text" id="standard-input" placeholder="Type here...">
+    </div>
+
+    <div class="demo-section">
+        <h2>2. Autosuggest with Popover</h2>
+        <p>Uses the Popover component for displaying suggestions</p>
+        <input type="text" id="popover-input" placeholder="Type here...">
+    </div>
+
+    <div class="demo-section">
+        <h2>3. Dynamic Element at Cursor Position</h2>
+        <p>Click in the editable area below, then click the button to create an autosuggest element at your cursor:</p>
+        <div id="editable-area" contenteditable="true">
+            Click here and position your cursor where you want to insert an autosuggest element.
+            Then click the button below.
+        </div>
+        <button id="create-at-cursor">Create Autosuggest at Cursor</button>
+    </div>
+
+    <div class="demo-section">
+        <h2>4. Dynamic Element at Cursor with Popover</h2>
+        <p>Combines both features - creates element at cursor and uses Popover for suggestions:</p>
+        <div id="editable-area-2" contenteditable="true">
+            Click here, position your cursor, then click the button below.
+        </div>
+        <button id="create-at-cursor-popover">Create Autosuggest at Cursor (with Popover)</button>
+    </div>
+
+    <script src="../dist/gadget-ui.js"></script>
+    <script>
+        // Sample data
+        const fruits = [
+            'Apple', 'Apricot', 'Avocado',
+            'Banana', 'Blackberry', 'Blueberry',
+            'Cherry', 'Coconut', 'Cranberry',
+            'Date', 'Dragonfruit',
+            'Elderberry',
+            'Fig',
+            'Grape', 'Grapefruit', 'Guava',
+            'Kiwi',
+            'Lemon', 'Lime',
+            'Mango', 'Melon',
+            'Orange',
+            'Papaya', 'Peach', 'Pear', 'Pineapple', 'Plum',
+            'Raspberry',
+            'Strawberry',
+            'Tangerine',
+            'Watermelon'
+        ];
+
+        // 1. Standard Autosuggest
+        const standard = new gadgetui.Autosuggest(
+            document.getElementById('standard-input'),
+            {
+                datasource: fruits,
+                minLength: 1,
+                maxSuggestions: 10
+            }
+        );
+
+        // 2. Autosuggest with Popover
+        const withPopover = new gadgetui.Autosuggest(
+            document.getElementById('popover-input'),
+            {
+                datasource: fruits,
+                minLength: 1,
+                maxSuggestions: 10,
+                usePopover: true,
+                popoverOptions: {
+                    class: 'custom-autosuggest-popover'
+                }
+            }
+        );
+
+        // 3. Dynamic Element at Cursor
+        let autosuggestInstance = null;
+        document.getElementById('create-at-cursor').addEventListener('click', function() {
+            // Focus on the editable area first
+            document.getElementById('editable-area').focus();
+
+            // Create autosuggest at cursor position
+            try {
+                autosuggestInstance = new gadgetui.Autosuggest(
+                    null,
+                    {
+                        createAtCursor: true,
+                        elementType: 'span',
+                        datasource: fruits,
+                        minLength: 1,
+                        maxSuggestions: 10,
+                        handler: function(item) {
+                            console.log('Selected:', item);
+                        }
+                    }
+                );
+                // Focus the new element
+                autosuggestInstance.element.focus();
+            } catch (error) {
+                alert('Please click in the editable area first to position your cursor!');
+                console.error(error);
+            }
+        });
+
+        // 4. Dynamic Element at Cursor with Popover
+        let autosuggestInstance2 = null;
+        document.getElementById('create-at-cursor-popover').addEventListener('click', function() {
+            // Focus on the editable area first
+            document.getElementById('editable-area-2').focus();
+
+            // Create autosuggest at cursor position with popover
+            try {
+                autosuggestInstance2 = new gadgetui.Autosuggest(
+                    null,
+                    {
+                        createAtCursor: true,
+                        elementType: 'span',
+                        usePopover: true,
+                        popoverOptions: {
+                            class: 'custom-autosuggest-popover'
+                        },
+                        datasource: fruits,
+                        minLength: 1,
+                        maxSuggestions: 10,
+                        handler: function(item) {
+                            console.log('Selected:', item);
+                        }
+                    }
+                );
+                // Focus the new element
+                autosuggestInstance2.element.focus();
+            } catch (error) {
+                alert('Please click in the editable area first to position your cursor!');
+                console.error(error);
+            }
+        });
+    </script>
+</body>
+</html>

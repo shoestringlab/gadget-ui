@@ -1,6 +1,13 @@
 
 ***Release Notes***
 
+11.3.0
+======
+
+This release adds the Autosuggest component, which can be used to display search suggestions in a drop list from a search input. It also adds a regenerate method to the Menu component to allow the menu to be regenerated dynamically.
+
+Also in this release, the previously broken uglify task has been replaced with a new task that uses the terser plugin. Minified files are now generated with the .min extension.
+
 11.2.0
 ======
 

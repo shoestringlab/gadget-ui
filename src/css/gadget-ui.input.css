@@ -323,3 +323,62 @@ div.gadgetui-combobox-inputwrapper {
 .gadget-ui-toggle-round::-ms-thumb {
 	border-radius: 0.7em !important;
 }
+
+div.gadgetui-autosuggest-input-div,
+div.gadgetui-autosuggest-input {
+	background: #fff;
+	border: 1px solid silver;
+}
+
+div.gadgetui-autosuggest-input-div input,
+div.gadgetui-autosuggest-input input {
+	border: 0;
+	outline: none;
+	padding-left: 10px;
+}
+
+div.gadgetui-autosuggest-input-div .gadgetui-autosuggest-input-item,
+div.gadgetui-autosuggest-input .gadgetui-autosuggest-input-item {
+	display: inline !important;
+	padding: 0 20px 0 10px;
+}
+
+div.gadgetui-autosuggest-input-div .gadgetui-autosuggest-input-cancel,
+div.gadgetui-autosuggest-input .gadgetui-autosuggest-input-cancel {
+	background: url("img/cancel.png") 98% center no-repeat #f4f0ec;
+	border: 1px solid #f4f0ec;
+	padding: 0px 20px 0px 3px;
+	margin: 0px;
+	display: inline-block;
+	position: absolute;
+	height: 15px;
+}
+
+div.gadgetui-autosuggest-input-div > .gadgetui-autosuggest-input-item-wrapper,
+div.gadgetui-autosuggest-input > .gadgetui-autosuggest-input-item-wrapper {
+	margin: 3px;
+	display: inline-block;
+	position: relative;
+	background: silver;
+	border-radius: 5px;
+}
+
+div.gadgetui-autosuggest-menu {
+	padding: 0;
+	margin: 0;
+	background: white;
+	color: black;
+	border: 1px solid silver;
+}
+
+div.gadgetui-autosuggest-item {
+	display: block;
+	padding-left: 10px;
+}
+
+div.gadgetui-autosuggest-item:hover {
+	/*	background: silver;	*/
+	color: silver;
+	border-top: 1px solid silver;
+	border-bottom: 1px solid silver;
+}

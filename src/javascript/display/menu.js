@@ -22,6 +22,23 @@ class Menu extends Component {
 		});
 	}
 
+	regenerate(data = null) {
+		// Remove existing menu elements
+		this.destroy();
+
+		// If data is provided, use it; otherwise, if datasource exists, call it
+		if (data !== null) {
+			this.data = data;
+			this.addControl();
+			this.addBindings();
+		} else if (this.datasource) {
+			this.retrieveData();
+		} else {
+			// No new data and no datasource - do nothing
+			return;
+		}
+	}
+
 	addControl() {
 		const processItem = (item, parent) => {
 			const element = document.createElement("div");
@@ -194,6 +211,7 @@ class Menu extends Component {
 		this.element.querySelectorAll(".gadget-ui-menu").forEach((menu) => {
 			this.element.removeChild(menu);
 		});
+		this.elements = [];
 		this.fireEvent("menuRemoved", this);
 	}
 

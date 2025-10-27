@@ -2,7 +2,6 @@ module.exports = {
 	javascript: {
 		options: {
 			sourceMap: true,
-			sourceMapName: "<%= pkg.name %>.min.js.map",
 			mangle: true,
 		},
 		files: {
@@ -12,7 +11,6 @@ module.exports = {
 	javascriptes6: {
 		options: {
 			sourceMap: true,
-			sourceMapName: "<%= pkg.name %>.min.es.js.map",
 			mangle: true,
 		},
 		files: {

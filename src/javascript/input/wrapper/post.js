@@ -1,5 +1,6 @@
 
 	return{
+		Autosuggest:Autosuggest,
 		FileUploader: FileUploader,
 		TextInput: TextInput,
 		SelectInput: SelectInput,

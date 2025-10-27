@@ -36,9 +36,9 @@ class Popover extends Component {
 	}
 
 	destroy() {
-		// this.element.parentNode.removeChild(this.element);
-		// this.wrapper.parentNode.insertBefore(this.element, this.wrapper);
-		// this.wrapper.parentNode.removeChild(this.wrapper);
+		this.element.parentNode.removeChild(this.element);
+		//this.wrapper.parentNode.insertBefore(this.element, this.wrapper);
+		//this.wrapper.parentNode.removeChild(this.wrapper);
 		this.fireEvent("removed");
 	}
 

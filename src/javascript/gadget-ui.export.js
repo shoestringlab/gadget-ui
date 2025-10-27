@@ -15,6 +15,7 @@ export var popover = gadgetui.display.Popover;
 export var progressbar = gadgetui.display.ProgressBar;
 export var sidebar = gadgetui.display.Sidebar;
 export var tabs = gadgetui.display.Tabs;
+export var autosuggest = gadgetui.input.Autosuggest;
 export var combobox = gadgetui.input.ComboBox;
 export var fileuploader = gadgetui.input.FileUploader;
 export var lookuplistinput = gadgetui.input.LookupListInput;
