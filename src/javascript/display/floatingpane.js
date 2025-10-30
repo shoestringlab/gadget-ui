@@ -55,12 +55,16 @@ class FloatingPane extends Component {
 
 	setMessage() {
 		if (this.message) {
-			this.element.innerText = this.message;
+			if (this.useHtml) {
+				this.element.innerHTML = this.message;
+			} else {
+				this.element.innerText = this.message;
+			}
 		}
 	}
 
 	addBindings() {
-		const dragger = gadgetui.util.draggable(this.wrapper);
+		const dragger = gadgetui.util.draggable(this.wrapper, this.header);
 
 		this.wrapper.addEventListener("drag_end", (event) => {
 			this.top = event.detail.top;
@@ -69,7 +73,7 @@ class FloatingPane extends Component {
 				this.element,
 			).left;
 
-			this.fireEvent("moved");
+			this.fireEvent("moved", event);
 		});
 
 		if (this.enableShrink) {
@@ -261,6 +265,7 @@ class FloatingPane extends Component {
 
 	config(options) {
 		this.message = options.message;
+		this.useHtml = options.useHtml ?? false;
 		this.animate = options.animate ?? true;
 		this.delay = options.delay ?? 500;
 		this.title = options.title || "";

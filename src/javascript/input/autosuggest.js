@@ -214,9 +214,9 @@ class Autosuggest extends Component {
 
 		let suppressKeyPress, suppressKeyPressRepeat, suppressInput;
 
-		this.wrapper.addEventListener("click", () => {
+		this.wrapper.addEventListener("click", (event) => {
 			this.element.focus();
-			this.fireEvent("click");
+			this.fireEvent("click", event);
 		});
 
 		const keyEvents = {
@@ -249,7 +249,7 @@ class Autosuggest extends Component {
 						if (this.menu.active) {
 							suppressKeyPress = true;
 							event.preventDefault();
-							this.menu.select(event);
+							this._menuSelect(event);
 						}
 						break;
 					case keyCode.BACKSPACE:
@@ -258,7 +258,7 @@ class Autosuggest extends Component {
 						}
 						break;
 					case keyCode.TAB:
-						if (this.menu.active) this.menu.select(event);
+						if (this.menu.active) this._menuSelect(event);
 						break;
 					case keyCode.ESCAPE:
 						if (this.menu.element.style.display !== "none") {
@@ -272,7 +272,7 @@ class Autosuggest extends Component {
 						this._searchTimeout(event);
 						break;
 				}
-				this.fireEvent("keydown");
+				this.fireEvent("keydown", event);
 			},
 
 			keypress: (event) => {
@@ -300,7 +300,7 @@ class Autosuggest extends Component {
 						this._keyEvent("next", event);
 						break;
 				}
-				this.fireEvent("keypress");
+				this.fireEvent("keypress", event);
 			},
 
 			input: (event) => {
@@ -310,13 +310,13 @@ class Autosuggest extends Component {
 					return;
 				}
 				this._searchTimeout(event);
-				this.fireEvent("input");
+				this.fireEvent("input", event);
 			},
 
-			focus: () => {
+			focus: (event) => {
 				this.selectedItem = null;
 				this.previous = this.element[this.valueMethod];
-				this.fireEvent("focus");
+				this.fireEvent("focus", event);
 			},
 
 			blur: (event) => {
@@ -326,10 +326,10 @@ class Autosuggest extends Component {
 				}
 				clearTimeout(this.searching);
 				this.close(event);
-				this.fireEvent("blur");
+				this.fireEvent("blur", event);
 			},
 
-			change: () => this.fireEvent("change"),
+			change: (event) => this.fireEvent("change", event),
 		};
 
 		Object.entries(keyEvents).forEach(([event, handler]) => {
@@ -340,7 +340,7 @@ class Autosuggest extends Component {
 			event.preventDefault();
 			this.cancelBlur = true;
 			gadgetui.util.delay(() => delete this.cancelBlur);
-			this.fireEvent("mousedown");
+			this.fireEvent("mousedown", event);
 		});
 
 		this.menu.element.addEventListener("menuselect", (event) => {
@@ -363,7 +363,7 @@ class Autosuggest extends Component {
 
 			//if (!this.checkForDuplicate(item))
 			this.handler(item);
-			this.fireEvent("menuselect");
+			this.fireEvent("menuselect", event);
 		});
 	}
 
@@ -577,7 +577,11 @@ class Autosuggest extends Component {
 
 	_renderMenu(items) {
 		const maxItems = Math.min(this.maxSuggestions, items.length);
-		for (let i = 0; i < maxItems; i++) this._renderItemData(items[i]);
+		this.currentItems = []; // Store items for keyboard selection
+		for (let i = 0; i < maxItems; i++) {
+			this.currentItems.push(items[i]);
+			this._renderItemData(items[i]);
+		}
 	}
 
 	_renderItemData(item) {
@@ -601,11 +605,125 @@ class Autosuggest extends Component {
 	_renderLabel(item) {
 		return item.label;
 	}
+
+	_menuNext() {
+		const items = this.menu.element.querySelectorAll(
+			".gadgetui-autosuggest-item",
+		);
+		if (items.length === 0) return;
+
+		let currentIndex = -1;
+		items.forEach((item, index) => {
+			if (item.classList.contains("ui-state-focus")) {
+				currentIndex = index;
+				item.classList.remove("ui-state-focus");
+			}
+		});
+
+		const nextIndex = currentIndex < items.length - 1 ? currentIndex + 1 : 0;
+		items[nextIndex].classList.add("ui-state-focus");
+		this.menu.active = items[nextIndex];
+	}
+
+	_menuPrevious() {
+		const items = this.menu.element.querySelectorAll(
+			".gadgetui-autosuggest-item",
+		);
+		if (items.length === 0) return;
+
+		let currentIndex = -1;
+		items.forEach((item, index) => {
+			if (item.classList.contains("ui-state-focus")) {
+				currentIndex = index;
+				item.classList.remove("ui-state-focus");
+			}
+		});
+
+		const prevIndex = currentIndex > 0 ? currentIndex - 1 : items.length - 1;
+		items[prevIndex].classList.add("ui-state-focus");
+		this.menu.active = items[prevIndex];
+	}
+
+	_menuNextPage() {
+		// For simplicity, jump 5 items or to the end
+		const items = this.menu.element.querySelectorAll(
+			".gadgetui-autosuggest-item",
+		);
+		if (items.length === 0) return;
+
+		let currentIndex = -1;
+		items.forEach((item, index) => {
+			if (item.classList.contains("ui-state-focus")) {
+				currentIndex = index;
+				item.classList.remove("ui-state-focus");
+			}
+		});
+
+		const nextIndex = Math.min(currentIndex + 5, items.length - 1);
+		items[nextIndex].classList.add("ui-state-focus");
+		this.menu.active = items[nextIndex];
+	}
+
+	_menuPreviousPage() {
+		// For simplicity, jump 5 items or to the beginning
+		const items = this.menu.element.querySelectorAll(
+			".gadgetui-autosuggest-item",
+		);
+		if (items.length === 0) return;
+
+		let currentIndex = -1;
+		items.forEach((item, index) => {
+			if (item.classList.contains("ui-state-focus")) {
+				currentIndex = index;
+				item.classList.remove("ui-state-focus");
+			}
+		});
+
+		const prevIndex = Math.max(currentIndex - 5, 0);
+		items[prevIndex].classList.add("ui-state-focus");
+		this.menu.active = items[prevIndex];
+	}
+
+	_menuBlur() {
+		const items = this.menu.element.querySelectorAll(
+			".gadgetui-autosuggest-item",
+		);
+		items.forEach((item) => item.classList.remove("ui-state-focus"));
+		this.menu.active = null;
+	}
+
+	_menuSelect(event) {
+		if (!this.menu.active) return;
+
+		// Find the item data associated with the active menu item
+		const items = this.menu.element.querySelectorAll(
+			".gadgetui-autosuggest-item",
+		);
+		let selectedIndex = -1;
+		items.forEach((item, index) => {
+			if (item === this.menu.active) {
+				selectedIndex = index;
+			}
+		});
+
+		if (
+			selectedIndex >= 0 &&
+			this.currentItems &&
+			this.currentItems[selectedIndex]
+		) {
+			const item = this.currentItems[selectedIndex];
+			this.menu.element.dispatchEvent(
+				new CustomEvent("menuselect", { detail: item }),
+			);
+		}
+	}
+
 	_move(direction, event) {
 		if (this.menu.element.style.display === "none") {
 			this.search(null, event);
 			return;
 		}
+
 		const items = this.menu.element.querySelectorAll(
 			".gadgetui-autosuggest-item",
 		);
@@ -632,11 +750,25 @@ class Autosuggest extends Component {
 			(isLastItem && /^next/.test(direction))
 		) {
 			if (!this.isMultiLine) this._value(this.term);
-			this.menu.blur();
+			this._menuBlur();
 			return;
 		}
 
-		//this.menu[direction](event);
+		// Call the appropriate menu navigation method
+		switch (direction) {
+			case "next":
+				this._menuNext();
+				break;
+			case "previous":
+				this._menuPrevious();
+				break;
+			case "nextPage":
+				this._menuNextPage();
+				break;
+			case "previousPage":
+				this._menuPreviousPage();
+				break;
+		}
 	}
 
 	widget() {

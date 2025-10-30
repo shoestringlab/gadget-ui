@@ -105,7 +105,7 @@ class SelectInput extends Component {
 				event.preventDefault();
 				css(this.label, "display", "none");
 				css(this.selector, "display", "inline-block");
-				this.fireEvent(this.activate);
+				this.fireEvent(this.activate, event);
 			});
 
 			this.selector.addEventListener("blur", () => {
@@ -139,7 +139,7 @@ class SelectInput extends Component {
 				this.value = data;
 			}, 100);
 
-			this.fireEvent("change");
+			this.fireEvent("change", ev);
 		});
 	}
 

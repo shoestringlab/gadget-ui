@@ -1,6 +1,11 @@
 
 ***Release Notes***
 
+11.4.0
+======
+
+This release adds menu traversal options to the Autosuggest component. It also adds, where appropriate, the event passed to internal functions when fireEvent() is called in various components.
+
 11.3.0
 ======
 

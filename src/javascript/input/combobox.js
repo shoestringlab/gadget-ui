@@ -222,7 +222,7 @@ class ComboBox extends Component {
 		}
 		this.input.addEventListener("click", (e) => {
 			if (typeof this.fireEvent === "function") {
-				this.fireEvent("click");
+				this.fireEvent("click", e);
 			}
 		});
 		this.input.addEventListener("keyup", (event) => {
@@ -231,7 +231,7 @@ class ComboBox extends Component {
 				this.handleInput(inputText);
 			}
 			if (typeof this.fireEvent === "function") {
-				this.fireEvent("keyup");
+				this.fireEvent("keyup", event);
 			}
 		});
 		if (this.hideable) {
@@ -254,14 +254,14 @@ class ComboBox extends Component {
 			this.element.addEventListener("mouseenter", (ev) => {
 				this.element.style.display = "inline";
 				if (typeof this.fireEvent === "function") {
-					this.fireEvent("mouseenter");
+					this.fireEvent("mouseenter", ev);
 				}
 			});
 		}
 		this.element.addEventListener("click", (ev) => {
 			ev.stopPropagation();
 			if (typeof this.fireEvent === "function") {
-				this.fireEvent("click");
+				this.fireEvent("click", ev);
 			}
 		});
 		this.element.addEventListener("change", (event) => {
@@ -281,7 +281,7 @@ class ComboBox extends Component {
 					text: event.target[event.target.selectedIndex].innerHTML,
 				});
 				if (typeof this.fireEvent === "function") {
-					this.fireEvent("change");
+					this.fireEvent("change", event);
 				}
 			}
 		});
@@ -294,7 +294,7 @@ class ComboBox extends Component {
 					}
 				}, 200);
 				if (typeof this.fireEvent === "function") {
-					this.fireEvent("blur");
+					this.fireEvent("blur", event);
 				}
 			});
 		}

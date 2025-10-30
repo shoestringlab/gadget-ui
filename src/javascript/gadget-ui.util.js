@@ -259,7 +259,7 @@ gadgetui.util = (function () {
 		//author: Taufik Nurrohman
 		// code belongs to author
 		// no license enforced
-		draggable: function (selector) {
+		draggable: function (selector, handle) {
 			var selected = null, // Object of the element to be moved
 				x_pos = 0,
 				y_pos = 0, // Stores x & y coordinates of the mouse pointer
@@ -300,8 +300,20 @@ gadgetui.util = (function () {
 			}
 
 			// Bind the functions...
-			selector.onmousedown = function () {
-				_drag_init(this);
+			const dragTarget = handle || selector;
+			dragTarget.onmousedown = function (e) {
+				// If a handle is specified, check if the click is on an interactive element
+				if (handle) {
+					const target = e.target;
+					// Allow interaction with form elements
+					if (target.tagName === 'INPUT' ||
+						target.tagName === 'TEXTAREA' ||
+						target.tagName === 'SELECT' ||
+						target.tagName === 'BUTTON') {
+						return true;
+					}
+				}
+				_drag_init(selector);
 				return false;
 			};
 

@@ -166,7 +166,7 @@ class LookupListInput extends Component {
 						this._searchTimeout(event);
 						break;
 				}
-				this.fireEvent("keydown");
+				this.fireEvent("keydown", event);
 			},
 
 			keypress: (event) => {
@@ -194,7 +194,7 @@ class LookupListInput extends Component {
 						this._keyEvent("next", event);
 						break;
 				}
-				this.fireEvent("keypress");
+				this.fireEvent("keypress", event);
 			},
 
 			input: (event) => {
@@ -204,7 +204,7 @@ class LookupListInput extends Component {
 					return;
 				}
 				this._searchTimeout(event);
-				this.fireEvent("input");
+				this.fireEvent("input", event);
 			},
 
 			focus: () => {
@@ -220,7 +220,7 @@ class LookupListInput extends Component {
 				}
 				clearTimeout(this.searching);
 				this.close(event);
-				this.fireEvent("blur");
+				this.fireEvent("blur", event);
 			},
 
 			change: () => this.fireEvent("change"),
@@ -234,7 +234,7 @@ class LookupListInput extends Component {
 			event.preventDefault();
 			this.cancelBlur = true;
 			gadgetui.util.delay(() => delete this.cancelBlur);
-			this.fireEvent("mousedown");
+			this.fireEvent("mousedown", event);
 		});
 
 		this.menu.element.addEventListener("menuselect", (event) => {
@@ -257,7 +257,7 @@ class LookupListInput extends Component {
 
 			//if (!this.checkForDuplicate(item))
 			this.add(item);
-			this.fireEvent("menuselect");
+			this.fireEvent("menuselect", event);
 		});
 	}
 

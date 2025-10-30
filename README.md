@@ -7,9 +7,9 @@ Gadget-ui is a UI component library that has a built-in model and data-binding m
 
 ### Current Release
 
-v 11.3.0
+v 11.4.0
 
-This release adds the Autosuggest component, which can be used to display search suggestions in a drop list from a search input. It also adds a regenerate method to the Menu component to allow the menu to be regenerated dynamically.
+This release adds menu traversal options to the Autosuggest component. It also adds, where appropriate, the event passed to internal functions when fireEvent() is called in various components.
 
 ## Installation
 

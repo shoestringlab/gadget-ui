@@ -1015,12 +1015,16 @@ class FloatingPane extends Component {
 
 	setMessage() {
 		if (this.message) {
-			this.element.innerText = this.message;
+			if (this.useHtml) {
+				this.element.innerHTML = this.message;
+			} else {
+				this.element.innerText = this.message;
+			}
 		}
 	}
 
 	addBindings() {
-		const dragger = gadgetui.util.draggable(this.wrapper);
+		const dragger = gadgetui.util.draggable(this.wrapper, this.header);
 
 		this.wrapper.addEventListener("drag_end", (event) => {
 			this.top = event.detail.top;
@@ -1029,7 +1033,7 @@ class FloatingPane extends Component {
 				this.element,
 			).left;
 
-			this.fireEvent("moved");
+			this.fireEvent("moved", event);
 		});
 
 		if (this.enableShrink) {
@@ -1221,6 +1225,7 @@ class FloatingPane extends Component {
 
 	config(options) {
 		this.message = options.message;
+		this.useHtml = options.useHtml ?? false;
 		this.animate = options.animate ?? true;
 		this.delay = options.delay ?? 500;
 		this.title = options.title || "";
@@ -2351,9 +2356,9 @@ class Autosuggest extends Component {
 
 		let suppressKeyPress, suppressKeyPressRepeat, suppressInput;
 
-		this.wrapper.addEventListener("click", () => {
+		this.wrapper.addEventListener("click", (event) => {
 			this.element.focus();
-			this.fireEvent("click");
+			this.fireEvent("click", event);
 		});
 
 		const keyEvents = {
@@ -2386,7 +2391,7 @@ class Autosuggest extends Component {
 						if (this.menu.active) {
 							suppressKeyPress = true;
 							event.preventDefault();
-							this.menu.select(event);
+							this._menuSelect(event);
 						}
 						break;
 					case keyCode.BACKSPACE:
@@ -2395,7 +2400,7 @@ class Autosuggest extends Component {
 						}
 						break;
 					case keyCode.TAB:
-						if (this.menu.active) this.menu.select(event);
+						if (this.menu.active) this._menuSelect(event);
 						break;
 					case keyCode.ESCAPE:
 						if (this.menu.element.style.display !== "none") {
@@ -2409,7 +2414,7 @@ class Autosuggest extends Component {
 						this._searchTimeout(event);
 						break;
 				}
-				this.fireEvent("keydown");
+				this.fireEvent("keydown", event);
 			},
 
 			keypress: (event) => {
@@ -2437,7 +2442,7 @@ class Autosuggest extends Component {
 						this._keyEvent("next", event);
 						break;
 				}
-				this.fireEvent("keypress");
+				this.fireEvent("keypress", event);
 			},
 
 			input: (event) => {
@@ -2447,13 +2452,13 @@ class Autosuggest extends Component {
 					return;
 				}
 				this._searchTimeout(event);
-				this.fireEvent("input");
+				this.fireEvent("input", event);
 			},
 
-			focus: () => {
+			focus: (event) => {
 				this.selectedItem = null;
 				this.previous = this.element[this.valueMethod];
-				this.fireEvent("focus");
+				this.fireEvent("focus", event);
 			},
 
 			blur: (event) => {
@@ -2463,10 +2468,10 @@ class Autosuggest extends Component {
 				}
 				clearTimeout(this.searching);
 				this.close(event);
-				this.fireEvent("blur");
+				this.fireEvent("blur", event);
 			},
 
-			change: () => this.fireEvent("change"),
+			change: (event) => this.fireEvent("change", event),
 		};
 
 		Object.entries(keyEvents).forEach(([event, handler]) => {
@@ -2477,7 +2482,7 @@ class Autosuggest extends Component {
 			event.preventDefault();
 			this.cancelBlur = true;
 			gadgetui.util.delay(() => delete this.cancelBlur);
-			this.fireEvent("mousedown");
+			this.fireEvent("mousedown", event);
 		});
 
 		this.menu.element.addEventListener("menuselect", (event) => {
@@ -2500,7 +2505,7 @@ class Autosuggest extends Component {
 
 			//if (!this.checkForDuplicate(item))
 			this.handler(item);
-			this.fireEvent("menuselect");
+			this.fireEvent("menuselect", event);
 		});
 	}
 
@@ -2714,7 +2719,11 @@ class Autosuggest extends Component {
 
 	_renderMenu(items) {
 		const maxItems = Math.min(this.maxSuggestions, items.length);
-		for (let i = 0; i < maxItems; i++) this._renderItemData(items[i]);
+		this.currentItems = []; // Store items for keyboard selection
+		for (let i = 0; i < maxItems; i++) {
+			this.currentItems.push(items[i]);
+			this._renderItemData(items[i]);
+		}
 	}
 
 	_renderItemData(item) {
@@ -2738,11 +2747,125 @@ class Autosuggest extends Component {
 	_renderLabel(item) {
 		return item.label;
 	}
+
+	_menuNext() {
+		const items = this.menu.element.querySelectorAll(
+			".gadgetui-autosuggest-item",
+		);
+		if (items.length === 0) return;
+
+		let currentIndex = -1;
+		items.forEach((item, index) => {
+			if (item.classList.contains("ui-state-focus")) {
+				currentIndex = index;
+				item.classList.remove("ui-state-focus");
+			}
+		});
+
+		const nextIndex = currentIndex < items.length - 1 ? currentIndex + 1 : 0;
+		items[nextIndex].classList.add("ui-state-focus");
+		this.menu.active = items[nextIndex];
+	}
+
+	_menuPrevious() {
+		const items = this.menu.element.querySelectorAll(
+			".gadgetui-autosuggest-item",
+		);
+		if (items.length === 0) return;
+
+		let currentIndex = -1;
+		items.forEach((item, index) => {
+			if (item.classList.contains("ui-state-focus")) {
+				currentIndex = index;
+				item.classList.remove("ui-state-focus");
+			}
+		});
+
+		const prevIndex = currentIndex > 0 ? currentIndex - 1 : items.length - 1;
+		items[prevIndex].classList.add("ui-state-focus");
+		this.menu.active = items[prevIndex];
+	}
+
+	_menuNextPage() {
+		// For simplicity, jump 5 items or to the end
+		const items = this.menu.element.querySelectorAll(
+			".gadgetui-autosuggest-item",
+		);
+		if (items.length === 0) return;
+
+		let currentIndex = -1;
+		items.forEach((item, index) => {
+			if (item.classList.contains("ui-state-focus")) {
+				currentIndex = index;
+				item.classList.remove("ui-state-focus");
+			}
+		});
+
+		const nextIndex = Math.min(currentIndex + 5, items.length - 1);
+		items[nextIndex].classList.add("ui-state-focus");
+		this.menu.active = items[nextIndex];
+	}
+
+	_menuPreviousPage() {
+		// For simplicity, jump 5 items or to the beginning
+		const items = this.menu.element.querySelectorAll(
+			".gadgetui-autosuggest-item",
+		);
+		if (items.length === 0) return;
+
+		let currentIndex = -1;
+		items.forEach((item, index) => {
+			if (item.classList.contains("ui-state-focus")) {
+				currentIndex = index;
+				item.classList.remove("ui-state-focus");
+			}
+		});
+
+		const prevIndex = Math.max(currentIndex - 5, 0);
+		items[prevIndex].classList.add("ui-state-focus");
+		this.menu.active = items[prevIndex];
+	}
+
+	_menuBlur() {
+		const items = this.menu.element.querySelectorAll(
+			".gadgetui-autosuggest-item",
+		);
+		items.forEach((item) => item.classList.remove("ui-state-focus"));
+		this.menu.active = null;
+	}
+
+	_menuSelect(event) {
+		if (!this.menu.active) return;
+
+		// Find the item data associated with the active menu item
+		const items = this.menu.element.querySelectorAll(
+			".gadgetui-autosuggest-item",
+		);
+		let selectedIndex = -1;
+		items.forEach((item, index) => {
+			if (item === this.menu.active) {
+				selectedIndex = index;
+			}
+		});
+
+		if (
+			selectedIndex >= 0 &&
+			this.currentItems &&
+			this.currentItems[selectedIndex]
+		) {
+			const item = this.currentItems[selectedIndex];
+			this.menu.element.dispatchEvent(
+				new CustomEvent("menuselect", { detail: item }),
+			);
+		}
+	}
+
 	_move(direction, event) {
 		if (this.menu.element.style.display === "none") {
 			this.search(null, event);
 			return;
 		}
+
 		const items = this.menu.element.querySelectorAll(
 			".gadgetui-autosuggest-item",
 		);
@@ -2769,11 +2892,25 @@ class Autosuggest extends Component {
 			(isLastItem && /^next/.test(direction))
 		) {
 			if (!this.isMultiLine) this._value(this.term);
-			this.menu.blur();
+			this._menuBlur();
 			return;
 		}
 
-		//this.menu[direction](event);
+		// Call the appropriate menu navigation method
+		switch (direction) {
+			case "next":
+				this._menuNext();
+				break;
+			case "previous":
+				this._menuPrevious();
+				break;
+			case "nextPage":
+				this._menuNextPage();
+				break;
+			case "previousPage":
+				this._menuPreviousPage();
+				break;
+		}
 	}
 
 	widget() {
@@ -3053,7 +3190,7 @@ class ComboBox extends Component {
 		}
 		this.input.addEventListener("click", (e) => {
 			if (typeof this.fireEvent === "function") {
-				this.fireEvent("click");
+				this.fireEvent("click", e);
 			}
 		});
 		this.input.addEventListener("keyup", (event) => {
@@ -3062,7 +3199,7 @@ class ComboBox extends Component {
 				this.handleInput(inputText);
 			}
 			if (typeof this.fireEvent === "function") {
-				this.fireEvent("keyup");
+				this.fireEvent("keyup", event);
 			}
 		});
 		if (this.hideable) {
@@ -3085,14 +3222,14 @@ class ComboBox extends Component {
 			this.element.addEventListener("mouseenter", (ev) => {
 				this.element.style.display = "inline";
 				if (typeof this.fireEvent === "function") {
-					this.fireEvent("mouseenter");
+					this.fireEvent("mouseenter", ev);
 				}
 			});
 		}
 		this.element.addEventListener("click", (ev) => {
 			ev.stopPropagation();
 			if (typeof this.fireEvent === "function") {
-				this.fireEvent("click");
+				this.fireEvent("click", ev);
 			}
 		});
 		this.element.addEventListener("change", (event) => {
@@ -3112,7 +3249,7 @@ class ComboBox extends Component {
 					text: event.target[event.target.selectedIndex].innerHTML,
 				});
 				if (typeof this.fireEvent === "function") {
-					this.fireEvent("change");
+					this.fireEvent("change", event);
 				}
 			}
 		});
@@ -3125,7 +3262,7 @@ class ComboBox extends Component {
 					}
 				}, 200);
 				if (typeof this.fireEvent === "function") {
-					this.fireEvent("blur");
+					this.fireEvent("blur", event);
 				}
 			});
 		}
@@ -3447,33 +3584,33 @@ class FileUploader extends Component {
 		this.element.addEventListener("dragstart", (ev) => {
 			ev.dataTransfer.setData("text", "data");
 			ev.dataTransfer.effectAllowed = "copy";
-			this.fireEvent("dragstart");
+			this.fireEvent("dragstart", ev);
 		});
 
 		dropzone.addEventListener("dragenter", (ev) => {
 			ev.preventDefault();
 			ev.stopPropagation();
 			dropzone.classList.add("highlighted");
-			this.fireEvent("dragenter");
+			this.fireEvent("dragenter", ev);
 		});
 
 		dropzone.addEventListener("dragleave", (ev) => {
 			ev.preventDefault();
 			ev.stopPropagation();
 			dropzone.classList.remove("highlighted");
-			this.fireEvent("dragleave");
+			this.fireEvent("dragleave", ev);
 		});
 
 		dropzone.addEventListener("dragover", (ev) => {
 			this.handleDragOver(ev);
 			ev.dataTransfer.dropEffect = "copy";
-			this.fireEvent("dragover");
+			this.fireEvent("dragover", ev);
 		});
 
 		dropzone.addEventListener("drop", async (ev) => {
 			ev.preventDefault();
 			ev.stopPropagation();
-			this.fireEvent("drop");
+			this.fireEvent("drop", ev);
 
 			let files;
 			// Run beforeUpload callback if it exists
@@ -3993,7 +4130,7 @@ class LookupListInput extends Component {
 						this._searchTimeout(event);
 						break;
 				}
-				this.fireEvent("keydown");
+				this.fireEvent("keydown", event);
 			},
 
 			keypress: (event) => {
@@ -4021,7 +4158,7 @@ class LookupListInput extends Component {
 						this._keyEvent("next", event);
 						break;
 				}
-				this.fireEvent("keypress");
+				this.fireEvent("keypress", event);
 			},
 
 			input: (event) => {
@@ -4031,7 +4168,7 @@ class LookupListInput extends Component {
 					return;
 				}
 				this._searchTimeout(event);
-				this.fireEvent("input");
+				this.fireEvent("input", event);
 			},
 
 			focus: () => {
@@ -4047,7 +4184,7 @@ class LookupListInput extends Component {
 				}
 				clearTimeout(this.searching);
 				this.close(event);
-				this.fireEvent("blur");
+				this.fireEvent("blur", event);
 			},
 
 			change: () => this.fireEvent("change"),
@@ -4061,7 +4198,7 @@ class LookupListInput extends Component {
 			event.preventDefault();
 			this.cancelBlur = true;
 			gadgetui.util.delay(() => delete this.cancelBlur);
-			this.fireEvent("mousedown");
+			this.fireEvent("mousedown", event);
 		});
 
 		this.menu.element.addEventListener("menuselect", (event) => {
@@ -4084,7 +4221,7 @@ class LookupListInput extends Component {
 
 			//if (!this.checkForDuplicate(item))
 			this.add(item);
-			this.fireEvent("menuselect");
+			this.fireEvent("menuselect", event);
 		});
 	}
 
@@ -4515,7 +4652,7 @@ class SelectInput extends Component {
 				event.preventDefault();
 				css(this.label, "display", "none");
 				css(this.selector, "display", "inline-block");
-				this.fireEvent(this.activate);
+				this.fireEvent(this.activate, event);
 			});
 
 			this.selector.addEventListener("blur", () => {
@@ -4549,7 +4686,7 @@ class SelectInput extends Component {
 				this.value = data;
 			}, 100);
 
-			this.fireEvent("change");
+			this.fireEvent("change", ev);
 		});
 	}
 
@@ -4641,7 +4778,7 @@ class TextInput extends Component {
 			keyup: (event) => {
 				if (event.keyCode === 13) this.selector.blur();
 				this.setControlWidth(this.selector.value);
-				this.fireEvent("keyup");
+				this.fireEvent("keyup", event);
 			},
 			change: (event) => {
 				setTimeout(() => {
@@ -4663,7 +4800,7 @@ class TextInput extends Component {
 						});
 					}
 					if (this.func) this.func({ text: event.target.value });
-					this.fireEvent("change");
+					this.fireEvent("change", event);
 				}, 200);
 			},
 		};
@@ -5140,7 +5277,7 @@ gadgetui.util = (function () {
 		//author: Taufik Nurrohman
 		// code belongs to author
 		// no license enforced
-		draggable: function (selector) {
+		draggable: function (selector, handle) {
 			var selected = null, // Object of the element to be moved
 				x_pos = 0,
 				y_pos = 0, // Stores x & y coordinates of the mouse pointer
@@ -5181,8 +5318,20 @@ gadgetui.util = (function () {
 			}
 
 			// Bind the functions...
-			selector.onmousedown = function () {
-				_drag_init(this);
+			const dragTarget = handle || selector;
+			dragTarget.onmousedown = function (e) {
+				// If a handle is specified, check if the click is on an interactive element
+				if (handle) {
+					const target = e.target;
+					// Allow interaction with form elements
+					if (target.tagName === 'INPUT' ||
+						target.tagName === 'TEXTAREA' ||
+						target.tagName === 'SELECT' ||
+						target.tagName === 'BUTTON') {
+						return true;
+					}
+				}
+				_drag_init(selector);
 				return false;
 			};
 

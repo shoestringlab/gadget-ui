@@ -134,33 +134,33 @@ class FileUploader extends Component {
 		this.element.addEventListener("dragstart", (ev) => {
 			ev.dataTransfer.setData("text", "data");
 			ev.dataTransfer.effectAllowed = "copy";
-			this.fireEvent("dragstart");
+			this.fireEvent("dragstart", ev);
 		});
 
 		dropzone.addEventListener("dragenter", (ev) => {
 			ev.preventDefault();
 			ev.stopPropagation();
 			dropzone.classList.add("highlighted");
-			this.fireEvent("dragenter");
+			this.fireEvent("dragenter", ev);
 		});
 
 		dropzone.addEventListener("dragleave", (ev) => {
 			ev.preventDefault();
 			ev.stopPropagation();
 			dropzone.classList.remove("highlighted");
-			this.fireEvent("dragleave");
+			this.fireEvent("dragleave", ev);
 		});
 
 		dropzone.addEventListener("dragover", (ev) => {
 			this.handleDragOver(ev);
 			ev.dataTransfer.dropEffect = "copy";
-			this.fireEvent("dragover");
+			this.fireEvent("dragover", ev);
 		});
 
 		dropzone.addEventListener("drop", async (ev) => {
 			ev.preventDefault();
 			ev.stopPropagation();
-			this.fireEvent("drop");
+			this.fireEvent("drop", ev);
 
 			let files;
 			// Run beforeUpload callback if it exists

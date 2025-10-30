@@ -76,7 +76,7 @@ class TextInput extends Component {
 			keyup: (event) => {
 				if (event.keyCode === 13) this.selector.blur();
 				this.setControlWidth(this.selector.value);
-				this.fireEvent("keyup");
+				this.fireEvent("keyup", event);
 			},
 			change: (event) => {
 				setTimeout(() => {
@@ -98,7 +98,7 @@ class TextInput extends Component {
 						});
 					}
 					if (this.func) this.func({ text: event.target.value });
-					this.fireEvent("change");
+					this.fireEvent("change", event);
 				}, 200);
 			},
 		};

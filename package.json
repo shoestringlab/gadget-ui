@@ -1,6 +1,6 @@
 {
 	"name": "gadget-ui",
-	"version": "11.3.0",
+	"version": "11.4.0",
 	"description": "JavaScript UI and data binding library",
 	"repository": {
 		"type": "git",
@@ -26,7 +26,7 @@
 		"cuid": "*",
 		"express": "^4.18.2",
 		"grunt": "^1.5.3",
-		"grunt-cli": "^1.4.3",
+		"grunt-cli": "^1.5.0",
 		"grunt-contrib-concat": "^1.0.1",
 		"grunt-contrib-jshint": "^3.2.0",
 		"grunt-contrib-qunit": "^3.1.0",
