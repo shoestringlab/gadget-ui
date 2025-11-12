@@ -254,25 +254,46 @@ div.gadget-ui-menu {
 	padding: 0.25em 0.5em;
 	background: #999;
 	color: #fff;
-}
-
-.gadget-ui-progressbar {
-	background: #444;
-	font-size: smaller;
+	align-items: center;
 }
 
 .gadgetui-progressbar-label {
 	color: white;
+	padding-right: 0.5em;
+	white-space: nowrap;
+}
+
+.gadgetui-progressbar-container {
+	position: relative;
+	flex: 1;
+	background: #ddd;
+	height: 1.5em;
+	overflow: hidden;
+}
+
+.gadget-ui-progressbar {
+	background: #4CAF50;
+	height: 100%;
+	transition: width 0.3s ease;
+}
+
+.gadgetui-progressbar-statustxt {
 	position: absolute;
-	float: left;
-	padding-left: 0.5em;
+	top: 0;
+	left: 0;
+	right: 0;
+	height: 100%;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	color: #333;
+	font-weight: bold;
+	font-size: smaller;
+	pointer-events: none;
 }
 
 .gadget-ui-progressbar-filename {
 	padding: 0 0.25em;
-}
-.gadgetui-progressbar-statustxt {
-	margin-left: -3em;
 }
 
 .gadgetui-lightbox {

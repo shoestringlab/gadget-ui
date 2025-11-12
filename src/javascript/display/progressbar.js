@@ -25,18 +25,27 @@ class ProgressBar extends Component {
 		fileDiv.classList.add("gadgetui-progressbar-label");
 		fileDiv.innerText = ` ${this.label} `;
 
+		// Create bar container (track background)
+		const barContainer = document.createElement("div");
+		barContainer.classList.add("gadgetui-progressbar-container");
+
+		// Create progress bar fill
 		const pbarDiv = document.createElement("div");
 		pbarDiv.classList.add("gadget-ui-progressbar");
 		pbarDiv.setAttribute("name", `progressbar_${this.id}`);
 
+		// Create status text (overlaid on bar)
 		const statusDiv = document.createElement("div");
 		statusDiv.setAttribute("name", "statustxt");
 		statusDiv.classList.add("gadgetui-progressbar-statustxt");
-		statusDiv.innerHTML = "0%"; // Fixed typo from innertText to innerHTML
+		statusDiv.innerHTML = "0%";
+
+		// Assemble the structure
+		barContainer.appendChild(pbarDiv);
+		barContainer.appendChild(statusDiv);
 
 		pbDiv.appendChild(fileDiv);
-		pbDiv.appendChild(pbarDiv);
-		pbDiv.appendChild(statusDiv);
+		pbDiv.appendChild(barContainer);
 		this.element.appendChild(pbDiv);
 
 		this.progressbox = this.element.querySelector(
@@ -47,7 +56,7 @@ class ProgressBar extends Component {
 		);
 		this.statustxt = this.element.querySelector(`div[name='statustxt']`);
 
-		css(pbarDiv, { width: "0%" });
+		css(pbarDiv, "width", "0%");
 	}
 
 	start() {

@@ -40,7 +40,11 @@ class Modal extends Component {
 
 	addBindings() {
 		const close = this.element.querySelector('a[name="close"]');
-		close.addEventListener("click", () => this.close());
+		close.addEventListener("click", (event) => {
+			event.stopPropagation();
+			event.preventDefault();
+			this.close();
+		});
 	}
 
 	open() {

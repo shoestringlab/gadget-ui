@@ -5,12 +5,13 @@
 		<link rel="stylesheet" href="/dist/gadget-ui.css" />
 
 		<script type="module">
-			import { gadgetui } from "/dist/gadget-ui.es.js";
+			import { progressbar } from "/dist/gadget-ui.es.js";
 
-			var pb1 = new gadgetui.display.ProgressBar(
-				document.querySelector("#pb"),
-				{ id: "pbxx1", label: "", width: 500 },
-			);
+			var pb1 = new progressbar(document.querySelector("#pb"), {
+				id: "pbxx1",
+				label: "",
+				width: 500,
+			});
 			//	pb1.render();
 			let myInterval = "";
 			let started = false;

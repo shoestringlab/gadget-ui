@@ -7,7 +7,7 @@ Gadget-ui is a UI component library that has a built-in model and data-binding m
 
 ### Current Release
 
-v 11.4.0
+v 11.4.1
 
 This release adds menu traversal options to the Autosuggest component. It also adds, where appropriate, the event passed to internal functions when fireEvent() is called in various components.
 

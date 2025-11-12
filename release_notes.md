@@ -1,6 +1,12 @@
 
 ***Release Notes***
 
+11.4.1
+======
+
+- prevent bubbling in close event listener in modal
+- cleanup of progressbar layout
+
 11.4.0
 ======
 
