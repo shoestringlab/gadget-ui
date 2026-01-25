@@ -7,7 +7,7 @@ class Lightbox extends Component {
 		this.setImage();
 	}
 
-	events = ["showPrevious", "showNext"];
+	events = ["showPrevious", "showNext", "close", "destroy"];
 
 	config(options = {}) {
 		this.images = options.images || [];
@@ -176,5 +176,39 @@ class Lightbox extends Component {
 	setModalImage() {
 		this.modalImageTag.src = this.images[this.currentIndex];
 		this.modalImageTag.alt = `Image ${this.currentIndex + 1}`;
+	}
+
+	destroy() {
+		// Remove all event listeners
+		this.spanPrevious.removeEventListener("click", () => this.prevImage());
+		this.spanNext.removeEventListener("click", () => this.nextImage());
+
+		if (this.enableModal) {
+			this.imageContainer.removeEventListener("click", () => {
+				this.setModalImage();
+				this.element.classList.add("gadgetui-hidden");
+				this.modal.classList.remove("gadgetui-hidden");
+				this.stopAnimation();
+			});
+
+			this.modal.removeEventListener("click", () => {
+				this.modal.classList.add("gadgetui-hidden");
+				this.element.classList.remove("gadgetui-hidden");
+				this.animate();
+			});
+		}
+
+		// Stop any ongoing animation
+		this.stopAnimation();
+
+		// Remove DOM elements
+		if (this.element.parentNode) {
+			this.element.parentNode.removeChild(this.element);
+		}
+
+		// Remove modal if it exists
+		if (this.modal && this.modal.parentNode) {
+			this.modal.parentNode.removeChild(this.modal);
+		}
 	}
 }

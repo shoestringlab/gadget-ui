@@ -87,6 +87,7 @@ class FileUploader extends Component {
 			options.fileSizeExceededMessage ||
 			"File size exceeds the maximum allowed limit.";
 		this.beforeUpload = options.beforeUpload || null;
+		this.headers = options.headers || [];
 	}
 
 	setDimensions() {
@@ -167,7 +168,7 @@ class FileUploader extends Component {
 			if (this.beforeUpload && typeof this.beforeUpload === "function") {
 				files = await this.beforeUpload(ev.dataTransfer.files);
 			} else {
-				files = Array.from(evt.target.files);
+				files = Array.from(ev.target.files);
 			}
 
 			this.processUpload(ev, files, dropzone, filedisplay);
@@ -424,7 +425,13 @@ class FileUploader extends Component {
 				} else {
 					let json;
 					try {
-						json = { data: JSON.parse(xhr.response) };
+						// In your upload handling function around lines 426-434:
+						if (xhr.status >= 200 && xhr.status < 300) {
+							json = { data: JSON.parse(xhr.response) };
+						} else {
+							// Error case - call error handler
+							this.handleUploadError(xhr, json, wrappedFile);
+						}
 					} catch (e) {
 						json = {};
 						this.handleUploadError(xhr, json, wrappedFile);
@@ -456,6 +463,16 @@ class FileUploader extends Component {
 		);
 		xhr.setRequestHeader("X-HasTile", !!wrappedFile.tile?.length);
 		xhr.setRequestHeader("Content-Type", "application/octet-stream");
+		// add custom headers
+		if (this.headers.length) {
+			this.headers.forEach((header) => {
+				// Skip invalid / empty entries
+				if (header?.label && header?.value != null) {
+					xhr.setRequestHeader(header.label, header.value);
+				}
+			});
+		}
+
 		xhr.send(chunks[filepart - 1]);
 	}
 
@@ -485,6 +502,11 @@ class FileUploader extends Component {
 	handleUploadError(xhr, json, wrappedFile) {
 		wrappedFile.progressbar.progressbox.innerText = this.uploadErrorMessage;
 		wrappedFile.abortUpload(wrappedFile);
+		this.fireEvent("uploaderror", {
+			xhr: xhr,
+			json: json,
+			wrappedFile: wrappedFile,
+		});
 	}
 
 	show(name) {
