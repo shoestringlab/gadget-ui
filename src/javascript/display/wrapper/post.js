@@ -8,6 +8,7 @@
 		Menu: Menu,
 		Lightbox: Lightbox,
 		Modal: Modal,
+		Overlay: Overlay,
 		Popover:Popover,
 		ProgressBar: ProgressBar,
 		Sidebar: Sidebar,

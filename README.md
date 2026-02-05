@@ -7,9 +7,9 @@ Gadget-ui is a UI component library that has a built-in model and data-binding m
 
 ### Current Release
 
-v 11.5.0
+v 11.6.0
 
-This release adds a destroy method to the lightbox component, and error handling for non-2xx response codes and custom headers to the fileuploader component.
+This release builds out the Overlay component, including documentation and tests.
 
 ## Installation
 

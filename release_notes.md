@@ -1,6 +1,11 @@
 
 ***Release Notes***
 
+11.6.0
+======
+
+This release builds out the Overlay component, including documentation and tests.
+
 11.5.0
 ======
 

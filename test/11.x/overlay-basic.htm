@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Overlay Component Basic Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        
+        .test-box {
+            width: 300px;
+            height: 200px;
+            background-color: lightblue;
+            border: 2px solid #0066cc;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+            position: relative;
+        }
+        
+        .controls {
+            margin: 20px 0;
+        }
+        
+        .controls button {
+            margin: 5px;
+            padding: 10px 15px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        
+        .controls button:hover {
+            background-color: #0056b3;
+        }
+        
+        .gadgetui-hidden {
+            display: none !important;
+        }
+        
+        #status {
+            background-color: #f8f9fa;
+            padding: 10px;
+            border: 1px solid #dee2e6;
+            border-radius: 4px;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <h1>Overlay Component Basic Test</h1>
+    
+    <div class="controls">
+        <button onclick="createOverlay()">Create Overlay</button>
+        <button onclick="createOverlayWithContent()">Create Overlay with Content</button>
+        <button onclick="showOverlay()">Show Overlay</button>
+        <button onclick="hideOverlay()">Hide Overlay</button>
+        <button onclick="updateContent()">Update Content</button>
+        <button onclick="destroyOverlay()">Destroy Overlay</button>
+    </div>
+    
+    <div id="status">Status: No overlay created</div>
+    
+    <div class="test-box" id="testElement">
+        <h3>Test Element</h3>
+        <p>This is a test element that will be covered by the overlay.</p>
+        <button onclick="alert('Underlying button clicked!')">Test Button</button>
+    </div>
+    
+    <script type="module">
+        import { gadgetui } from "/dist/gadget-ui.es.js";
+        
+        let overlay = null;
+        const statusElement = document.getElementById('status');
+        const testElement = document.getElementById('testElement');
+        
+        function updateStatus(message) {
+            statusElement.textContent = `Status: ${message}`;
+            console.log(message);
+        }
+        
+        window.createOverlay = function() {
+            if (overlay) {
+                overlay.destroy();
+            }
+            
+            overlay = new gadgetui.display.Overlay(testElement, {
+                backgroundColor: 'rgba(255, 0, 0, 0.5)'
+            });
+            
+            overlay.on('shown', () => updateStatus('Overlay shown'));
+            overlay.on('hidden', () => updateStatus('Overlay hidden'));
+            overlay.on('destroyed', () => updateStatus('Overlay destroyed'));
+            overlay.on('click', () => updateStatus('Overlay clicked'));
+            
+            updateStatus('Overlay created and shown');
+        };
+        
+        window.createOverlayWithContent = function() {
+            if (overlay) {
+                overlay.destroy();
+            }
+            
+            const content = `
+                <div style="text-align: center; padding: 20px; color: white; font-weight: bold;">
+                    <h3>Overlay Content</h3>
+                    <p>This is HTML content inside the overlay!</p>
+                    <button onclick="alert('Content button clicked!')" style="padding: 8px 16px; background: white; color: black; border: none; border-radius: 4px; cursor: pointer;">Content Button</button>
+                </div>
+            `;
+            
+            overlay = new gadgetui.display.Overlay(testElement, {
+                backgroundColor: 'rgba(0, 0, 255, 0.7)',
+                content: content
+            });
+            
+            overlay.on('shown', () => updateStatus('Overlay with content shown'));
+            overlay.on('hidden', () => updateStatus('Overlay with content hidden'));
+            overlay.on('destroyed', () => updateStatus('Overlay with content destroyed'));
+            overlay.on('contentChanged', (overlay, data) => updateStatus('Content changed'));
+            overlay.on('click', () => updateStatus('Overlay clicked'));
+            
+            updateStatus('Overlay with content created and shown');
+        };
+        
+        window.updateContent = function() {
+            if (overlay) {
+                const newContent = `
+                    <div style="text-align: center; padding: 20px; color: yellow; font-weight: bold;">
+                        <h3>Updated Content!</h3>
+                        <p>This content was updated dynamically.</p>
+                        <p>Updated at: ${new Date().toLocaleTimeString()}</p>
+                    </div>
+                `;
+                overlay.setContent(newContent);
+                updateStatus('Overlay content updated');
+            } else {
+                updateStatus('No overlay exists - create one first');
+            }
+        };
+        
+        window.showOverlay = function() {
+            if (overlay) {
+                overlay.show();
+            } else {
+                updateStatus('No overlay exists - create one first');
+            }
+        };
+        
+        window.hideOverlay = function() {
+            if (overlay) {
+                overlay.hide();
+            } else {
+                updateStatus('No overlay exists - create one first');
+            }
+        };
+        
+        window.destroyOverlay = function() {
+            if (overlay) {
+                overlay.destroy();
+                overlay = null;
+                updateStatus('Overlay destroyed');
+            } else {
+                updateStatus('No overlay exists');
+            }
+        };
+    </script>
+</body>
+</html>
