@@ -104,6 +104,17 @@
         <button onclick="clearLog()">Clear Log</button>
     </div>
     
+    <div class="controls">
+        <h3>Position & Size Controls</h3>
+        <button onclick="createTopOverlay()">Create Top Position</button>
+        <button onclick="createLeftOverlay()">Create Left Position</button>
+        <button onclick="createRightOverlay()">Create Right Position</button>
+        <button onclick="createBottomOverlay()">Create Bottom Position</button>
+        <button onclick="createSizedOverlay()">Create Sized Overlay</button>
+        <button onclick="createPercentageOverlay()">Create Percentage Overlay</button>
+        <button onclick="createSmallOverlay()">Create Small Fixed Overlay</button>
+    </div>
+    
     <div class="test-container">
         <h3>Test Element 1 - Basic Functionality</h3>
         <p>This element demonstrates basic overlay functionality. The overlay should cover this entire container with a semi-transparent background.</p>
@@ -245,6 +256,116 @@
             } else {
                 log('No overlay exists - create one first');
             }
+        };
+        
+        window.createTopOverlay = function() {
+            if (basicOverlay) {
+                basicOverlay.destroy();
+            }
+            
+            const element = document.querySelector('.test-container');
+            basicOverlay = new gadgetui.display.Overlay(element, {
+                backgroundColor: 'rgba(255, 165, 0, 0.8)',
+                position: 'top',
+                size: { width: 200, height: 60 },
+                content: '<div style="padding: 15px; text-align: center; color: white; font-weight: bold;">⬆️ Top Position</div>'
+            });
+            
+            log('Top position overlay created (200x60)');
+        };
+        
+        window.createLeftOverlay = function() {
+            if (basicOverlay) {
+                basicOverlay.destroy();
+            }
+            
+            const element = document.querySelector('.test-container');
+            basicOverlay = new gadgetui.display.Overlay(element, {
+                backgroundColor: 'rgba(255, 0, 128, 0.8)',
+                position: 'left',
+                size: { width: 80, height: 120 },
+                content: '<div style="padding: 15px; text-align: center; color: white; font-weight: bold;">⬅️ Left</div>'
+            });
+            
+            log('Left position overlay created (80x120)');
+        };
+        
+        window.createRightOverlay = function() {
+            if (basicOverlay) {
+                basicOverlay.destroy();
+            }
+            
+            const element = document.querySelector('.test-container');
+            basicOverlay = new gadgetui.display.Overlay(element, {
+                backgroundColor: 'rgba(0, 255, 128, 0.8)',
+                position: 'right',
+                size: { width: 80, height: 120 },
+                content: '<div style="padding: 15px; text-align: center; color: white; font-weight: bold;">➡️ Right</div>'
+            });
+            
+            log('Right position overlay created (80x120)');
+        };
+        
+        window.createBottomOverlay = function() {
+            if (basicOverlay) {
+                basicOverlay.destroy();
+            }
+            
+            const element = document.querySelector('.test-container');
+            basicOverlay = new gadgetui.display.Overlay(element, {
+                backgroundColor: 'rgba(128, 0, 255, 0.8)',
+                position: 'bottom',
+                size: { width: 200, height: 60 },
+                content: '<div style="padding: 15px; text-align: center; color: white; font-weight: bold;">⬇️ Bottom Position</div>'
+            });
+            
+            log('Bottom position overlay created (200x60)');
+        };
+        
+        window.createSizedOverlay = function() {
+            if (basicOverlay) {
+                basicOverlay.destroy();
+            }
+            
+            const element = document.querySelector('.test-container');
+            basicOverlay = new gadgetui.display.Overlay(element, {
+                backgroundColor: 'rgba(255, 100, 0, 0.8)',
+                size: { width: 150, height: 100 },
+                content: '<div style="padding: 15px; text-align: center; color: white;">150x100</div>'
+            });
+            
+            log('Sized overlay created (150x100)');
+        };
+        
+        window.createPercentageOverlay = function() {
+            if (basicOverlay) {
+                basicOverlay.destroy();
+            }
+            
+            const element = document.querySelector('.test-container');
+            basicOverlay = new gadgetui.display.Overlay(element, {
+                backgroundColor: 'rgba(0, 255, 255, 0.7)',
+                size: { width: '75%', height: '50%' },
+                content: '<div style="padding: 15px; text-align: center; color: black; font-weight: bold;">75% x 50%</div>'
+            });
+            
+            log('Percentage sized overlay created (75% x 50%)');
+        };
+        
+        window.createSmallOverlay = function() {
+            if (basicOverlay) {
+                basicOverlay.destroy();
+            }
+            
+            const element = document.querySelector('.test-container');
+            basicOverlay = new gadgetui.display.Overlay(element, {
+                backgroundColor: 'rgba(255, 0, 64, 0.9)',
+                size: 50,
+                position: 'top',
+                content: '<div style="padding: 10px; text-align: center; color: white;">50x50</div>'
+            });
+            
+            log('Small square overlay created (50x50 at top)');
         };
         
         window.createCustomOverlay = function() {

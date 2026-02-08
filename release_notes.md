@@ -1,6 +1,12 @@
 
 ***Release Notes***
 
+
+11.7.0
+======
+
+This release adds size and position options to the Overlay component, including documentation and tests.
+
 11.6.0
 ======
 
