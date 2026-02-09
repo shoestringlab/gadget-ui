@@ -7,9 +7,9 @@ Gadget-ui is a UI component library that has a built-in model and data-binding m
 
 ### Current Release
 
-v 11.7.0
+v 11.8.0
 
-This release adds size and position options to the Overlay component, including documentation and tests.
+This release adds the withCredentials option to the FileUploader component, which allows the component to send cookies and other credentials with the request.
 
 ## Installation
 

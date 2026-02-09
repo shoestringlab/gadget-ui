@@ -88,6 +88,7 @@ class FileUploader extends Component {
 			"File size exceeds the maximum allowed limit.";
 		this.beforeUpload = options.beforeUpload || null;
 		this.headers = options.headers || [];
+		this.withCredentials = options.withCredentials ?? false;
 	}
 
 	setDimensions() {
@@ -444,6 +445,7 @@ class FileUploader extends Component {
 		};
 
 		xhr.open("POST", this.uploadURI, true);
+		xhr.withCredentials = this.withCredentials;
 		xhr.setRequestHeader("X-Tags", tags);
 		xhr.setRequestHeader("X-Id", wrappedFile.id || "");
 		xhr.setRequestHeader("X-Key", wrappedFile.key || "");

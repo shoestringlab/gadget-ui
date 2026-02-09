@@ -1,6 +1,10 @@
 
 ***Release Notes***
 
+11.8.0
+======
+
+This release adds the withCredentials option to the FileUploader component, which allows the component to send cookies and other credentials with the request.
 
 11.7.0
 ======
