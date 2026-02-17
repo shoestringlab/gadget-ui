@@ -1,6 +1,11 @@
 
 ***Release Notes***
 
+11.10.0
+======
+
+This release updates the Overlay to append to the target element instead of the body. It also adds mobile support for the Menu component.
+
 11.8.0
 ======
 
