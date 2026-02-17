@@ -56,7 +56,7 @@ class Overlay extends Component {
 			this.overlayElement.innerHTML = this.content;
 		}
 
-		document.body.appendChild(this.overlayElement);
+		this.element.parentNode.appendChild(this.overlayElement);
 
 		this.lastRect = rect;
 		this.setupResizeObserver();

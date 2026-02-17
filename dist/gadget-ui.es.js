@@ -1588,6 +1588,7 @@ class Menu extends Component {
 				element.style.cursor = "pointer";
 				element.addEventListener("click", (evt) => {
 					this.fireEvent("clicked", item);
+					this.close();
 
 					typeof item.link === "function"
 						? item.link(evt)
@@ -1635,7 +1636,10 @@ class Menu extends Component {
 
 	addBindings() {
 		const menus = this.element.querySelectorAll(".gadget-ui-menu");
-		const activateEvent = this.options.menuActivate || "mouseenter";
+		const isTouchDevice =
+			"ontouchstart" in window || navigator.maxTouchPoints > 0;
+		const activateEvent =
+			this.options.menuActivate || (isTouchDevice ? "click" : "mouseenter");
 		const deactivateEvent = activateEvent === "click" ? "click" : "mouseleave";
 
 		document.addEventListener("click", (evt) => {
@@ -1682,8 +1686,17 @@ class Menu extends Component {
 
 			mu.addEventListener(activateEvent, (evt) => {
 				evt.stopPropagation();
-				menuItem.classList.add("gadget-ui-menu-hovering");
-				this.fireEvent("menuOpened", this);
+				// Toggle menu on click
+				if (
+					activateEvent === "click" &&
+					menuItem.classList.contains("gadget-ui-menu-hovering")
+				) {
+					menuItem.classList.remove("gadget-ui-menu-hovering");
+					this.fireEvent("menuClosed", this);
+				} else {
+					menuItem.classList.add("gadget-ui-menu-hovering");
+					this.fireEvent("menuOpened", this);
+				}
 			});
 
 			if (activateEvent === "mouseenter") {
@@ -1886,7 +1899,7 @@ class Overlay extends Component {
 			this.overlayElement.innerHTML = this.content;
 		}
 
-		document.body.appendChild(this.overlayElement);
+		this.element.parentNode.appendChild(this.overlayElement);
 
 		this.lastRect = rect;
 		this.setupResizeObserver();
