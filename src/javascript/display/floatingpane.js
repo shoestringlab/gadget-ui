@@ -1,4 +1,7 @@
-class FloatingPane extends Component {
+import { Component } from '../../objects/component.js';
+import { getNumberValue, getStyle, textWidth, setStyle, getRelativeParentOffset, draggable, getMaxZIndex, getOffset } from '../gadget-ui.util.js';
+
+export class FloatingPane extends Component {
 	constructor(element, options) {
 		super();
 		this.element = element;
@@ -20,34 +23,34 @@ class FloatingPane extends Component {
 		// Calculate dimensions after header is added
 		const paddingPx =
 			parseInt(
-				gadgetui.util.getNumberValue(
-					gadgetui.util.getStyle(this.element, "padding"),
+				getNumberValue(
+					getStyle(this.element, "padding"),
 				),
 				10,
 			) * 2;
 		const headerHeight =
-			gadgetui.util.getNumberValue(
-				gadgetui.util.getStyle(this.header, "height"),
+			getNumberValue(
+				getStyle(this.header, "height"),
 			) + 6;
 
 		this.minWidth =
 			this.title.length > 0
-				? gadgetui.util.textWidth(this.title, this.header.style) + 80
+				? textWidth(this.title, this.header.style) + 80
 				: 100;
 
-		gadgetui.util.setStyle(this.element, "width", this.width - paddingPx);
+		setStyle(this.element, "width", this.width - paddingPx);
 		this.height =
 			options?.height ??
-			gadgetui.util.getNumberValue(
-				gadgetui.util.getStyle(this.element, "height"),
+			getNumberValue(
+				getStyle(this.element, "height"),
 			) +
 				paddingPx +
 				headerHeight +
 				10;
 
 		this.addCSS();
-		this.height = gadgetui.util.getStyle(this.wrapper, "height");
-		this.relativeOffsetLeft = gadgetui.util.getRelativeParentOffset(
+		this.height = getStyle(this.wrapper, "height");
+		this.relativeOffsetLeft = getRelativeParentOffset(
 			this.element,
 		).left;
 		this.addBindings();
@@ -64,12 +67,12 @@ class FloatingPane extends Component {
 	}
 
 	addBindings() {
-		const dragger = gadgetui.util.draggable(this.wrapper, this.header);
+		const dragger = draggable(this.wrapper, this.header);
 
 		this.wrapper.addEventListener("drag_end", (event) => {
 			this.top = event.detail.top;
 			this.left = event.detail.left;
-			this.relativeOffsetLeft = gadgetui.util.getRelativeParentOffset(
+			this.relativeOffsetLeft = getRelativeParentOffset(
 				this.element,
 			).left;
 
@@ -98,7 +101,7 @@ class FloatingPane extends Component {
 	}
 
 	addHeader() {
-		const css = gadgetui.util.setStyle;
+		const css = setStyle;
 		this.header = document.createElement("div");
 		this.header.innerHTML = this.title;
 
@@ -148,7 +151,7 @@ class FloatingPane extends Component {
 	}
 
 	addCSS() {
-		const css = gadgetui.util.setStyle;
+		const css = setStyle;
 		const styles = {
 			width: this.width,
 			"z-index": this.zIndex,
@@ -178,11 +181,11 @@ class FloatingPane extends Component {
 	}
 
 	expand() {
-		const css = gadgetui.util.setStyle;
-		const offset = gadgetui.util.getOffset(this.wrapper);
+		const css = setStyle;
+		const offset = getOffset(this.wrapper);
 		const parentPaddingLeft = parseInt(
-			gadgetui.util.getNumberValue(
-				gadgetui.util.getStyle(this.wrapper.parentElement, "padding-left"),
+			getNumberValue(
+				getStyle(this.wrapper.parentElement, "padding-left"),
 			),
 			10,
 		);
@@ -224,7 +227,7 @@ class FloatingPane extends Component {
 	}
 
 	minimize() {
-		const css = gadgetui.util.setStyle;
+		const css = setStyle;
 		const icon =
 			this.iconType === "img"
 				? `<img class="${this.iconClass}" src="${this.maximizeIcon}"/>`
@@ -270,8 +273,8 @@ class FloatingPane extends Component {
 		this.delay = options.delay ?? 500;
 		this.title = options.title || "";
 		this.backgroundColor = options.backgroundColor || "";
-		this.zIndex = options.zIndex ?? gadgetui.util.getMaxZIndex() + 1;
-		this.width = gadgetui.util.getStyle(this.element, "width");
+		this.zIndex = options.zIndex ?? getMaxZIndex() + 1;
+		this.width = getStyle(this.element, "width");
 		this.top = options.top;
 		this.left = options.left;
 		this.bottom = options.bottom;

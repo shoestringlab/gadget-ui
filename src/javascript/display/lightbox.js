@@ -1,4 +1,6 @@
-class Lightbox extends Component {
+import { Component } from '../../objects/component.js';
+
+export class Lightbox extends Component {
 	constructor(element, options = {}) {
 		super();
 		this.element = element;

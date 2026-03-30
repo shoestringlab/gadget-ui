@@ -1,4 +1,7 @@
-class ProgressBar extends Component {
+import { Component } from '../../objects/component.js';
+import { setStyle } from '../gadget-ui.util.js';
+
+export class ProgressBar extends Component {
 	constructor(element, options = {}) {
 		super();
 		this.element = element;
@@ -14,7 +17,7 @@ class ProgressBar extends Component {
 	}
 
 	render() {
-		const css = gadgetui.util.setStyle;
+		const css = setStyle;
 
 		const pbDiv = document.createElement("div");
 		pbDiv.setAttribute("name", `progressbox_${this.id}`);
@@ -60,14 +63,14 @@ class ProgressBar extends Component {
 	}
 
 	start() {
-		const css = gadgetui.util.setStyle;
+		const css = setStyle;
 		css(this.progressbar, "width", "0%");
 		this.statustxt.innerHTML = "0%";
 		this.fireEvent("start");
 	}
 
 	updatePercent(percent) {
-		const css = gadgetui.util.setStyle;
+		const css = setStyle;
 		this.percent = percent;
 		const percentage = `${percent}%`;
 		css(this.progressbar, "width", percentage);

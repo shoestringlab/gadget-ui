@@ -1,4 +1,4 @@
-var EventBindings = {
+export var EventBindings = {
 	on: function (event, func) {
 		if (this.events[event] === undefined) {
 			this.events[event] = [];

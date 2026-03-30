@@ -1,4 +1,6 @@
-class Tabs extends Component {
+import { Component } from '../../objects/component.js';
+
+export class Tabs extends Component {
 	constructor(element, options = {}) {
 		super();
 		this.element = element;

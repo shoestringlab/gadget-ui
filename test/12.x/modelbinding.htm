@@ -1,0 +1,38 @@
+<!doctype html>
+<html>
+	<head>
+		<title>gadget-ui Model Binding Test</title>
+		<link rel="stylesheet" href="/dist/gadget-ui.css" />
+		<script src="modelbinding.js" type="module"></script>
+
+		<style>
+			body {
+				font-size: 2em;
+			}
+			input,
+			select,
+			select option {
+				font-size: 1em;
+			}
+		</style>
+	</head>
+
+	<body>
+		Model Binding
+		<br />
+		<br />
+		<h1 gadgetui-bind="test.title"></h1>
+		<p gadgetui-bind="test.summary"></p>
+
+		<div>
+			<div gadgetui-bind="test.name"></div>
+			<span gadgetui-bind="test.tagline"></span>
+			<ul gadgetui-bind-list="test.planets"></ul>
+
+			<select gadgetui-bind-list="test.planets"></select>
+
+			<br />
+			<button onclick="updatePlanets();">Add Pluto</button>
+		</div>
+	</body>
+</html>

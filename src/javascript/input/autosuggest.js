@@ -36,7 +36,13 @@
  *      datasource: myDataSource
  *    });
  */
-class Autosuggest extends Component {
+import { Component } from '../../objects/component.js';
+import { setStyle, grep, delay, getNumberValue, getStyle } from '../gadget-ui.util.js';
+import { keyCode } from '../gadget-ui.util.js';
+import { Popover } from '../display/popover.js';
+import model from '../gadget-ui.model.js';
+
+export class Autosuggest extends Component {
 	constructor(element, options = {}) {
 		super();
 		this.items = [];
@@ -80,7 +86,7 @@ class Autosuggest extends Component {
 
 	addControl() {
 		this.wrapper = document.createElement("div");
-		if (this.width) gadgetui.util.setStyle(this.wrapper, "width", this.width);
+		if (this.width) setStyle(this.wrapper, "width", this.width);
 		this.wrapper.classList.add("gadgetui-autosuggest-input");
 
 		if (this.createAtCursor && this.cursorPosition) {
@@ -129,7 +135,7 @@ class Autosuggest extends Component {
 	addMenu() {
 		const div = document.createElement("div");
 		div.classList.add("gadgetui-autosuggest-menu");
-		gadgetui.util.setStyle(div, "display", "none");
+		setStyle(div, "display", "none");
 
 		if (this.usePopover) {
 			// Use Popover component for displaying suggestions
@@ -137,7 +143,7 @@ class Autosuggest extends Component {
 				...this.popoverOptions,
 				autoOpen: false, // We'll control opening manually
 			};
-			this.popover = new gadgetui.display.Popover(div, popoverOptions);
+			this.popover = new Popover(div, popoverOptions);
 			this.menu = { element: div, popover: this.popover };
 		} else {
 			// Use simple div
@@ -187,7 +193,7 @@ class Autosuggest extends Component {
 
 	_filter(array, term) {
 		const matcher = new RegExp(this.escapeRegex(term), "i");
-		return gadgetui.util.grep(array, (value) =>
+		return grep(array, (value) =>
 			matcher.test(value.label || value.value || value),
 		);
 	}
@@ -226,7 +232,7 @@ class Autosuggest extends Component {
 					return;
 				}
 				suppressKeyPress = suppressInput = suppressKeyPressRepeat = false;
-				const keyCode = gadgetui.keyCode;
+				const keyCode = keyCode;
 
 				switch (event.keyCode) {
 					case keyCode.PAGE_UP:
@@ -285,7 +291,7 @@ class Autosuggest extends Component {
 				}
 				if (suppressKeyPressRepeat) return;
 
-				const keyCode = gadgetui.keyCode;
+				const keyCode = keyCode;
 				switch (event.keyCode) {
 					case keyCode.PAGE_UP:
 						this._move("previousPage", event);
@@ -339,7 +345,7 @@ class Autosuggest extends Component {
 		this.menu.element.addEventListener("mousedown", (event) => {
 			event.preventDefault();
 			this.cancelBlur = true;
-			gadgetui.util.delay(() => delete this.cancelBlur);
+			delay(() => delete this.cancelBlur);
 			this.fireEvent("mousedown", event);
 		});
 
@@ -350,7 +356,7 @@ class Autosuggest extends Component {
 			if (this.menu.element !== document.activeElement) {
 				this.menu.element.focus();
 				this.previous = previous;
-				gadgetui.util.delay(() => {
+				delay(() => {
 					this.previous = previous;
 					this.selectedItem = item;
 				});
@@ -378,10 +384,10 @@ class Autosuggest extends Component {
 	}
 
 	_renderItemCancel(item, wrapper) {
-		const css = gadgetui.util.setStyle;
+		const css = setStyle;
 		const itemCancel = document.createElement("span");
 		const leftOffset =
-			gadgetui.util.getNumberValue(gadgetui.util.getStyle(wrapper, "width")) +
+			getNumberValue(getStyle(wrapper, "width")) +
 			6;
 
 		itemCancel.classList.add("oi");
@@ -451,7 +457,7 @@ class Autosuggest extends Component {
 
 	_searchTimeout(event) {
 		clearTimeout(this.searching);
-		this.searching = gadgetui.util.delay(() => {
+		this.searching = delay(() => {
 			const termChanged = this.term !== this.element.value;
 			const menuVisible = this.menu.element.style.display !== "none";
 			const modifierKey =
@@ -792,7 +798,7 @@ class Autosuggest extends Component {
 			this?.element &&
 			this.element.getAttribute("gadgetui-bind") &&
 			!options.model
-				? gadgetui.model
+				? model
 				: options.model;
 		this.width = options.width;
 		this.handler = options.handler;

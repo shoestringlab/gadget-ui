@@ -1,8 +1,12 @@
-class TextInput extends Component {
+import { Component } from '../../objects/component.js';
+import { bind, getStyle, setStyle, textWidth, fitText, trigger, getNumberValue, checkBrowser } from '../gadget-ui.util.js';
+import model from '../gadget-ui.model.js';
+
+export class TextInput extends Component {
 	constructor(selector, options = {}) {
 		super();
 		this.emitEvents = true;
-		this.model = gadgetui.model;
+		this.model = model;
 		this.selector = selector;
 
 		this.config(options);
@@ -11,14 +15,14 @@ class TextInput extends Component {
 		this.setLineHeight();
 		this.setFont();
 		this.setWidth();
-		gadgetui.util.bind(this.selector, this.model);
+		bind(this.selector, this.model);
 		this.addBindings();
 	}
 
 	addControl() {
 		if (this.hideable) {
-			this.blockSize = gadgetui.util.getStyle(this.selector, "block-size");
-			gadgetui.util.setStyle(this.selector, "block-size", this.blockSize);
+			this.blockSize = getStyle(this.selector, "block-size");
+			setStyle(this.selector, "block-size", this.blockSize);
 			this.selector.classList.add(this.browserHideBorderCSS);
 		}
 	}
@@ -34,18 +38,18 @@ class TextInput extends Component {
 	}
 
 	setFont() {
-		const style = gadgetui.util.getStyle(this.selector);
+		const style = getStyle(this.selector);
 		this.font = `${style.fontFamily} ${style.fontSize} ${style.fontWeight} ${style.fontVariant}`;
 	}
 
 	setWidth() {
 		this.width =
-			gadgetui.util.textWidth(this.selector.value, this.font) + 10 ||
+			textWidth(this.selector.value, this.font) + 10 ||
 			this.maxWidth;
 	}
 
 	addCSS() {
-		const css = gadgetui.util.setStyle;
+		const css = setStyle;
 		this.selector.classList.add("gadgetui-textinput");
 
 		if (this.maxWidth > 10 && this.enforceMaxWidth) {
@@ -55,10 +59,10 @@ class TextInput extends Component {
 
 	setControlWidth(text) {
 		const textWidth = Math.max(
-			parseInt(gadgetui.util.textWidth(text, this.font), 10),
+			parseInt(textWidth(text, this.font), 10),
 			this.minWidth,
 		);
-		gadgetui.util.setStyle(this.selector, "width", `${textWidth + 30}px`);
+		setStyle(this.selector, "width", `${textWidth + 30}px`);
 	}
 
 	addBindings() {
@@ -84,16 +88,16 @@ class TextInput extends Component {
 						event.target.value ||
 						this.selector.getAttribute("placeholder") ||
 						"";
-					const txtWidth = gadgetui.util.textWidth(value, this.font);
+					const txtWidth = textWidth(value, this.font);
 
 					if (this.maxWidth < txtWidth) {
-						value = gadgetui.util.fitText(value, this.font, this.maxWidth);
+						value = fitText(value, this.font, this.maxWidth);
 					}
 					if (this.model && !this.selector.getAttribute("gadgetui-bind")) {
 						this.model.set(this.selector.name, event.target.value);
 					}
 					if (this.emitEvents) {
-						gadgetui.util.trigger(this.selector, "gadgetui-input-change", {
+						trigger(this.selector, "gadgetui-input-change", {
 							text: event.target.value,
 						});
 					}
@@ -119,7 +123,7 @@ class TextInput extends Component {
 			});
 
 			this.selector.addEventListener("blur", () => {
-				gadgetui.util.setStyle(this.selector, "maxWidth", this.maxWidth);
+				setStyle(this.selector, "maxWidth", this.maxWidth);
 				this.selector.classList.add(this.browserHideBorderCSS);
 				this.fireEvent("blur");
 			});
@@ -139,9 +143,9 @@ class TextInput extends Component {
 		this.hideable = options.hideable || false;
 		this.maxWidth =
 			options.maxWidth ||
-			gadgetui.util.getNumberValue(
-				gadgetui.util.getStyle(this.selector.parentNode).width,
+			getNumberValue(
+				getStyle(this.selector.parentNode).width,
 			);
-		this.browserHideBorderCSS = `gadget-ui-textinput-hideBorder-${gadgetui.util.checkBrowser()}`;
+		this.browserHideBorderCSS = `gadget-ui-textinput-hideBorder-${checkBrowser()}`;
 	}
 }

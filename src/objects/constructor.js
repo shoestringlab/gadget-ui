@@ -1,4 +1,6 @@
-function Constructor(constructor, args, addBindings) {
+import { EventBindings } from './eventbindings.js';
+
+export function Constructor(constructor, args, addBindings) {
   var ix, returnedObj, obj, bindings;
 
   if (addBindings === true) {

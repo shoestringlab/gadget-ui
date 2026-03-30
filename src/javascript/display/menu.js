@@ -1,4 +1,6 @@
-class Menu extends Component {
+import { Component } from '../../objects/component.js';
+
+export class Menu extends Component {
 	constructor(element, options = {}) {
 		super();
 		this.element = element;

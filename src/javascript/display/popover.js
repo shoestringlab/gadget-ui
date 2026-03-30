@@ -1,4 +1,6 @@
-class Popover extends Component {
+import { Component } from '../../objects/component.js';
+
+export class Popover extends Component {
 	constructor(element, options = {}) {
 		super();
 		this.element = element;

@@ -1,4 +1,10 @@
-class FileUploader extends Component {
+import { Component } from '../../objects/component.js';
+import { setStyle } from '../gadget-ui.util.js';
+import { FileUploadWrapper } from '../display/fileuploadwrapper.js';
+import { Constructor } from '../../objects/constructor.js';
+import { FileItem } from '../../objects/fileitem.js';
+
+export class FileUploader extends Component {
 	constructor(element, options = {}) {
 		super();
 		this.element = element;
@@ -11,7 +17,7 @@ class FileUploader extends Component {
 	}
 
 	render(title = "") {
-		const css = gadgetui.util.setStyle;
+		const css = setStyle;
 		const uploadClass =
 			`gadgetui-fileuploader-uploadIcon ${this.uploadClass || ""}`.trim();
 		const icon = this.uploadIcon.includes(".svg")
@@ -92,7 +98,7 @@ class FileUploader extends Component {
 	}
 
 	setDimensions() {
-		const css = gadgetui.util.setStyle;
+		const css = setStyle;
 		const dropzone = this.element.querySelector(
 			".gadgetui-fileuploader-dropzone",
 		);
@@ -177,7 +183,7 @@ class FileUploader extends Component {
 	}
 
 	processUpload(event, files, dropzone, filedisplay) {
-		const css = gadgetui.util.setStyle;
+		const css = setStyle;
 		this.uploadingFiles = [];
 		css(filedisplay, "display", "inline");
 
@@ -194,7 +200,7 @@ class FileUploader extends Component {
 				return;
 			}
 
-			const wrappedFile = new gadgetui.display.FileUploadWrapper(
+			const wrappedFile = new FileUploadWrapper(
 				file,
 				filedisplay,
 			);
@@ -479,8 +485,8 @@ class FileUploader extends Component {
 	}
 
 	handleUploadResponse(json, wrappedFile) {
-		const fileItem = gadgetui.objects.Constructor(
-			gadgetui.objects.FileItem,
+		const fileItem = Constructor(
+			FileItem,
 			[
 				{
 					mimetype: json.data.mimetype,
@@ -512,7 +518,7 @@ class FileUploader extends Component {
 	}
 
 	show(name) {
-		const css = gadgetui.util.setStyle;
+		const css = setStyle;
 		const dropzone = this.element.querySelector(
 			".gadgetui-fileuploader-dropzone",
 		);

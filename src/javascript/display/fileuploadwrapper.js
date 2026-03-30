@@ -1,17 +1,21 @@
-function FileUploadWrapper(file, element, key = "") {
-	const id = gadgetui.util.Id();
+import { Id, getStyle } from '../gadget-ui.util.js';
+import { EventBindings } from '../../objects/eventbindings.js';
+import { ProgressBar } from './progressbar.js';
+
+export function FileUploadWrapper(file, element, key = "") {
+	const id = Id();
 	const options = {
 		id: id,
 		key: key,
 		filename: file.name,
-		width: gadgetui.util.getStyle(element, "width"),
+		width: getStyle(element, "width"),
 	};
-	const bindings = gadgetui.objects.EventBindings.getAll();
+	const bindings = EventBindings.getAll();
 
 	this.file = file;
 	this.id = id;
 	this.key = key;
-	this.progressbar = new gadgetui.display.ProgressBar(element, options);
+	this.progressbar = new ProgressBar(element, options);
 	this.progressbar.render();
 
 	bindings.forEach((binding) => {

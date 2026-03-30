@@ -1,4 +1,7 @@
-class SelectInput extends Component {
+import { Component } from '../../objects/component.js';
+import { setStyle, getStyle, getNumberValue, bind, trigger } from '../gadget-ui.util.js';
+
+export class SelectInput extends Component {
 	constructor(selector, options = {}) {
 		super();
 		this.selector = selector;
@@ -8,7 +11,7 @@ class SelectInput extends Component {
 		this.addControl();
 		this.addCSS();
 
-		const css = gadgetui.util.setStyle;
+		const css = setStyle;
 		if (this.hideable) {
 			css(this.selector, "display", "none");
 		} else {
@@ -16,8 +19,8 @@ class SelectInput extends Component {
 			css(this.selector, "display", "inline-block");
 		}
 
-		gadgetui.util.bind(this.selector, this.model);
-		gadgetui.util.bind(this.label, this.model);
+		bind(this.selector, this.model);
+		bind(this.label, this.model);
 		this.addBindings();
 	}
 
@@ -77,11 +80,11 @@ class SelectInput extends Component {
 	}
 
 	addCSS() {
-		const css = gadgetui.util.setStyle;
-		const style = gadgetui.util.getStyle(this.selector);
+		const css = setStyle;
+		const style = getStyle(this.selector);
 		const parentHeight =
-			gadgetui.util.getNumberValue(
-				gadgetui.util.getStyle(this.selector.parentNode).height,
+			getNumberValue(
+				getStyle(this.selector.parentNode).height,
 			) - 2;
 
 		css(this.selector, "min-width", "100px");
@@ -98,7 +101,7 @@ class SelectInput extends Component {
 	}
 
 	addBindings() {
-		const css = gadgetui.util.setStyle;
+		const css = setStyle;
 
 		if (this.hideable) {
 			this.label.addEventListener(this.activate, (event) => {
@@ -134,7 +137,7 @@ class SelectInput extends Component {
 					this.model.set(this.selector.name, data);
 				}
 				if (this.emitEvents)
-					gadgetui.util.trigger(this.selector, "gadgetui-input-change", data);
+					trigger(this.selector, "gadgetui-input-change", data);
 				if (this.func) this.func(data);
 				this.value = data;
 			}, 100);

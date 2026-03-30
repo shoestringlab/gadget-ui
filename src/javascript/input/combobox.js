@@ -1,8 +1,13 @@
-class ComboBox extends Component {
+import { Component } from '../../objects/component.js';
+import { setStyle, createElement, getStyle, getNumberValue, encode, mouseWithin, trigger, bind } from '../gadget-ui.util.js';
+import { mousePosition } from '../gadget-ui.util.js';
+import model from '../gadget-ui.model.js';
+
+export class ComboBox extends Component {
 	constructor(element, options) {
 		super();
 		this.emitEvents = true;
-		this.model = gadgetui.model;
+		this.model = model;
 		this.func = undefined; // Initialized to avoid undefined property
 		this.element = element;
 
@@ -11,19 +16,19 @@ class ComboBox extends Component {
 		this.setDataProviderRefresh();
 		this.addControl();
 		this.addCSS();
-		gadgetui.util.bind(this.element, this.model);
-		gadgetui.util.bind(this.label, this.model);
+		bind(this.element, this.model);
+		bind(this.label, this.model);
 		this.addBehaviors();
 		this.setStartingValues();
 	}
 
 	addControl() {
-		var css = gadgetui.util.setStyle;
-		this.comboBox = gadgetui.util.createElement("div");
-		this.input = gadgetui.util.createElement("input");
-		this.label = gadgetui.util.createElement("div");
-		this.inputWrapper = gadgetui.util.createElement("div");
-		this.selectWrapper = gadgetui.util.createElement("div");
+		var css = setStyle;
+		this.comboBox = createElement("div");
+		this.input = createElement("input");
+		this.label = createElement("div");
+		this.inputWrapper = createElement("div");
+		this.selectWrapper = createElement("div");
 
 		this.comboBox.classList.add("gadgetui-combobox");
 		this.input.classList.add("gadgetui-combobox-input");
@@ -53,11 +58,11 @@ class ComboBox extends Component {
 	}
 
 	addCSS() {
-		var css = gadgetui.util.setStyle;
+		var css = setStyle;
 		this.element.classList.add("gadgetui-combobox-select");
 		css(this.element, "width", this.width);
 
-		var styles = gadgetui.util.getStyle(this.element),
+		var styles = getStyle(this.element),
 			inputWidth = this.element.clientWidth,
 			inputWidthAdjusted,
 			inputLeftOffset = 0,
@@ -68,19 +73,19 @@ class ComboBox extends Component {
 			inputLeftMargin,
 			leftPosition;
 
-		leftPosition = gadgetui.util.getNumberValue(this.borderWidth) + 4;
+		leftPosition = getNumberValue(this.borderWidth) + 4;
 
 		if (this.borderRadius > 5) {
 			selectLeftPadding = this.borderRadius - 5;
 			leftPosition =
-				gadgetui.util.getNumberValue(leftPosition) +
-				gadgetui.util.getNumberValue(selectLeftPadding);
+				getNumberValue(leftPosition) +
+				getNumberValue(selectLeftPadding);
 		}
 		inputLeftMargin = leftPosition;
 		inputWidthAdjusted =
 			inputWidth -
 			this.arrowWidth -
-			gadgetui.util.getNumberValue(this.borderRadius) -
+			getNumberValue(this.borderRadius) -
 			4;
 		if (
 			navigator.userAgent.match(/(Safari)/) &&
@@ -146,7 +151,7 @@ class ComboBox extends Component {
 		while (this.element.options.length > 0) {
 			this.element.remove(0);
 		}
-		option = gadgetui.util.createElement("option");
+		option = createElement("option");
 		option.value = this.newOption.id;
 		option.text = this.newOption.text;
 		this.element.add(option);
@@ -157,7 +162,7 @@ class ComboBox extends Component {
 			if (text === undefined) {
 				text = id;
 			}
-			option = gadgetui.util.createElement("option");
+			option = createElement("option");
 			option.value = id;
 			option.text = text;
 			this.element.add(option);
@@ -189,7 +194,7 @@ class ComboBox extends Component {
 	}
 
 	showLabel() {
-		var css = gadgetui.util.setStyle;
+		var css = setStyle;
 		css(this.label, "display", "inline-block");
 		css(this.selectWrapper, "display", "none");
 		css(this.inputWrapper, "display", "none");
@@ -227,7 +232,7 @@ class ComboBox extends Component {
 		});
 		this.input.addEventListener("keyup", (event) => {
 			if (event.which === 13) {
-				var inputText = gadgetui.util.encode(this.input.value);
+				var inputText = encode(this.input.value);
 				this.handleInput(inputText);
 			}
 			if (typeof this.fireEvent === "function") {
@@ -237,7 +242,7 @@ class ComboBox extends Component {
 		if (this.hideable) {
 			this.input.addEventListener("blur", () => {
 				if (
-					gadgetui.util.mouseWithin(this.element, gadgetui.mousePosition) ===
+					mouseWithin(this.element, mousePosition) ===
 					true
 				) {
 					this.inputWrapper.style.display = "none";
@@ -276,7 +281,7 @@ class ComboBox extends Component {
 					this.setValue(this.newOption.value);
 					this.input.focus();
 				}
-				gadgetui.util.trigger(this.element, "gadgetui-combobox-change", {
+				trigger(this.element, "gadgetui-combobox-change", {
 					id: event.target[event.target.selectedIndex].value,
 					text: event.target[event.target.selectedIndex].innerHTML,
 				});
@@ -302,7 +307,7 @@ class ComboBox extends Component {
 
 	handleInput(inputText) {
 		var id = this.find(inputText),
-			css = gadgetui.util.setStyle;
+			css = setStyle;
 		if (id !== undefined) {
 			this.element.value = id;
 			this.label.innerText = inputText;
@@ -347,7 +352,7 @@ class ComboBox extends Component {
 						function callback() {
 							// trigger save event if we're triggering events
 							if (_this.emitEvents === true) {
-								gadgetui.util.trigger(_this.element, "gadgetui-combobox-save", {
+								trigger(_this.element, "gadgetui-combobox-save", {
 									id: value,
 									text: text,
 								});
@@ -429,7 +434,7 @@ class ComboBox extends Component {
 					func = refresh.apply(this, args);
 				});
 				promise.then(function () {
-					gadgetui.util.trigger(_this.element, "gadgetui-combobox-refresh");
+					trigger(_this.element, "gadgetui-combobox-refresh");
 					_this.setControls();
 				});
 				promise["catch"](function (message) {
@@ -453,11 +458,11 @@ class ComboBox extends Component {
 			options.activate === undefined ? "mouseenter" : options.activate;
 		this.delay = options.delay === undefined ? 10 : options.delay;
 		this.borderWidth =
-			gadgetui.util.getStyle(this.element, "border-width") || 1;
+			getStyle(this.element, "border-width") || 1;
 		this.borderRadius =
-			gadgetui.util.getStyle(this.element, "border-radius") || 5;
+			getStyle(this.element, "border-radius") || 5;
 		this.borderColor =
-			gadgetui.util.getStyle(this.element, "border-color") || "silver";
+			getStyle(this.element, "border-color") || "silver";
 		this.arrowWidth = options.arrowWidth || 25;
 		this.width = options.width === undefined ? 150 : options.width;
 		this.newOption =

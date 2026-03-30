@@ -1,45 +1,3 @@
-"use strict";
-
-/*
- * author: Robert Munn <robert@robertmunn.com>
- *
- * Copyright (C) 2016 Robert Munn
- *
- * This is free software licensed under the Mozilla Public License 2.0
- *
- * https://www.mozilla.org/en-US/MPL/2.0/
- *
- *
- */
-
-var gadgetui = {
-	keyCode: {
-		BACKSPACE: 8,
-		COMMA: 188,
-		DELETE: 46,
-		DOWN: 40,
-		END: 35,
-		ENTER: 13,
-		ESCAPE: 27,
-		HOME: 36,
-		LEFT: 37,
-		PAGE_DOWN: 34,
-		PAGE_UP: 33,
-		PERIOD: 190,
-		RIGHT: 39,
-		SPACE: 32,
-		TAB: 9,
-		UP: 38,
-	},
-};
-
-// save mouse position
-// document
-// 	.addEventListener( "mousemove", function(ev){
-// 		ev = ev || window.event;
-// 		gadgetui.mousePosition = gadgetui.util.mouseCoords(ev);
-// 	});
-
 class Component {
 	constructor() {
 		this.events = {};
@@ -77,455 +35,754 @@ class Component {
 	}
 }
 
-gadgetui.model = (() => {
-	"use strict";
+// canvas-txt code
+const C = {
+	debug: false,
+	align: "center",
+	vAlign: "middle",
+	fontSize: 14,
+	fontWeight: "",
+	fontStyle: "",
+	fontVariant: "",
+	font: "Arial",
+	lineHeight: null,
+	justify: false,
+};
 
-	const modelStore = new Map();
-	const mementoStore = new Map();
-	let maxMementos = 20; // Default value
+const W = " ";
 
-	class BindableObject {
-		constructor(data, element) {
-			this.data = this.processValue(data);
-			this.elements = [];
-			this.mementos = [];
-			this.currentMementoIndex = -1;
-			if (element) {
-				this.bind(element);
-			}
-			this.saveMemento(); // Save initial state
-		}
+var textWidthEl;
 
-		handleEvent(event) {
-			if (event.type !== "change") return;
+var keyCode = {
+	BACKSPACE: 8,
+	COMMA: 188,
+	DELETE: 46,
+	DOWN: 40,
+	END: 35,
+	ENTER: 13,
+	ESCAPE: 27,
+	HOME: 36,
+	LEFT: 37,
+	PAGE_DOWN: 34,
+	PAGE_UP: 33,
+	PERIOD: 190,
+	RIGHT: 39,
+	SPACE: 32,
+	TAB: 9,
+	UP: 38,
+};
 
-			event.originalSource ??= "BindableObject.handleEvent[change]";
+var mousePosition;
 
-			for (const { elem, prop } of this.elements) {
-				if (
-					event.target.name === prop &&
-					event.originalSource !== "BindableObject.updateDomElement"
-				) {
-					const value = event.target.type.includes("select")
-						? {
-								id: event.target.value,
-								text: event.target.options[event.target.selectedIndex]
-									.textContent,
-							}
-						: event.target.value;
+function setMousePosition(pos) {
+	mousePosition = pos;
+}
 
-					this.change(value, event, prop);
-				}
-			}
-		}
+function split(val) {
+	return val.split(/,\s*/);
+}
 
-		change(value, event, property) {
-			event.originalSource ??= "BindableObject.change";
-			console.log(`change : Source: ${event.originalSource}`);
+function extractLast(term) {
+	return split(term).pop();
+}
 
-			const processedValue = this.processValue(value);
+function getNumberValue(pixelValue) {
+	return isNaN(Number(pixelValue))
+		? Number(pixelValue.substring(0, pixelValue.length - 2))
+		: pixelValue;
+}
 
-			if (!property) {
-				this.data = processedValue;
-			} else if (typeof this.data === "object" && this.data !== null) {
-				if (!(property in this.data)) {
-					throw new Error(`Property '${property}' of object is undefined.`);
-				}
-				this.data[property] = processedValue;
-			} else {
-				throw new Error(
-					"Attempt to treat a simple value as an object with properties.",
-				);
-			}
+function checkBrowser() {
+	// Opera 8.0+
+	var isOpera =
+		(!!window.opr && !!opr.addons) ||
+		!!window.opera ||
+		navigator.userAgent.indexOf(" OPR/") >= 0;
 
-			this.saveMemento();
+	// Firefox 1.0+
+	var isFirefox = typeof InstallTrigger !== "undefined";
 
-			this.elements
-				.filter(
-					({ prop, elem }) =>
-						(!property || property === prop) && elem !== event.target,
-				)
-				.forEach(({ elem }) =>
-					this.updateDomElement(event, elem, processedValue),
-				);
-		}
+	// Safari 3.0+ "[object HTMLElementConstructor]"
+	var isSafari =
+		/constructor/i.test(window.HTMLElement) ||
+		(function (p) {
+			return p.toString() === "[object SafariRemoteNotification]";
+		})(
+			!window["safari"] ||
+				(typeof safari !== "undefined" && safari.pushNotification),
+		);
 
-		updateDom(event, value, property) {
-			event.originalSource ??= "BindableObject.updateDom";
+	// Internet Explorer 6-11
+	var isIE = /*@cc_on!@*/ !!document.documentMode;
 
-			this.elements.forEach(({ elem, prop }) => {
-				if (!property) {
-					if (typeof value === "object" && value !== null) {
-						if (prop in value) {
-							this.updateDomElement(event, elem, value[prop]);
-						}
-					} else {
-						this.updateDomElement(event, elem, value);
-					}
-				} else if (prop === property) {
-					this.updateDomElement(event, elem, value);
-				}
-			});
-		}
+	// Edge 20+
+	var isEdge = !isIE && !!window.StyleMedia;
 
-		updateDomElement(event, element, value) {
-			event.originalSource ??= "BindableObject.updateDomElement";
+	// Chrome 1 - 79
+	var isChrome =
+		!!window.chrome &&
+		(!!window.chrome.webstore || !!window.chrome.runtime);
 
-			const updateOptions = () => {
-				element.innerHTML = "";
-				const items = Array.isArray(value)
-					? value
-					: value instanceof Map
-						? Array.from(value.entries())
-						: [value];
+	// Edge (based on chromium) detection
+	var isEdgeChromium = isChrome && navigator.userAgent.indexOf("Edg") != -1;
 
-				if (element.tagName === "SELECT") {
-					items.forEach((item, idx) => {
-						const opt = document.createElement("option");
-						opt.value = typeof item === "object" ? (item.id ?? item[0]) : item;
-						opt.textContent =
-							typeof item === "object" ? (item.text ?? item[1]) : item;
-						element.appendChild(opt);
-					});
-				} else if (["UL", "OL"].includes(element.tagName)) {
-					items.forEach((item) => {
-						const li = document.createElement("li");
-						li.textContent =
-							typeof item === "object" ? (item.text ?? item[1]) : item;
-						element.appendChild(li);
-					});
-				}
-			};
+	// Blink engine detection
+	var isBlink = (isChrome || isOpera) && !!window.CSS;
 
-			const isInput = ["INPUT", "TEXTAREA"].includes(element.tagName);
-			const isArrayElement = ["OL", "UL", "SELECT"].includes(element.tagName);
-			const textElements = [
-				"DIV", // Generic container, often contains text
-				"SPAN", // Inline container, typically for text styling
-				"H1", // Heading level 1
-				"H2", // Heading level 2
-				"H3", // Heading level 3
-				"H4", // Heading level 4
-				"H5", // Heading level 5
-				"H6", // Heading level 6
-				"P", // Paragraph
-				"LABEL", // Caption for form elements, displays text
-				"BUTTON", // Clickable button, often with text content
-				"A", // Anchor (hyperlink), typically contains text
-				"STRONG", // Bold text for emphasis
-				"EM", // Italic text for emphasis
-				"B", // Bold text (presentational)
-				"I", // Italic text (presentational)
-				"U", // Underlined text
-				"SMALL", // Smaller text, often for fine print
-				"SUB", // Subscript text
-				"SUP", // Superscript text
-				"Q", // Short inline quotation
-				"BLOCKQUOTE", // Long quotation
-				"CITE", // Citation or reference
-				"CODE", // Code snippet
-				"PRE", // Preformatted text
-				"ABBR", // Abbreviation with optional title attribute
-				"DFN", // Defining instance of a term
-				"SAMP", // Sample output from a program
-				"KBD", // Keyboard input
-				"VAR", // Variable in programming/math context
-				"LI", // List item (in UL or OL)
-				"DT", // Term in a description list
-				"DD", // Description in a description list
-				"TH", // Table header cell
-				"TD", // Table data cell
-				"CAPTION", // Table caption
-				"FIGCAPTION", // Caption for a figure
-				"SUMMARY", // Summary for a details element
-				"LEGEND", // Caption for a fieldset in a form
-				"TITLE", // Document title (displayed in browser tab)
-			];
-			const isTextElement = textElements.includes(element.tagName);
+	let browser = "generic";
+	if (isOpera) browser = "opera";
+	if (isFirefox) browser = "firefox";
+	if (isSafari) browser = "safari";
+	if (isIE) browser = "ie";
+	if (isEdge) browser = "edge";
+	if (isChrome) browser = "chrome";
+	if (isEdgeChromium) browser = "edgechromium";
+	if (isBlink) browser = "blink";
 
-			if (typeof value === "object" && value !== null) {
-				if (isInput)
-					element.value =
-						value.id ?? (value instanceof Map ? "" : value[0]) ?? "";
-				else if (isArrayElement) updateOptions();
-				else if (isTextElement)
-					element.textContent =
-						value.text ?? (value instanceof Map ? "" : value[1]) ?? "";
-			} else {
-				if (isInput) element.value = value ?? "";
-				else if (isArrayElement) updateOptions();
-				else if (isTextElement) element.textContent = value ?? "";
-			}
+	return browser;
+}
 
-			if (
-				event.originalSource !== "model.set" &&
-				event.originalSource !== "memento.restore"
-			) {
-				element.dispatchEvent(
-					new Event("change", {
-						originalSource: "model.updateDomElement",
-					}),
-				);
-			}
-		}
-
-		bind(element, property) {
-			const binding = { elem: element, prop: property || "" };
-			element.value = property ? this.data[property] : this.data;
-
-			element.addEventListener("change", this);
-			this.elements.push(binding);
-		}
-
-		processValue(value) {
-			switch (typeof value) {
-				case "undefined":
-				case "number":
-				case "boolean":
-				case "function":
-				case "symbol":
-				case "string":
-					return value;
-				case "object":
-					if (value === null) return null;
-					if (value instanceof Map) return new Map(value);
-					return JSON.parse(JSON.stringify(value));
-				default:
-					return value;
-			}
-		}
-
-		saveMemento() {
-			// Remove future mementos if we're adding after an undo
-			if (this.currentMementoIndex < this.mementos.length - 1) {
-				this.mementos.splice(this.currentMementoIndex + 1);
-			}
-
-			const memento = this.processValue(this.data);
-			this.mementos.push(memento);
-
-			if (this.mementos.length > maxMementos) {
-				this.mementos.shift(); // Remove oldest memento
-			} else {
-				this.currentMementoIndex++;
-			}
-		}
-
-		undo() {
-			if (this.currentMementoIndex > 0) {
-				this.currentMementoIndex--;
-				this.restoreMemento();
-				return true;
-			}
-			return false;
-		}
-
-		redo() {
-			if (this.currentMementoIndex < this.mementos.length - 1) {
-				this.currentMementoIndex++;
-				this.restoreMemento();
-				return true;
-			}
-			return false;
-		}
-
-		rewind() {
-			if (this.currentMementoIndex > 0) {
-				this.currentMementoIndex = 0;
-				this.restoreMemento();
-				return true;
-			}
-			return false;
-		}
-
-		fastForward() {
-			if (this.currentMementoIndex < this.mementos.length - 1) {
-				this.currentMementoIndex = this.mementos.length - 1;
-				this.restoreMemento();
-				return true;
-			}
-			return false;
-		}
-
-		restoreMemento() {
-			this.data = this.processValue(this.mementos[this.currentMementoIndex]);
-			const event = { originalSource: "memento.restore" };
-			this.elements.forEach(({ elem, prop }) => {
-				this.updateDomElement(event, elem, prop ? this.data[prop] : this.data);
-			});
-		}
-	}
+function getOffset(selector) {
+	var rect = selector.getBoundingClientRect();
 
 	return {
-		BindableObject,
-
-		init(options = {}) {
-			maxMementos = options.maxMementos ?? 20;
-		},
-
-		create(name, value, element) {
-			const processedValue = new BindableObject(value).processValue(value);
-			const bindable = new BindableObject(processedValue, element);
-			modelStore.set(name, bindable);
-			mementoStore.set(name, bindable);
-		},
-
-		destroy(name) {
-			modelStore.delete(name);
-			mementoStore.delete(name);
-		},
-
-		bind(name, element) {
-			const [base, prop] = name.split(".");
-			const model = modelStore.get(base);
-			if (model) {
-				model.bind(element, prop);
-			}
-		},
-
-		exists(name) {
-			return modelStore.has(name);
-		},
-
-		get(name) {
-			if (!name) {
-				console.log("Expected parameter [name] is not defined.");
-				return undefined;
-			}
-
-			const [base, prop] = name.split(".");
-			const model = modelStore.get(base);
-
-			if (!model) {
-				console.log(`Key '${base}' does not exist in the model.`);
-				return undefined;
-			}
-
-			const value = prop ? model.data[prop] : model.data;
-			return value instanceof Map ? new Map(value) : value;
-		},
-
-		set(name, value) {
-			if (!name) {
-				console.log("Expected parameter [name] is not defined.");
-				return;
-			}
-
-			const [base, prop] = name.split(".");
-			const event = { originalSource: "model.set" };
-
-			if (!modelStore.has(base)) {
-				if (!prop) {
-					this.create(base, value);
-				} else {
-					throw new Error(`Object ${base} is not yet initialized.`);
-				}
-			} else {
-				const model = modelStore.get(base);
-				const processedValue = model.processValue(value);
-				model.change(processedValue, event, prop);
-				model.updateDom(event, processedValue, prop);
-			}
-		},
-
-		undo(name) {
-			const model = mementoStore.get(name);
-			return model ? model.undo() : false;
-		},
-
-		redo(name) {
-			const model = mementoStore.get(name);
-			return model ? model.redo() : false;
-		},
-
-		rewind(name) {
-			const model = mementoStore.get(name);
-			return model ? model.rewind() : false;
-		},
-
-		fastForward(name) {
-			const model = mementoStore.get(name);
-			return model ? model.fastForward() : false;
-		},
+		top: rect.top + document.body.scrollTop,
+		left: rect.left + document.body.scrollLeft,
 	};
-})();
+}
 
-/*
-// Initialize with custom memento limit
-model.init({ maxMementos: 50 });
+// http://gomakethings.com/climbing-up-and-down-the-dom-tree-with-vanilla-javascript/
+// getParentsUntil - MIT License
+function getParentsUntil(elem, parent, selector) {
+	var parents = [];
+	if (parent) {
+		var parentType = parent.charAt(0);
+	}
+	if (selector) {
+		var selectorType = selector.charAt(0);
+	}
 
-// Create a model
-model.create("user", { name: "John" });
+	// Get matches
+	for (; elem && elem !== document; elem = elem.parentNode) {
+		// Check if parent has been reached
+		if (parent) {
+			// If parent is a class
+			if (parentType === ".") {
+				if (elem.classList.contains(parent.substr(1))) {
+					break;
+				}
+			}
 
-// Make changes
-model.set("user.name", "Jane");
-model.set("user.name", "Bob");
+			// If parent is an ID
+			if (parentType === "#") {
+				if (elem.id === parent.substr(1)) {
+					break;
+				}
+			}
 
-// Undo/redo
-model.undo("user"); // Returns to "Jane"
-model.undo("user"); // Returns to "John"
-model.redo("user"); // Returns to "Jane"
+			// If parent is a data attribute
+			if (parentType === "[") {
+				if (elem.hasAttribute(parent.substr(1, parent.length - 1))) {
+					break;
+				}
+			}
 
-// Rewind/fast forward
-model.rewind("user"); // Back to "John"
-model.fastForward("user"); // To "Bob"
+			// If parent is a tag
+			if (elem.tagName.toLowerCase() === parent) {
+				break;
+			}
+		}
+
+		if (selector) {
+			// If selector is a class
+			if (selectorType === ".") {
+				if (elem.classList.contains(selector.substr(1))) {
+					parents.push(elem);
+				}
+			}
+
+			// If selector is an ID
+			if (selectorType === "#") {
+				if (elem.id === selector.substr(1)) {
+					parents.push(elem);
+				}
+			}
+
+			// If selector is a data attribute
+			if (selectorType === "[") {
+				if (elem.hasAttribute(selector.substr(1, selector.length - 1))) {
+					parents.push(elem);
+				}
+			}
+
+			// If selector is a tag
+			if (elem.tagName.toLowerCase() === selector) {
+				parents.push(elem);
+			}
+		} else {
+			parents.push(elem);
+		}
+	}
+
+	// Return parents if any exist
+	if (parents.length === 0) {
+		return null;
+	} else {
+		return parents;
+	}
+}
+
+function getRelativeParentOffset(selector) {
+	var i,
+		offset,
+		parents = getParentsUntil(selector, "body"),
+		relativeOffsetLeft = 0,
+		relativeOffsetTop = 0;
+
+	for (i = 0; i < parents.length; i++) {
+		if (parents[i].style.position === "relative") {
+			offset = getOffset(parents[i]);
+			// set the largest offset values of the ancestors
+			if (offset.left > relativeOffsetLeft) {
+				relativeOffsetLeft = offset.left;
+			}
+
+			if (offset.top > relativeOffsetTop) {
+				relativeOffsetTop = offset.top;
+			}
+		}
+	}
+	return {
+		left: relativeOffsetLeft,
+		top: relativeOffsetTop,
+	};
+}
+
+function Id() {
+	return (Math.random() * 100).toString().replace(/\./g, "");
+}
+
+function bind(selector, model) {
+	var bindVar = selector.getAttribute("gadgetui-bind");
+
+	// if binding was specified, make it so
+	if (bindVar !== undefined && bindVar !== null && model !== undefined) {
+		model.bind(bindVar, selector);
+	}
+}
+
+function mouseCoords(ev) {
+	// from
+	// http://www.webreference.com/programming/javascript/mk/column2/
+	if (ev.pageX || ev.pageY) {
+		return {
+			x: ev.pageX,
+			y: ev.pageY,
+		};
+	}
+	return {
+		x: ev.clientX + document.body.scrollLeft - document.body.clientLeft,
+		y: ev.clientY + document.body.scrollTop - document.body.clientTop,
+	};
+}
+
+function mouseWithin(selector, coords) {
+	var rect = selector.getBoundingClientRect();
+	return coords.x >= rect.left &&
+		coords.x <= rect.right &&
+		coords.y >= rect.top &&
+		coords.y <= rect.bottom
+		? true
+		: false;
+}
+
+function getStyle(el, prop) {
+	if (window.getComputedStyle !== undefined) {
+		if (prop !== undefined) {
+			return window.getComputedStyle(el, null).getPropertyValue(prop);
+		} else {
+			return window.getComputedStyle(el, null);
+		}
+	} else {
+		if (prop !== undefined) {
+			return el.currentStyle[prop];
+		} else {
+			return el.currentStyle;
+		}
+	}
+}
+
+//https://jsfiddle.net/tovic/Xcb8d/
+//author: Taufik Nurrohman
+// code belongs to author
+// no license enforced
+function draggable(selector, handle) {
+	var selected = null, // Object of the element to be moved
+		x_pos = 0,
+		y_pos = 0, // Stores x & y coordinates of the mouse pointer
+		x_elem = 0,
+		y_elem = 0; // Stores top, left values (edge) of the element
+
+	// Will be called when user starts dragging an element
+	function _drag_init(elem) {
+		// Store the object of the element which needs to be moved
+		selected = elem;
+		x_elem = x_pos - selected.offsetLeft;
+		y_elem = y_pos - selected.offsetTop;
+	}
+
+	// Will be called when user dragging an element
+	function _move_elem(e) {
+		x_pos = document.all ? window.event.clientX : e.pageX;
+		y_pos = document.all ? window.event.clientY : e.pageY;
+		if (selected !== null) {
+			selected.style.left = x_pos - x_elem + "px";
+			selected.style.top = y_pos - y_elem + "px";
+		}
+	}
+
+	// Destroy the object when we are done
+	function _destroy(event) {
+		console.log(event);
+		var myEvent = new CustomEvent("drag_end", {
+			detail: {
+				top: getStyle(selector, "top"),
+				left: getStyle(selector, "left"),
+			},
+		});
+
+		// Trigger it!
+		selector.dispatchEvent(myEvent);
+		selected = null;
+	}
+
+	// Bind the functions...
+	const dragTarget = handle || selector;
+	dragTarget.onmousedown = function (e) {
+		// If a handle is specified, check if the click is on an interactive element
+		if (handle) {
+			const target = e.target;
+			// Allow interaction with form elements
+			if (target.tagName === 'INPUT' ||
+				target.tagName === 'TEXTAREA' ||
+				target.tagName === 'SELECT' ||
+				target.tagName === 'BUTTON') {
+				return true;
+			}
+		}
+		_drag_init(selector);
+		return false;
+	};
+
+	document.onmousemove = _move_elem;
+	document.onmouseup = _destroy;
+}
+
+function textWidth(text, style) {
+	// http://stackoverflow.com/questions/1582534/calculating-text-width-with-jquery
+	// based on edsioufi's solution
+	if (!textWidthEl) {
+		textWidthEl = document.createElement("div");
+		textWidthEl.setAttribute("id", "gadgetui-textWidth");
+		textWidthEl.setAttribute("style", "display: none;");
+		document.body.appendChild(textWidthEl);
+	}
+
+	var width,
+		htmlText = text;
+	if (htmlText.length > 0) {
+		textWidthEl.innerText = htmlText;
+		if (htmlText === undefined) {
+			htmlText = "";
+		} else {
+			htmlText = htmlText.replace(/\s/g, "&nbsp;"); // replace
+			// trailing
+			// and
+			// leading
+			// spaces
+		}
+	}
+	textWidthEl.innertText = htmlText;
+	textWidthEl.style.fontFamily = style.fontFamily;
+	textWidthEl.style.fontSize = style.fontSize;
+	textWidthEl.style.fontWeight = style.fontWeight;
+	textWidthEl.style.fontVariant = style.fontVariant;
+	textWidthEl.style.display = "inline";
+
+	width = textWidthEl.offsetWidth;
+	textWidthEl.style.display = "none";
+	return width;
+}
+
+function fitText(text, style, width) {
+	var midpoint,
+		txtWidth = textWidth(text, style),
+		ellipsisWidth = textWidth("...", style);
+	if (txtWidth < width) {
+		return text;
+	} else {
+		midpoint = Math.floor(text.length / 2) - 1;
+		while (txtWidth + ellipsisWidth >= width) {
+			text =
+				text.slice(0, midpoint) + text.slice(midpoint + 1, text.length);
+
+			midpoint = Math.floor(text.length / 2) - 1;
+			txtWidth = textWidth(text, font);
+		}
+		midpoint = Math.floor(text.length / 2) - 1;
+		text =
+			text.slice(0, midpoint) + "..." + text.slice(midpoint, text.length);
+
+		// remove spaces around the ellipsis
+		while (text.substring(midpoint - 1, midpoint) === " ") {
+			text =
+				text.slice(0, midpoint - 1) + text.slice(midpoint, text.length);
+			midpoint = midpoint - 1;
+		}
+
+		while (text.substring(midpoint + 3, midpoint + 4) === " ") {
+			text =
+				text.slice(0, midpoint + 3) + text.slice(midpoint + 4, text.length);
+			midpoint = midpoint - 1;
+		}
+		return text;
+	}
+}
+
+function createElement(tagName) {
+	var el = document.createElement(tagName);
+	el.setAttribute("style", "");
+	return el;
+}
+
+function addStyle(element, style) {
+	var estyles = element.getAttribute("style"),
+		currentStyles = estyles !== null ? estyles : "";
+	element.setAttribute("style", currentStyles + " " + style + ";");
+}
+
+function isNumeric(num) {
+	return !isNaN(parseFloat(num)) && isFinite(num);
+}
+
+function setStyle(element, style, value) {
+	var newStyles,
+		estyles = element.getAttribute("style"),
+		currentStyles = estyles !== null ? estyles : "",
+		str = "(" + style + ")+ *\\:[^\\;]*\\;",
+		re = new RegExp(str, "g");
+
+	// assume
+	if (isNumeric(value) === true) {
+		// don't modify properties that accept a straight numeric value
+		switch (style) {
+			case "opacity":
+			case "z-index":
+			case "font-weight":
+				break;
+			default:
+				value = value + "px";
+		}
+	}
+
+	if (currentStyles.search(re) >= 0) {
+		newStyles = currentStyles.replace(re, style + ": " + value + ";");
+	} else {
+		newStyles = currentStyles + " " + style + ": " + value + ";";
+	}
+	element.setAttribute("style", newStyles);
+}
+
+function encode(str) {
+	return str;
+}
+
+function trigger(selector, eventType, data) {
+	selector.dispatchEvent(
+		new CustomEvent(eventType, {
+			detail: data,
+		}),
+	);
+}
+
+function getMaxZIndex() {
+	var elems = document.querySelectorAll("*");
+	var highest = 0;
+	for (var ix = 0; ix < elems.length; ix++) {
+		var zindex = getStyle(elems[ix], "z-index");
+		if (zindex > highest && zindex != "auto") {
+			highest = zindex;
+		}
+	}
+	return highest;
+}
+
+// copied from jQuery core, re-distributed per MIT License
+function grep(elems, callback, invert) {
+	var callbackInverse,
+		matches = [],
+		i = 0,
+		length = elems.length,
+		callbackExpect = !invert;
+
+	// Go through the array, only saving the items
+	// _this pass the validator function
+	for (; i < length; i++) {
+		callbackInverse = !callback(elems[i], i);
+		if (callbackInverse !== callbackExpect) {
+			matches.push(elems[i]);
+		}
+	}
+
+	return matches;
+}
+
+function delay(handler, delay) {
+	function handlerProxy() {
+		return handler.apply(instance, arguments);
+	}
+	var instance = this;
+	return setTimeout(handlerProxy, delay || 0);
+}
+
+function contains(child, parent) {
+	var node = child.parentNode;
+	while (node != null) {
+		if (node == parent) {
+			return true;
+		}
+		node = node.parentNode;
+	}
+	return false;
+}
+
+// code below for drawing multi-line text on a canvas adapted from  https://github.com/geongeorge/Canvas-Txt
+
+/* 		MIT License
+
+Copyright (c) 2022 Geon George
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
 
 */
+/*
+	drawText(ctx,text, config)
+splitText({ ctx, text, justify, width }
+getTextHeight({ ctx, text, style })
+	*/
 
-if (!String.prototype.trim) {
-  String.prototype.trim = function () {
-    return this.replace(/^[\s\uFEFF\xA0]+|[\s\uFEFF\xA0]+$/g, '');
-  };
+function B({ ctx: e, line: c, spaceWidth: p, spaceChar: n, width: a }) {
+	const i = c.trim(),
+		o = i.split(/\s+/),
+		s = o.length - 1;
+	if (s === 0) return i;
+	const m = e.measureText(o.join("")).width,
+		d = (a - m) / p,
+		b = Math.floor(d / s);
+	if (d < 1) return i;
+	const r = n.repeat(b);
+	return o.join(r);
 }
 
-if (!Array.prototype.forEach) {
-    Array.prototype.forEach = function (callbackfn, thisArg) {
-        var O = Object(this),
-            lenValue = O.length,
-            len = lenValue >>> 0,
-            T,
-            k,
-            Pk,
-            kPresent,
-            kValue;
- 
-        if (typeof callbackfn !== 'function') {
-            throw new TypeError();
-        }
- 
-        T = thisArg ? thisArg : undefined;
- 
-        k = 0;
-        while (k < len) {
-            Pk = k.toString();
-            kPresent = O.hasOwnProperty(Pk);
-            if (kPresent) {
-                kValue = O[Pk];
-                callbackfn.call(T, kValue, k, O);
-            }
-            k += 1;
-        }
-        return undefined;
-    };
-}
+function splitText({ ctx: e, text: c, justify: p, width: n }) {
+	const a = /* @__PURE__ */ new Map(),
+		i = (r) => {
+			let g = a.get(r);
+			return g !== void 0 || ((g = e.measureText(r).width), a.set(r, g)), g;
+		};
+	let o = [],
+		s = c.split(`
+	  `);
+	const m = p ? i(W) : 0;
+	let d = 0,
+		b = 0;
+	for (const r of s) {
+		let g = i(r);
+		const y = r.length;
+		if (g <= n) {
+			o.push(r);
+			continue;
+		}
+		let h = r,
+			t,
+			f,
+			l = "";
+		for (; g > n; ) {
+			if ((d++, (t = b), (f = t === 0 ? 0 : i(r.substring(0, t))), f < n))
+				for (
+					;
+					f < n && t < y && (t++, (f = i(h.substring(0, t))), t !== y);
 
+				);
+			else if (f > n)
+				for (
+					;
+					f > n &&
+					((t = Math.max(1, t - 1)),
+					(f = i(h.substring(0, t))),
+					!(t === 0 || t === 1));
 
-gadgetui.display = (function() {
-
-	function getStyleRuleValue(style, selector, sheet) {
-	    var sheets = typeof sheet !== 'undefined' ? [sheet] : document.styleSheets;
-	    for (var i = 0, l = sheets.length; i < l; i++) {
-	        var sheet = sheets[i];
-	        if( !sheet.cssRules ) { continue; }
-	        for (var j = 0, k = sheet.cssRules.length; j < k; j++) {
-	            var rule = sheet.cssRules[j];
-	            if (rule.selectorText && rule.selectorText.split(',').indexOf(selector) !== -1) {
-	                return rule.style[style];
-	            }
-	        }
-	    }
-	    return null;
+				);
+			if (((b = Math.round(b + (t - b) / d)), t--, t > 0)) {
+				let u = t;
+				if (h.substring(u, u + 1) != " ") {
+					for (; h.substring(u, u + 1) != " " && u >= 0; ) u--;
+					u > 0 && (t = u);
+				}
+			}
+			t === 0 && (t = 1),
+				(l = h.substring(0, t)),
+				(l = p
+					? B({
+							ctx: e,
+							line: l,
+							spaceWidth: m,
+							spaceChar: W,
+							width: n,
+						})
+					: l),
+				o.push(l),
+				(h = h.substring(t)),
+				(g = i(h));
+		}
+		g > 0 &&
+			((l = p
+				? B({
+						ctx: e,
+						line: h,
+						spaceWidth: m,
+						spaceChar: W,
+						width: n,
+					})
+				: h),
+			o.push(l));
 	}
+	return o;
+}
+
+function getTextHeight({ ctx: e, text: c, style: p }) {
+	const n = e.textBaseline,
+		a = e.font;
+	(e.textBaseline = "bottom"), (e.font = p);
+	const { actualBoundingBoxAscent: i } = e.measureText(c);
+	return (e.textBaseline = n), (e.font = a), i;
+}
+
+function drawText(e, c, p) {
+	const { width: n, height: a, x: i, y: o } = p,
+		s = { ...C, ...p };
+	if (n <= 0 || a <= 0 || s.fontSize <= 0) return { height: 0 };
+	const m = i + n,
+		d = o + a,
+		{
+			fontStyle: b,
+			fontVariant: r,
+			fontWeight: g,
+			fontSize: y,
+			font: h,
+		} = s,
+		t = `${b} ${r} ${g} ${y}px ${h}`;
+	e.font = t;
+	let f = o + a / 2 + s.fontSize / 2,
+		l;
+	s.align === "right"
+		? ((l = m), (e.textAlign = "right"))
+		: s.align === "left"
+			? ((l = i), (e.textAlign = "left"))
+			: ((l = i + n / 2), (e.textAlign = "center"));
+	const u = splitText({
+			ctx: e,
+			text: c,
+			justify: s.justify,
+			width: n,
+		}),
+		S = s.lineHeight
+			? s.lineHeight
+			: getTextHeight({ ctx: e, text: "M", style: t }),
+		v = S * (u.length - 1),
+		P = v / 2;
+	let A = o;
+	if (
+		(s.vAlign === "top"
+			? ((e.textBaseline = "top"), (f = o))
+			: s.vAlign === "bottom"
+				? ((e.textBaseline = "bottom"), (f = d - v), (A = d))
+				: ((e.textBaseline = "bottom"), (A = o + a / 2), (f -= P)),
+		u.forEach((T) => {
+			(T = T.trim()), e.fillText(T, l, f), (f += S);
+		}),
+		s.debug)
+	) {
+		const T = "#0C8CE9";
+		(e.lineWidth = 1),
+			(e.strokeStyle = T),
+			e.strokeRect(i, o, n, a),
+			(e.lineWidth = 1),
+			(e.strokeStyle = T),
+			e.beginPath(),
+			e.moveTo(l, o),
+			e.lineTo(l, d),
+			e.stroke(),
+			(e.strokeStyle = T),
+			e.beginPath(),
+			e.moveTo(i, A),
+			e.lineTo(m, A),
+			e.stroke();
+	}
+	return { height: v + S };
+}
+
+var util = /*#__PURE__*/Object.freeze({
+	__proto__: null,
+	B: B,
+	Id: Id,
+	addStyle: addStyle,
+	bind: bind,
+	checkBrowser: checkBrowser,
+	contains: contains,
+	createElement: createElement,
+	delay: delay,
+	draggable: draggable,
+	drawText: drawText,
+	encode: encode,
+	extractLast: extractLast,
+	fitText: fitText,
+	getMaxZIndex: getMaxZIndex,
+	getNumberValue: getNumberValue,
+	getOffset: getOffset,
+	getParentsUntil: getParentsUntil,
+	getRelativeParentOffset: getRelativeParentOffset,
+	getStyle: getStyle,
+	getTextHeight: getTextHeight,
+	grep: grep,
+	isNumeric: isNumeric,
+	keyCode: keyCode,
+	mouseCoords: mouseCoords,
+	get mousePosition () { return mousePosition; },
+	mouseWithin: mouseWithin,
+	setMousePosition: setMousePosition,
+	setStyle: setStyle,
+	split: split,
+	splitText: splitText,
+	textWidth: textWidth,
+	trigger: trigger
+});
 
 class Bubble extends Component {
 	constructor(options = {}) {
@@ -749,7 +1006,7 @@ class Bubble extends Component {
 			fontVariant: this.bubble.fontVariant,
 			lineHeight: this.bubble.lineHeight,
 		};
-		gadgetui.util.drawText(this.ctx, this.bubble.text, config);
+		drawText(this.ctx, this.bubble.text, config);
 	}
 
 	attachToElement(selector, position) {
@@ -821,7 +1078,6 @@ class CollapsiblePane extends Component {
 
 	addHeader() {
 		const header = document.createElement("div");
-		const css = gadgetui.util.setStyle;
 
 		header.classList.add("gadget-ui-collapsiblePane-header");
 		if (this.headerClass) {
@@ -841,7 +1097,7 @@ class CollapsiblePane extends Component {
 	}
 
 	addCSS() {
-		const css = gadgetui.util.setStyle;
+		const css = setStyle;
 		css(this.wrapper, "width", this.width);
 	}
 
@@ -856,17 +1112,15 @@ class CollapsiblePane extends Component {
 	}
 
 	toggle() {
-		const css = gadgetui.util.setStyle;
-		let icon, display, myHeight, selectorHeight;
+		const css = setStyle;
+		let display, myHeight, selectorHeight;
 
 		if (this.collapsed) {
-			icon = "";
 			display = "block";
 			myHeight = this.height;
 			selectorHeight = this.selectorHeight;
 			this.collapsed = false;
 		} else {
-			icon = "";
 			display = "none";
 			myHeight = this.headerHeight;
 			selectorHeight = 0;
@@ -911,52 +1165,13 @@ class CollapsiblePane extends Component {
 		this.animate = options.animate ?? true;
 		this.delay = options.delay ?? 300;
 		this.title = options.title ?? "";
-		this.width = gadgetui.util.getStyle(this.element, "width");
+		this.width = getStyle(this.element, "width");
 		this.collapse = options.collapse ?? false;
 		this.collapsed = options.collapse ?? true;
 		this.class = options.class || false;
 		this.headerClass = options.headerClass || false;
 	}
 }
-
-function FileUploadWrapper(file, element, key = "") {
-	const id = gadgetui.util.Id();
-	const options = {
-		id: id,
-		key: key,
-		filename: file.name,
-		width: gadgetui.util.getStyle(element, "width"),
-	};
-	const bindings = gadgetui.objects.EventBindings.getAll();
-
-	this.file = file;
-	this.id = id;
-	this.key = key;
-	this.progressbar = new gadgetui.display.ProgressBar(element, options);
-	this.progressbar.render();
-
-	bindings.forEach((binding) => {
-		this[binding.name] = binding.func;
-	});
-}
-
-FileUploadWrapper.prototype.events = ["uploadComplete", "uploadAborted"];
-
-FileUploadWrapper.prototype.completeUpload = function (fileItem) {
-	const finish = () => {
-		this.progressbar.destroy();
-		this.fireEvent("uploadComplete", fileItem);
-	};
-	setTimeout(finish, 1000);
-};
-
-FileUploadWrapper.prototype.abortUpload = function (fileItem) {
-	const aborted = () => {
-		this.progressbar.destroy();
-		this.fireEvent("uploadAborted", fileItem);
-	};
-	setTimeout(aborted, 1000);
-};
 
 class FloatingPane extends Component {
 	constructor(element, options) {
@@ -980,34 +1195,34 @@ class FloatingPane extends Component {
 		// Calculate dimensions after header is added
 		const paddingPx =
 			parseInt(
-				gadgetui.util.getNumberValue(
-					gadgetui.util.getStyle(this.element, "padding"),
+				getNumberValue(
+					getStyle(this.element, "padding"),
 				),
 				10,
 			) * 2;
 		const headerHeight =
-			gadgetui.util.getNumberValue(
-				gadgetui.util.getStyle(this.header, "height"),
+			getNumberValue(
+				getStyle(this.header, "height"),
 			) + 6;
 
 		this.minWidth =
 			this.title.length > 0
-				? gadgetui.util.textWidth(this.title, this.header.style) + 80
+				? textWidth(this.title, this.header.style) + 80
 				: 100;
 
-		gadgetui.util.setStyle(this.element, "width", this.width - paddingPx);
+		setStyle(this.element, "width", this.width - paddingPx);
 		this.height =
 			options?.height ??
-			gadgetui.util.getNumberValue(
-				gadgetui.util.getStyle(this.element, "height"),
+			getNumberValue(
+				getStyle(this.element, "height"),
 			) +
 				paddingPx +
 				headerHeight +
 				10;
 
 		this.addCSS();
-		this.height = gadgetui.util.getStyle(this.wrapper, "height");
-		this.relativeOffsetLeft = gadgetui.util.getRelativeParentOffset(
+		this.height = getStyle(this.wrapper, "height");
+		this.relativeOffsetLeft = getRelativeParentOffset(
 			this.element,
 		).left;
 		this.addBindings();
@@ -1024,12 +1239,12 @@ class FloatingPane extends Component {
 	}
 
 	addBindings() {
-		const dragger = gadgetui.util.draggable(this.wrapper, this.header);
+		draggable(this.wrapper, this.header);
 
 		this.wrapper.addEventListener("drag_end", (event) => {
 			this.top = event.detail.top;
 			this.left = event.detail.left;
-			this.relativeOffsetLeft = gadgetui.util.getRelativeParentOffset(
+			this.relativeOffsetLeft = getRelativeParentOffset(
 				this.element,
 			).left;
 
@@ -1058,7 +1273,7 @@ class FloatingPane extends Component {
 	}
 
 	addHeader() {
-		const css = gadgetui.util.setStyle;
+		const css = setStyle;
 		this.header = document.createElement("div");
 		this.header.innerHTML = this.title;
 
@@ -1108,7 +1323,7 @@ class FloatingPane extends Component {
 	}
 
 	addCSS() {
-		const css = gadgetui.util.setStyle;
+		const css = setStyle;
 		const styles = {
 			width: this.width,
 			"z-index": this.zIndex,
@@ -1138,11 +1353,11 @@ class FloatingPane extends Component {
 	}
 
 	expand() {
-		const css = gadgetui.util.setStyle;
-		const offset = gadgetui.util.getOffset(this.wrapper);
-		const parentPaddingLeft = parseInt(
-			gadgetui.util.getNumberValue(
-				gadgetui.util.getStyle(this.wrapper.parentElement, "padding-left"),
+		const css = setStyle;
+		getOffset(this.wrapper);
+		parseInt(
+			getNumberValue(
+				getStyle(this.wrapper.parentElement, "padding-left"),
 			),
 			10,
 		);
@@ -1184,7 +1399,7 @@ class FloatingPane extends Component {
 	}
 
 	minimize() {
-		const css = gadgetui.util.setStyle;
+		const css = setStyle;
 		const icon =
 			this.iconType === "img"
 				? `<img class="${this.iconClass}" src="${this.maximizeIcon}"/>`
@@ -1230,8 +1445,8 @@ class FloatingPane extends Component {
 		this.delay = options.delay ?? 500;
 		this.title = options.title || "";
 		this.backgroundColor = options.backgroundColor || "";
-		this.zIndex = options.zIndex ?? gadgetui.util.getMaxZIndex() + 1;
-		this.width = gadgetui.util.getStyle(this.element, "width");
+		this.zIndex = options.zIndex ?? getMaxZIndex() + 1;
+		this.width = getStyle(this.element, "width");
 		this.top = options.top;
 		this.left = options.left;
 		this.bottom = options.bottom;
@@ -1260,7 +1475,7 @@ class FloatingPane extends Component {
 
 class Dialog extends FloatingPane {
 	constructor(element, options = {}) {
-		const css = gadgetui.util.setStyle;
+		const css = setStyle;
 
 		if (element) {
 			super(element, options);
@@ -1281,7 +1496,7 @@ class Dialog extends FloatingPane {
 	events = ["showPrevious", "showNext"];
 
 	addButtons() {
-		const css = gadgetui.util.setStyle;
+		const css = setStyle;
 
 		this.buttonDiv = document.createElement("div");
 		css(this.buttonDiv, "text-align", "center");
@@ -1308,6 +1523,168 @@ class Dialog extends FloatingPane {
 		this.element.removeChild(this.buttonDiv); // Remove the button div if necessary
 	}
 }
+
+var EventBindings = {
+	on: function (event, func) {
+		if (this.events[event] === undefined) {
+			this.events[event] = [];
+		}
+		this.events[event].push(func);
+		return this;
+	},
+
+	off: function (event) {
+		// clear listeners
+		this.events[event] = [];
+		return this;
+	},
+
+	fireEvent: function (key, args) {
+		var _this = this;
+		if (this.events[key] !== undefined) {
+			this.events[key].forEach(function (func) {
+				func(_this, args);
+			});
+		}
+	},
+
+	getAll: function () {
+		return [
+			{ name: "on", func: this.on },
+			{ name: "off", func: this.off },
+			{ name: "fireEvent", func: this.fireEvent }
+		];
+	}
+};
+
+class ProgressBar extends Component {
+	constructor(element, options = {}) {
+		super();
+		this.element = element;
+		this.configure(options);
+		this.render();
+	}
+
+	configure(options) {
+		this.id = options.id;
+		this.label = options.label || "";
+		this.width = options.width;
+		this.percent = 0;
+	}
+
+	render() {
+		const css = setStyle;
+
+		const pbDiv = document.createElement("div");
+		pbDiv.setAttribute("name", `progressbox_${this.id}`);
+		pbDiv.classList.add("gadgetui-progressbar-progressbox");
+
+		const fileDiv = document.createElement("div");
+		fileDiv.setAttribute("name", "label");
+		fileDiv.classList.add("gadgetui-progressbar-label");
+		fileDiv.innerText = ` ${this.label} `;
+
+		// Create bar container (track background)
+		const barContainer = document.createElement("div");
+		barContainer.classList.add("gadgetui-progressbar-container");
+
+		// Create progress bar fill
+		const pbarDiv = document.createElement("div");
+		pbarDiv.classList.add("gadget-ui-progressbar");
+		pbarDiv.setAttribute("name", `progressbar_${this.id}`);
+
+		// Create status text (overlaid on bar)
+		const statusDiv = document.createElement("div");
+		statusDiv.setAttribute("name", "statustxt");
+		statusDiv.classList.add("gadgetui-progressbar-statustxt");
+		statusDiv.innerHTML = "0%";
+
+		// Assemble the structure
+		barContainer.appendChild(pbarDiv);
+		barContainer.appendChild(statusDiv);
+
+		pbDiv.appendChild(fileDiv);
+		pbDiv.appendChild(barContainer);
+		this.element.appendChild(pbDiv);
+
+		this.progressbox = this.element.querySelector(
+			`div[name='progressbox_${this.id}']`,
+		);
+		this.progressbar = this.element.querySelector(
+			`div[name='progressbar_${this.id}']`,
+		);
+		this.statustxt = this.element.querySelector(`div[name='statustxt']`);
+
+		css(pbarDiv, "width", "0%");
+	}
+
+	start() {
+		const css = setStyle;
+		css(this.progressbar, "width", "0%");
+		this.statustxt.innerHTML = "0%";
+		this.fireEvent("start");
+	}
+
+	updatePercent(percent) {
+		const css = setStyle;
+		this.percent = percent;
+		const percentage = `${percent}%`;
+		css(this.progressbar, "width", percentage);
+		this.statustxt.innerHTML = percentage;
+		this.fireEvent("updatePercent", { percent });
+	}
+
+	update(text) {
+		this.statustxt.innerHTML = text;
+		this.fireEvent("update", { text });
+	}
+
+	destroy() {
+		if (this.progressbox && this.progressbox.parentNode) {
+			this.progressbox.parentNode.removeChild(this.progressbox);
+		}
+		this.fireEvent("removed");
+	}
+}
+
+function FileUploadWrapper(file, element, key = "") {
+	const id = Id();
+	const options = {
+		id: id,
+		key: key,
+		filename: file.name,
+		width: getStyle(element, "width"),
+	};
+	const bindings = EventBindings.getAll();
+
+	this.file = file;
+	this.id = id;
+	this.key = key;
+	this.progressbar = new ProgressBar(element, options);
+	this.progressbar.render();
+
+	bindings.forEach((binding) => {
+		this[binding.name] = binding.func;
+	});
+}
+
+FileUploadWrapper.prototype.events = ["uploadComplete", "uploadAborted"];
+
+FileUploadWrapper.prototype.completeUpload = function (fileItem) {
+	const finish = () => {
+		this.progressbar.destroy();
+		this.fireEvent("uploadComplete", fileItem);
+	};
+	setTimeout(finish, 1000);
+};
+
+FileUploadWrapper.prototype.abortUpload = function (fileItem) {
+	const aborted = () => {
+		this.progressbar.destroy();
+		this.fireEvent("uploadAborted", fileItem);
+	};
+	setTimeout(aborted, 1000);
+};
 
 class Lightbox extends Component {
 	constructor(element, options = {}) {
@@ -1597,7 +1974,7 @@ class Menu extends Component {
 			}
 
 			if (item.menuItem) {
-				element.appendChild(processMenuItem(item.menuItem, element));
+				element.appendChild(processMenuItem(item.menuItem));
 			}
 			return element;
 		};
@@ -1606,7 +1983,7 @@ class Menu extends Component {
 			const element = document.createElement("div");
 			element.classList.add("gadget-ui-menu-menuItem");
 			menuItemData.items.forEach((item) =>
-				element.appendChild(processItem(item, element)),
+				element.appendChild(processItem(item)),
 			);
 			return element;
 		};
@@ -1623,7 +2000,7 @@ class Menu extends Component {
 				element.appendChild(imgEl);
 			}
 
-			element.appendChild(processMenuItem(menuData.menuItem, element));
+			element.appendChild(processMenuItem(menuData.menuItem));
 			return element;
 		};
 
@@ -1640,7 +2017,6 @@ class Menu extends Component {
 			"ontouchstart" in window || navigator.maxTouchPoints > 0;
 		const activateEvent =
 			this.options.menuActivate || (isTouchDevice ? "click" : "mouseenter");
-		const deactivateEvent = activateEvent === "click" ? "click" : "mouseleave";
 
 		document.addEventListener("click", (evt) => {
 			if (!this.element.contains(evt.target)) {
@@ -2023,8 +2399,8 @@ class Overlay extends Component {
 
 		const elementTop = rect.top + scrollTop;
 		const elementLeft = rect.left + scrollLeft;
-		const elementBottom = rect.bottom + scrollTop;
-		const elementRight = rect.right + scrollLeft;
+		rect.bottom + scrollTop;
+		rect.right + scrollLeft;
 
 		// ── Step 1: Determine base region and full-dimension constraints ──
 		let baseWidth, baseHeight, baseTop, baseLeft;
@@ -2214,96 +2590,6 @@ class Popover extends Component {
 	config(options) {
 		this.class = options.class || false;
 		this.autoOpen = options.autoOpen !== false; // Default to true unless explicitly false
-	}
-}
-
-class ProgressBar extends Component {
-	constructor(element, options = {}) {
-		super();
-		this.element = element;
-		this.configure(options);
-		this.render();
-	}
-
-	configure(options) {
-		this.id = options.id;
-		this.label = options.label || "";
-		this.width = options.width;
-		this.percent = 0;
-	}
-
-	render() {
-		const css = gadgetui.util.setStyle;
-
-		const pbDiv = document.createElement("div");
-		pbDiv.setAttribute("name", `progressbox_${this.id}`);
-		pbDiv.classList.add("gadgetui-progressbar-progressbox");
-
-		const fileDiv = document.createElement("div");
-		fileDiv.setAttribute("name", "label");
-		fileDiv.classList.add("gadgetui-progressbar-label");
-		fileDiv.innerText = ` ${this.label} `;
-
-		// Create bar container (track background)
-		const barContainer = document.createElement("div");
-		barContainer.classList.add("gadgetui-progressbar-container");
-
-		// Create progress bar fill
-		const pbarDiv = document.createElement("div");
-		pbarDiv.classList.add("gadget-ui-progressbar");
-		pbarDiv.setAttribute("name", `progressbar_${this.id}`);
-
-		// Create status text (overlaid on bar)
-		const statusDiv = document.createElement("div");
-		statusDiv.setAttribute("name", "statustxt");
-		statusDiv.classList.add("gadgetui-progressbar-statustxt");
-		statusDiv.innerHTML = "0%";
-
-		// Assemble the structure
-		barContainer.appendChild(pbarDiv);
-		barContainer.appendChild(statusDiv);
-
-		pbDiv.appendChild(fileDiv);
-		pbDiv.appendChild(barContainer);
-		this.element.appendChild(pbDiv);
-
-		this.progressbox = this.element.querySelector(
-			`div[name='progressbox_${this.id}']`,
-		);
-		this.progressbar = this.element.querySelector(
-			`div[name='progressbar_${this.id}']`,
-		);
-		this.statustxt = this.element.querySelector(`div[name='statustxt']`);
-
-		css(pbarDiv, "width", "0%");
-	}
-
-	start() {
-		const css = gadgetui.util.setStyle;
-		css(this.progressbar, "width", "0%");
-		this.statustxt.innerHTML = "0%";
-		this.fireEvent("start");
-	}
-
-	updatePercent(percent) {
-		const css = gadgetui.util.setStyle;
-		this.percent = percent;
-		const percentage = `${percent}%`;
-		css(this.progressbar, "width", percentage);
-		this.statustxt.innerHTML = percentage;
-		this.fireEvent("updatePercent", { percent });
-	}
-
-	update(text) {
-		this.statustxt.innerHTML = text;
-		this.fireEvent("update", { text });
-	}
-
-	destroy() {
-		if (this.progressbox && this.progressbox.parentNode) {
-			this.progressbox.parentNode.removeChild(this.progressbox);
-		}
-		this.fireEvent("removed");
 	}
 }
 
@@ -2505,26 +2791,374 @@ class Tabs extends Component {
 	}
 }
 
+const modelStore = new Map();
+const mementoStore = new Map();
+let maxMementos = 20; // Default value
 
-	return{
-		Bubble : Bubble,
-		CollapsiblePane: CollapsiblePane,
-		Dialog: Dialog,
-		FileUploadWrapper: FileUploadWrapper,
-		FloatingPane: FloatingPane,
-		Menu: Menu,
-		Lightbox: Lightbox,
-		Modal: Modal,
-		Overlay: Overlay,
-		Popover:Popover,
-		ProgressBar: ProgressBar,
-		Sidebar: Sidebar,
-		Tabs: Tabs
-	};
-}());
+	class BindableObject {
+		constructor(data, element) {
+			this.data = this.processValue(data);
+			this.elements = [];
+			this.mementos = [];
+			this.currentMementoIndex = -1;
+			if (element) {
+				this.bind(element);
+			}
+			this.saveMemento(); // Save initial state
+		}
 
+		handleEvent(event) {
+			if (event.type !== "change") return;
 
-gadgetui.input = (function() {
+			event.originalSource ??= "BindableObject.handleEvent[change]";
+
+			for (const { elem, prop } of this.elements) {
+				if (
+					event.target.name === prop &&
+					event.originalSource !== "BindableObject.updateDomElement"
+				) {
+					const value = event.target.type.includes("select")
+						? {
+								id: event.target.value,
+								text: event.target.options[event.target.selectedIndex]
+									.textContent,
+							}
+						: event.target.value;
+
+					this.change(value, event, prop);
+				}
+			}
+		}
+
+		change(value, event, property) {
+			event.originalSource ??= "BindableObject.change";
+			console.log(`change : Source: ${event.originalSource}`);
+
+			const processedValue = this.processValue(value);
+
+			if (!property) {
+				this.data = processedValue;
+			} else if (typeof this.data === "object" && this.data !== null) {
+				if (!(property in this.data)) {
+					throw new Error(`Property '${property}' of object is undefined.`);
+				}
+				this.data[property] = processedValue;
+			} else {
+				throw new Error(
+					"Attempt to treat a simple value as an object with properties.",
+				);
+			}
+
+			this.saveMemento();
+
+			this.elements
+				.filter(
+					({ prop, elem }) =>
+						(!property || property === prop) && elem !== event.target,
+				)
+				.forEach(({ elem }) =>
+					this.updateDomElement(event, elem, processedValue),
+				);
+		}
+
+		updateDom(event, value, property) {
+			event.originalSource ??= "BindableObject.updateDom";
+
+			this.elements.forEach(({ elem, prop }) => {
+				if (!property) {
+					if (typeof value === "object" && value !== null) {
+						if (prop in value) {
+							this.updateDomElement(event, elem, value[prop]);
+						}
+					} else {
+						this.updateDomElement(event, elem, value);
+					}
+				} else if (prop === property) {
+					this.updateDomElement(event, elem, value);
+				}
+			});
+		}
+
+		updateDomElement(event, element, value) {
+			event.originalSource ??= "BindableObject.updateDomElement";
+
+			const updateOptions = () => {
+				element.innerHTML = "";
+				const items = Array.isArray(value)
+					? value
+					: value instanceof Map
+						? Array.from(value.entries())
+						: [value];
+
+				if (element.tagName === "SELECT") {
+					items.forEach((item, idx) => {
+						const opt = document.createElement("option");
+						opt.value = typeof item === "object" ? (item.id ?? item[0]) : item;
+						opt.textContent =
+							typeof item === "object" ? (item.text ?? item[1]) : item;
+						element.appendChild(opt);
+					});
+				} else if (["UL", "OL"].includes(element.tagName)) {
+					items.forEach((item) => {
+						const li = document.createElement("li");
+						li.textContent =
+							typeof item === "object" ? (item.text ?? item[1]) : item;
+						element.appendChild(li);
+					});
+				}
+			};
+
+			const isInput = ["INPUT", "TEXTAREA"].includes(element.tagName);
+			const isArrayElement = ["OL", "UL", "SELECT"].includes(element.tagName);
+			const textElements = [
+				"DIV", // Generic container, often contains text
+				"SPAN", // Inline container, typically for text styling
+				"H1", // Heading level 1
+				"H2", // Heading level 2
+				"H3", // Heading level 3
+				"H4", // Heading level 4
+				"H5", // Heading level 5
+				"H6", // Heading level 6
+				"P", // Paragraph
+				"LABEL", // Caption for form elements, displays text
+				"BUTTON", // Clickable button, often with text content
+				"A", // Anchor (hyperlink), typically contains text
+				"STRONG", // Bold text for emphasis
+				"EM", // Italic text for emphasis
+				"B", // Bold text (presentational)
+				"I", // Italic text (presentational)
+				"U", // Underlined text
+				"SMALL", // Smaller text, often for fine print
+				"SUB", // Subscript text
+				"SUP", // Superscript text
+				"Q", // Short inline quotation
+				"BLOCKQUOTE", // Long quotation
+				"CITE", // Citation or reference
+				"CODE", // Code snippet
+				"PRE", // Preformatted text
+				"ABBR", // Abbreviation with optional title attribute
+				"DFN", // Defining instance of a term
+				"SAMP", // Sample output from a program
+				"KBD", // Keyboard input
+				"VAR", // Variable in programming/math context
+				"LI", // List item (in UL or OL)
+				"DT", // Term in a description list
+				"DD", // Description in a description list
+				"TH", // Table header cell
+				"TD", // Table data cell
+				"CAPTION", // Table caption
+				"FIGCAPTION", // Caption for a figure
+				"SUMMARY", // Summary for a details element
+				"LEGEND", // Caption for a fieldset in a form
+				"TITLE", // Document title (displayed in browser tab)
+			];
+			const isTextElement = textElements.includes(element.tagName);
+
+			if (typeof value === "object" && value !== null) {
+				if (isInput)
+					element.value =
+						value.id ?? (value instanceof Map ? "" : value[0]) ?? "";
+				else if (isArrayElement) updateOptions();
+				else if (isTextElement)
+					element.textContent =
+						value.text ?? (value instanceof Map ? "" : value[1]) ?? "";
+			} else {
+				if (isInput) element.value = value ?? "";
+				else if (isArrayElement) updateOptions();
+				else if (isTextElement) element.textContent = value ?? "";
+			}
+
+			if (
+				event.originalSource !== "model.set" &&
+				event.originalSource !== "memento.restore"
+			) {
+				element.dispatchEvent(
+					new Event("change", {
+						originalSource: "model.updateDomElement",
+					}),
+				);
+			}
+		}
+
+		bind(element, property) {
+			const binding = { elem: element, prop: property || "" };
+			element.value = property ? this.data[property] : this.data;
+
+			element.addEventListener("change", this);
+			this.elements.push(binding);
+		}
+
+		processValue(value) {
+			switch (typeof value) {
+				case "undefined":
+				case "number":
+				case "boolean":
+				case "function":
+				case "symbol":
+				case "string":
+					return value;
+				case "object":
+					if (value === null) return null;
+					if (value instanceof Map) return new Map(value);
+					return JSON.parse(JSON.stringify(value));
+				default:
+					return value;
+			}
+		}
+
+		saveMemento() {
+			// Remove future mementos if we're adding after an undo
+			if (this.currentMementoIndex < this.mementos.length - 1) {
+				this.mementos.splice(this.currentMementoIndex + 1);
+			}
+
+			const memento = this.processValue(this.data);
+			this.mementos.push(memento);
+
+			if (this.mementos.length > maxMementos) {
+				this.mementos.shift(); // Remove oldest memento
+			} else {
+				this.currentMementoIndex++;
+			}
+		}
+
+		undo() {
+			if (this.currentMementoIndex > 0) {
+				this.currentMementoIndex--;
+				this.restoreMemento();
+				return true;
+			}
+			return false;
+		}
+
+		redo() {
+			if (this.currentMementoIndex < this.mementos.length - 1) {
+				this.currentMementoIndex++;
+				this.restoreMemento();
+				return true;
+			}
+			return false;
+		}
+
+		rewind() {
+			if (this.currentMementoIndex > 0) {
+				this.currentMementoIndex = 0;
+				this.restoreMemento();
+				return true;
+			}
+			return false;
+		}
+
+		fastForward() {
+			if (this.currentMementoIndex < this.mementos.length - 1) {
+				this.currentMementoIndex = this.mementos.length - 1;
+				this.restoreMemento();
+				return true;
+			}
+			return false;
+		}
+
+		restoreMemento() {
+			this.data = this.processValue(this.mementos[this.currentMementoIndex]);
+			const event = { originalSource: "memento.restore" };
+			this.elements.forEach(({ elem, prop }) => {
+				this.updateDomElement(event, elem, prop ? this.data[prop] : this.data);
+			});
+		}
+	}
+
+const model = {
+	BindableObject,
+
+	init(options = {}) {
+			maxMementos = options.maxMementos ?? 20;
+		},
+
+		create(name, value, element) {
+			const processedValue = new BindableObject(value).processValue(value);
+			const bindable = new BindableObject(processedValue, element);
+			modelStore.set(name, bindable);
+			mementoStore.set(name, bindable);
+		},
+
+		destroy(name) {
+			modelStore.delete(name);
+			mementoStore.delete(name);
+		},
+
+		bind(name, element) {
+			const [base, prop] = name.split(".");
+			const model = modelStore.get(base);
+			if (model) {
+				model.bind(element, prop);
+			}
+		},
+
+		exists(name) {
+			return modelStore.has(name);
+		},
+
+		get(name) {
+			if (!name) {
+				console.log("Expected parameter [name] is not defined.");
+				return undefined;
+			}
+
+			const [base, prop] = name.split(".");
+			const model = modelStore.get(base);
+
+			if (!model) {
+				console.log(`Key '${base}' does not exist in the model.`);
+				return undefined;
+			}
+
+			const value = prop ? model.data[prop] : model.data;
+			return value instanceof Map ? new Map(value) : value;
+		},
+
+		set(name, value) {
+			if (!name) {
+				console.log("Expected parameter [name] is not defined.");
+				return;
+			}
+
+			const [base, prop] = name.split(".");
+			const event = { originalSource: "model.set" };
+
+			if (!modelStore.has(base)) {
+				if (!prop) {
+					this.create(base, value);
+				} else {
+					throw new Error(`Object ${base} is not yet initialized.`);
+				}
+			} else {
+				const model = modelStore.get(base);
+				const processedValue = model.processValue(value);
+				model.change(processedValue, event, prop);
+				model.updateDom(event, processedValue, prop);
+			}
+		},
+
+		undo(name) {
+			const model = mementoStore.get(name);
+			return model ? model.undo() : false;
+		},
+
+		redo(name) {
+			const model = mementoStore.get(name);
+			return model ? model.redo() : false;
+		},
+
+		rewind(name) {
+			const model = mementoStore.get(name);
+			return model ? model.rewind() : false;
+		},
+
+		fastForward(name) {
+			const model = mementoStore.get(name);
+			return model ? model.fastForward() : false;
+		},
+};
 
 /**
  * Autosuggest Component
@@ -2564,6 +3198,7 @@ gadgetui.input = (function() {
  *      datasource: myDataSource
  *    });
  */
+
 class Autosuggest extends Component {
 	constructor(element, options = {}) {
 		super();
@@ -2608,13 +3243,13 @@ class Autosuggest extends Component {
 
 	addControl() {
 		this.wrapper = document.createElement("div");
-		if (this.width) gadgetui.util.setStyle(this.wrapper, "width", this.width);
+		if (this.width) setStyle(this.wrapper, "width", this.width);
 		this.wrapper.classList.add("gadgetui-autosuggest-input");
 
 		if (this.createAtCursor && this.cursorPosition) {
 			// Insert at cursor position
 			const range = this.cursorPosition.range;
-			const container = range.commonAncestorContainer;
+			range.commonAncestorContainer;
 
 			// Insert the element at cursor position
 			this.wrapper.appendChild(this.element);
@@ -2657,7 +3292,7 @@ class Autosuggest extends Component {
 	addMenu() {
 		const div = document.createElement("div");
 		div.classList.add("gadgetui-autosuggest-menu");
-		gadgetui.util.setStyle(div, "display", "none");
+		setStyle(div, "display", "none");
 
 		if (this.usePopover) {
 			// Use Popover component for displaying suggestions
@@ -2665,7 +3300,7 @@ class Autosuggest extends Component {
 				...this.popoverOptions,
 				autoOpen: false, // We'll control opening manually
 			};
-			this.popover = new gadgetui.display.Popover(div, popoverOptions);
+			this.popover = new Popover(div, popoverOptions);
 			this.menu = { element: div, popover: this.popover };
 		} else {
 			// Use simple div
@@ -2715,7 +3350,7 @@ class Autosuggest extends Component {
 
 	_filter(array, term) {
 		const matcher = new RegExp(this.escapeRegex(term), "i");
-		return gadgetui.util.grep(array, (value) =>
+		return grep(array, (value) =>
 			matcher.test(value.label || value.value || value),
 		);
 	}
@@ -2754,7 +3389,7 @@ class Autosuggest extends Component {
 					return;
 				}
 				suppressKeyPress = suppressInput = suppressKeyPressRepeat = false;
-				const keyCode = gadgetui.keyCode;
+				const keyCode = keyCode;
 
 				switch (event.keyCode) {
 					case keyCode.PAGE_UP:
@@ -2813,7 +3448,7 @@ class Autosuggest extends Component {
 				}
 				if (suppressKeyPressRepeat) return;
 
-				const keyCode = gadgetui.keyCode;
+				const keyCode = keyCode;
 				switch (event.keyCode) {
 					case keyCode.PAGE_UP:
 						this._move("previousPage", event);
@@ -2867,7 +3502,7 @@ class Autosuggest extends Component {
 		this.menu.element.addEventListener("mousedown", (event) => {
 			event.preventDefault();
 			this.cancelBlur = true;
-			gadgetui.util.delay(() => delete this.cancelBlur);
+			delay(() => delete this.cancelBlur);
 			this.fireEvent("mousedown", event);
 		});
 
@@ -2878,7 +3513,7 @@ class Autosuggest extends Component {
 			if (this.menu.element !== document.activeElement) {
 				this.menu.element.focus();
 				this.previous = previous;
-				gadgetui.util.delay(() => {
+				delay(() => {
 					this.previous = previous;
 					this.selectedItem = item;
 				});
@@ -2906,10 +3541,10 @@ class Autosuggest extends Component {
 	}
 
 	_renderItemCancel(item, wrapper) {
-		const css = gadgetui.util.setStyle;
+		const css = setStyle;
 		const itemCancel = document.createElement("span");
 		const leftOffset =
-			gadgetui.util.getNumberValue(gadgetui.util.getStyle(wrapper, "width")) +
+			getNumberValue(getStyle(wrapper, "width")) +
 			6;
 
 		itemCancel.classList.add("oi");
@@ -2979,7 +3614,7 @@ class Autosuggest extends Component {
 
 	_searchTimeout(event) {
 		clearTimeout(this.searching);
-		this.searching = gadgetui.util.delay(() => {
+		this.searching = delay(() => {
 			const termChanged = this.term !== this.element.value;
 			const menuVisible = this.menu.element.style.display !== "none";
 			const modifierKey =
@@ -3320,7 +3955,7 @@ class Autosuggest extends Component {
 			this?.element &&
 			this.element.getAttribute("gadgetui-bind") &&
 			!options.model
-				? gadgetui.model
+				? model
 				: options.model;
 		this.width = options.width;
 		this.handler = options.handler;
@@ -3356,7 +3991,7 @@ class ComboBox extends Component {
 	constructor(element, options) {
 		super();
 		this.emitEvents = true;
-		this.model = gadgetui.model;
+		this.model = model;
 		this.func = undefined; // Initialized to avoid undefined property
 		this.element = element;
 
@@ -3365,19 +4000,18 @@ class ComboBox extends Component {
 		this.setDataProviderRefresh();
 		this.addControl();
 		this.addCSS();
-		gadgetui.util.bind(this.element, this.model);
-		gadgetui.util.bind(this.label, this.model);
+		bind(this.element, this.model);
+		bind(this.label, this.model);
 		this.addBehaviors();
 		this.setStartingValues();
 	}
 
 	addControl() {
-		var css = gadgetui.util.setStyle;
-		this.comboBox = gadgetui.util.createElement("div");
-		this.input = gadgetui.util.createElement("input");
-		this.label = gadgetui.util.createElement("div");
-		this.inputWrapper = gadgetui.util.createElement("div");
-		this.selectWrapper = gadgetui.util.createElement("div");
+		this.comboBox = createElement("div");
+		this.input = createElement("input");
+		this.label = createElement("div");
+		this.inputWrapper = createElement("div");
+		this.selectWrapper = createElement("div");
 
 		this.comboBox.classList.add("gadgetui-combobox");
 		this.input.classList.add("gadgetui-combobox-input");
@@ -3407,34 +4041,31 @@ class ComboBox extends Component {
 	}
 
 	addCSS() {
-		var css = gadgetui.util.setStyle;
+		var css = setStyle;
 		this.element.classList.add("gadgetui-combobox-select");
 		css(this.element, "width", this.width);
 
-		var styles = gadgetui.util.getStyle(this.element),
-			inputWidth = this.element.clientWidth,
+		getStyle(this.element);
+			var inputWidth = this.element.clientWidth,
 			inputWidthAdjusted,
-			inputLeftOffset = 0,
 			selectMarginTop = 0,
 			selectLeftPadding = 0,
 			leftOffset = 0,
 			inputWrapperTop = this.borderWidth,
-			inputLeftMargin,
 			leftPosition;
 
-		leftPosition = gadgetui.util.getNumberValue(this.borderWidth) + 4;
+		leftPosition = getNumberValue(this.borderWidth) + 4;
 
 		if (this.borderRadius > 5) {
 			selectLeftPadding = this.borderRadius - 5;
 			leftPosition =
-				gadgetui.util.getNumberValue(leftPosition) +
-				gadgetui.util.getNumberValue(selectLeftPadding);
+				getNumberValue(leftPosition) +
+				getNumberValue(selectLeftPadding);
 		}
-		inputLeftMargin = leftPosition;
 		inputWidthAdjusted =
 			inputWidth -
 			this.arrowWidth -
-			gadgetui.util.getNumberValue(this.borderRadius) -
+			getNumberValue(this.borderRadius) -
 			4;
 		if (
 			navigator.userAgent.match(/(Safari)/) &&
@@ -3445,7 +4076,6 @@ class ComboBox extends Component {
 			selectMarginTop = 1;
 		} else if (navigator.userAgent.match(/Edge/)) {
 			selectLeftPadding = selectLeftPadding < 1 ? 1 : this.borderRadius - 4;
-			inputLeftMargin--;
 		} else if (navigator.userAgent.match(/MSIE/)) {
 			selectLeftPadding = selectLeftPadding < 1 ? 1 : this.borderRadius - 4;
 		} else if (navigator.userAgent.match(/Trident/)) {
@@ -3500,7 +4130,7 @@ class ComboBox extends Component {
 		while (this.element.options.length > 0) {
 			this.element.remove(0);
 		}
-		option = gadgetui.util.createElement("option");
+		option = createElement("option");
 		option.value = this.newOption.id;
 		option.text = this.newOption.text;
 		this.element.add(option);
@@ -3511,7 +4141,7 @@ class ComboBox extends Component {
 			if (text === undefined) {
 				text = id;
 			}
-			option = gadgetui.util.createElement("option");
+			option = createElement("option");
 			option.value = id;
 			option.text = text;
 			this.element.add(option);
@@ -3543,7 +4173,7 @@ class ComboBox extends Component {
 	}
 
 	showLabel() {
-		var css = gadgetui.util.setStyle;
+		var css = setStyle;
 		css(this.label, "display", "inline-block");
 		css(this.selectWrapper, "display", "none");
 		css(this.inputWrapper, "display", "none");
@@ -3581,7 +4211,7 @@ class ComboBox extends Component {
 		});
 		this.input.addEventListener("keyup", (event) => {
 			if (event.which === 13) {
-				var inputText = gadgetui.util.encode(this.input.value);
+				var inputText = encode(this.input.value);
 				this.handleInput(inputText);
 			}
 			if (typeof this.fireEvent === "function") {
@@ -3591,7 +4221,7 @@ class ComboBox extends Component {
 		if (this.hideable) {
 			this.input.addEventListener("blur", () => {
 				if (
-					gadgetui.util.mouseWithin(this.element, gadgetui.mousePosition) ===
+					mouseWithin(this.element, mousePosition) ===
 					true
 				) {
 					this.inputWrapper.style.display = "none";
@@ -3630,7 +4260,7 @@ class ComboBox extends Component {
 					this.setValue(this.newOption.value);
 					this.input.focus();
 				}
-				gadgetui.util.trigger(this.element, "gadgetui-combobox-change", {
+				trigger(this.element, "gadgetui-combobox-change", {
 					id: event.target[event.target.selectedIndex].value,
 					text: event.target[event.target.selectedIndex].innerHTML,
 				});
@@ -3656,7 +4286,7 @@ class ComboBox extends Component {
 
 	handleInput(inputText) {
 		var id = this.find(inputText),
-			css = gadgetui.util.setStyle;
+			css = setStyle;
 		if (id !== undefined) {
 			this.element.value = id;
 			this.label.innerText = inputText;
@@ -3678,7 +4308,6 @@ class ComboBox extends Component {
 	}
 
 	setSaveFunc() {
-		var _this = this;
 
 		if (this.save !== undefined) {
 			var save = this.save;
@@ -3701,7 +4330,7 @@ class ComboBox extends Component {
 						function callback() {
 							// trigger save event if we're triggering events
 							if (_this.emitEvents === true) {
-								gadgetui.util.trigger(_this.element, "gadgetui-combobox-save", {
+								trigger(_this.element, "gadgetui-combobox-save", {
 									id: value,
 									text: text,
 								});
@@ -3783,7 +4412,7 @@ class ComboBox extends Component {
 					func = refresh.apply(this, args);
 				});
 				promise.then(function () {
-					gadgetui.util.trigger(_this.element, "gadgetui-combobox-refresh");
+					trigger(_this.element, "gadgetui-combobox-refresh");
 					_this.setControls();
 				});
 				promise["catch"](function (message) {
@@ -3807,11 +4436,11 @@ class ComboBox extends Component {
 			options.activate === undefined ? "mouseenter" : options.activate;
 		this.delay = options.delay === undefined ? 10 : options.delay;
 		this.borderWidth =
-			gadgetui.util.getStyle(this.element, "border-width") || 1;
+			getStyle(this.element, "border-width") || 1;
 		this.borderRadius =
-			gadgetui.util.getStyle(this.element, "border-radius") || 5;
+			getStyle(this.element, "border-radius") || 5;
 		this.borderColor =
-			gadgetui.util.getStyle(this.element, "border-color") || "silver";
+			getStyle(this.element, "border-color") || "silver";
 		this.arrowWidth = options.arrowWidth || 25;
 		this.width = options.width === undefined ? 150 : options.width;
 		this.newOption =
@@ -3834,6 +4463,64 @@ class ComboBox extends Component {
 	}
 }
 
+function Constructor(constructor, args, addBindings) {
+  var ix, returnedObj, obj, bindings;
+
+  if (addBindings === true) {
+    bindings = EventBindings.getAll();
+    for (ix = 0; ix < bindings.length; ix++) {
+      if (constructor.prototype[bindings[ix].name] === undefined) {
+        constructor.prototype[bindings[ix].name] = bindings[ix].func;
+      }
+    }
+  }
+
+  // construct the object
+  obj = Object.create(constructor.prototype);
+  returnedObj = constructor.apply(obj, args);
+  if (returnedObj === undefined) {
+    returnedObj = obj;
+  }
+
+  if (addBindings === true) {
+    // create specified event list from prototype
+    returnedObj.events = {};
+    for (ix = 0; ix < constructor.prototype.events.length; ix++) {
+      returnedObj.events[constructor.prototype.events[ix]] = [];
+    }
+  }
+
+  return returnedObj;
+}
+
+function FileItem(args) {
+  this.set(args);
+}
+
+FileItem.prototype.set = function(args) {
+  // filename, size
+  this.fileid = args.fileid !== undefined ? args.fileid : "";
+  this.filename = args.filename !== undefined ? args.filename : "";
+  if (args.filename !== undefined) {
+    this.filenameabbr = args.filename.substr(0, 25);
+    if (args.filename.length > 25) {
+      this.filenameabbr = this.filenameabbr + "...";
+    }
+  } else {
+    this.filenameabbr = "";
+  }
+
+  this.filesize = args.filesize !== undefined ? args.filesize : "";
+  this.tags = args.tags !== undefined ? args.tags : "";
+  this.path = args.path !== undefined ? args.path : "";
+  this.created = args.created !== undefined ? args.created : "";
+  this.createdStr = args.created !== undefined ? args.createdStr : "";
+  this.disabled = args.disabled !== undefined ? args.disabled : 0;
+  this.mimetype =
+    args.mimetype !== undefined ? args.mimetype : "application/x-unknown";
+  this.tile = args.tile !== undefined ? args.tile : "";
+};
+
 class FileUploader extends Component {
 	constructor(element, options = {}) {
 		super();
@@ -3847,7 +4534,7 @@ class FileUploader extends Component {
 	}
 
 	render(title = "") {
-		const css = gadgetui.util.setStyle;
+		const css = setStyle;
 		const uploadClass =
 			`gadgetui-fileuploader-uploadIcon ${this.uploadClass || ""}`.trim();
 		const icon = this.uploadIcon.includes(".svg")
@@ -3928,14 +4615,13 @@ class FileUploader extends Component {
 	}
 
 	setDimensions() {
-		const css = gadgetui.util.setStyle;
-		const dropzone = this.element.querySelector(
+		this.element.querySelector(
 			".gadgetui-fileuploader-dropzone",
 		);
-		const filedisplay = this.element.querySelector(
+		this.element.querySelector(
 			".gadgetui-fileuploader-filedisplay",
 		);
-		const buttons = this.element.querySelector(".buttons");
+		this.element.querySelector(".buttons");
 		// Height and width calculations could be added here if needed
 	}
 
@@ -4013,7 +4699,7 @@ class FileUploader extends Component {
 	}
 
 	processUpload(event, files, dropzone, filedisplay) {
-		const css = gadgetui.util.setStyle;
+		const css = setStyle;
 		this.uploadingFiles = [];
 		css(filedisplay, "display", "inline");
 
@@ -4030,7 +4716,7 @@ class FileUploader extends Component {
 				return;
 			}
 
-			const wrappedFile = new gadgetui.display.FileUploadWrapper(
+			const wrappedFile = new FileUploadWrapper(
 				file,
 				filedisplay,
 			);
@@ -4315,8 +5001,8 @@ class FileUploader extends Component {
 	}
 
 	handleUploadResponse(json, wrappedFile) {
-		const fileItem = gadgetui.objects.Constructor(
-			gadgetui.objects.FileItem,
+		const fileItem = Constructor(
+			FileItem,
 			[
 				{
 					mimetype: json.data.mimetype,
@@ -4348,7 +5034,7 @@ class FileUploader extends Component {
 	}
 
 	show(name) {
-		const css = gadgetui.util.setStyle;
+		const css = setStyle;
 		const dropzone = this.element.querySelector(
 			".gadgetui-fileuploader-dropzone",
 		);
@@ -4401,7 +5087,7 @@ class LookupListInput extends Component {
 
 	addControl() {
 		this.wrapper = document.createElement("div");
-		if (this.width) gadgetui.util.setStyle(this.wrapper, "width", this.width);
+		if (this.width) setStyle(this.wrapper, "width", this.width);
 		this.wrapper.classList.add("gadgetui-lookuplist-input");
 
 		this.element.parentNode.insertBefore(this.wrapper, this.element);
@@ -4412,7 +5098,7 @@ class LookupListInput extends Component {
 	addMenu() {
 		const div = document.createElement("div");
 		div.classList.add("gadgetui-lookuplist-menu");
-		gadgetui.util.setStyle(div, "display", "none");
+		setStyle(div, "display", "none");
 		this.menu = { element: div };
 		this.wrapper.appendChild(div);
 	}
@@ -4457,7 +5143,7 @@ class LookupListInput extends Component {
 
 	_filter(array, term) {
 		const matcher = new RegExp(this.escapeRegex(term), "i");
-		return gadgetui.util.grep(array, (value) =>
+		return grep(array, (value) =>
 			matcher.test(value.label || value.value || value),
 		);
 	}
@@ -4494,7 +5180,7 @@ class LookupListInput extends Component {
 					return;
 				}
 				suppressKeyPress = suppressInput = suppressKeyPressRepeat = false;
-				const keyCode = gadgetui.keyCode;
+				const keyCode = keyCode;
 
 				switch (event.keyCode) {
 					case keyCode.PAGE_UP:
@@ -4553,7 +5239,7 @@ class LookupListInput extends Component {
 				}
 				if (suppressKeyPressRepeat) return;
 
-				const keyCode = gadgetui.keyCode;
+				const keyCode = keyCode;
 				switch (event.keyCode) {
 					case keyCode.PAGE_UP:
 						this._move("previousPage", event);
@@ -4607,7 +5293,7 @@ class LookupListInput extends Component {
 		this.menu.element.addEventListener("mousedown", (event) => {
 			event.preventDefault();
 			this.cancelBlur = true;
-			gadgetui.util.delay(() => delete this.cancelBlur);
+			delay(() => delete this.cancelBlur);
 			this.fireEvent("mousedown", event);
 		});
 
@@ -4618,7 +5304,7 @@ class LookupListInput extends Component {
 			if (this.menu.element !== document.activeElement) {
 				this.menu.element.focus();
 				this.previous = previous;
-				gadgetui.util.delay(() => {
+				delay(() => {
 					this.previous = previous;
 					this.selectedItem = item;
 				});
@@ -4646,10 +5332,10 @@ class LookupListInput extends Component {
 	}
 
 	_renderItemCancel(item, wrapper) {
-		const css = gadgetui.util.setStyle;
+		const css = setStyle;
 		const itemCancel = document.createElement("span");
 		const leftOffset =
-			gadgetui.util.getNumberValue(gadgetui.util.getStyle(wrapper, "width")) +
+			getNumberValue(getStyle(wrapper, "width")) +
 			6;
 
 		itemCancel.classList.add("oi");
@@ -4679,7 +5365,7 @@ class LookupListInput extends Component {
 
 		this.fireEvent("added");
 		if (this.emitEvents)
-			gadgetui.util.trigger(
+			trigger(
 				this.element,
 				"gadgetui-lookuplist-input-add",
 				item,
@@ -4711,7 +5397,7 @@ class LookupListInput extends Component {
 						list.splice(listIndex, 1);
 						if (this.func) this.func(removed, "remove");
 						if (this.emitEvents)
-							gadgetui.util.trigger(
+							trigger(
 								this.element,
 								"gadgetui-lookuplist-input-remove",
 								removed,
@@ -4761,7 +5447,7 @@ class LookupListInput extends Component {
 
 	_searchTimeout(event) {
 		clearTimeout(this.searching);
-		this.searching = gadgetui.util.delay(() => {
+		this.searching = delay(() => {
 			const termChanged = this.term !== this.element.value;
 			const menuVisible = this.menu.element.style.display !== "none";
 			const modifierKey =
@@ -4928,7 +5614,7 @@ class LookupListInput extends Component {
 	config(options) {
 		this.model =
 			this.element.getAttribute("gadgetui-bind") && !options.model
-				? gadgetui.model
+				? model
 				: options.model;
 		this.width = options.width;
 		this.func = options.func;
@@ -4965,7 +5651,7 @@ class SelectInput extends Component {
 		this.addControl();
 		this.addCSS();
 
-		const css = gadgetui.util.setStyle;
+		const css = setStyle;
 		if (this.hideable) {
 			css(this.selector, "display", "none");
 		} else {
@@ -4973,8 +5659,8 @@ class SelectInput extends Component {
 			css(this.selector, "display", "inline-block");
 		}
 
-		gadgetui.util.bind(this.selector, this.model);
-		gadgetui.util.bind(this.label, this.model);
+		bind(this.selector, this.model);
+		bind(this.label, this.model);
 		this.addBindings();
 	}
 
@@ -5034,11 +5720,11 @@ class SelectInput extends Component {
 	}
 
 	addCSS() {
-		const css = gadgetui.util.setStyle;
-		const style = gadgetui.util.getStyle(this.selector);
+		const css = setStyle;
+		getStyle(this.selector);
 		const parentHeight =
-			gadgetui.util.getNumberValue(
-				gadgetui.util.getStyle(this.selector.parentNode).height,
+			getNumberValue(
+				getStyle(this.selector.parentNode).height,
 			) - 2;
 
 		css(this.selector, "min-width", "100px");
@@ -5055,7 +5741,7 @@ class SelectInput extends Component {
 	}
 
 	addBindings() {
-		const css = gadgetui.util.setStyle;
+		const css = setStyle;
 
 		if (this.hideable) {
 			this.label.addEventListener(this.activate, (event) => {
@@ -5091,7 +5777,7 @@ class SelectInput extends Component {
 					this.model.set(this.selector.name, data);
 				}
 				if (this.emitEvents)
-					gadgetui.util.trigger(this.selector, "gadgetui-input-change", data);
+					trigger(this.selector, "gadgetui-input-change", data);
 				if (this.func) this.func(data);
 				this.value = data;
 			}, 100);
@@ -5114,7 +5800,7 @@ class TextInput extends Component {
 	constructor(selector, options = {}) {
 		super();
 		this.emitEvents = true;
-		this.model = gadgetui.model;
+		this.model = model;
 		this.selector = selector;
 
 		this.config(options);
@@ -5123,14 +5809,14 @@ class TextInput extends Component {
 		this.setLineHeight();
 		this.setFont();
 		this.setWidth();
-		gadgetui.util.bind(this.selector, this.model);
+		bind(this.selector, this.model);
 		this.addBindings();
 	}
 
 	addControl() {
 		if (this.hideable) {
-			this.blockSize = gadgetui.util.getStyle(this.selector, "block-size");
-			gadgetui.util.setStyle(this.selector, "block-size", this.blockSize);
+			this.blockSize = getStyle(this.selector, "block-size");
+			setStyle(this.selector, "block-size", this.blockSize);
 			this.selector.classList.add(this.browserHideBorderCSS);
 		}
 	}
@@ -5146,18 +5832,18 @@ class TextInput extends Component {
 	}
 
 	setFont() {
-		const style = gadgetui.util.getStyle(this.selector);
+		const style = getStyle(this.selector);
 		this.font = `${style.fontFamily} ${style.fontSize} ${style.fontWeight} ${style.fontVariant}`;
 	}
 
 	setWidth() {
 		this.width =
-			gadgetui.util.textWidth(this.selector.value, this.font) + 10 ||
+			textWidth(this.selector.value, this.font) + 10 ||
 			this.maxWidth;
 	}
 
 	addCSS() {
-		const css = gadgetui.util.setStyle;
+		const css = setStyle;
 		this.selector.classList.add("gadgetui-textinput");
 
 		if (this.maxWidth > 10 && this.enforceMaxWidth) {
@@ -5167,10 +5853,10 @@ class TextInput extends Component {
 
 	setControlWidth(text) {
 		const textWidth = Math.max(
-			parseInt(gadgetui.util.textWidth(text, this.font), 10),
+			parseInt(textWidth(text, this.font), 10),
 			this.minWidth,
 		);
-		gadgetui.util.setStyle(this.selector, "width", `${textWidth + 30}px`);
+		setStyle(this.selector, "width", `${textWidth + 30}px`);
 	}
 
 	addBindings() {
@@ -5196,16 +5882,16 @@ class TextInput extends Component {
 						event.target.value ||
 						this.selector.getAttribute("placeholder") ||
 						"";
-					const txtWidth = gadgetui.util.textWidth(value, this.font);
+					const txtWidth = textWidth(value, this.font);
 
 					if (this.maxWidth < txtWidth) {
-						value = gadgetui.util.fitText(value, this.font, this.maxWidth);
+						value = fitText(value, this.font, this.maxWidth);
 					}
 					if (this.model && !this.selector.getAttribute("gadgetui-bind")) {
 						this.model.set(this.selector.name, event.target.value);
 					}
 					if (this.emitEvents) {
-						gadgetui.util.trigger(this.selector, "gadgetui-input-change", {
+						trigger(this.selector, "gadgetui-input-change", {
 							text: event.target.value,
 						});
 					}
@@ -5231,7 +5917,7 @@ class TextInput extends Component {
 			});
 
 			this.selector.addEventListener("blur", () => {
-				gadgetui.util.setStyle(this.selector, "maxWidth", this.maxWidth);
+				setStyle(this.selector, "maxWidth", this.maxWidth);
 				this.selector.classList.add(this.browserHideBorderCSS);
 				this.fireEvent("blur");
 			});
@@ -5251,10 +5937,10 @@ class TextInput extends Component {
 		this.hideable = options.hideable || false;
 		this.maxWidth =
 			options.maxWidth ||
-			gadgetui.util.getNumberValue(
-				gadgetui.util.getStyle(this.selector.parentNode).width,
+			getNumberValue(
+				getStyle(this.selector.parentNode).width,
 			);
-		this.browserHideBorderCSS = `gadget-ui-textinput-hideBorder-${gadgetui.util.checkBrowser()}`;
+		this.browserHideBorderCSS = `gadget-ui-textinput-hideBorder-${checkBrowser()}`;
 	}
 }
 
@@ -5312,848 +5998,44 @@ class Toggle extends Component {
 	}
 }
 
+// Display components
 
-	return{
-		Autosuggest:Autosuggest,
-		FileUploader: FileUploader,
-		TextInput: TextInput,
-		SelectInput: SelectInput,
-		ComboBox: ComboBox,
-		LookupListInput: LookupListInput,
-		Toggle: Toggle
-	};
-}());
-
-gadgetui.objects = (function() {
-
-function Constructor(constructor, args, addBindings) {
-  var ix, returnedObj, obj, bindings;
-
-  if (addBindings === true) {
-    bindings = EventBindings.getAll();
-    for (ix = 0; ix < bindings.length; ix++) {
-      if (constructor.prototype[bindings[ix].name] === undefined) {
-        constructor.prototype[bindings[ix].name] = bindings[ix].func;
-      }
-    }
-  }
-
-  // construct the object
-  obj = Object.create(constructor.prototype);
-  returnedObj = constructor.apply(obj, args);
-  if (returnedObj === undefined) {
-    returnedObj = obj;
-  }
-
-  if (addBindings === true) {
-    // create specified event list from prototype
-    returnedObj.events = {};
-    for (ix = 0; ix < constructor.prototype.events.length; ix++) {
-      returnedObj.events[constructor.prototype.events[ix]] = [];
-    }
-  }
-
-  return returnedObj;
-}
-
-var EventBindings = {
-	on: function (event, func) {
-		if (this.events[event] === undefined) {
-			this.events[event] = [];
-		}
-		this.events[event].push(func);
-		return this;
+// Namespaced export for backward compatibility
+const gadgetui = {
+	display: {
+		Bubble,
+		CollapsiblePane,
+		Dialog,
+		FileUploadWrapper,
+		FloatingPane,
+		Lightbox,
+		Menu,
+		Modal,
+		Overlay,
+		Popover,
+		ProgressBar,
+		Sidebar,
+		Tabs,
 	},
-
-	off: function (event) {
-		// clear listeners
-		this.events[event] = [];
-		return this;
+	input: {
+		Autosuggest,
+		ComboBox,
+		FileUploader,
+		LookupListInput,
+		SelectInput,
+		TextInput,
+		Toggle,
 	},
-
-	fireEvent: function (key, args) {
-		var _this = this;
-		if (this.events[key] !== undefined) {
-			this.events[key].forEach(function (func) {
-				func(_this, args);
-			});
-		}
+	objects: {
+		Component,
+		Constructor,
+		EventBindings,
+		FileItem,
 	},
-
-	getAll: function () {
-		return [
-			{ name: "on", func: this.on },
-			{ name: "off", func: this.off },
-			{ name: "fireEvent", func: this.fireEvent }
-		];
-	}
+	model,
+	util,
+	keyCode,
 };
 
-function FileItem(args) {
-  this.set(args);
-}
-
-FileItem.prototype.set = function(args) {
-  // filename, size
-  this.fileid = args.fileid !== undefined ? args.fileid : "";
-  this.filename = args.filename !== undefined ? args.filename : "";
-  if (args.filename !== undefined) {
-    this.filenameabbr = args.filename.substr(0, 25);
-    if (args.filename.length > 25) {
-      this.filenameabbr = this.filenameabbr + "...";
-    }
-  } else {
-    this.filenameabbr = "";
-  }
-
-  this.filesize = args.filesize !== undefined ? args.filesize : "";
-  this.tags = args.tags !== undefined ? args.tags : "";
-  this.path = args.path !== undefined ? args.path : "";
-  this.created = args.created !== undefined ? args.created : "";
-  this.createdStr = args.created !== undefined ? args.createdStr : "";
-  this.disabled = args.disabled !== undefined ? args.disabled : 0;
-  this.mimetype =
-    args.mimetype !== undefined ? args.mimetype : "application/x-unknown";
-  this.tile = args.tile !== undefined ? args.tile : "";
-};
-
-
-	return{
-
-    Constructor: Constructor,
-	  EventBindings: EventBindings,
-    FileItem: FileItem
-	};
-}());
-
-gadgetui.util = (function () {
-	// canvas-txt code
-	const C = {
-		debug: !1,
-		align: "center",
-		vAlign: "middle",
-		fontSize: 14,
-		fontWeight: "",
-		fontStyle: "",
-		fontVariant: "",
-		font: "Arial",
-		lineHeight: null,
-		justify: !1,
-	};
-
-	const W = " ";
-
-	return {
-		split: function (val) {
-			return val.split(/,\s*/);
-		},
-		extractLast: function (term) {
-			return this.split(term).pop();
-		},
-		getNumberValue: function (pixelValue) {
-			return isNaN(Number(pixelValue))
-				? Number(pixelValue.substring(0, pixelValue.length - 2))
-				: pixelValue;
-		},
-
-		checkBrowser: function () {
-			// Opera 8.0+
-			var isOpera =
-				(!!window.opr && !!opr.addons) ||
-				!!window.opera ||
-				navigator.userAgent.indexOf(" OPR/") >= 0;
-
-			// Firefox 1.0+
-			var isFirefox = typeof InstallTrigger !== "undefined";
-
-			// Safari 3.0+ "[object HTMLElementConstructor]"
-			var isSafari =
-				/constructor/i.test(window.HTMLElement) ||
-				(function (p) {
-					return p.toString() === "[object SafariRemoteNotification]";
-				})(
-					!window["safari"] ||
-						(typeof safari !== "undefined" && safari.pushNotification),
-				);
-
-			// Internet Explorer 6-11
-			var isIE = /*@cc_on!@*/ false || !!document.documentMode;
-
-			// Edge 20+
-			var isEdge = !isIE && !!window.StyleMedia;
-
-			// Chrome 1 - 79
-			var isChrome =
-				!!window.chrome &&
-				(!!window.chrome.webstore || !!window.chrome.runtime);
-
-			// Edge (based on chromium) detection
-			var isEdgeChromium = isChrome && navigator.userAgent.indexOf("Edg") != -1;
-
-			// Blink engine detection
-			var isBlink = (isChrome || isOpera) && !!window.CSS;
-
-			let browser = "generic";
-			if (isOpera) browser = "opera";
-			if (isFirefox) browser = "firefox";
-			if (isSafari) browser = "safari";
-			if (isIE) browser = "ie";
-			if (isEdge) browser = "edge";
-			if (isChrome) browser = "chrome";
-			if (isEdgeChromium) browser = "edgechromium";
-			if (isBlink) browser = "blink";
-
-			return browser;
-		},
-
-		getOffset: function (selector) {
-			var rect = selector.getBoundingClientRect();
-
-			return {
-				top: rect.top + document.body.scrollTop,
-				left: rect.left + document.body.scrollLeft,
-			};
-		},
-		// http://gomakethings.com/climbing-up-and-down-the-dom-tree-with-vanilla-javascript/
-		// getParentsUntil - MIT License
-		getParentsUntil: function (elem, parent, selector) {
-			var parents = [];
-			if (parent) {
-				var parentType = parent.charAt(0);
-			}
-			if (selector) {
-				var selectorType = selector.charAt(0);
-			}
-
-			// Get matches
-			for (; elem && elem !== document; elem = elem.parentNode) {
-				// Check if parent has been reached
-				if (parent) {
-					// If parent is a class
-					if (parentType === ".") {
-						if (elem.classList.contains(parent.substr(1))) {
-							break;
-						}
-					}
-
-					// If parent is an ID
-					if (parentType === "#") {
-						if (elem.id === parent.substr(1)) {
-							break;
-						}
-					}
-
-					// If parent is a data attribute
-					if (parentType === "[") {
-						if (elem.hasAttribute(parent.substr(1, parent.length - 1))) {
-							break;
-						}
-					}
-
-					// If parent is a tag
-					if (elem.tagName.toLowerCase() === parent) {
-						break;
-					}
-				}
-
-				if (selector) {
-					// If selector is a class
-					if (selectorType === ".") {
-						if (elem.classList.contains(selector.substr(1))) {
-							parents.push(elem);
-						}
-					}
-
-					// If selector is an ID
-					if (selectorType === "#") {
-						if (elem.id === selector.substr(1)) {
-							parents.push(elem);
-						}
-					}
-
-					// If selector is a data attribute
-					if (selectorType === "[") {
-						if (elem.hasAttribute(selector.substr(1, selector.length - 1))) {
-							parents.push(elem);
-						}
-					}
-
-					// If selector is a tag
-					if (elem.tagName.toLowerCase() === selector) {
-						parents.push(elem);
-					}
-				} else {
-					parents.push(elem);
-				}
-			}
-
-			// Return parents if any exist
-			if (parents.length === 0) {
-				return null;
-			} else {
-				return parents;
-			}
-		},
-		getRelativeParentOffset: function (selector) {
-			var i,
-				offset,
-				parents = gadgetui.util.getParentsUntil(selector, "body"),
-				relativeOffsetLeft = 0,
-				relativeOffsetTop = 0;
-
-			for (i = 0; i < parents.length; i++) {
-				if (parents[i].style.position === "relative") {
-					offset = gadgetui.util.getOffset(parents[i]);
-					// set the largest offset values of the ancestors
-					if (offset.left > relativeOffsetLeft) {
-						relativeOffsetLeft = offset.left;
-					}
-
-					if (offset.top > relativeOffsetTop) {
-						relativeOffsetTop = offset.top;
-					}
-				}
-			}
-			return {
-				left: relativeOffsetLeft,
-				top: relativeOffsetTop,
-			};
-		},
-		Id: function () {
-			return (Math.random() * 100).toString().replace(/\./g, "");
-		},
-		bind: function (selector, model) {
-			var bindVar = selector.getAttribute("gadgetui-bind");
-
-			// if binding was specified, make it so
-			if (bindVar !== undefined && bindVar !== null && model !== undefined) {
-				model.bind(bindVar, selector);
-			}
-		},
-		/*
-		 * encode : function( input, options ){ var result, canon = true, encode =
-		 * true, encodeType = 'html'; if( options !== undefined ){ canon = (
-		 * options.canon === undefined ? true : options.canon ); encode = (
-		 * options.encode === undefined ? true : options.encode ); //enum
-		 * (html|css|attr|js|url) encodeType = ( options.encodeType ===
-		 * undefined ? "html" : options.encodeType ); } if( canon ){ result =
-		 * $.encoder.canonicalize( input ); } if( encode ){ switch( encodeType ){
-		 * case "html": result = $.encoder.encodeForHTML( result ); break; case
-		 * "css": result = $.encoder.encodeForCSS( result ); break; case "attr":
-		 * result = $.encoder.encodeForHTMLAttribute( result ); break; case
-		 * "js": result = $.encoder.encodeForJavascript( result ); break; case
-		 * "url": result = $.encoder.encodeForURL( result ); break; }
-		 *  } return result; },
-		 */
-		mouseCoords: function (ev) {
-			// from
-			// http://www.webreference.com/programming/javascript/mk/column2/
-			if (ev.pageX || ev.pageY) {
-				return {
-					x: ev.pageX,
-					y: ev.pageY,
-				};
-			}
-			return {
-				x: ev.clientX + document.body.scrollLeft - document.body.clientLeft,
-				y: ev.clientY + document.body.scrollTop - document.body.clientTop,
-			};
-		},
-		mouseWithin: function (selector, coords) {
-			var rect = selector.getBoundingClientRect();
-			return coords.x >= rect.left &&
-				coords.x <= rect.right &&
-				coords.y >= rect.top &&
-				coords.y <= rect.bottom
-				? true
-				: false;
-		},
-		getStyle: function (el, prop) {
-			if (window.getComputedStyle !== undefined) {
-				if (prop !== undefined) {
-					return window.getComputedStyle(el, null).getPropertyValue(prop);
-				} else {
-					return window.getComputedStyle(el, null);
-				}
-			} else {
-				if (prop !== undefined) {
-					return el.currentStyle[prop];
-				} else {
-					return el.currentStyle;
-				}
-			}
-		},
-		//https://jsfiddle.net/tovic/Xcb8d/
-		//author: Taufik Nurrohman
-		// code belongs to author
-		// no license enforced
-		draggable: function (selector, handle) {
-			var selected = null, // Object of the element to be moved
-				x_pos = 0,
-				y_pos = 0, // Stores x & y coordinates of the mouse pointer
-				x_elem = 0,
-				y_elem = 0; // Stores top, left values (edge) of the element
-
-			// Will be called when user starts dragging an element
-			function _drag_init(elem) {
-				// Store the object of the element which needs to be moved
-				selected = elem;
-				x_elem = x_pos - selected.offsetLeft;
-				y_elem = y_pos - selected.offsetTop;
-			}
-
-			// Will be called when user dragging an element
-			function _move_elem(e) {
-				x_pos = document.all ? window.event.clientX : e.pageX;
-				y_pos = document.all ? window.event.clientY : e.pageY;
-				if (selected !== null) {
-					selected.style.left = x_pos - x_elem + "px";
-					selected.style.top = y_pos - y_elem + "px";
-				}
-			}
-
-			// Destroy the object when we are done
-			function _destroy(event) {
-				console.log(event);
-				var myEvent = new CustomEvent("drag_end", {
-					detail: {
-						top: gadgetui.util.getStyle(selector, "top"),
-						left: gadgetui.util.getStyle(selector, "left"),
-					},
-				});
-
-				// Trigger it!
-				selector.dispatchEvent(myEvent);
-				selected = null;
-			}
-
-			// Bind the functions...
-			const dragTarget = handle || selector;
-			dragTarget.onmousedown = function (e) {
-				// If a handle is specified, check if the click is on an interactive element
-				if (handle) {
-					const target = e.target;
-					// Allow interaction with form elements
-					if (target.tagName === 'INPUT' ||
-						target.tagName === 'TEXTAREA' ||
-						target.tagName === 'SELECT' ||
-						target.tagName === 'BUTTON') {
-						return true;
-					}
-				}
-				_drag_init(selector);
-				return false;
-			};
-
-			document.onmousemove = _move_elem;
-			document.onmouseup = _destroy;
-		},
-
-		textWidth: function (text, style) {
-			// http://stackoverflow.com/questions/1582534/calculating-text-width-with-jquery
-			// based on edsioufi's solution
-			if (!gadgetui.util.textWidthEl) {
-				gadgetui.util.textWidthEl = document.createElement("div");
-				gadgetui.util.textWidthEl.setAttribute("id", "gadgetui-textWidth");
-				gadgetui.util.textWidthEl.setAttribute("style", "display: none;");
-				document.body.appendChild(gadgetui.util.textWidthEl);
-			}
-			// gadgetui.util.fakeEl = $('<span
-			// id="gadgetui-textWidth">').appendTo(document.body);
-
-			// var width, htmlText = text || selector.value ||
-			// selector.innerHTML;
-			var width,
-				htmlText = text;
-			if (htmlText.length > 0) {
-				// htmlText =
-				// gadgetui.util.TextWidth.fakeEl.text(htmlText).html();
-				// //encode to Html
-				gadgetui.util.textWidthEl.innerText = htmlText;
-				if (htmlText === undefined) {
-					htmlText = "";
-				} else {
-					htmlText = htmlText.replace(/\s/g, "&nbsp;"); // replace
-					// trailing
-					// and
-					// leading
-					// spaces
-				}
-			}
-			gadgetui.util.textWidthEl.innertText = htmlText;
-			// gadgetui.util.textWidthEl.style.font = font;
-			// gadgetui.util.textWidthEl.html( htmlText ).style.font = font;
-			// gadgetui.util.textWidthEl.html(htmlText).css('font', font ||
-			// $.fn.css('font'));
-			gadgetui.util.textWidthEl.style.fontFamily = style.fontFamily;
-			gadgetui.util.textWidthEl.style.fontSize = style.fontSize;
-			gadgetui.util.textWidthEl.style.fontWeight = style.fontWeight;
-			gadgetui.util.textWidthEl.style.fontVariant = style.fontVariant;
-			gadgetui.util.textWidthEl.style.display = "inline";
-
-			width = gadgetui.util.textWidthEl.offsetWidth;
-			gadgetui.util.textWidthEl.style.display = "none";
-			return width;
-		},
-
-		fitText: function (text, style, width) {
-			var midpoint,
-				txtWidth = gadgetui.util.TextWidth(text, style),
-				ellipsisWidth = gadgetui.util.TextWidth("...", style);
-			if (txtWidth < width) {
-				return text;
-			} else {
-				midpoint = Math.floor(text.length / 2) - 1;
-				while (txtWidth + ellipsisWidth >= width) {
-					text =
-						text.slice(0, midpoint) + text.slice(midpoint + 1, text.length);
-
-					midpoint = Math.floor(text.length / 2) - 1;
-					txtWidth = gadgetui.util.TextWidth(text, font);
-				}
-				midpoint = Math.floor(text.length / 2) - 1;
-				text =
-					text.slice(0, midpoint) + "..." + text.slice(midpoint, text.length);
-
-				// remove spaces around the ellipsis
-				while (text.substring(midpoint - 1, midpoint) === " ") {
-					text =
-						text.slice(0, midpoint - 1) + text.slice(midpoint, text.length);
-					midpoint = midpoint - 1;
-				}
-
-				while (text.substring(midpoint + 3, midpoint + 4) === " ") {
-					text =
-						text.slice(0, midpoint + 3) + text.slice(midpoint + 4, text.length);
-					midpoint = midpoint - 1;
-				}
-				return text;
-			}
-		},
-
-		createElement: function (tagName) {
-			var el = document.createElement(tagName);
-			el.setAttribute("style", "");
-			return el;
-		},
-
-		addStyle: function (element, style) {
-			var estyles = element.getAttribute("style"),
-				currentStyles = estyles !== null ? estyles : "";
-			element.setAttribute("style", currentStyles + " " + style + ";");
-		},
-
-		isNumeric: function (num) {
-			return !isNaN(parseFloat(num)) && isFinite(num);
-		},
-
-		setStyle: function (element, style, value) {
-			var newStyles,
-				estyles = element.getAttribute("style"),
-				currentStyles = estyles !== null ? estyles : "",
-				str = "(" + style + ")+ *\\:[^\\;]*\\;",
-				re = new RegExp(str, "g");
-			// find styles in the style string
-			// ([\w\-]+)+ *\:[^\;]*\;
-
-			// assume
-			if (gadgetui.util.isNumeric(value) === true) {
-				// don't modify properties that accept a straight numeric value
-				switch (style) {
-					case "opacity":
-					case "z-index":
-					case "font-weight":
-						break;
-					default:
-						value = value + "px";
-				}
-			}
-
-			if (currentStyles.search(re) >= 0) {
-				newStyles = currentStyles.replace(re, style + ": " + value + ";");
-			} else {
-				newStyles = currentStyles + " " + style + ": " + value + ";";
-			}
-			element.setAttribute("style", newStyles);
-		},
-		encode: function (str) {
-			return str;
-		},
-
-		trigger: function (selector, eventType, data) {
-			selector.dispatchEvent(
-				new CustomEvent(eventType, {
-					detail: data,
-				}),
-			);
-		},
-		getMaxZIndex: function () {
-			var elems = document.querySelectorAll("*");
-			var highest = 0;
-			for (var ix = 0; ix < elems.length; ix++) {
-				var zindex = gadgetui.util.getStyle(elems[ix], "z-index");
-				if (zindex > highest && zindex != "auto") {
-					highest = zindex;
-				}
-			}
-			return highest;
-		},
-		// copied from jQuery core, re-distributed per MIT License
-		grep: function (elems, callback, invert) {
-			var callbackInverse,
-				matches = [],
-				i = 0,
-				length = elems.length,
-				callbackExpect = !invert;
-
-			// Go through the array, only saving the items
-			// _this pass the validator function
-			for (; i < length; i++) {
-				callbackInverse = !callback(elems[i], i);
-				if (callbackInverse !== callbackExpect) {
-					matches.push(elems[i]);
-				}
-			}
-
-			return matches;
-		},
-		delay: function (handler, delay) {
-			function handlerProxy() {
-				return handler.apply(instance, arguments);
-			}
-			var instance = this;
-			return setTimeout(handlerProxy, delay || 0);
-		},
-		contains: function (child, parent) {
-			var node = child.parentNode;
-			while (node != null) {
-				if (node == parent) {
-					return true;
-				}
-				node = node.parentNode;
-			}
-			return false;
-		},
-
-		// code below for drawing multi-line text on a canvas adapted from  https://github.com/geongeorge/Canvas-Txt
-
-		/* 		MIT License
-
-		Copyright (c) 2022 Geon George
-
-		Permission is hereby granted, free of charge, to any person obtaining a copy
-		of this software and associated documentation files (the "Software"), to deal
-		in the Software without restriction, including without limitation the rights
-		to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-		copies of the Software, and to permit persons to whom the Software is
-		furnished to do so, subject to the following conditions:
-
-		The above copyright notice and this permission notice shall be included in all
-		copies or substantial portions of the Software.
-
-		THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-		IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-		FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-		AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-		LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-		OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-		SOFTWARE.
-
-		*/
-		/*
- 		drawText(ctx,text, config)
-		splitText({ ctx, text, justify, width }
-		getTextHeight({ ctx, text, style })
- 		*/
-
-		B: function ({ ctx: e, line: c, spaceWidth: p, spaceChar: n, width: a }) {
-			const i = c.trim(),
-				o = i.split(/\s+/),
-				s = o.length - 1;
-			if (s === 0) return i;
-			const m = e.measureText(o.join("")).width,
-				d = (a - m) / p,
-				b = Math.floor(d / s);
-			if (d < 1) return i;
-			const r = n.repeat(b);
-			return o.join(r);
-		},
-
-		splitText: function ({ ctx: e, text: c, justify: p, width: n }) {
-			const a = /* @__PURE__ */ new Map(),
-				i = (r) => {
-					let g = a.get(r);
-					return g !== void 0 || ((g = e.measureText(r).width), a.set(r, g)), g;
-				};
-			let o = [],
-				s = c.split(`
-		  `);
-			const m = p ? i(W) : 0;
-			let d = 0,
-				b = 0;
-			for (const r of s) {
-				let g = i(r);
-				const y = r.length;
-				if (g <= n) {
-					o.push(r);
-					continue;
-				}
-				let h = r,
-					t,
-					f,
-					l = "";
-				for (; g > n; ) {
-					if ((d++, (t = b), (f = t === 0 ? 0 : i(r.substring(0, t))), f < n))
-						for (
-							;
-							f < n && t < y && (t++, (f = i(h.substring(0, t))), t !== y);
-
-						);
-					else if (f > n)
-						for (
-							;
-							f > n &&
-							((t = Math.max(1, t - 1)),
-							(f = i(h.substring(0, t))),
-							!(t === 0 || t === 1));
-
-						);
-					if (((b = Math.round(b + (t - b) / d)), t--, t > 0)) {
-						let u = t;
-						if (h.substring(u, u + 1) != " ") {
-							for (; h.substring(u, u + 1) != " " && u >= 0; ) u--;
-							u > 0 && (t = u);
-						}
-					}
-					t === 0 && (t = 1),
-						(l = h.substring(0, t)),
-						(l = p
-							? gadgetui.util.B({
-									ctx: e,
-									line: l,
-									spaceWidth: m,
-									spaceChar: W,
-									width: n,
-								})
-							: l),
-						o.push(l),
-						(h = h.substring(t)),
-						(g = i(h));
-				}
-				g > 0 &&
-					((l = p
-						? gadgetui.util.B({
-								ctx: e,
-								line: h,
-								spaceWidth: m,
-								spaceChar: W,
-								width: n,
-							})
-						: h),
-					o.push(l));
-			}
-			return o;
-		},
-		getTextHeight: function ({ ctx: e, text: c, style: p }) {
-			const n = e.textBaseline,
-				a = e.font;
-			(e.textBaseline = "bottom"), (e.font = p);
-			const { actualBoundingBoxAscent: i } = e.measureText(c);
-			return (e.textBaseline = n), (e.font = a), i;
-		},
-
-		drawText: function (e, c, p) {
-			const { width: n, height: a, x: i, y: o } = p,
-				s = { ...C, ...p };
-			if (n <= 0 || a <= 0 || s.fontSize <= 0) return { height: 0 };
-			const m = i + n,
-				d = o + a,
-				{
-					fontStyle: b,
-					fontVariant: r,
-					fontWeight: g,
-					fontSize: y,
-					font: h,
-				} = s,
-				t = `${b} ${r} ${g} ${y}px ${h}`;
-			e.font = t;
-			let f = o + a / 2 + s.fontSize / 2,
-				l;
-			s.align === "right"
-				? ((l = m), (e.textAlign = "right"))
-				: s.align === "left"
-					? ((l = i), (e.textAlign = "left"))
-					: ((l = i + n / 2), (e.textAlign = "center"));
-			const u = gadgetui.util.splitText({
-					ctx: e,
-					text: c,
-					justify: s.justify,
-					width: n,
-				}),
-				S = s.lineHeight
-					? s.lineHeight
-					: gadgetui.util.getTextHeight({ ctx: e, text: "M", style: t }),
-				v = S * (u.length - 1),
-				P = v / 2;
-			let A = o;
-			if (
-				(s.vAlign === "top"
-					? ((e.textBaseline = "top"), (f = o))
-					: s.vAlign === "bottom"
-						? ((e.textBaseline = "bottom"), (f = d - v), (A = d))
-						: ((e.textBaseline = "bottom"), (A = o + a / 2), (f -= P)),
-				u.forEach((T) => {
-					(T = T.trim()), e.fillText(T, l, f), (f += S);
-				}),
-				s.debug)
-			) {
-				const T = "#0C8CE9";
-				(e.lineWidth = 1),
-					(e.strokeStyle = T),
-					e.strokeRect(i, o, n, a),
-					(e.lineWidth = 1),
-					(e.strokeStyle = T),
-					e.beginPath(),
-					e.moveTo(l, o),
-					e.lineTo(l, d),
-					e.stroke(),
-					(e.strokeStyle = T),
-					e.beginPath(),
-					e.moveTo(i, A),
-					e.lineTo(m, A),
-					e.stroke();
-			}
-			return { height: v + S };
-		},
-	};
-})();
-
-export var gadgetui = gadgetui;
-export var model = gadgetui.model;
-export var display = gadgetui.display;
-export var input = gadgetui.input;
-export var bubble = gadgetui.display.Bubble;
-export var collapsiblepane = gadgetui.display.CollapsiblePane;
-export var dialog = gadgetui.display.Dialog;
-export var fileuploadwrapper = gadgetui.display.FileUploadWrapper;
-export var floatingpane = gadgetui.display.FloatingPane;
-export var lightbox = gadgetui.display.Lightbox;
-export var menu = gadgetui.display.Menu;
-export var modal = gadgetui.display.Modal;
-export var overlay = gadgetui.display.Overlay;
-export var popover = gadgetui.display.Popover;
-export var progressbar = gadgetui.display.ProgressBar;
-export var sidebar = gadgetui.display.Sidebar;
-export var tabs = gadgetui.display.Tabs;
-export var autosuggest = gadgetui.input.Autosuggest;
-export var combobox = gadgetui.input.ComboBox;
-export var fileuploader = gadgetui.input.FileUploader;
-export var lookuplistinput = gadgetui.input.LookupListInput;
-export var selectinput = gadgetui.input.SelectInput;
-export var textinput = gadgetui.input.TextInput;
-export var toggle = gadgetui.input.Toggle;
-export var component = gadgetui.objects.Component;
-//export var constructor = gadgetui.objects.Constructor;
-export var util = gadgetui.util;
-
+export { Autosuggest, Bubble, CollapsiblePane, ComboBox, Component, Constructor, Dialog, EventBindings, FileItem, FileUploadWrapper, FileUploader, FloatingPane, Lightbox, LookupListInput, Menu, Modal, Overlay, Popover, ProgressBar, SelectInput, Sidebar, Tabs, TextInput, Toggle, gadgetui, keyCode, model, util };
 //# sourceMappingURL=gadget-ui.es.js.map

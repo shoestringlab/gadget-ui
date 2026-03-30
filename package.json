@@ -1,6 +1,6 @@
 {
 	"name": "gadget-ui",
-	"version": "11.10.0",
+	"version": "12.0.0",
 	"description": "JavaScript UI and data binding library",
 	"repository": {
 		"type": "git",
@@ -15,11 +15,25 @@
 		"UI",
 		"data binding"
 	],
-	"main": "./dist/jquery.gadget-ui.js",
+	"main": "./dist/gadget-ui.js",
+	"module": "./dist/gadget-ui.es.js",
+	"exports": {
+		".": {
+			"import": "./dist/gadget-ui.es.js",
+			"require": "./dist/gadget-ui.js"
+		}
+	},
 	"files": [
 		"dist"
 	],
+	"scripts": {
+		"build:js": "rollup -c",
+		"build:css": "grunt concat:css",
+		"build": "npm run build:js && npm run build:css",
+		"lint": "grunt jshint"
+	},
 	"devDependencies": {
+		"@rollup/plugin-terser": "^1.0.0",
 		"claude": "^0.1.1",
 		"concat-files": "^0.1.1",
 		"concat-map": "0.0.1",
@@ -39,6 +53,7 @@
 		"minimist": "^1.2.7",
 		"modlazy": "^1.0.0",
 		"open-iconic": "^1.1.1",
+		"rollup": "^4.60.0",
 		"trim-newlines": "^4.0.2",
 		"ws": "^8.12.0"
 	},

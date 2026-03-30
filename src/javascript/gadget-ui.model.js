@@ -1,9 +1,6 @@
-gadgetui.model = (() => {
-	"use strict";
-
-	const modelStore = new Map();
-	const mementoStore = new Map();
-	let maxMementos = 20; // Default value
+const modelStore = new Map();
+const mementoStore = new Map();
+let maxMementos = 20; // Default value
 
 	class BindableObject {
 		constructor(data, element) {
@@ -277,10 +274,12 @@ gadgetui.model = (() => {
 		}
 	}
 
-	return {
-		BindableObject,
+export { BindableObject };
 
-		init(options = {}) {
+const model = {
+	BindableObject,
+
+	init(options = {}) {
 			maxMementos = options.maxMementos ?? 20;
 		},
 
@@ -368,27 +367,6 @@ gadgetui.model = (() => {
 			const model = mementoStore.get(name);
 			return model ? model.fastForward() : false;
 		},
-	};
-})();
+};
 
-/*
-// Initialize with custom memento limit
-model.init({ maxMementos: 50 });
-
-// Create a model
-model.create("user", { name: "John" });
-
-// Make changes
-model.set("user.name", "Jane");
-model.set("user.name", "Bob");
-
-// Undo/redo
-model.undo("user"); // Returns to "Jane"
-model.undo("user"); // Returns to "John"
-model.redo("user"); // Returns to "Jane"
-
-// Rewind/fast forward
-model.rewind("user"); // Back to "John"
-model.fastForward("user"); // To "Bob"
-
-*/
+export default model;

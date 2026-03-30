@@ -1,4 +1,6 @@
-class Overlay extends Component {
+import { Component } from '../../objects/component.js';
+
+export class Overlay extends Component {
 	constructor(element, options = {}) {
 		super();
 		this.element = element;

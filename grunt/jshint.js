@@ -2,7 +2,8 @@ module.exports = {
 	dist: {
 		files: { src: ["Gruntfile.js", "src/**/*.js"] },
 		options: {
-			// options here to override JSHint defaults
+			esversion: 11,
+			module: true,
 			globals: {
 				console: true,
 				module: true,

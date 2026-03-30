@@ -1,4 +1,7 @@
-class CollapsiblePane extends Component {
+import { Component } from '../../objects/component.js';
+import { setStyle, getStyle } from '../gadget-ui.util.js';
+
+export class CollapsiblePane extends Component {
 	constructor(element, options = {}) {
 		super();
 		this.element = element;
@@ -38,7 +41,7 @@ class CollapsiblePane extends Component {
 
 	addHeader() {
 		const header = document.createElement("div");
-		const css = gadgetui.util.setStyle;
+		const css = setStyle;
 
 		header.classList.add("gadget-ui-collapsiblePane-header");
 		if (this.headerClass) {
@@ -58,7 +61,7 @@ class CollapsiblePane extends Component {
 	}
 
 	addCSS() {
-		const css = gadgetui.util.setStyle;
+		const css = setStyle;
 		css(this.wrapper, "width", this.width);
 	}
 
@@ -73,7 +76,7 @@ class CollapsiblePane extends Component {
 	}
 
 	toggle() {
-		const css = gadgetui.util.setStyle;
+		const css = setStyle;
 		let icon, display, myHeight, selectorHeight;
 
 		if (this.collapsed) {
@@ -128,7 +131,7 @@ class CollapsiblePane extends Component {
 		this.animate = options.animate ?? true;
 		this.delay = options.delay ?? 300;
 		this.title = options.title ?? "";
-		this.width = gadgetui.util.getStyle(this.element, "width");
+		this.width = getStyle(this.element, "width");
 		this.collapse = options.collapse ?? false;
 		this.collapsed = options.collapse ?? true;
 		this.class = options.class || false;

@@ -1,4 +1,6 @@
-class Toggle extends Component {
+import { Component } from '../../objects/component.js';
+
+export class Toggle extends Component {
 	constructor(options) {
 		super();
 		this.configure(options);

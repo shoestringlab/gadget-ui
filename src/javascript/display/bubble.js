@@ -1,4 +1,7 @@
-class Bubble extends Component {
+import { Component } from '../../objects/component.js';
+import { drawText } from '../gadget-ui.util.js';
+
+export class Bubble extends Component {
 	constructor(options = {}) {
 		super();
 		this.canvas = document.createElement("canvas");
@@ -220,7 +223,7 @@ class Bubble extends Component {
 			fontVariant: this.bubble.fontVariant,
 			lineHeight: this.bubble.lineHeight,
 		};
-		gadgetui.util.drawText(this.ctx, this.bubble.text, config);
+		drawText(this.ctx, this.bubble.text, config);
 	}
 
 	attachToElement(selector, position) {

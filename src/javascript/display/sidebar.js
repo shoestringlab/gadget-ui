@@ -1,4 +1,6 @@
-class Sidebar extends Component {
+import { Component } from '../../objects/component.js';
+
+export class Sidebar extends Component {
 	constructor(selector, options = {}) {
 		super();
 		this.selector = selector;

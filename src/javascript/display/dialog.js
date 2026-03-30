@@ -1,6 +1,9 @@
-class Dialog extends FloatingPane {
+import { setStyle } from '../gadget-ui.util.js';
+import { FloatingPane } from './floatingpane.js';
+
+export class Dialog extends FloatingPane {
 	constructor(element, options = {}) {
-		const css = gadgetui.util.setStyle;
+		const css = setStyle;
 
 		if (element) {
 			super(element, options);
@@ -21,7 +24,7 @@ class Dialog extends FloatingPane {
 	events = ["showPrevious", "showNext"];
 
 	addButtons() {
-		const css = gadgetui.util.setStyle;
+		const css = setStyle;
 
 		this.buttonDiv = document.createElement("div");
 		css(this.buttonDiv, "text-align", "center");

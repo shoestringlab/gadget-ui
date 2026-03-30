@@ -1,4 +1,4 @@
-function FileItem(args) {
+export function FileItem(args) {
   this.set(args);
 }
 
