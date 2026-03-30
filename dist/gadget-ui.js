@@ -54,7 +54,6 @@ var gadgetui = (function () {
 
 	const W = " ";
 
-	var textWidthEl;
 
 	var keyCode = {
 		BACKSPACE: 8,
@@ -123,8 +122,7 @@ var gadgetui = (function () {
 
 		// Chrome 1 - 79
 		var isChrome =
-			!!window.chrome &&
-			(!!window.chrome.webstore || !!window.chrome.runtime);
+			!!window.chrome && (!!window.chrome.webstore || !!window.chrome.runtime);
 
 		// Edge (based on chromium) detection
 		var isEdgeChromium = isChrome && navigator.userAgent.indexOf("Edg") != -1;
@@ -366,10 +364,12 @@ var gadgetui = (function () {
 			if (handle) {
 				const target = e.target;
 				// Allow interaction with form elements
-				if (target.tagName === 'INPUT' ||
-					target.tagName === 'TEXTAREA' ||
-					target.tagName === 'SELECT' ||
-					target.tagName === 'BUTTON') {
+				if (
+					target.tagName === "INPUT" ||
+					target.tagName === "TEXTAREA" ||
+					target.tagName === "SELECT" ||
+					target.tagName === "BUTTON"
+				) {
 					return true;
 				}
 			}
@@ -381,40 +381,86 @@ var gadgetui = (function () {
 		document.onmouseup = _destroy;
 	}
 
-	function textWidth(text, style) {
-		// http://stackoverflow.com/questions/1582534/calculating-text-width-with-jquery
-		// based on edsioufi's solution
-		if (!textWidthEl) {
-			textWidthEl = document.createElement("div");
-			textWidthEl.setAttribute("id", "gadgetui-textWidth");
-			textWidthEl.setAttribute("style", "display: none;");
-			document.body.appendChild(textWidthEl);
-		}
+	function parseFont(font) {
+		// Parse a font string like "fontFamily fontSize fontWeight fontVariant"
+		// where fontFamily may contain commas (e.g. "-apple-system, Roboto, sans-serif 16px 400 normal").
+		// Extract the first font family name and the trailing size/weight/variant tokens.
+		var parts = font.trim().split(/\s+/);
+		var fontFamily = "";
+		var fontSize = "";
+		var fontWeight = "";
+		var fontVariant = "";
 
-		var width,
-			htmlText = text;
-		if (htmlText.length > 0) {
-			textWidthEl.innerText = htmlText;
-			if (htmlText === undefined) {
-				htmlText = "";
-			} else {
-				htmlText = htmlText.replace(/\s/g, "&nbsp;"); // replace
-				// trailing
-				// and
-				// leading
-				// spaces
+		// Walk tokens: font-family names may contain commas; size/weight/variant do not.
+		// Strategy: collect tokens until we find one that looks like a CSS length (fontSize).
+		var i = 0;
+		var familyParts = [];
+		while (i < parts.length) {
+			if (/^\d/.test(parts[i]) || /^\.?\d/.test(parts[i])) {
+				break;
 			}
+			familyParts.push(parts[i]);
+			i++;
 		}
-		textWidthEl.innertText = htmlText;
-		textWidthEl.style.fontFamily = style.fontFamily;
-		textWidthEl.style.fontSize = style.fontSize;
-		textWidthEl.style.fontWeight = style.fontWeight;
-		textWidthEl.style.fontVariant = style.fontVariant;
-		textWidthEl.style.display = "inline";
+		// Use only the first font family from the list
+		fontFamily = familyParts.join(" ").split(",")[0].replace(/["']/g, "").trim();
+		if (i < parts.length) fontSize = parts[i++];
+		if (i < parts.length) fontWeight = parts[i++];
+		if (i < parts.length) fontVariant = parts[i++];
 
-		width = textWidthEl.offsetWidth;
-		textWidthEl.style.display = "none";
-		return width;
+		return {
+			fontFamily: fontFamily,
+			fontSize: fontSize,
+			fontWeight: fontWeight,
+			fontVariant: fontVariant,
+		};
+	}
+
+	var measureFrame;
+	var measureDiv;
+
+	function getMeasureDiv() {
+		if (measureDiv) return measureDiv;
+
+		// Create an offscreen iframe to isolate measurements from page styles
+		measureFrame = document.createElement("iframe");
+		measureFrame.setAttribute("aria-hidden", "true");
+		measureFrame.style.cssText =
+			"position:fixed;left:-9999px;top:-9999px;width:0;height:0;border:none;visibility:hidden;";
+		document.body.appendChild(measureFrame);
+
+		var doc = measureFrame.contentDocument || measureFrame.contentWindow.document;
+		doc.open();
+		doc.write("<!doctype html><html><head></head><body></body></html>");
+		doc.close();
+
+		measureDiv = doc.createElement("div");
+		measureDiv.id = "gadgetui-textWidth";
+		measureDiv.style.cssText = "display:inline;white-space:nowrap;position:absolute;visibility:hidden;";
+		doc.body.appendChild(measureDiv);
+
+		return measureDiv;
+	}
+
+	function textWidth(text, style) {
+		var el = getMeasureDiv();
+
+		if (typeof style === "string") {
+			style = parseFont(style);
+		}
+
+		var htmlText = text || "";
+		if (htmlText.length > 0) {
+			htmlText = htmlText.replace(/\s/g, "\u00a0"); // preserve spaces for measurement
+		}
+
+		el.innerText = htmlText;
+		el.style.fontFamily = style.fontFamily || "";
+		el.style.fontSize = style.fontSize || "";
+		el.style.fontWeight = style.fontWeight || "";
+		el.style.fontVariant = style.fontVariant || "";
+
+		return el.offsetWidth;
 	}
 
 	function fitText(text, style, width) {
@@ -426,20 +472,17 @@ var gadgetui = (function () {
 		} else {
 			midpoint = Math.floor(text.length / 2) - 1;
 			while (txtWidth + ellipsisWidth >= width) {
-				text =
-					text.slice(0, midpoint) + text.slice(midpoint + 1, text.length);
+				text = text.slice(0, midpoint) + text.slice(midpoint + 1, text.length);
 
 				midpoint = Math.floor(text.length / 2) - 1;
-				txtWidth = textWidth(text, font);
+				txtWidth = textWidth(text, style);
 			}
 			midpoint = Math.floor(text.length / 2) - 1;
-			text =
-				text.slice(0, midpoint) + "..." + text.slice(midpoint, text.length);
+			text = text.slice(0, midpoint) + "..." + text.slice(midpoint, text.length);
 
 			// remove spaces around the ellipsis
 			while (text.substring(midpoint - 1, midpoint) === " ") {
-				text =
-					text.slice(0, midpoint - 1) + text.slice(midpoint, text.length);
+				text = text.slice(0, midpoint - 1) + text.slice(midpoint, text.length);
 				midpoint = midpoint - 1;
 			}
 
@@ -607,7 +650,7 @@ var gadgetui = (function () {
 		const a = /* @__PURE__ */ new Map(),
 			i = (r) => {
 				let g = a.get(r);
-				return g !== void 0 || ((g = e.measureText(r).width), a.set(r, g)), g;
+				return (g !== void 0 || ((g = e.measureText(r).width), a.set(r, g)), g);
 			};
 		let o = [],
 			s = c.split(`
@@ -628,11 +671,7 @@ var gadgetui = (function () {
 				l = "";
 			for (; g > n; ) {
 				if ((d++, (t = b), (f = t === 0 ? 0 : i(r.substring(0, t))), f < n))
-					for (
-						;
-						f < n && t < y && (t++, (f = i(h.substring(0, t))), t !== y);
-
-					);
+					for (; f < n && t < y && (t++, (f = i(h.substring(0, t))), t !== y); );
 				else if (f > n)
 					for (
 						;
@@ -640,7 +679,6 @@ var gadgetui = (function () {
 						((t = Math.max(1, t - 1)),
 						(f = i(h.substring(0, t))),
 						!(t === 0 || t === 1));
-
 					);
 				if (((b = Math.round(b + (t - b) / d)), t--, t > 0)) {
 					let u = t;
@@ -649,7 +687,7 @@ var gadgetui = (function () {
 						u > 0 && (t = u);
 					}
 				}
-				t === 0 && (t = 1),
+				(t === 0 && (t = 1),
 					(l = h.substring(0, t)),
 					(l = p
 						? B({
@@ -662,7 +700,7 @@ var gadgetui = (function () {
 						: l),
 					o.push(l),
 					(h = h.substring(t)),
-					(g = i(h));
+					(g = i(h)));
 			}
 			g > 0 &&
 				((l = p
@@ -682,9 +720,9 @@ var gadgetui = (function () {
 	function getTextHeight({ ctx: e, text: c, style: p }) {
 		const n = e.textBaseline,
 			a = e.font;
-		(e.textBaseline = "bottom"), (e.font = p);
+		((e.textBaseline = "bottom"), (e.font = p));
 		const { actualBoundingBoxAscent: i } = e.measureText(c);
-		return (e.textBaseline = n), (e.font = a), i;
+		return ((e.textBaseline = n), (e.font = a), i);
 	}
 
 	function drawText(e, c, p) {
@@ -693,13 +731,7 @@ var gadgetui = (function () {
 		if (n <= 0 || a <= 0 || s.fontSize <= 0) return { height: 0 };
 		const m = i + n,
 			d = o + a,
-			{
-				fontStyle: b,
-				fontVariant: r,
-				fontWeight: g,
-				fontSize: y,
-				font: h,
-			} = s,
+			{ fontStyle: b, fontVariant: r, fontWeight: g, fontSize: y, font: h } = s,
 			t = `${b} ${r} ${g} ${y}px ${h}`;
 		e.font = t;
 		let f = o + a / 2 + s.fontSize / 2,
@@ -728,12 +760,12 @@ var gadgetui = (function () {
 					? ((e.textBaseline = "bottom"), (f = d - v), (A = d))
 					: ((e.textBaseline = "bottom"), (A = o + a / 2), (f -= P)),
 			u.forEach((T) => {
-				(T = T.trim()), e.fillText(T, l, f), (f += S);
+				((T = T.trim()), e.fillText(T, l, f), (f += S));
 			}),
 			s.debug)
 		) {
 			const T = "#0C8CE9";
-			(e.lineWidth = 1),
+			((e.lineWidth = 1),
 				(e.strokeStyle = T),
 				e.strokeRect(i, o, n, a),
 				(e.lineWidth = 1),
@@ -746,7 +778,7 @@ var gadgetui = (function () {
 				e.beginPath(),
 				e.moveTo(i, A),
 				e.lineTo(m, A),
-				e.stroke();
+				e.stroke());
 		}
 		return { height: v + S };
 	}
@@ -779,6 +811,7 @@ var gadgetui = (function () {
 		mouseCoords: mouseCoords,
 		get mousePosition () { return mousePosition; },
 		mouseWithin: mouseWithin,
+		parseFont: parseFont,
 		setMousePosition: setMousePosition,
 		setStyle: setStyle,
 		split: split,
@@ -5820,7 +5853,7 @@ var gadgetui = (function () {
 			if (this.hideable) {
 				this.blockSize = getStyle(this.selector, "block-size");
 				setStyle(this.selector, "block-size", this.blockSize);
-				this.selector.classList.add(this.browserHideBorderCSS);
+				this.selector.classList.add(this.browserHideInputCSS);
 			}
 		}
 
@@ -5841,8 +5874,7 @@ var gadgetui = (function () {
 
 		setWidth() {
 			this.width =
-				textWidth(this.selector.value, this.font) + 10 ||
-				this.maxWidth;
+				textWidth(this.selector.value, this.font) + 10 || this.maxWidth;
 		}
 
 		addCSS() {
@@ -5855,23 +5887,23 @@ var gadgetui = (function () {
 		}
 
 		setControlWidth(text) {
-			const textWidth = Math.max(
+			const tW = Math.max(
 				parseInt(textWidth(text, this.font), 10),
 				this.minWidth,
 			);
-			setStyle(this.selector, "width", `${textWidth + 30}px`);
+			setStyle(this.selector, "width", `${tW + 30}px`);
 		}
 
 		addBindings() {
 			const events = {
 				mouseenter: () => {
 					if (this.hideable)
-						this.selector.classList.remove(this.browserHideBorderCSS);
+						this.selector.classList.remove(this.browserHideInputCSS);
 					this.fireEvent("mouseenter");
 				},
 				focus: () => {
 					if (this.hideable)
-						this.selector.classList.remove(this.browserHideBorderCSS);
+						this.selector.classList.remove(this.browserHideInputCSS);
 					this.fireEvent("focus");
 				},
 				keyup: (event) => {
@@ -5914,14 +5946,14 @@ var gadgetui = (function () {
 			if (this.hideable) {
 				this.selector.addEventListener("mouseleave", () => {
 					if (this.selector !== document.activeElement) {
-						this.selector.classList.add(this.browserHideBorderCSS);
+						this.selector.classList.add(this.browserHideInputCSS);
 					}
 					this.fireEvent("mouseleave");
 				});
 
 				this.selector.addEventListener("blur", () => {
 					setStyle(this.selector, "maxWidth", this.maxWidth);
-					this.selector.classList.add(this.browserHideBorderCSS);
+					this.selector.classList.add(this.browserHideInputCSS);
 					this.fireEvent("blur");
 				});
 			}
@@ -5940,10 +5972,8 @@ var gadgetui = (function () {
 			this.hideable = options.hideable || false;
 			this.maxWidth =
 				options.maxWidth ||
-				getNumberValue(
-					getStyle(this.selector.parentNode).width,
-				);
-			this.browserHideBorderCSS = `gadget-ui-textinput-hideBorder-${checkBrowser()}`;
+				getNumberValue(getStyle(this.selector.parentNode).width);
+			this.browserHideInputCSS = `gadget-ui-textinput-hideInput-${checkBrowser()}`;
 		}
 	}
 

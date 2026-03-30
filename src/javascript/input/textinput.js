@@ -1,6 +1,15 @@
-import { Component } from '../../objects/component.js';
-import { bind, getStyle, setStyle, textWidth, fitText, trigger, getNumberValue, checkBrowser } from '../gadget-ui.util.js';
-import model from '../gadget-ui.model.js';
+import { Component } from "../../objects/component.js";
+import {
+	bind,
+	getStyle,
+	setStyle,
+	textWidth,
+	fitText,
+	trigger,
+	getNumberValue,
+	checkBrowser,
+} from "../gadget-ui.util.js";
+import model from "../gadget-ui.model.js";
 
 export class TextInput extends Component {
 	constructor(selector, options = {}) {
@@ -23,7 +32,7 @@ export class TextInput extends Component {
 		if (this.hideable) {
 			this.blockSize = getStyle(this.selector, "block-size");
 			setStyle(this.selector, "block-size", this.blockSize);
-			this.selector.classList.add(this.browserHideBorderCSS);
+			this.selector.classList.add(this.browserHideInputCSS);
 		}
 	}
 
@@ -44,8 +53,7 @@ export class TextInput extends Component {
 
 	setWidth() {
 		this.width =
-			textWidth(this.selector.value, this.font) + 10 ||
-			this.maxWidth;
+			textWidth(this.selector.value, this.font) + 10 || this.maxWidth;
 	}
 
 	addCSS() {
@@ -58,23 +66,23 @@ export class TextInput extends Component {
 	}
 
 	setControlWidth(text) {
-		const textWidth = Math.max(
+		const tW = Math.max(
 			parseInt(textWidth(text, this.font), 10),
 			this.minWidth,
 		);
-		setStyle(this.selector, "width", `${textWidth + 30}px`);
+		setStyle(this.selector, "width", `${tW + 30}px`);
 	}
 
 	addBindings() {
 		const events = {
 			mouseenter: () => {
 				if (this.hideable)
-					this.selector.classList.remove(this.browserHideBorderCSS);
+					this.selector.classList.remove(this.browserHideInputCSS);
 				this.fireEvent("mouseenter");
 			},
 			focus: () => {
 				if (this.hideable)
-					this.selector.classList.remove(this.browserHideBorderCSS);
+					this.selector.classList.remove(this.browserHideInputCSS);
 				this.fireEvent("focus");
 			},
 			keyup: (event) => {
@@ -117,14 +125,14 @@ export class TextInput extends Component {
 		if (this.hideable) {
 			this.selector.addEventListener("mouseleave", () => {
 				if (this.selector !== document.activeElement) {
-					this.selector.classList.add(this.browserHideBorderCSS);
+					this.selector.classList.add(this.browserHideInputCSS);
 				}
 				this.fireEvent("mouseleave");
 			});
 
 			this.selector.addEventListener("blur", () => {
 				setStyle(this.selector, "maxWidth", this.maxWidth);
-				this.selector.classList.add(this.browserHideBorderCSS);
+				this.selector.classList.add(this.browserHideInputCSS);
 				this.fireEvent("blur");
 			});
 		}
@@ -143,9 +151,7 @@ export class TextInput extends Component {
 		this.hideable = options.hideable || false;
 		this.maxWidth =
 			options.maxWidth ||
-			getNumberValue(
-				getStyle(this.selector.parentNode).width,
-			);
-		this.browserHideBorderCSS = `gadget-ui-textinput-hideBorder-${checkBrowser()}`;
+			getNumberValue(getStyle(this.selector.parentNode).width);
+		this.browserHideInputCSS = `gadget-ui-textinput-hideInput-${checkBrowser()}`;
 	}
 }

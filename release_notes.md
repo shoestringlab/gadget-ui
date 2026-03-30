@@ -1,6 +1,37 @@
 
 ***Release Notes***
 
+12.0.1
+======
+
+Bug fix in the util package related to checking width of text in edge cases.
+
+12.0.0
+======
+
+Major release and conversion of the codebase. What was done:
+
+Source files:
+  - All 27 source files converted from global/namespace pattern to ES modules with import/export
+
+Build system:
+  - Added Rollup as the JS bundler, replacing Grunt's concat+terser for JS
+  - Created rollup.config.mjs with two targets: ES module (gadget-ui.es.js) and IIFE (gadget-ui.js)
+  - Created src/javascript/gadget-ui.iife.js entry point for the IIFE build
+  - Rewrote src/javascript/gadget-ui.export.js with proper local imports + namespace export
+  - Updated package.json: added module, exports fields, scripts for build/build:js/build:css/lint
+  - Grunt now only handles CSS concat; JS is fully handled by Rollup
+
+Test files:
+  - Imports changed to new namespaces cased imports.
+  - Converted modelbinding.htm/.js from old modlazy loader to ES module imports
+
+Output:
+  - dist/gadget-ui.es.js (156K) — ES module with named exports + gadgetui namespace
+  - dist/gadget-ui.js (161K) — IIFE with gadgetui.display.Bubble etc. (backward compatible)
+  - Minified versions of both (~95K each)
+
+
 11.10.0
 ======
 
