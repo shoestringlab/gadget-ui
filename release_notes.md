@@ -1,6 +1,11 @@
 
 ***Release Notes***
 
+12.0.2
+======
+
+Bug fix in LookupListInput and Autosuggest with re-scoped variable.
+
 12.0.1
 ======
 

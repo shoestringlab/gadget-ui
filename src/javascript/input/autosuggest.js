@@ -232,7 +232,7 @@ export class Autosuggest extends Component {
 					return;
 				}
 				suppressKeyPress = suppressInput = suppressKeyPressRepeat = false;
-				const keyCode = keyCode;
+
 
 				switch (event.keyCode) {
 					case keyCode.PAGE_UP:
@@ -291,7 +291,7 @@ export class Autosuggest extends Component {
 				}
 				if (suppressKeyPressRepeat) return;
 
-				const keyCode = keyCode;
+
 				switch (event.keyCode) {
 					case keyCode.PAGE_UP:
 						this._move("previousPage", event);
