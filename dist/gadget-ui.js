@@ -4584,7 +4584,7 @@ var gadgetui = (function () {
           <div class="gadgetui-fileuploader-dropmessage" name="gadgetui-fileuploader-dropMessageDiv">${this.dropMessage}</div>
         </div>
         <div class="buttons full">
-          <div class="gadgetui-fileuploader-fileUpload" name="gadgetui-fileuploader-fileUpload">
+          <div class="gadgetui-fileuploader-fileUpload" name="gadgetui-fileuploader-fileUpload" title="${this.addFileMessage}">
             <label>${icon}<input type="file" name="gadgetui-fileuploader-fileselect" class="gadgetui-fileuploader-upload" title=""></label>
           </div>
         </div>
@@ -4648,6 +4648,7 @@ var gadgetui = (function () {
 			this.beforeUpload = options.beforeUpload || null;
 			this.headers = options.headers || [];
 			this.withCredentials = options.withCredentials ?? false;
+			this.makeDropZoneClickable = options.makeDropZoneClickable ?? false;
 		}
 
 		setDimensions() {
@@ -4717,6 +4718,15 @@ var gadgetui = (function () {
 				this.fireEvent("dragover", ev);
 			});
 
+			if (this.showDropZone && this.makeDropZoneClickable) {
+				dropzone.style.cursor = "pointer";
+				dropzone.addEventListener("click", (ev) => {
+					this.element
+						.querySelector('input[name="gadgetui-fileuploader-fileselect"]')
+						.click();
+				});
+			}
+
 			dropzone.addEventListener("drop", async (ev) => {
 				ev.preventDefault();
 				ev.stopPropagation();
@@ -4752,10 +4762,7 @@ var gadgetui = (function () {
 					return;
 				}
 
-				const wrappedFile = new FileUploadWrapper(
-					file,
-					filedisplay,
-				);
+				const wrappedFile = new FileUploadWrapper(file, filedisplay);
 
 				this.uploadingFiles.push(wrappedFile);
 				wrappedFile.on("uploadComplete", (fileWrapper) => {

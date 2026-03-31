@@ -1,6 +1,11 @@
 
 ***Release Notes***
 
+12.0.3
+======
+
+Add a title property to the upload icon in FileUploader using the value of options.addFileMessage. Add options.makeDropZoneClickable to make the dropzone clickable if you want a dropzone but no upload icon, but still want to be able to click to select files.
+
 12.0.2
 ======
 

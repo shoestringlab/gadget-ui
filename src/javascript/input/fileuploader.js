@@ -1,8 +1,8 @@
-import { Component } from '../../objects/component.js';
-import { setStyle } from '../gadget-ui.util.js';
-import { FileUploadWrapper } from '../display/fileuploadwrapper.js';
-import { Constructor } from '../../objects/constructor.js';
-import { FileItem } from '../../objects/fileitem.js';
+import { Component } from "../../objects/component.js";
+import { setStyle } from "../gadget-ui.util.js";
+import { FileUploadWrapper } from "../display/fileuploadwrapper.js";
+import { Constructor } from "../../objects/constructor.js";
+import { FileItem } from "../../objects/fileitem.js";
 
 export class FileUploader extends Component {
 	constructor(element, options = {}) {
@@ -31,7 +31,7 @@ export class FileUploader extends Component {
           <div class="gadgetui-fileuploader-dropmessage" name="gadgetui-fileuploader-dropMessageDiv">${this.dropMessage}</div>
         </div>
         <div class="buttons full">
-          <div class="gadgetui-fileuploader-fileUpload" name="gadgetui-fileuploader-fileUpload">
+          <div class="gadgetui-fileuploader-fileUpload" name="gadgetui-fileuploader-fileUpload" title="${this.addFileMessage}">
             <label>${icon}<input type="file" name="gadgetui-fileuploader-fileselect" class="gadgetui-fileuploader-upload" title=""></label>
           </div>
         </div>
@@ -95,6 +95,7 @@ export class FileUploader extends Component {
 		this.beforeUpload = options.beforeUpload || null;
 		this.headers = options.headers || [];
 		this.withCredentials = options.withCredentials ?? false;
+		this.makeDropZoneClickable = options.makeDropZoneClickable ?? false;
 	}
 
 	setDimensions() {
@@ -165,6 +166,15 @@ export class FileUploader extends Component {
 			this.fireEvent("dragover", ev);
 		});
 
+		if (this.showDropZone && this.makeDropZoneClickable) {
+			dropzone.style.cursor = "pointer";
+			dropzone.addEventListener("click", (ev) => {
+				this.element
+					.querySelector('input[name="gadgetui-fileuploader-fileselect"]')
+					.click();
+			});
+		}
+
 		dropzone.addEventListener("drop", async (ev) => {
 			ev.preventDefault();
 			ev.stopPropagation();
@@ -200,10 +210,7 @@ export class FileUploader extends Component {
 				return;
 			}
 
-			const wrappedFile = new FileUploadWrapper(
-				file,
-				filedisplay,
-			);
+			const wrappedFile = new FileUploadWrapper(file, filedisplay);
 
 			this.uploadingFiles.push(wrappedFile);
 			wrappedFile.on("uploadComplete", (fileWrapper) => {
