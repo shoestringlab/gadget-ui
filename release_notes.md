@@ -1,6 +1,13 @@
 
 ***Release Notes***
 
+12.1.0
+======
+
+Added shrinkToFit as an option to the TextInput. This makes the input automatically shrink to the wdth of the value of the input when rendered rather than when the value changes.
+
+Changed the width buffer on sizing the input from 30 to 50 to fit the text.
+
 12.0.3
 ======
 

@@ -26,6 +26,9 @@ export class TextInput extends Component {
 		this.setWidth();
 		bind(this.selector, this.model);
 		this.addBindings();
+		if (this.shrinkToFit) {
+			this.setControlWidth(this.value);
+		}
 	}
 
 	addControl() {
@@ -70,7 +73,7 @@ export class TextInput extends Component {
 			parseInt(textWidth(text, this.font), 10),
 			this.minWidth,
 		);
-		setStyle(this.selector, "width", `${tW + 30}px`);
+		setStyle(this.selector, "width", `${tW + 50}px`);
 	}
 
 	addBindings() {
@@ -131,7 +134,7 @@ export class TextInput extends Component {
 			});
 
 			this.selector.addEventListener("blur", () => {
-				setStyle(this.selector, "maxWidth", this.maxWidth);
+				setStyle(this.selector, "max-width", this.maxWidth);
 				this.selector.classList.add(this.browserHideInputCSS);
 				this.fireEvent("blur");
 			});
@@ -149,6 +152,7 @@ export class TextInput extends Component {
 		this.minWidth = options.minWidth || 100;
 		this.enforceMaxWidth = options.enforceMaxWidth || false;
 		this.hideable = options.hideable || false;
+		this.shrinkToFit = options.shrinkToFit || false;
 		this.maxWidth =
 			options.maxWidth ||
 			getNumberValue(getStyle(this.selector.parentNode).width);
