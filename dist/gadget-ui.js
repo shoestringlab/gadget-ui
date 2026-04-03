@@ -5130,7 +5130,10 @@ var gadgetui = (function () {
 
 		addControl() {
 			this.wrapper = document.createElement("div");
-			if (this.width) setStyle(this.wrapper, "width", this.width);
+			if (this.width) {
+				setStyle(this.wrapper, "width", this.width);
+				setStyle(this.element, "width", this.width);
+			}
 			this.wrapper.classList.add("gadgetui-lookuplist-input");
 
 			this.element.parentNode.insertBefore(this.wrapper, this.element);

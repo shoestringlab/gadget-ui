@@ -7,7 +7,7 @@ Gadget-ui is a UI component library that has a built-in model and data-binding m
 
 ### Current Release
 
-v 12.1.0
+v 12.1.1
 
 12.0.0 is a major release, see the release notes.
 

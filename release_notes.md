@@ -1,6 +1,11 @@
 
 ***Release Notes***
 
+12.1.1
+======
+
+The LookupListInput input box will now be sized to the width of the control passed in options.width.
+
 12.1.0
 ======
 
