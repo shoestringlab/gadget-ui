@@ -1,6 +1,12 @@
 
 ***Release Notes***
 
+12.1.2
+======
+
+Add !important style overrides to the Overlay component.
+
+
 12.1.1
 ======
 

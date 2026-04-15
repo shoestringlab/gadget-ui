@@ -39,16 +39,15 @@ export class Overlay extends Component {
 
 		const { width, height, top, left } = this.calculateSizeAndPosition(rect);
 
-		Object.assign(this.overlayElement.style, {
-			position: "absolute",
-			top: `${top}px`,
-			left: `${left}px`,
-			width: `${width}px`,
-			height: `${height}px`,
-			backgroundColor: this.backgroundColor,
-			zIndex: this.getMaxZIndex() + this.zIndexOffset,
-			pointerEvents: this.clickThrough ? "none" : "auto",
-		});
+		const s = this.overlayElement.style;
+		s.setProperty("position", "absolute", "important");
+		s.setProperty("top", `${top}px`, "important");
+		s.setProperty("left", `${left}px`, "important");
+		s.setProperty("width", `${width}px`, "important");
+		s.setProperty("height", `${height}px`, "important");
+		s.setProperty("background-color", this.backgroundColor);
+		s.setProperty("z-index", String(this.getMaxZIndex() + this.zIndexOffset));
+		s.setProperty("pointer-events", this.clickThrough ? "none" : "auto");
 
 		if (!this.autoShow) {
 			this.overlayElement.classList.add("gadgetui-hidden");
@@ -97,12 +96,11 @@ export class Overlay extends Component {
 		) {
 			const { width, height, top, left } = this.calculateSizeAndPosition(rect);
 
-			Object.assign(this.overlayElement.style, {
-				top: `${top}px`,
-				left: `${left}px`,
-				width: `${width}px`,
-				height: `${height}px`,
-			});
+			const s = this.overlayElement.style;
+			s.setProperty("top", `${top}px`, "important");
+			s.setProperty("left", `${left}px`, "important");
+			s.setProperty("width", `${width}px`, "important");
+			s.setProperty("height", `${height}px`, "important");
 
 			this.lastRect = { ...rect }; // shallow copy
 		}
@@ -316,12 +314,11 @@ export class Overlay extends Component {
 		if (this.overlayElement) {
 			const rect = this.element.getBoundingClientRect();
 			const pos = this.calculateSizeAndPosition(rect);
-			this.updateStyle({
-				width: `${pos.width}px`,
-				height: `${pos.height}px`,
-				top: `${pos.top}px`,
-				left: `${pos.left}px`,
-			});
+			const s = this.overlayElement.style;
+			s.setProperty("top", `${pos.top}px`, "important");
+			s.setProperty("left", `${pos.left}px`, "important");
+			s.setProperty("width", `${pos.width}px`, "important");
+			s.setProperty("height", `${pos.height}px`, "important");
 		}
 	}
 }
