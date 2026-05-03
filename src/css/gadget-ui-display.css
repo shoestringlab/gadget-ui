@@ -157,6 +157,14 @@ div.gadget-ui-menu {
 	position: absolute;
 }
 
+/* Portal-mode dropdowns are appended to <body>; position is set inline by JS
+ * (position: fixed + top/left from the trigger's bounding rect). The high
+ * z-index gives a sane default above normal page content even before any
+ * consumer styles load. */
+.gadget-ui-menu-portaled {
+	z-index: 10000;
+}
+
 .gadget-ui-menu-item > .gadget-ui-menu-menuItem {
 	position: absolute;
 	margin-left: 90%;
