@@ -3,6 +3,8 @@
     --gadget-ui-menu-fg: #222;
     --gadget-ui-menu-border: #777;
     --gadget-ui-menu-hover-bg: #ccc;
+    --gadget-ui-lightbox-bg: rgba(0, 0, 0, 0.8);
+    --gadget-ui-popover-bg: #fff;
 }
 
 div.gadgetui-bubble span {
@@ -417,7 +419,9 @@ div.gadget-ui-menu {
     position: fixed;
     top: 0;
     left: 0;
-    background-color: rgba(0, 0, 0, 0.8); /* Semi-transparent for better UX */
+    background-color: var(
+        --gadget-ui-lightbox-bg
+    ); /* Semi-transparent for better UX */
     display: flex;
     align-items: center;
     justify-content: center;
@@ -447,7 +451,7 @@ div.gadget-ui-menu {
 div.gadgetui-popover {
     padding: 1em;
     border-radius: 0.25em;
-    background: #fff;
+    background: var(--gadget-ui-popover-bg);
     border: 1px solid silver;
     z-index: 5; /* Above modal */
     position: absolute;

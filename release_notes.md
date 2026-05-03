@@ -1,6 +1,11 @@
 
 ***Release Notes***
 
+12.2.5
+======
+
+Beginning of migration of gadget-ui color styles to vars in the :root element of the DOM so overrides can be performed seamlessly across the library by simply overriding the value of the var. A few style have been done here as an initial test of migration.
+
 12.2.4
 ======
 
