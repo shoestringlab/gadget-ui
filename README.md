@@ -7,7 +7,7 @@ Gadget-ui is a UI component library that has a built-in model and data-binding m
 
 ### Current Release
 
-v 12.2.1
+v 12.2.3
 
 This release adds a portal display option to the Menu component, and fixes a bug related to multiple menu items present on a page. Add - portal: true, dropdownClass: :someClassName to implement portal mode for the Menu. Current implementations remain unchanged apart from the bug fix. 
 
