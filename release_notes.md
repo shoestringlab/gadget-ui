@@ -1,6 +1,20 @@
 
 ***Release Notes***
 
+12.2.4
+======
+
+ gadget-ui-display.css — paired theming vars on .gadget-ui-menu-menuItem (--gadget-ui-menu-bg, --gadget-ui-menu-fg,
+  --gadget-ui-menu-border, --gadget-ui-menu-hover-bg) with safe defaults; existing rules now read those vars instead
+  of hardcoded values. The mobile :active rule was using #ccc directly — switched it to the same hover-bg var so
+  light/dark theming stays consistent across input modalities.
+
+  menu.js — three changes:
+  1. New dropdownAlign: "left" | "right" option (default "left", behavior unchanged for existing consumers).
+  2. _positionPortaled consults the option; right-align computes left = rect.right - dropdownEl.offsetWidth.
+  3. Open handler swaps order — adds the hovering class before calling _positionPortaled, so the dropdown is display:
+   block and offsetWidth is measurable. Comment explains the no-flash invariant.
+
 12.2.0
 ======
 

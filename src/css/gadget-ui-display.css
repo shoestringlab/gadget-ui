@@ -1,160 +1,173 @@
+:root {
+    --gadget-ui-menu-bg: #fff;
+    --gadget-ui-menu-fg: #222;
+    --gadget-ui-menu-border: #777;
+    --gadget-ui-menu-hover-bg: #ccc;
+}
+
 div.gadgetui-bubble span {
-	font-size: 13px;
+    font-size: 13px;
 }
 
 div.gadget-ui-collapsiblePane,
 div.gadget-ui-floatingPane {
-	padding: 0px;
-	border-radius: 5px;
-	border: 1px solid silver;
-	overflow: hidden;
+    padding: 0px;
+    border-radius: 5px;
+    border: 1px solid silver;
+    overflow: hidden;
 }
 
 div.gadget-ui-floatingPane {
-	position: absolute;
+    position: absolute;
 }
 
 div.gadget-ui-collapsiblePane > div:nth-child(2),
 div.gadget-ui-floatingPane > div:nth-child(2) {
-	padding: 0.5em;
+    padding: 0.5em;
 }
 
 div.gadget-ui-floatingPane > div:nth-child(2) {
-	overflow: auto;
+    overflow: auto;
 }
 
 div.gadget-ui-collapsiblePane-header,
 div.gadget-ui-floatingPane-header {
-	padding: 2px 0px 2px 0.5em;
-	text-align: left;
-	border-radius: 5px 5px 0 0;
-	border: 1px solid transparent;
-	background-color: silver;
-	color: black;
-	font-weight: bold;
-	overflow: hidden;
-	dislay: flex;
-	justify-content: space-between;
+    padding: 2px 0px 2px 0.5em;
+    text-align: left;
+    border-radius: 5px 5px 0 0;
+    border: 1px solid transparent;
+    background-color: silver;
+    color: black;
+    font-weight: bold;
+    overflow: hidden;
+    dislay: flex;
+    justify-content: space-between;
 }
 
 div.gadget-ui-collapsiblePane-header div,
 div.gadget-ui-floatingPane-header div {
-	float: right;
-	display: inline;
-	padding-right: 0.25em;
-	margin-top: 0.1em;
+    float: right;
+    display: inline;
+    padding-right: 0.25em;
+    margin-top: 0.1em;
 }
 
 p.gadgetui-bubble-speech {
-	display: none;
+    display: none;
 }
 
 div.gadgetui-bubble {
-	-webkit-box-sizing: initial;
-	-moz-box-sizing: initial;
-	box-sizing: initial;
+    -webkit-box-sizing: initial;
+    -moz-box-sizing: initial;
+    box-sizing: initial;
 }
 
 .feather {
-	width: 1.2em;
-	height: 1.2em;
-	stroke: currentColor;
-	stroke-width: 2;
-	stroke-linecap: round;
-	stroke-linejoin: round;
-	fill: none;
+    width: 1.2em;
+    height: 1.2em;
+    stroke: currentColor;
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    fill: none;
 }
 
 div.gadgetui-modal {
-	position: fixed;
-	left: 0;
-	top: 0;
-	width: 100%;
-	height: 100%;
-	background-color: rgba(0, 0, 0, 0.5);
-	opacity: 0;
-	visibility: hidden;
-	transform: scale(1.1);
-	transition:
-		visibility 0s linear 0.25s,
-		opacity 0.25s 0s,
-		transform 0.25s;
+    position: fixed;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    opacity: 0;
+    visibility: hidden;
+    transform: scale(1.1);
+    transition:
+        visibility 0s linear 0.25s,
+        opacity 0.25s 0s,
+        transform 0.25s;
 }
 
 div.gadgetui-modalWindow {
-	padding: 1em;
-	border-radius: 0.25em;
-	background: #fff;
-	border: 1px solid silver;
-	margin-left: auto;
-	margin-right: auto;
-	margin-top: 100px;
+    padding: 1em;
+    border-radius: 0.25em;
+    background: #fff;
+    border: 1px solid silver;
+    margin-left: auto;
+    margin-right: auto;
+    margin-top: 100px;
 }
 
 div.gadgetui-showModal {
-	opacity: 1;
-	visibility: visible;
-	transform: scale(1);
-	transition:
-		visibility 0s linear 0s,
-		opacity 0.25s 0s,
-		transform 0.25s;
+    opacity: 1;
+    visibility: visible;
+    transform: scale(1);
+    transition:
+        visibility 0s linear 0s,
+        opacity 0.25s 0s,
+        transform 0.25s;
 }
 
 .gadgetui-right-align {
-	float: right;
+    float: right;
 }
 
 div.gadgetui-sidebar {
-	border: 1px solid silver;
-	position: relative;
-	top: 0;
-	bottom: 0;
+    border: 1px solid silver;
+    position: relative;
+    top: 0;
+    bottom: 0;
 }
 
 div.gadgetui-sidebar-minimized {
-	width: 25px !important;
+    width: 25px !important;
 }
 
 div.gadgetui-sidebarContent-minimized {
-	opacity: 0;
-	overflow: hidden;
-	width: 0px !important;
+    opacity: 0;
+    overflow: hidden;
+    width: 0px !important;
 }
 
 span.gadgetui-sidebar-toggle {
-	position: relative;
-	right: 0;
-	top: 48%;
-	border-left: 1px solid silver;
-	border-top: 1px solid silver;
-	border-bottom: 1px solid silver;
-	padding-top: 4px;
-	border-radius: 0.25em 0 0 0.25em;
-	cursor: pointer;
+    position: relative;
+    right: 0;
+    top: 48%;
+    border-left: 1px solid silver;
+    border-top: 1px solid silver;
+    border-bottom: 1px solid silver;
+    padding-top: 4px;
+    border-radius: 0.25em 0 0 0.25em;
+    cursor: pointer;
 }
 
 div.gadget-ui-menu {
-	display: inline-block;
-	padding: 0 0.25em;
-	margin: 0 0 0.25em 0;
-	cursor: pointer;
+    display: inline-block;
+    padding: 0 0.25em;
+    margin: 0 0 0.25em 0;
+    cursor: pointer;
 }
 
+/* Theming contract: consumers override these custom properties at any scope
+ * to integrate the dropdown with their app's theme. Using a paired var set
+ * means the bg/fg can never drift apart (which they could if a consumer
+ * mapped only one of them to their app vars). Defaults read on a white
+ * surface in any environment. */
 .gadget-ui-menu-menuItem {
-	display: none;
-	border: 1px solid #777;
-	background: #fff;
+    display: none;
+    border: 1px solid var(--gadget-ui-menu-border);
+    background: var(--gadget-ui-menu-bg);
+    color: var(--gadget-ui-menu-fg);
 }
 
 .gadget-ui-menu-menuItem > div {
-	padding-top: 0.5em;
-	display: block;
+    padding-top: 0.5em;
+    display: block;
 }
 
 .gadget-ui-menu-hovering {
-	display: block;
-	position: absolute;
+    display: block;
+    position: absolute;
 }
 
 /* Portal-mode dropdowns are appended to <body>; position is set inline by JS
@@ -162,294 +175,294 @@ div.gadget-ui-menu {
  * z-index gives a sane default above normal page content even before any
  * consumer styles load. */
 .gadget-ui-menu-portaled {
-	z-index: 10000;
+    z-index: 10000;
 }
 
 .gadget-ui-menu-item > .gadget-ui-menu-menuItem {
-	position: absolute;
-	margin-left: 90%;
-	margin-top: -1.3em;
-	float: right;
+    position: absolute;
+    margin-left: 90%;
+    margin-top: -1.3em;
+    float: right;
 }
 
 .gadget-ui-menu-item {
-	white-space: nowrap;
-	padding: 0 1em 0.5em 0.25em;
+    white-space: nowrap;
+    padding: 0 1em 0.5em 0.25em;
 }
 
 .gadget-ui-menu-item:hover {
-	background: #ccc;
+    background: var(--gadget-ui-menu-hover-bg);
 }
 
 .gadget-ui-menu-icon {
-	width: 2em;
-	display: inline;
-	margin-right: 0.25em;
+    width: 2em;
+    display: inline;
+    margin-right: 0.25em;
 }
 
 /* Mobile-friendly menu styles */
 @media (max-width: 768px) {
-	.gadget-ui-menu-item {
-		padding: 0.75em 1em;
-		min-height: 44px;
-		display: flex;
-		align-items: center;
-		box-sizing: border-box;
-	}
+    .gadget-ui-menu-item {
+        padding: 0.75em 1em;
+        min-height: 44px;
+        display: flex;
+        align-items: center;
+        box-sizing: border-box;
+    }
 
-	.gadget-ui-menu-item:active {
-		background: #ccc;
-	}
+    .gadget-ui-menu-item:active {
+        background: var(--gadget-ui-menu-hover-bg);
+    }
 
-	.gadget-ui-menu-menuItem {
-		min-width: 180px;
-	}
+    .gadget-ui-menu-menuItem {
+        min-width: 180px;
+    }
 
-	.gadget-ui-menu-icon {
-		width: 1.5em;
-		margin-right: 0.5em;
-	}
+    .gadget-ui-menu-icon {
+        width: 1.5em;
+        margin-right: 0.5em;
+    }
 }
 
 .gadget-ui-tabs-h {
-	background-color: #ccc;
-	padding: 0 0.5em;
-	margin-top: 0.25em;
-	display: flex;
-	/*   justify-content: space-between; */
+    background-color: #ccc;
+    padding: 0 0.5em;
+    margin-top: 0.25em;
+    display: flex;
+    /*   justify-content: space-between; */
 }
 
 .gadget-ui-tabs-h div.gadget-ui-tab-h {
-	display: inline-block;
-	padding: 0.5em 1em 0 1em;
-	background-color: #777;
-	color: white;
-	margin: 0.5em 0.5em 0 0.5em;
-	font-weight: bold;
-	border-radius: 0.25em 0.25em 0 0;
-	height: 1.5em;
-	cursor: pointer;
+    display: inline-block;
+    padding: 0.5em 1em 0 1em;
+    background-color: #777;
+    color: white;
+    margin: 0.5em 0.5em 0 0.5em;
+    font-weight: bold;
+    border-radius: 0.25em 0.25em 0 0;
+    height: 1.5em;
+    cursor: pointer;
 }
 
 .gadget-ui-tabs-h div.gadget-ui-tab-h:hover {
-	background-color: #999;
+    background-color: #999;
 }
 
 .gadget-ui-tabs-h div.gadget-ui-tab-h-active {
-	display: inline-block;
-	padding: 0.5em 1em 0 1em;
-	background-color: #999;
-	color: white;
-	margin: 0.5em 0.5em 0 0.5em;
-	font-weight: bold;
-	border-radius: 0.25em 0.25em 0 0;
-	height: 1.5em;
+    display: inline-block;
+    padding: 0.5em 1em 0 1em;
+    background-color: #999;
+    color: white;
+    margin: 0.5em 0.5em 0 0.5em;
+    font-weight: bold;
+    border-radius: 0.25em 0.25em 0 0;
+    height: 1.5em;
 }
 
 .gadget-ui-tabs-v {
-	background-color: #ccc;
-	padding: 0;
-	display: block;
+    background-color: #ccc;
+    padding: 0;
+    display: block;
 }
 
 .gadget-ui-tabs-v div.gadget-ui-tab-v {
-	display: block;
-	padding: 0.5em 0.5em 0 1em;
-	background-color: #777;
-	color: white;
-	margin: 0.5em 0 0 0.5em;
-	font-weight: bold;
-	border-radius: 0;
-	height: 1.5em;
-	text-align: right;
-	cursor: pointer;
+    display: block;
+    padding: 0.5em 0.5em 0 1em;
+    background-color: #777;
+    color: white;
+    margin: 0.5em 0 0 0.5em;
+    font-weight: bold;
+    border-radius: 0;
+    height: 1.5em;
+    text-align: right;
+    cursor: pointer;
 }
 
 .gadget-ui-tabs-v div.gadget-ui-tab-v:hover {
-	background-color: #999;
+    background-color: #999;
 }
 
 .gadget-ui-tabs-v div.gadget-ui-tab-v-active {
-	display: block;
-	padding: 0.5em 0.5em 0 1em;
-	background-color: #999;
-	color: white;
-	margin: 0.5em 0 0 0.5em;
-	font-weight: bold;
-	border-radius: 0;
-	height: 1.5em;
-	text-align: right;
+    display: block;
+    padding: 0.5em 0.5em 0 1em;
+    background-color: #999;
+    color: white;
+    margin: 0.5em 0 0 0.5em;
+    font-weight: bold;
+    border-radius: 0;
+    height: 1.5em;
+    text-align: right;
 }
 
 .gadgetui-progressbar-progressbox {
-	display: flex;
-	padding: 0.25em 0.5em;
-	background: #999;
-	color: #fff;
-	align-items: center;
+    display: flex;
+    padding: 0.25em 0.5em;
+    background: #999;
+    color: #fff;
+    align-items: center;
 }
 
 .gadgetui-progressbar-label {
-	color: white;
-	padding-right: 0.5em;
-	white-space: nowrap;
+    color: white;
+    padding-right: 0.5em;
+    white-space: nowrap;
 }
 
 .gadgetui-progressbar-container {
-	position: relative;
-	flex: 1;
-	background: #ddd;
-	height: 1.5em;
-	overflow: hidden;
+    position: relative;
+    flex: 1;
+    background: #ddd;
+    height: 1.5em;
+    overflow: hidden;
 }
 
 .gadget-ui-progressbar {
-	background: #4CAF50;
-	height: 100%;
-	transition: width 0.3s ease;
+    background: #4caf50;
+    height: 100%;
+    transition: width 0.3s ease;
 }
 
 .gadgetui-progressbar-statustxt {
-	position: absolute;
-	top: 0;
-	left: 0;
-	right: 0;
-	height: 100%;
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	color: #333;
-	font-weight: bold;
-	font-size: smaller;
-	pointer-events: none;
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #333;
+    font-weight: bold;
+    font-size: smaller;
+    pointer-events: none;
 }
 
 .gadget-ui-progressbar-filename {
-	padding: 0 0.25em;
+    padding: 0 0.25em;
 }
 
 .gadgetui-lightbox {
-	width: 100%;
-	height: 100%;
-	position: relative; /* Changed to relative for better containment */
+    width: 100%;
+    height: 100%;
+    position: relative; /* Changed to relative for better containment */
 }
 
 .gadgetui-lightbox-image-container {
-	width: 95%;
-	height: 100%; /* Ensure container takes full height */
-	position: relative;
-	margin-left: auto;
-	margin-right: auto;
-	overflow: hidden; /* Hide transition image during slide */
+    width: 95%;
+    height: 100%; /* Ensure container takes full height */
+    position: relative;
+    margin-left: auto;
+    margin-right: auto;
+    overflow: hidden; /* Hide transition image during slide */
 }
 
 .gadgetui-lightbox-image {
-	width: 100%;
-	/* height: 100%;
+    width: 100%;
+    /* height: 100%;
 	position: absolute; */
-	top: 0;
-	left: 0;
-	object-fit: cover;
-	z-index: 1; /* Main image below transition image */
+    top: 0;
+    left: 0;
+    object-fit: cover;
+    z-index: 1; /* Main image below transition image */
 }
 
 .gadgetui-lightbox-transitionimage {
-	width: 100%;
-	/* height: 100%; */
-	position: absolute;
-	top: 0;
-	left: 0;
-	object-fit: cover;
-	z-index: 2; /* Transition image above main image */
-	transform: translateX(0);
-	transition: transform 0.5s ease-in-out;
+    width: 100%;
+    /* height: 100%; */
+    position: absolute;
+    top: 0;
+    left: 0;
+    object-fit: cover;
+    z-index: 2; /* Transition image above main image */
+    transform: translateX(0);
+    transition: transform 0.5s ease-in-out;
 }
 
 .gadgetui-slide-left {
-	transform: translateX(100%); /* Start off-screen to the right (for next) */
+    transform: translateX(100%); /* Start off-screen to the right (for next) */
 }
 
 .gadgetui-slide-right {
-	transform: translateX(
-		-100%
-	); /* Start off-screen to the left (for previous) */
+    transform: translateX(
+        -100%
+    ); /* Start off-screen to the left (for previous) */
 }
 
 .gadgetui-slide-in {
-	transform: translateX(0); /* Slide to center */
+    transform: translateX(0); /* Slide to center */
 }
 
 .gadgetui-lightbox-previousControl {
-	position: absolute;
-	left: 0px;
-	top: 50%;
-	transform: translateY(-50%);
-	cursor: pointer;
-	z-index: 3; /* Above both images */
+    position: absolute;
+    left: 0px;
+    top: 50%;
+    transform: translateY(-50%);
+    cursor: pointer;
+    z-index: 3; /* Above both images */
 }
 
 .gadgetui-lightbox-nextControl {
-	position: absolute;
-	right: 0px;
-	top: 50%;
-	transform: translateY(-50%);
-	cursor: pointer;
-	z-index: 3; /* Above both images */
+    position: absolute;
+    right: 0px;
+    top: 50%;
+    transform: translateY(-50%);
+    cursor: pointer;
+    z-index: 3; /* Above both images */
 }
 
 .gadgetui-lightbox-modal {
-	width: 100%;
-	height: 100%;
-	z-index: 4; /* Above everything */
-	position: fixed;
-	top: 0;
-	left: 0;
-	background-color: rgba(0, 0, 0, 0.8); /* Semi-transparent for better UX */
-	display: flex;
-	align-items: center;
-	justify-content: center;
+    width: 100%;
+    height: 100%;
+    z-index: 4; /* Above everything */
+    position: fixed;
+    top: 0;
+    left: 0;
+    background-color: rgba(0, 0, 0, 0.8); /* Semi-transparent for better UX */
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .gadgetui-hidden {
-	display: none;
+    display: none;
 }
 
 .gadgetui-lightbox-modal-imagecontainer {
-	width: 90%;
-	max-height: 80%;
-	position: relative;
+    width: 90%;
+    max-height: 80%;
+    position: relative;
 }
 
 .gadgetui-lightbox-modal-imagecontainer img {
-	width: 100%;
-	height: auto;
-	max-height: 80vh;
-	object-fit: contain; /* Ensure modal image fits without stretching */
+    width: 100%;
+    height: auto;
+    max-height: 80vh;
+    object-fit: contain; /* Ensure modal image fits without stretching */
 }
 
 .gadgetui-dialog-button {
-	margin: 0 0.5em;
+    margin: 0 0.5em;
 }
 
 div.gadgetui-popover {
-	padding: 1em;
-	border-radius: 0.25em;
-	background: #fff;
-	border: 1px solid silver;
-	z-index: 5; /* Above modal */
-	position: absolute;
-	top: 100px;
-	left: 50%;
-	transform: translateX(-5%);
-	visibility: hidden;
+    padding: 1em;
+    border-radius: 0.25em;
+    background: #fff;
+    border: 1px solid silver;
+    z-index: 5; /* Above modal */
+    position: absolute;
+    top: 100px;
+    left: 50%;
+    transform: translateX(-5%);
+    visibility: hidden;
 }
 
 div.gadgetui-showPopover {
-	opacity: 1;
-	visibility: visible !important;
-	transform: scale(1);
-	transition:
-		visibility 0s linear 0s,
-		opacity 0.25s 0s,
-		transform 0.25s;
+    opacity: 1;
+    visibility: visible !important;
+    transform: scale(1);
+    transition:
+        visibility 0s linear 0s,
+        opacity 0.25s 0s,
+        transform 0.25s;
 }

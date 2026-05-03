@@ -182,8 +182,12 @@ export class Menu extends Component {
           menuItem.classList.remove("gadget-ui-menu-hovering");
           this.fireEvent("menuClosed", this);
         } else {
-          if (this.portal) this._positionPortaled(mu, menuItem);
+          // Add the hovering class before positioning so _positionPortaled
+          // can measure the dropdown for right-align mode (offsetWidth is 0
+          // on display:none). Browser doesn't paint between sync ops, so no
+          // visible flash at the pre-position location.
           menuItem.classList.add("gadget-ui-menu-hovering");
+          if (this.portal) this._positionPortaled(mu, menuItem);
           this.fireEvent("menuOpened", this);
         }
       });
@@ -306,6 +310,12 @@ export class Menu extends Component {
     // existing consumer DOM and CSS expectations.
     this.portal = !!options.portal;
     this.dropdownClass = options.dropdownClass || "";
+    // Horizontal alignment of portaled dropdowns relative to the trigger.
+    // "left" (default) puts the dropdown's left edge at the trigger's left;
+    // "right" puts the dropdown's right edge at the trigger's right (useful
+    // when the trigger sits near the right side of a panel and a left-aligned
+    // dropdown would overflow into adjacent UI).
+    this.dropdownAlign = options.dropdownAlign === "right" ? "right" : "left";
     this.portaledDropdowns = [];
     this.observer = null;
   }
@@ -320,12 +330,20 @@ export class Menu extends Component {
 
   // Position a portaled dropdown to its trigger's bounding rect. position:fixed
   // is set inline so the dropdown follows the trigger across scroll without
-  // requiring CSS coordination from the consumer.
+  // requiring CSS coordination from the consumer. dropdownAlign controls
+  // which edge anchors to which: "left" aligns left-to-left (default),
+  // "right" aligns right-to-right and requires the dropdown to be visible
+  // (display:block) for offsetWidth to be measurable — the open handler
+  // adds the hovering class before calling this.
   _positionPortaled(menuToggle, dropdownEl) {
     const rect = menuToggle.getBoundingClientRect();
     dropdownEl.style.position = "fixed";
     dropdownEl.style.top = rect.bottom + "px";
-    dropdownEl.style.left = rect.left + "px";
+    if (this.dropdownAlign === "right") {
+      dropdownEl.style.left = rect.right - dropdownEl.offsetWidth + "px";
+    } else {
+      dropdownEl.style.left = rect.left + "px";
+    }
   }
 
   // Position an absolutely-positioned target so its first menu item visually
