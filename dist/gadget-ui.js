@@ -2025,19 +2025,31 @@ var gadgetui = (function () {
 	    };
 
 	    const generateMenu = (menuData) => {
-	      const element = document.createElement("div");
-	      element.classList.add("gadget-ui-menu");
-	      element.innerText = menuData.label || "";
+	      const menuEl = document.createElement("div");
+	      menuEl.classList.add("gadget-ui-menu");
+	      menuEl.innerText = menuData.label || "";
 
 	      if (menuData.image?.length) {
 	        const imgEl = document.createElement("img");
 	        imgEl.src = menuData.image;
 	        imgEl.classList.add("gadget-ui-menu-icon");
-	        element.appendChild(imgEl);
+	        menuEl.appendChild(imgEl);
 	      }
 
-	      element.appendChild(processMenuItem(menuData.menuItem));
-	      return element;
+	      const dropdownEl = processMenuItem(menuData.menuItem);
+
+	      if (this.portal) {
+	        // Top-level dropdown moves to body; nested submenus stay inside it
+	        // (they don't have the stacking problem once the root is out).
+	        if (this.dropdownClass) dropdownEl.classList.add(this.dropdownClass);
+	        dropdownEl.classList.add("gadget-ui-menu-portaled");
+	        document.body.appendChild(dropdownEl);
+	        this.portaledDropdowns.push(dropdownEl);
+	        menuEl._dropdownEl = dropdownEl;
+	      } else {
+	        menuEl.appendChild(dropdownEl);
+	      }
+	      return menuEl;
 	    };
 
 	    this.data.forEach((menu) => {
@@ -2045,6 +2057,8 @@ var gadgetui = (function () {
 	      this.element.appendChild(element);
 	      this.elements.push(element);
 	    });
+
+	    if (this.portal) this._observeAnchor();
 	  }
 
 	  addBindings() {
@@ -2055,16 +2069,16 @@ var gadgetui = (function () {
 	      this.options.menuActivate || (isTouchDevice ? "click" : "mouseenter");
 
 	    document.addEventListener("click", (evt) => {
-	      if (!this.element.contains(evt.target)) {
-	        this.close();
-	      }
+	      if (this.element.contains(evt.target)) return;
+	      if (this.portaledDropdowns.some((d) => d.contains(evt.target))) return;
+	      this.close();
 	    });
 
 	    // Track the last clicked item for position updates
 	    let lastClickedItem = null;
 
 	    menus.forEach((mu) => {
-	      const menuItem = mu.querySelector(".gadget-ui-menu-menuItem");
+	      const menuItem = this._dropdownFor(mu);
 	      const items = menuItem.querySelectorAll(".gadget-ui-menu-item");
 	      const menuItems = menuItem.querySelectorAll(".gadget-ui-menu-menuItem");
 
@@ -2104,17 +2118,47 @@ var gadgetui = (function () {
 	          menuItem.classList.remove("gadget-ui-menu-hovering");
 	          this.fireEvent("menuClosed", this);
 	        } else {
+	          if (this.portal) this._positionPortaled(mu, menuItem);
 	          menuItem.classList.add("gadget-ui-menu-hovering");
 	          this.fireEvent("menuOpened", this);
 	        }
 	      });
 
 	      if (activateEvent === "mouseenter") {
-	        mu.addEventListener("mouseleave", (evt) => {
-	          evt.stopPropagation();
-	          menuItem.classList.remove("gadget-ui-menu-hovering");
-	          this.fireEvent("menuClosed", this);
-	        });
+	        if (this.portal) {
+	          // The portaled dropdown is on document.body, not a descendant of
+	          // the toggle, so mouseleave fires as soon as the cursor crosses
+	          // the gap between them. Grace timer + bridge handlers on the
+	          // dropdown let the cursor traverse without losing the menu.
+	          let closeTimer = null;
+	          const scheduleClose = () => {
+	            clearTimeout(closeTimer);
+	            closeTimer = setTimeout(() => {
+	              menuItem.classList.remove("gadget-ui-menu-hovering");
+	              this.fireEvent("menuClosed", this);
+	            }, 150);
+	          };
+	          const cancelClose = () => {
+	            clearTimeout(closeTimer);
+	            closeTimer = null;
+	          };
+	          mu.addEventListener("mouseleave", (evt) => {
+	            evt.stopPropagation();
+	            scheduleClose();
+	          });
+	          mu.addEventListener("mouseenter", cancelClose);
+	          menuItem.addEventListener("mouseenter", cancelClose);
+	          menuItem.addEventListener("mouseleave", (evt) => {
+	            evt.stopPropagation();
+	            scheduleClose();
+	          });
+	        } else {
+	          mu.addEventListener("mouseleave", (evt) => {
+	            evt.stopPropagation();
+	            menuItem.classList.remove("gadget-ui-menu-hovering");
+	            this.fireEvent("menuClosed", this);
+	          });
+	        }
 	      }
 
 	      menuItems.forEach((mItem) => {
@@ -2133,23 +2177,40 @@ var gadgetui = (function () {
 	      });
 	    });
 
-	    // Reposition the open submenu (if any) to follow its parent item as the
-	    // page scrolls. Looks the submenu up from lastClickedItem rather than
-	    // closing over `menuItem`, which was scoped to the menus.forEach callback
-	    // above and not visible here — referencing it threw at runtime.
-	    window.addEventListener("scroll", () => {
-	      if (!lastClickedItem) return;
-	      const submenu = lastClickedItem.querySelector(
-	        ":scope > .gadget-ui-menu-menuItem",
-	      );
-	      if (!submenu || !submenu.classList.contains("gadget-ui-menu-hovering")) return;
-	      this._alignTopToTrigger(submenu, lastClickedItem);
-	    }, { passive: true });
+	    // Reposition open dropdowns to follow their triggers on scroll. Capture
+	    // phase so we receive scroll events from nested scrollable containers
+	    // (those don't bubble to window). Both portaled top-level dropdowns and
+	    // any open submenu need updating.
+	    window.addEventListener(
+	      "scroll",
+	      () => {
+	        if (this.portal) {
+	          this.elements.forEach((mu) => {
+	            const dd = this._dropdownFor(mu);
+	            if (dd && dd.classList.contains("gadget-ui-menu-hovering")) {
+	              this._positionPortaled(mu, dd);
+	            }
+	          });
+	        }
+	        if (lastClickedItem) {
+	          const submenu = lastClickedItem.querySelector(
+	            ":scope > .gadget-ui-menu-menuItem",
+	          );
+	          if (
+	            submenu &&
+	            submenu.classList.contains("gadget-ui-menu-hovering")
+	          ) {
+	            this._alignTopToTrigger(submenu, lastClickedItem);
+	          }
+	        }
+	      },
+	      { passive: true, capture: true },
+	    );
 	  }
 
 	  close() {
 	    this.elements.forEach((menu) => {
-	      const menuItem = menu.querySelector(".gadget-ui-menu-menuItem");
+	      const menuItem = this._dropdownFor(menu);
 	      if (menuItem) {
 	        menuItem.classList.remove("gadget-ui-menu-hovering");
 	        this.fireEvent("menuClosed", this);
@@ -2161,6 +2222,12 @@ var gadgetui = (function () {
 	    this.element.querySelectorAll(".gadget-ui-menu").forEach((menu) => {
 	      this.element.removeChild(menu);
 	    });
+	    this.portaledDropdowns.forEach((d) => d.remove());
+	    this.portaledDropdowns = [];
+	    if (this.observer) {
+	      this.observer.disconnect();
+	      this.observer = null;
+	    }
 	    this.elements = [];
 	    this.fireEvent("menuRemoved", this);
 	  }
