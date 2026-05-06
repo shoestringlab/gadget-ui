@@ -42,7 +42,7 @@ div.gadget-ui-floatingPane-header {
     color: black;
     font-weight: bold;
     overflow: hidden;
-    dislay: flex;
+    display: flex;
     justify-content: space-between;
 }
 

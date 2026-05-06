@@ -1,6 +1,11 @@
 
 ***Release Notes***
 
+12.2.6
+======
+
+Purely a CSS update because the CSS failed to build properly on the previous release and was held back.
+
 12.2.5
 ======
 
