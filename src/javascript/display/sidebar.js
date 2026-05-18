@@ -8,9 +8,18 @@ export class Sidebar extends Component {
 		this.config(options);
 		this.addControl();
 		this.addBindings(options);
+		this._observeForRemoval();
 	}
 
-	events = ["maximized", "minimized"];
+	// Events fired (call .on(name, handler) to subscribe):
+	//   "minimized" / "maximized" — toggle completed (or constructor's
+	//                               initial `minimized: true` ran)
+	//   "removed"                 — destroy() ran (manual destroy(), or
+	//                               MutationObserver auto-destroy on
+	//                               wrapper removal)
+	// (Previous `events = ["maximized","minimized"]` class field
+	//  overwrote Component's `this.events` listener dict with an array
+	//  — removed.)
 
 	config(options) {
 		this.class = options.class || false;
@@ -100,13 +109,30 @@ export class Sidebar extends Component {
 	}
 
 	addBindings(options) {
-		this.span.addEventListener("click", () => {
+		// Store the bound handler so destroy() can detach it
+		// symmetrically. An inline arrow (the previous pattern) can't be
+		// removed later because each call creates a fresh ref.
+		this._onToggleClick = () => {
 			this.minimized ? this.maximize() : this.minimize();
-		});
+		};
+		this.span.addEventListener("click", this._onToggleClick);
 
 		if (options.minimized) {
 			this.minimize();
 		}
+	}
+
+	// Auto-destroy when the wrapper leaves the DOM (e.g. consumer's
+	// framework re-renders the view without calling destroy()). Same
+	// pattern as Modal / Popover / FloatingPane / etc.
+	_observeForRemoval() {
+		this._observer = new MutationObserver(() => {
+			if (!document.contains(this.wrapper)) this.destroy();
+		});
+		this._observer.observe(document.body, {
+			childList: true,
+			subtree: true,
+		});
 	}
 
 	setChevron(minimized) {
@@ -120,6 +146,29 @@ export class Sidebar extends Component {
 	}
 
 	destroy() {
-		// Implement cleanup logic if necessary
+		if (this._destroyed) return;
+		this._destroyed = true;
+
+		if (this._observer) {
+			this._observer.disconnect();
+			this._observer = null;
+		}
+		if (this.span && this._onToggleClick) {
+			this.span.removeEventListener("click", this._onToggleClick);
+		}
+
+		// Unwrap the selector: pop it back out of the wrapper and into
+		// the wrapper's spot in the parent, then drop the wrapper (which
+		// takes the toggle span with it). Leaves the consumer's element
+		// where it started so they can re-instantiate or repurpose it.
+		const wrapperParent = this.wrapper && this.wrapper.parentNode;
+		if (wrapperParent && this.selector) {
+			wrapperParent.insertBefore(this.selector, this.wrapper);
+		}
+		if (wrapperParent) {
+			wrapperParent.removeChild(this.wrapper);
+		}
+
+		this.fireEvent("removed");
 	}
 }

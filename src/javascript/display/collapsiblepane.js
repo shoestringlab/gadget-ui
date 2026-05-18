@@ -18,12 +18,24 @@ export class CollapsiblePane extends Component {
 		this.headerHeight = this.header.offsetHeight;
 		this.selectorHeight = this.element.offsetHeight;
 
+		this._observeForRemoval();
+
 		if (this.collapse) {
 			this.toggle();
 		}
 	}
 
-	events = ["minimized", "maximized"];
+	// Events fired (call .on(name, handler) to subscribe):
+	//   "minimized" / "maximized" — toggle() completed; component event
+	//   "removed"                 — destroy() ran (manual destroy(), or
+	//                               MutationObserver auto-destroy on
+	//                               wrapper removal)
+	// Legacy DOM events (kept for back-compat — also fired on toggle):
+	//   element.dispatchEvent(new Event("collapse")) — before collapsing
+	//   element.dispatchEvent(new Event("expand"))   — before expanding
+	// (Previous `events = ["minimized","maximized"]` class field
+	//  overwrote Component's `this.events` listener dict with an array
+	//  — removed.)
 
 	addControl() {
 		const pane = document.createElement("div");
@@ -72,7 +84,43 @@ export class CollapsiblePane extends Component {
 				: "div.gadget-ui-collapsiblePane-header",
 		);
 
-		header.addEventListener("click", () => this.toggle());
+		// Store the bound handler so destroy() can detach it
+		// symmetrically. An inline arrow (the previous pattern) can't be
+		// removed later because each call creates a fresh ref.
+		this._onHeaderClick = () => this.toggle();
+		header.addEventListener("click", this._onHeaderClick);
+		this._headerEl = header;
+	}
+
+	// Auto-destroy when the wrapper leaves the DOM (e.g. consumer's
+	// framework re-renders the view without calling destroy()). Same
+	// pattern as Modal / Popover / FloatingPane / etc.
+	_observeForRemoval() {
+		this._observer = new MutationObserver(() => {
+			if (!document.contains(this.wrapper)) this.destroy();
+		});
+		this._observer.observe(document.body, {
+			childList: true,
+			subtree: true,
+		});
+	}
+
+	destroy() {
+		if (this._destroyed) return;
+		this._destroyed = true;
+
+		if (this._observer) {
+			this._observer.disconnect();
+			this._observer = null;
+		}
+		if (this._headerEl && this._onHeaderClick) {
+			this._headerEl.removeEventListener("click", this._onHeaderClick);
+		}
+		if (this.wrapper && this.wrapper.parentNode) {
+			this.wrapper.parentNode.removeChild(this.wrapper);
+		}
+
+		this.fireEvent("removed");
 	}
 
 	toggle() {
@@ -124,6 +172,12 @@ export class CollapsiblePane extends Component {
 		} else {
 			css(this.element, "display", display);
 			// this.icon.setAttribute('data-glyph', icon);
+			// Sync the component event into the non-animated path —
+			// previously only the Velocity branch fired this, so
+			// consumers using `animate: false` never saw "minimized" /
+			// "maximized". The legacy DOM event above fires in both
+			// branches; the component event now does too.
+			this.fireEvent(newEventName);
 		}
 	}
 

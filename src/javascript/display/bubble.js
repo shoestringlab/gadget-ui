@@ -7,6 +7,8 @@ export class Bubble extends Component {
 		this.canvas = document.createElement("canvas");
 		this.ctx = this.canvas.getContext("2d");
 		this.configure(options);
+		this._attachedElement = null;
+		this._attachedPosition = null;
 		this.bubble = {
 			x: 0,
 			y: 0,
@@ -31,6 +33,12 @@ export class Bubble extends Component {
 			vAlign: this.vAlign,
 		};
 	}
+
+	// Events fired (call .on(name, handler) to subscribe):
+	//   "removed" — destroy() ran (manual destroy(), or MutationObserver
+	//               auto-destroy on attached-element removal)
+	// Visuals are canvas-based, so theming is via the constructor options
+	// (color, borderColor, backgroundColor, font*) rather than CSS tokens.
 
 	configure(options = {}) {
 		this.color = options.color ?? "#000";
@@ -227,7 +235,22 @@ export class Bubble extends Component {
 	}
 
 	attachToElement(selector, position) {
-		const element = selector;
+		if (!selector) return;
+		this._attachedElement = selector;
+		this._attachedPosition = position;
+		this._positionToAttached();
+		this._setupAttachmentTracking();
+	}
+
+	// Compute and apply the canvas position relative to the attached
+	// element. Called once on attachToElement() and re-called on every
+	// scroll/resize so the bubble follows the anchor instead of drifting.
+	// `position: fixed` makes the math straightforward — getBoundingClientRect
+	// already returns viewport coords, which fixed-positioning consumes
+	// directly. The previous `position: absolute` plus viewport-relative
+	// coords was the source of the scroll-drift bug.
+	_positionToAttached() {
+		const element = this._attachedElement;
 		if (!element) return;
 
 		const rect = element.getBoundingClientRect();
@@ -244,13 +267,62 @@ export class Bubble extends Component {
 			topleft: [rect.left - canvasRect.width, rect.top - canvasRect.height],
 		};
 
-		const [left, top] = positions[position] || [0, 0];
+		const [left, top] = positions[this._attachedPosition] || [0, 0];
 		this.canvas.style.left = `${left}px`;
 		this.canvas.style.top = `${top}px`;
-		this.canvas.style.position = "absolute";
+		this.canvas.style.position = "fixed";
+	}
+
+	// Wire scroll/resize follow + auto-destroy on anchor removal. Only
+	// runs when attachToElement was called — Bubble also supports
+	// stand-alone setBubble(x, y, ...) positioning where these don't
+	// apply. Idempotent so repeated attachToElement calls don't stack
+	// listeners.
+	_setupAttachmentTracking() {
+		if (this._attachmentTracking) return;
+		this._attachmentTracking = true;
+
+		// Capture phase so we catch scroll events from nested scrollable
+		// containers (those don't bubble to window).
+		this._onScroll = () => this._positionToAttached();
+		window.addEventListener("scroll", this._onScroll, {
+			passive: true,
+			capture: true,
+		});
+		this._onResize = () => this._positionToAttached();
+		window.addEventListener("resize", this._onResize, { passive: true });
+
+		this._observer = new MutationObserver(() => {
+			if (!document.contains(this._attachedElement)) this.destroy();
+		});
+		this._observer.observe(document.body, {
+			childList: true,
+			subtree: true,
+		});
 	}
 
 	destroy() {
-		document.body.removeChild(this.canvas);
+		if (this._destroyed) return;
+		this._destroyed = true;
+
+		if (this._onScroll) {
+			window.removeEventListener("scroll", this._onScroll, {
+				capture: true,
+			});
+			this._onScroll = null;
+		}
+		if (this._onResize) {
+			window.removeEventListener("resize", this._onResize);
+			this._onResize = null;
+		}
+		if (this._observer) {
+			this._observer.disconnect();
+			this._observer = null;
+		}
+		if (this.canvas && this.canvas.parentNode) {
+			this.canvas.parentNode.removeChild(this.canvas);
+		}
+
+		this.fireEvent("removed");
 	}
 }

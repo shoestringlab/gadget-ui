@@ -834,6 +834,8 @@ var gadgetui = (function () {
 			this.canvas = document.createElement("canvas");
 			this.ctx = this.canvas.getContext("2d");
 			this.configure(options);
+			this._attachedElement = null;
+			this._attachedPosition = null;
 			this.bubble = {
 				x: 0,
 				y: 0,
@@ -858,6 +860,12 @@ var gadgetui = (function () {
 				vAlign: this.vAlign,
 			};
 		}
+
+		// Events fired (call .on(name, handler) to subscribe):
+		//   "removed" — destroy() ran (manual destroy(), or MutationObserver
+		//               auto-destroy on attached-element removal)
+		// Visuals are canvas-based, so theming is via the constructor options
+		// (color, borderColor, backgroundColor, font*) rather than CSS tokens.
 
 		configure(options = {}) {
 			this.color = options.color ?? "#000";
@@ -1054,7 +1062,22 @@ var gadgetui = (function () {
 		}
 
 		attachToElement(selector, position) {
-			const element = selector;
+			if (!selector) return;
+			this._attachedElement = selector;
+			this._attachedPosition = position;
+			this._positionToAttached();
+			this._setupAttachmentTracking();
+		}
+
+		// Compute and apply the canvas position relative to the attached
+		// element. Called once on attachToElement() and re-called on every
+		// scroll/resize so the bubble follows the anchor instead of drifting.
+		// `position: fixed` makes the math straightforward — getBoundingClientRect
+		// already returns viewport coords, which fixed-positioning consumes
+		// directly. The previous `position: absolute` plus viewport-relative
+		// coords was the source of the scroll-drift bug.
+		_positionToAttached() {
+			const element = this._attachedElement;
 			if (!element) return;
 
 			const rect = element.getBoundingClientRect();
@@ -1071,14 +1094,63 @@ var gadgetui = (function () {
 				topleft: [rect.left - canvasRect.width, rect.top - canvasRect.height],
 			};
 
-			const [left, top] = positions[position] || [0, 0];
+			const [left, top] = positions[this._attachedPosition] || [0, 0];
 			this.canvas.style.left = `${left}px`;
 			this.canvas.style.top = `${top}px`;
-			this.canvas.style.position = "absolute";
+			this.canvas.style.position = "fixed";
+		}
+
+		// Wire scroll/resize follow + auto-destroy on anchor removal. Only
+		// runs when attachToElement was called — Bubble also supports
+		// stand-alone setBubble(x, y, ...) positioning where these don't
+		// apply. Idempotent so repeated attachToElement calls don't stack
+		// listeners.
+		_setupAttachmentTracking() {
+			if (this._attachmentTracking) return;
+			this._attachmentTracking = true;
+
+			// Capture phase so we catch scroll events from nested scrollable
+			// containers (those don't bubble to window).
+			this._onScroll = () => this._positionToAttached();
+			window.addEventListener("scroll", this._onScroll, {
+				passive: true,
+				capture: true,
+			});
+			this._onResize = () => this._positionToAttached();
+			window.addEventListener("resize", this._onResize, { passive: true });
+
+			this._observer = new MutationObserver(() => {
+				if (!document.contains(this._attachedElement)) this.destroy();
+			});
+			this._observer.observe(document.body, {
+				childList: true,
+				subtree: true,
+			});
 		}
 
 		destroy() {
-			document.body.removeChild(this.canvas);
+			if (this._destroyed) return;
+			this._destroyed = true;
+
+			if (this._onScroll) {
+				window.removeEventListener("scroll", this._onScroll, {
+					capture: true,
+				});
+				this._onScroll = null;
+			}
+			if (this._onResize) {
+				window.removeEventListener("resize", this._onResize);
+				this._onResize = null;
+			}
+			if (this._observer) {
+				this._observer.disconnect();
+				this._observer = null;
+			}
+			if (this.canvas && this.canvas.parentNode) {
+				this.canvas.parentNode.removeChild(this.canvas);
+			}
+
+			this.fireEvent("removed");
 		}
 	}
 
@@ -1099,12 +1171,24 @@ var gadgetui = (function () {
 			this.headerHeight = this.header.offsetHeight;
 			this.selectorHeight = this.element.offsetHeight;
 
+			this._observeForRemoval();
+
 			if (this.collapse) {
 				this.toggle();
 			}
 		}
 
-		events = ["minimized", "maximized"];
+		// Events fired (call .on(name, handler) to subscribe):
+		//   "minimized" / "maximized" — toggle() completed; component event
+		//   "removed"                 — destroy() ran (manual destroy(), or
+		//                               MutationObserver auto-destroy on
+		//                               wrapper removal)
+		// Legacy DOM events (kept for back-compat — also fired on toggle):
+		//   element.dispatchEvent(new Event("collapse")) — before collapsing
+		//   element.dispatchEvent(new Event("expand"))   — before expanding
+		// (Previous `events = ["minimized","maximized"]` class field
+		//  overwrote Component's `this.events` listener dict with an array
+		//  — removed.)
 
 		addControl() {
 			const pane = document.createElement("div");
@@ -1152,7 +1236,43 @@ var gadgetui = (function () {
 					: "div.gadget-ui-collapsiblePane-header",
 			);
 
-			header.addEventListener("click", () => this.toggle());
+			// Store the bound handler so destroy() can detach it
+			// symmetrically. An inline arrow (the previous pattern) can't be
+			// removed later because each call creates a fresh ref.
+			this._onHeaderClick = () => this.toggle();
+			header.addEventListener("click", this._onHeaderClick);
+			this._headerEl = header;
+		}
+
+		// Auto-destroy when the wrapper leaves the DOM (e.g. consumer's
+		// framework re-renders the view without calling destroy()). Same
+		// pattern as Modal / Popover / FloatingPane / etc.
+		_observeForRemoval() {
+			this._observer = new MutationObserver(() => {
+				if (!document.contains(this.wrapper)) this.destroy();
+			});
+			this._observer.observe(document.body, {
+				childList: true,
+				subtree: true,
+			});
+		}
+
+		destroy() {
+			if (this._destroyed) return;
+			this._destroyed = true;
+
+			if (this._observer) {
+				this._observer.disconnect();
+				this._observer = null;
+			}
+			if (this._headerEl && this._onHeaderClick) {
+				this._headerEl.removeEventListener("click", this._onHeaderClick);
+			}
+			if (this.wrapper && this.wrapper.parentNode) {
+				this.wrapper.parentNode.removeChild(this.wrapper);
+			}
+
+			this.fireEvent("removed");
 		}
 
 		toggle() {
@@ -1202,6 +1322,12 @@ var gadgetui = (function () {
 			} else {
 				css(this.element, "display", display);
 				// this.icon.setAttribute('data-glyph', icon);
+				// Sync the component event into the non-animated path —
+				// previously only the Velocity branch fired this, so
+				// consumers using `animate: false` never saw "minimized" /
+				// "maximized". The legacy DOM event above fires in both
+				// branches; the component event now does too.
+				this.fireEvent(newEventName);
 			}
 		}
 
@@ -1687,7 +1813,16 @@ var gadgetui = (function () {
 			this.element = element;
 			this.configure(options);
 			this.render();
+			this._observeForRemoval();
 		}
+
+		// Events fired (call .on(name, handler) to subscribe):
+		//   "start"         — start() called; bar reset to 0%
+		//   "updatePercent" — updatePercent(p) called; args: { percent }
+		//   "update"        — update(text) called; args: { text }
+		//   "removed"       — destroy() ran (manual destroy(), or
+		//                     MutationObserver auto-destroy on progressbox
+		//                     removal from the DOM)
 
 		configure(options) {
 			this.id = options.id;
@@ -1763,7 +1898,28 @@ var gadgetui = (function () {
 			this.fireEvent("update", { text });
 		}
 
+		// Auto-destroy when the progressbox is detached from the DOM (e.g.
+		// the consumer's view unmounts without calling destroy()). Cheap
+		// safety net so the JS instance + observer don't keep the detached
+		// subtree alive. Same pattern as Modal / Popover / FloatingPane.
+		_observeForRemoval() {
+			this._observer = new MutationObserver(() => {
+				if (!document.contains(this.progressbox)) this.destroy();
+			});
+			this._observer.observe(document.body, {
+				childList: true,
+				subtree: true,
+			});
+		}
+
 		destroy() {
+			if (this._destroyed) return;
+			this._destroyed = true;
+
+			if (this._observer) {
+				this._observer.disconnect();
+				this._observer = null;
+			}
 			if (this.progressbox && this.progressbox.parentNode) {
 				this.progressbox.parentNode.removeChild(this.progressbox);
 			}
@@ -1817,9 +1973,18 @@ var gadgetui = (function () {
 			this.config(options);
 			this.addControl();
 			this.setImage();
+			this._observeForRemoval();
 		}
 
-		events = ["showPrevious", "showNext", "close", "destroy"];
+		// Events fired (call .on(name, handler) to subscribe):
+		//   "showPrevious" — prevImage() called; args: { currentIndex }
+		//   "showNext"     — nextImage() called; args: { currentIndex }
+		//   "removed"      — destroy() ran (manual destroy(), or
+		//                    MutationObserver auto-destroy on element removal)
+		// (Previous `events = ["showPrevious","showNext","close","destroy"]`
+		//  class field overwrote Component's `this.events` listener dict
+		//  with an array; "close" and "destroy" were never fired anyway —
+		//  destroy now fires "removed" to match the pattern across components.)
 
 		config(options = {}) {
 			this.images = options.images || [];
@@ -1870,8 +2035,15 @@ var gadgetui = (function () {
 			this.element.appendChild(this.imageContainer);
 			this.element.appendChild(this.spanNext);
 
-			this.spanPrevious.addEventListener("click", () => this.prevImage());
-			this.spanNext.addEventListener("click", () => this.nextImage());
+			// Store each click handler as an instance prop so destroy() can
+			// removeEventListener with the same reference. Previously the
+			// `destroy()` calls passed fresh arrow functions, which never
+			// matched the originally-bound ones — listeners actually leaked
+			// every time. This is the real bug fix in the Lightbox pass.
+			this._onPrevClick = () => this.prevImage();
+			this.spanPrevious.addEventListener("click", this._onPrevClick);
+			this._onNextClick = () => this.nextImage();
+			this.spanNext.addEventListener("click", this._onNextClick);
 
 			if (this.enableModal) {
 				this.modal = document.createElement("div");
@@ -1889,19 +2061,35 @@ var gadgetui = (function () {
 				this.modal.appendChild(this.modalImageContainer);
 				document.body.appendChild(this.modal);
 
-				this.imageContainer.addEventListener("click", () => {
+				this._onContainerClick = () => {
 					this.setModalImage();
 					this.element.classList.add("gadgetui-hidden");
 					this.modal.classList.remove("gadgetui-hidden");
 					this.stopAnimation();
-				});
+				};
+				this.imageContainer.addEventListener("click", this._onContainerClick);
 
-				this.modal.addEventListener("click", () => {
+				this._onModalClick = () => {
 					this.modal.classList.add("gadgetui-hidden");
 					this.element.classList.remove("gadgetui-hidden");
 					this.animate();
-				});
+				};
+				this.modal.addEventListener("click", this._onModalClick);
 			}
+		}
+
+		// Auto-destroy when the lightbox element leaves the DOM (e.g. the
+		// consumer's view unmounts). Without this, the modal portaled to
+		// document.body would orphan plus the setInterval from animate()
+		// would keep firing. Same pattern as Modal / Popover / FloatingPane.
+		_observeForRemoval() {
+			this._observer = new MutationObserver(() => {
+				if (!document.contains(this.element)) this.destroy();
+			});
+			this._observer.observe(document.body, {
+				childList: true,
+				subtree: true,
+			});
 		}
 
 		nextImage() {
@@ -1991,37 +2179,45 @@ var gadgetui = (function () {
 		}
 
 		destroy() {
-			// Remove all event listeners
-			this.spanPrevious.removeEventListener("click", () => this.prevImage());
-			this.spanNext.removeEventListener("click", () => this.nextImage());
+			if (this._destroyed) return;
+			this._destroyed = true;
 
-			if (this.enableModal) {
-				this.imageContainer.removeEventListener("click", () => {
-					this.setModalImage();
-					this.element.classList.add("gadgetui-hidden");
-					this.modal.classList.remove("gadgetui-hidden");
-					this.stopAnimation();
-				});
-
-				this.modal.removeEventListener("click", () => {
-					this.modal.classList.add("gadgetui-hidden");
-					this.element.classList.remove("gadgetui-hidden");
-					this.animate();
-				});
+			if (this._observer) {
+				this._observer.disconnect();
+				this._observer = null;
 			}
 
-			// Stop any ongoing animation
+			// Stop the slideshow interval before tearing down listeners so
+			// it can't fire one more nextImage() into a half-destroyed view.
 			this.stopAnimation();
 
-			// Remove DOM elements
+			// Remove listeners using the cached refs so removeEventListener
+			// actually matches what was bound (the prior version passed
+			// fresh arrows here — silent no-ops).
+			if (this._onPrevClick) {
+				this.spanPrevious.removeEventListener("click", this._onPrevClick);
+			}
+			if (this._onNextClick) {
+				this.spanNext.removeEventListener("click", this._onNextClick);
+			}
+			if (this._onContainerClick) {
+				this.imageContainer.removeEventListener(
+					"click",
+					this._onContainerClick,
+				);
+			}
+			if (this._onModalClick && this.modal) {
+				this.modal.removeEventListener("click", this._onModalClick);
+			}
+
 			if (this.element.parentNode) {
 				this.element.parentNode.removeChild(this.element);
 			}
-
-			// Remove modal if it exists
 			if (this.modal && this.modal.parentNode) {
 				this.modal.parentNode.removeChild(this.modal);
 			}
+
+			this.fireEvent("removed");
 		}
 	}
 
@@ -2576,6 +2772,7 @@ var gadgetui = (function () {
 			this.config(options);
 			this.addControl();
 			this.addBindings();
+			this._observeForRemoval();
 
 			// Show overlay by default after initialization
 			if (this.autoShow) {
@@ -2583,10 +2780,28 @@ var gadgetui = (function () {
 			}
 		}
 
-		events = ["shown", "hidden", "destroyed", "contentChanged"];
+		// Events fired (call .on(name, handler) to subscribe):
+		//   "shown"          — show() called
+		//   "hidden"         — hide() called
+		//   "contentChanged" — setContent() called; args: { content }
+		//   "click"          — overlay clicked (only when !clickThrough);
+		//                      args: { originalEvent }
+		//   "mouseenter"     — args: { originalEvent }
+		//   "mouseleave"     — args: { originalEvent }
+		//   "removed"        — destroy() ran (manual destroy(), or
+		//                      MutationObserver auto-destroy on anchor removal)
+		// (Previous `events = ["shown","hidden","destroyed","contentChanged"]`
+		//  class field overwrote Component's `this.events` listener dict AND
+		//  was out of sync with what's actually fired — removed. "destroyed"
+		//  renamed to "removed" to match the pattern across components.)
 
 		config(options = {}) {
-			this.backgroundColor = options.backgroundColor || "rgba(0, 0, 0, 0.5)";
+			// Track whether the consumer explicitly passed a backgroundColor.
+			// When they didn't, we leave the inline `background-color` off
+			// entirely so the CSS rule's `var(--gadget-ui-overlay-bg)` can
+			// drive it — that's what makes the new token themeable without
+			// requiring `!important` from consumer CSS.
+			this.backgroundColor = options.backgroundColor;
 			this.class = options.class || false;
 			this.autoShow = options.autoShow !== false;
 			this.clickThrough = options.clickThrough || false;
@@ -2594,6 +2809,12 @@ var gadgetui = (function () {
 			this.content = options.content || "";
 			this.size = options.size || null;
 			this.position = options.position || null; // 'top', 'left', 'right', 'bottom', or null
+			// portal: true mounts the overlay on document.body instead of
+			// the anchor's parent. Escapes any `overflow:hidden` /
+			// stacking-context / transformed-ancestor problem the consumer's
+			// view tree imposes. Position/size still track the anchor via
+			// ResizeObserver + scroll listener.
+			this.portal = options.portal === true;
 		}
 
 		addControl() {
@@ -2614,7 +2835,14 @@ var gadgetui = (function () {
 			s.setProperty("left", `${left}px`, "important");
 			s.setProperty("width", `${width}px`, "important");
 			s.setProperty("height", `${height}px`, "important");
-			s.setProperty("background-color", this.backgroundColor);
+			// Only set background-color inline when the consumer explicitly
+			// passed it — otherwise let the CSS rule's
+			// `var(--gadget-ui-overlay-bg)` take over. Inline beats class
+			// without `!important`, so doing this unconditionally would
+			// prevent themers from overriding the default.
+			if (this.backgroundColor !== undefined) {
+				s.setProperty("background-color", this.backgroundColor);
+			}
 			s.setProperty("z-index", String(this.getMaxZIndex() + this.zIndexOffset));
 			s.setProperty("pointer-events", this.clickThrough ? "none" : "auto");
 
@@ -2626,7 +2854,11 @@ var gadgetui = (function () {
 				this.overlayElement.innerHTML = this.content;
 			}
 
-			this.element.parentNode.appendChild(this.overlayElement);
+			if (this.portal) {
+				document.body.appendChild(this.overlayElement);
+			} else {
+				this.element.parentNode.appendChild(this.overlayElement);
+			}
 
 			this.lastRect = rect;
 			this.setupResizeObserver();
@@ -2688,18 +2920,42 @@ var gadgetui = (function () {
 		addBindings() {
 			if (!this.overlayElement) return;
 
+			// Cache each listener as an instance prop so destroy() can
+			// removeEventListener with the same reference. (When portaled to
+			// body, the overlay can outlive the anchor's normal DOM
+			// lifecycle, so symmetric cleanup matters more than in the
+			// non-portal case where the listeners would die with the DOM.)
 			if (!this.clickThrough) {
-				this.overlayElement.addEventListener("click", (e) => {
+				this._onClick = (e) => {
 					this.fireEvent("click", { originalEvent: e });
-				});
+				};
+				this.overlayElement.addEventListener("click", this._onClick);
 			}
 
-			this.overlayElement.addEventListener("mouseenter", (e) => {
+			this._onMouseEnter = (e) => {
 				this.fireEvent("mouseenter", { originalEvent: e });
-			});
+			};
+			this.overlayElement.addEventListener("mouseenter", this._onMouseEnter);
 
-			this.overlayElement.addEventListener("mouseleave", (e) => {
+			this._onMouseLeave = (e) => {
 				this.fireEvent("mouseleave", { originalEvent: e });
+			};
+			this.overlayElement.addEventListener("mouseleave", this._onMouseLeave);
+		}
+
+		// Auto-destroy when the anchor leaves the DOM. Important: under
+		// portal mode the overlay lives on document.body, so it would
+		// otherwise outlive its anchor when a framework re-renders the
+		// consumer's view. Even without portal, the anchor's removal is
+		// what should trigger cleanup (the overlay tracks the anchor's
+		// rect, not its own). Same pattern as the other components.
+		_observeForRemoval() {
+			this._observer = new MutationObserver(() => {
+				if (!document.contains(this.element)) this.destroy();
+			});
+			this._observer.observe(document.body, {
+				childList: true,
+				subtree: true,
 			});
 		}
 
@@ -2718,14 +2974,38 @@ var gadgetui = (function () {
 		}
 
 		destroy() {
+			if (this._destroyed) return;
+			this._destroyed = true;
+
+			if (this._observer) {
+				this._observer.disconnect();
+				this._observer = null;
+			}
 			if (this.resizeObserver) {
 				this.resizeObserver.disconnect();
 			}
 			if (this.scrollHandler) {
 				window.removeEventListener("scroll", this.scrollHandler, true);
 			}
-			if (this.overlayElement?.parentNode) {
-				this.overlayElement.parentNode.removeChild(this.overlayElement);
+			if (this.overlayElement) {
+				if (this._onClick) {
+					this.overlayElement.removeEventListener("click", this._onClick);
+				}
+				if (this._onMouseEnter) {
+					this.overlayElement.removeEventListener(
+						"mouseenter",
+						this._onMouseEnter,
+					);
+				}
+				if (this._onMouseLeave) {
+					this.overlayElement.removeEventListener(
+						"mouseleave",
+						this._onMouseLeave,
+					);
+				}
+				if (this.overlayElement.parentNode) {
+					this.overlayElement.parentNode.removeChild(this.overlayElement);
+				}
 			}
 
 			this.overlayElement = null;
@@ -2733,7 +3013,7 @@ var gadgetui = (function () {
 			this.resizeObserver = null;
 			this.scrollHandler = null;
 
-			this.fireEvent("destroyed");
+			this.fireEvent("removed");
 		}
 
 		isVisible() {
@@ -3073,9 +3353,18 @@ var gadgetui = (function () {
 			this.config(options);
 			this.addControl();
 			this.addBindings(options);
+			this._observeForRemoval();
 		}
 
-		events = ["maximized", "minimized"];
+		// Events fired (call .on(name, handler) to subscribe):
+		//   "minimized" / "maximized" — toggle completed (or constructor's
+		//                               initial `minimized: true` ran)
+		//   "removed"                 — destroy() ran (manual destroy(), or
+		//                               MutationObserver auto-destroy on
+		//                               wrapper removal)
+		// (Previous `events = ["maximized","minimized"]` class field
+		//  overwrote Component's `this.events` listener dict with an array
+		//  — removed.)
 
 		config(options) {
 			this.class = options.class || false;
@@ -3165,13 +3454,30 @@ var gadgetui = (function () {
 		}
 
 		addBindings(options) {
-			this.span.addEventListener("click", () => {
+			// Store the bound handler so destroy() can detach it
+			// symmetrically. An inline arrow (the previous pattern) can't be
+			// removed later because each call creates a fresh ref.
+			this._onToggleClick = () => {
 				this.minimized ? this.maximize() : this.minimize();
-			});
+			};
+			this.span.addEventListener("click", this._onToggleClick);
 
 			if (options.minimized) {
 				this.minimize();
 			}
+		}
+
+		// Auto-destroy when the wrapper leaves the DOM (e.g. consumer's
+		// framework re-renders the view without calling destroy()). Same
+		// pattern as Modal / Popover / FloatingPane / etc.
+		_observeForRemoval() {
+			this._observer = new MutationObserver(() => {
+				if (!document.contains(this.wrapper)) this.destroy();
+			});
+			this._observer.observe(document.body, {
+				childList: true,
+				subtree: true,
+			});
 		}
 
 		setChevron(minimized) {
@@ -3185,7 +3491,30 @@ var gadgetui = (function () {
 		}
 
 		destroy() {
-			// Implement cleanup logic if necessary
+			if (this._destroyed) return;
+			this._destroyed = true;
+
+			if (this._observer) {
+				this._observer.disconnect();
+				this._observer = null;
+			}
+			if (this.span && this._onToggleClick) {
+				this.span.removeEventListener("click", this._onToggleClick);
+			}
+
+			// Unwrap the selector: pop it back out of the wrapper and into
+			// the wrapper's spot in the parent, then drop the wrapper (which
+			// takes the toggle span with it). Leaves the consumer's element
+			// where it started so they can re-instantiate or repurpose it.
+			const wrapperParent = this.wrapper && this.wrapper.parentNode;
+			if (wrapperParent && this.selector) {
+				wrapperParent.insertBefore(this.selector, this.wrapper);
+			}
+			if (wrapperParent) {
+				wrapperParent.removeChild(this.wrapper);
+			}
+
+			this.fireEvent("removed");
 		}
 	}
 
@@ -3196,6 +3525,7 @@ var gadgetui = (function () {
 			this.tabsDiv = this.element.querySelector("div");
 			this.config(options);
 			this.addControl();
+			this._observeForRemoval();
 		}
 
 		config(options) {
@@ -3203,9 +3533,17 @@ var gadgetui = (function () {
 			this.tabContentDivIds = [];
 			this.tabs = [];
 			this.activeTab = null;
+			// { tab: HTMLElement, handler: fn }[] — used by destroy() to
+			// detach the click listeners we attached in addControl.
+			this._tabClickBindings = [];
 		}
 
-		events = ["tabSelected"]; // Default value
+		// Events fired (call .on(name, handler) to subscribe):
+		//   "tabSelected" — setActiveTab() called; args: { activeTab }
+		//   "removed"     — destroy() ran (manual destroy(), or
+		//                   MutationObserver auto-destroy on tabsDiv removal)
+		// (Previous `events = ["tabSelected"]` class field overwrote
+		//  Component's `this.events` listener dict with an array — removed.)
 
 		addControl() {
 			const dir = this.direction === "vertical" ? "v" : "h";
@@ -3224,7 +3562,13 @@ var gadgetui = (function () {
 					this.setActiveTab(tabId);
 				}
 
-				tab.addEventListener("click", () => this.setActiveTab(tabId));
+				// Store the bound handler so destroy() can detach it
+				// symmetrically. An inline arrow (the previous pattern)
+				// can't be removed later because each call creates a fresh
+				// reference.
+				const handler = () => this.setActiveTab(tabId);
+				tab.addEventListener("click", handler);
+				this._tabClickBindings.push({ tab, handler });
 			});
 
 			this.element.querySelector(
@@ -3258,8 +3602,56 @@ var gadgetui = (function () {
 			this.fireEvent("tabSelected", { activeTab });
 		}
 
+		// Auto-destroy when the tabsDiv leaves the DOM (e.g. consumer's
+		// framework re-renders the view without calling destroy()). Same
+		// pattern as Modal / Popover / FloatingPane / ProgressBar.
+		_observeForRemoval() {
+			this._observer = new MutationObserver(() => {
+				if (!document.contains(this.tabsDiv)) this.destroy();
+			});
+			this._observer.observe(document.body, {
+				childList: true,
+				subtree: true,
+			});
+		}
+
 		destroy() {
-			// Implement cleanup logic if necessary
+			if (this._destroyed) return;
+			this._destroyed = true;
+
+			if (this._observer) {
+				this._observer.disconnect();
+				this._observer = null;
+			}
+
+			// Detach the click listeners we attached in addControl.
+			this._tabClickBindings.forEach(({ tab, handler }) => {
+				tab.removeEventListener("click", handler);
+			});
+			this._tabClickBindings = [];
+
+			// Reset the inline `display` styles we set on the content divs
+			// so the consumer's CSS regains control. tabsDiv stays in the
+			// DOM — Tabs doesn't own that element, it just decorates it.
+			const dir = this.direction === "vertical" ? "v" : "h";
+			this.tabContentDivIds.forEach((tabId) => {
+				const contentDiv = this.element.querySelector(
+					`div[name='${tabId}']`,
+				);
+				if (contentDiv) contentDiv.style.display = "";
+			});
+
+			// Strip the classes we added so the consumer's element can be
+			// reused cleanly (e.g. for a fresh Tabs instance).
+			if (this.tabsDiv) {
+				this.tabsDiv.classList.remove(`gadget-ui-tabs-${dir}`);
+			}
+			this.tabs.forEach((tab) => {
+				tab.classList.remove(`gadget-ui-tab-${dir}`);
+				tab.classList.remove(`gadget-ui-tab-${dir}-active`);
+			});
+
+			this.fireEvent("removed");
 		}
 	}
 

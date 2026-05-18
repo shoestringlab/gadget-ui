@@ -1,6 +1,69 @@
 
 ***Release Notes***
 
+12.3.0
+======
+
+Cross-cutting upgrade of the display components, picking up the theming/portal/lifecycle work that began with Menu in 12.2.4 and completing the migration of color styles to CSS custom properties that started in 12.2.5. Touches every display component except FileUploadWrapper (deferred — its conversion to `extends Component` is a separate refactor).
+
+**Theming — CSS custom properties on `:root`**
+
+Every display-component CSS rule that previously had hardcoded `silver` / `#fff` / `#777` / `#999` / `#ccc` / `black` / `white` / `#ddd` / `#4caf50` / `#333` colors now reads them from `--gadget-ui-<component>-*` tokens. All defaults match the previous literal values so existing consumers see zero visual change; consumers wanting to theme can override any token at any scope. New tokens by component:
+
+- FloatingPane: `-bg`, `-fg`, `-border`, `-radius`, `-header-bg`, `-header-fg`
+- Dialog: `-buttons-padding`, `-button-bg`, `-button-fg` (button bg/fg default to `inherit` so host page button styles continue to win)
+- Modal: `-backdrop-bg`, `-bg`, `-fg`, `-border`
+- Popover: `-fg`, `-border`, `-radius`, `-padding`, `-shadow` (joining `-bg` added in 12.2.5)
+- ProgressBar: `-bg`, `-fg`, `-track-bg`, `-fill`, `-status-fg`
+- Tabs: `-bar-bg`, `-tab-bg`, `-tab-fg`, `-tab-active-bg`, `-tab-active-fg`, `-tab-hover-bg`
+- Lightbox: `-control-fg` (joining `-bg` added in 12.2.5)
+- Overlay: `-bg`, `-fg` (and a `.gadgetui-overlay` CSS rule — previously the component had no CSS rule at all, only inline styles)
+- CollapsiblePane: `-bg`, `-fg`, `-border`, `-radius`, `-header-bg`, `-header-fg` (own token set; defaults match FloatingPane visuals but the two can be themed independently)
+- Sidebar: `-border`
+- Bubble: skipped — canvas-based, theming stays via constructor options
+
+Same migration done in `gadget-ui.input.css` for LookupListInput, Autosuggest, ComboBox, and the range-styled Toggle. New tokens: `--gadget-ui-input-bg`, `-border`, `-chip-bg`, `-menu-bg`, `-menu-fg`, `-menu-border`, `-menu-hover-fg`, `-cancel-bg`, `-cancel-border`, plus `--gadget-ui-toggle-track-bg`, `-track-off-bg`, `-thumb-bg`. LookupListInput and Autosuggest share the `--gadget-ui-input-*` set since they're visual twins — one override themes both.
+
+**Positioning — opt-in `portal: true` mode**
+
+`portal: true` is now available on FloatingPane (and by extension Dialog), Modal, Popover, and Overlay. Mounts the component on `document.body` instead of the anchor's parent, escaping `overflow: hidden`, transformed ancestors, and stacking-context constraints that would otherwise constrain the floating UI. Off by default — existing consumers are unaffected.
+
+**Popover anchor API (new)**
+
+Popover gains a positioning contract that mirrors Menu's:
+
+- `anchor: HTMLElement` — element to position relative to
+- `placement: "bottom" | "top"` — above or below the anchor (default `"bottom"`)
+- `align: "left" | "right" | "center"` — horizontal alignment relative to the anchor (default `"left"`)
+- `portal: true` — mount on body
+
+When `anchor` is set, JS drives `position: fixed` from `getBoundingClientRect()` and a capture-phase scroll handler keeps the popover pinned through nested scrolls. **Without `anchor`, the existing `top: 100px; left: 50%; transform: translateX(-5%)` defaults are preserved verbatim** — every pre-12.3.0 caller continues to work identically. A future 13.0.0 will rip the placeholder defaults in favor of a viewport-centered default for the no-anchor case.
+
+**Lifecycle — real `destroy()` everywhere, MutationObserver auto-cleanup**
+
+- FloatingPane, CollapsiblePane, Sidebar, Tabs previously had stub or missing `destroy()` — now all four implement full cleanup (detach listeners, remove DOM, fire `"removed"`).
+- Every display component now installs a `MutationObserver` that auto-destroys when its anchor / wrapper / element leaves the DOM, so a framework-driven parent re-render no longer leaks listeners and observers. Matches the Menu v12.2.4 pattern.
+- Every component's `destroy()` is idempotent (`_destroyed` flag) so repeated calls or observer-then-manual sequences are safe.
+
+**Bug fixes**
+
+- **Lightbox listener-leak.** `destroy()` was passing fresh arrow functions to `removeEventListener` — every call was a silent no-op, all four click listeners actually leaked on every destroy. Bound references now stored at attach time and matched at detach.
+- **Bubble scroll drift.** `attachToElement` set `position: absolute` from viewport-relative rect coords, causing the bubble to drift on page scroll. Switched to `position: fixed` and added a capture-phase scroll/resize handler to follow the anchor.
+- **draggable() utility.** Converted from DOM-Level-0 (`element.onmousedown`, `document.onmousemove/onmouseup`) to `addEventListener` with stored references, and now returns a cleanup function. Multiple draggable instances no longer clobber each other's document-level handlers. Removed a stray `console.log(event)` debug leftover. Fixed a spurious `drag_end` event firing on every random page mouseup (now only fires when a drag was in progress).
+- **CollapsiblePane non-animated branch.** The `animate: false` (and no-Velocity-loaded) path was never firing the `"minimized"` / `"maximized"` component events — only the Velocity completion callback did. Both paths now fire consistently. Legacy DOM `collapse` / `expand` events on `this.element` are preserved.
+- **Dialog `super.destroy()`** previously threw because FloatingPane had no `destroy()` method. Now works.
+
+**Breaking changes**
+
+- **Overlay event rename:** `"destroyed"` → `"removed"`, for consistency with the rest of the library. Grep your code for `overlay.on("destroyed", ...)` and rename.
+- **Stale `events = [...]` class fields removed** from Dialog, Modal, Popover, Lightbox, Tabs, Overlay, CollapsiblePane, Sidebar. These had been silently overwriting `Component`'s `this.events` listener dict (turning it into an array), and several were out of sync with what was actually fired (e.g. Dialog declared `["showPrevious", "showNext"]` which were Lightbox events; Lightbox declared `"close"` and `"destroy"` which were never fired). Replaced with documentation comments listing the real events. If you were inspecting `instance.events` as a constant array of event names, that no longer works — those declarations were never a stable public API.
+
+**Other**
+
+- Dialog button-row styles moved out of inline JS into `.gadgetui-dialog-buttons` CSS class so consumers can theme without overriding inline styles.
+- Modal and Popover now track their original DOM location and restore the consumer's element to where it came from on destroy (preserving the existing behavior in the non-portal case; making it correct in the portal case).
+- New display test page: `test/12.x/popover.htm` exercises the new anchor / placement / align / portal options alongside the back-compat default path.
+
 12.2.6
 ======
 

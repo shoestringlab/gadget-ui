@@ -1,0 +1,142 @@
+<!doctype html>
+<html>
+	<head>
+		<title>gadget-ui Popover Test</title>
+		<link rel="stylesheet" href="/dist/gadget-ui.css" />
+		<link
+			rel="stylesheet"
+			href="/node_modules/open-iconic/font/css/open-iconic.css"
+		/>
+		<script src="popover.js" type="module"></script>
+		<style>
+			body {
+				font-family: sans-serif;
+				margin: 24px;
+				/* Tall enough to force scrolling so the scroll-follow behavior
+				   of anchored popovers is observable. */
+				min-height: 250vh;
+			}
+			.test-section {
+				margin: 48px 0;
+				padding: 16px;
+				border: 1px solid #ccc;
+				border-radius: 4px;
+			}
+			.test-section h3 {
+				margin-top: 0;
+			}
+			.anchor-btn {
+				padding: 8px 16px;
+				margin: 8px 8px 8px 0;
+				cursor: pointer;
+			}
+			.event-log {
+				margin-top: 16px;
+				padding: 8px;
+				background: #f6f6f6;
+				font-family: monospace;
+				font-size: 12px;
+				height: 80px;
+				overflow-y: auto;
+				border: 1px solid #ddd;
+			}
+			/* Section 4: an ancestor with overflow:hidden + transform.
+			   Demonstrates why portal mode exists — a non-portal popover
+			   inside this container gets clipped at the box edges. */
+			.clip-container {
+				width: 320px;
+				height: 120px;
+				overflow: hidden;
+				border: 2px dashed #888;
+				padding: 12px;
+				transform: translateZ(0); /* establishes containing block */
+			}
+			/* Popover content boxes. Sized inline by the JS so the
+			   getBoundingClientRect math has something to measure. */
+			.demo-popover {
+				width: 220px;
+			}
+		</style>
+	</head>
+
+	<body>
+		<h2>Popover — 12.3.0 API</h2>
+
+		<div class="test-section">
+			<h3>1. Default (no anchor) — back-compat mode</h3>
+			<p>
+				No <code>anchor</code> or <code>portal</code> passed. The popover
+				renders at the pre-12.3.0 default position
+				(<code>top: 100px; left: 50%; transform: translateX(-5%)</code>),
+				identical to pre-12.3.0 behavior.
+			</p>
+			<button class="anchor-btn" id="btn-default-open">Open default</button>
+			<button class="anchor-btn" id="btn-default-close">Close</button>
+			<div id="pop-default" class="demo-popover" style="display: none">
+				<strong>Default popover</strong><br />
+				No anchor, no portal — uses the CSS placeholder position.
+			</div>
+		</div>
+
+		<div class="test-section">
+			<h3>2. Anchor-relative, placement: bottom (default), align: left</h3>
+			<p>
+				JS drives <code>position: fixed</code> from the anchor's rect.
+				Scroll the page — the popover follows.
+			</p>
+			<button class="anchor-btn" id="anchor-bottom-left">
+				Anchor (bottom-left)
+			</button>
+			<div id="pop-bottom-left" class="demo-popover" style="display: none">
+				<strong>Anchored: bottom + left</strong><br />
+				Aligned to the trigger's left edge, below it.
+			</div>
+		</div>
+
+		<div class="test-section">
+			<h3>3. Anchor-relative — align: right, placement: top</h3>
+			<button class="anchor-btn" id="anchor-top-right" style="margin-left: 60%;">
+				Anchor (top-right)
+			</button>
+			<div id="pop-top-right" class="demo-popover" style="display: none">
+				<strong>Anchored: top + right</strong><br />
+				Aligned to the trigger's right edge, above it.
+			</div>
+		</div>
+
+		<div class="test-section">
+			<h3>4. Anchor + portal — escapes overflow:hidden ancestor</h3>
+			<p>
+				The dashed container has <code>overflow: hidden</code> and a
+				transform. Without <code>portal: true</code> the popover would
+				be clipped at the container's edges. With portal mode it mounts
+				on <code>document.body</code> and renders unclipped, still
+				tracking the anchor button's position.
+			</p>
+			<div class="clip-container">
+				<p style="margin: 0 0 8px 0;">Clipping container</p>
+				<button class="anchor-btn" id="anchor-portal">
+					Anchor inside clip
+				</button>
+				<div id="pop-portal" class="demo-popover" style="display: none">
+					<strong>Anchored + portal</strong><br />
+					Mounted on body, unclipped by the container.
+				</div>
+			</div>
+		</div>
+
+		<div class="test-section">
+			<h3>5. Lifecycle events</h3>
+			<p>
+				Each popover above is wired to log <code>opened</code> /
+				<code>closed</code> / <code>removed</code>. The destroy button
+				below tears down the bottom-left anchored popover and fires
+				<code>"removed"</code>.
+			</p>
+			<button class="anchor-btn" id="btn-destroy-bottom-left">
+				Destroy bottom-left popover
+			</button>
+			<div class="event-log" id="event-log">events will log here…</div>
+		</div>
+	</body>
+</html>

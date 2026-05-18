@@ -7,9 +7,18 @@ export class Lightbox extends Component {
 		this.config(options);
 		this.addControl();
 		this.setImage();
+		this._observeForRemoval();
 	}
 
-	events = ["showPrevious", "showNext", "close", "destroy"];
+	// Events fired (call .on(name, handler) to subscribe):
+	//   "showPrevious" — prevImage() called; args: { currentIndex }
+	//   "showNext"     — nextImage() called; args: { currentIndex }
+	//   "removed"      — destroy() ran (manual destroy(), or
+	//                    MutationObserver auto-destroy on element removal)
+	// (Previous `events = ["showPrevious","showNext","close","destroy"]`
+	//  class field overwrote Component's `this.events` listener dict
+	//  with an array; "close" and "destroy" were never fired anyway —
+	//  destroy now fires "removed" to match the pattern across components.)
 
 	config(options = {}) {
 		this.images = options.images || [];
@@ -60,8 +69,15 @@ export class Lightbox extends Component {
 		this.element.appendChild(this.imageContainer);
 		this.element.appendChild(this.spanNext);
 
-		this.spanPrevious.addEventListener("click", () => this.prevImage());
-		this.spanNext.addEventListener("click", () => this.nextImage());
+		// Store each click handler as an instance prop so destroy() can
+		// removeEventListener with the same reference. Previously the
+		// `destroy()` calls passed fresh arrow functions, which never
+		// matched the originally-bound ones — listeners actually leaked
+		// every time. This is the real bug fix in the Lightbox pass.
+		this._onPrevClick = () => this.prevImage();
+		this.spanPrevious.addEventListener("click", this._onPrevClick);
+		this._onNextClick = () => this.nextImage();
+		this.spanNext.addEventListener("click", this._onNextClick);
 
 		if (this.enableModal) {
 			this.modal = document.createElement("div");
@@ -79,19 +95,35 @@ export class Lightbox extends Component {
 			this.modal.appendChild(this.modalImageContainer);
 			document.body.appendChild(this.modal);
 
-			this.imageContainer.addEventListener("click", () => {
+			this._onContainerClick = () => {
 				this.setModalImage();
 				this.element.classList.add("gadgetui-hidden");
 				this.modal.classList.remove("gadgetui-hidden");
 				this.stopAnimation();
-			});
+			};
+			this.imageContainer.addEventListener("click", this._onContainerClick);
 
-			this.modal.addEventListener("click", () => {
+			this._onModalClick = () => {
 				this.modal.classList.add("gadgetui-hidden");
 				this.element.classList.remove("gadgetui-hidden");
 				this.animate();
-			});
+			};
+			this.modal.addEventListener("click", this._onModalClick);
 		}
+	}
+
+	// Auto-destroy when the lightbox element leaves the DOM (e.g. the
+	// consumer's view unmounts). Without this, the modal portaled to
+	// document.body would orphan plus the setInterval from animate()
+	// would keep firing. Same pattern as Modal / Popover / FloatingPane.
+	_observeForRemoval() {
+		this._observer = new MutationObserver(() => {
+			if (!document.contains(this.element)) this.destroy();
+		});
+		this._observer.observe(document.body, {
+			childList: true,
+			subtree: true,
+		});
 	}
 
 	nextImage() {
@@ -181,36 +213,44 @@ export class Lightbox extends Component {
 	}
 
 	destroy() {
-		// Remove all event listeners
-		this.spanPrevious.removeEventListener("click", () => this.prevImage());
-		this.spanNext.removeEventListener("click", () => this.nextImage());
+		if (this._destroyed) return;
+		this._destroyed = true;
 
-		if (this.enableModal) {
-			this.imageContainer.removeEventListener("click", () => {
-				this.setModalImage();
-				this.element.classList.add("gadgetui-hidden");
-				this.modal.classList.remove("gadgetui-hidden");
-				this.stopAnimation();
-			});
-
-			this.modal.removeEventListener("click", () => {
-				this.modal.classList.add("gadgetui-hidden");
-				this.element.classList.remove("gadgetui-hidden");
-				this.animate();
-			});
+		if (this._observer) {
+			this._observer.disconnect();
+			this._observer = null;
 		}
 
-		// Stop any ongoing animation
+		// Stop the slideshow interval before tearing down listeners so
+		// it can't fire one more nextImage() into a half-destroyed view.
 		this.stopAnimation();
 
-		// Remove DOM elements
+		// Remove listeners using the cached refs so removeEventListener
+		// actually matches what was bound (the prior version passed
+		// fresh arrows here — silent no-ops).
+		if (this._onPrevClick) {
+			this.spanPrevious.removeEventListener("click", this._onPrevClick);
+		}
+		if (this._onNextClick) {
+			this.spanNext.removeEventListener("click", this._onNextClick);
+		}
+		if (this._onContainerClick) {
+			this.imageContainer.removeEventListener(
+				"click",
+				this._onContainerClick,
+			);
+		}
+		if (this._onModalClick && this.modal) {
+			this.modal.removeEventListener("click", this._onModalClick);
+		}
+
 		if (this.element.parentNode) {
 			this.element.parentNode.removeChild(this.element);
 		}
-
-		// Remove modal if it exists
 		if (this.modal && this.modal.parentNode) {
 			this.modal.parentNode.removeChild(this.modal);
 		}
+
+		this.fireEvent("removed");
 	}
 }

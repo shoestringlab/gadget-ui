@@ -7,7 +7,16 @@ export class ProgressBar extends Component {
 		this.element = element;
 		this.configure(options);
 		this.render();
+		this._observeForRemoval();
 	}
+
+	// Events fired (call .on(name, handler) to subscribe):
+	//   "start"         — start() called; bar reset to 0%
+	//   "updatePercent" — updatePercent(p) called; args: { percent }
+	//   "update"        — update(text) called; args: { text }
+	//   "removed"       — destroy() ran (manual destroy(), or
+	//                     MutationObserver auto-destroy on progressbox
+	//                     removal from the DOM)
 
 	configure(options) {
 		this.id = options.id;
@@ -83,7 +92,28 @@ export class ProgressBar extends Component {
 		this.fireEvent("update", { text });
 	}
 
+	// Auto-destroy when the progressbox is detached from the DOM (e.g.
+	// the consumer's view unmounts without calling destroy()). Cheap
+	// safety net so the JS instance + observer don't keep the detached
+	// subtree alive. Same pattern as Modal / Popover / FloatingPane.
+	_observeForRemoval() {
+		this._observer = new MutationObserver(() => {
+			if (!document.contains(this.progressbox)) this.destroy();
+		});
+		this._observer.observe(document.body, {
+			childList: true,
+			subtree: true,
+		});
+	}
+
 	destroy() {
+		if (this._destroyed) return;
+		this._destroyed = true;
+
+		if (this._observer) {
+			this._observer.disconnect();
+			this._observer = null;
+		}
 		if (this.progressbox && this.progressbox.parentNode) {
 			this.progressbox.parentNode.removeChild(this.progressbox);
 		}

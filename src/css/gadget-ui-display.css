@@ -4,18 +4,31 @@
     --gadget-ui-menu-border: #777;
     --gadget-ui-menu-hover-bg: #ccc;
     --gadget-ui-lightbox-bg: rgba(0, 0, 0, 0.8);
+    /* Prev/next chevron icons. `inherit` keeps the existing look (feather
+     * SVGs render at currentColor) — consumers can theme by setting this
+     * to e.g. white for a dark-background lightbox. */
+    --gadget-ui-lightbox-control-fg: inherit;
     --gadget-ui-popover-bg: #fff;
 
     /* FloatingPane (and Dialog which extends it). Header is the drag
-     * handle / title bar; bg/fg style the panel surface. CollapsiblePane
-     * shares the same DOM shape but gets its own token set in a later
-     * pass so the two can be themed independently. */
+     * handle / title bar; bg/fg style the panel surface. */
     --gadget-ui-floatingPane-bg: transparent;
     --gadget-ui-floatingPane-fg: inherit;
     --gadget-ui-floatingPane-border: silver;
     --gadget-ui-floatingPane-radius: 5px;
     --gadget-ui-floatingPane-header-bg: silver;
     --gadget-ui-floatingPane-header-fg: black;
+
+    /* CollapsiblePane. Visually identical to FloatingPane by default but
+     * has its own token set so consumers can theme the two independently
+     * (e.g. a treetable's collapsible sections vs. a draggable
+     * inspector). Defaults match FloatingPane values. */
+    --gadget-ui-collapsiblePane-bg: transparent;
+    --gadget-ui-collapsiblePane-fg: inherit;
+    --gadget-ui-collapsiblePane-border: silver;
+    --gadget-ui-collapsiblePane-radius: 5px;
+    --gadget-ui-collapsiblePane-header-bg: silver;
+    --gadget-ui-collapsiblePane-header-fg: black;
 
     /* Dialog button row. Buttons default to `inherit` so the host page's
      * own button styles win unless a consumer explicitly themes them via
@@ -40,18 +53,54 @@
     --gadget-ui-popover-radius: 0.25em;
     --gadget-ui-popover-padding: 1em;
     --gadget-ui-popover-shadow: none;
+
+    /* ProgressBar. -bg/-fg style the outer progressbox strip (and the
+     * label inside it); -track-bg is the unfilled bar; -fill is the
+     * progress fill; -status-fg is the percent text overlaid on the bar. */
+    --gadget-ui-progressbar-bg: #999;
+    --gadget-ui-progressbar-fg: #fff;
+    --gadget-ui-progressbar-track-bg: #ddd;
+    --gadget-ui-progressbar-fill: #4caf50;
+    --gadget-ui-progressbar-status-fg: #333;
+
+    /* Tabs. -bar-bg is the strip behind the tab row; -tab-bg/-fg style
+     * each inactive tab; -tab-active-bg/-fg the selected one; -tab-hover-bg
+     * the hover state. Horizontal and vertical orientations share tokens
+     * since the visual roles are identical. The default --tab-active-bg
+     * and --tab-hover-bg happen to be the same color; kept as separate
+     * tokens so consumers can differentiate. */
+    --gadget-ui-tabs-bar-bg: #ccc;
+    --gadget-ui-tab-bg: #777;
+    --gadget-ui-tab-fg: #fff;
+    --gadget-ui-tab-active-bg: #999;
+    --gadget-ui-tab-active-fg: #fff;
+    --gadget-ui-tab-hover-bg: #999;
+
+    /* Overlay. Layered under the JS `backgroundColor` option — Overlay
+     * only sets inline `background-color` now when the consumer
+     * explicitly passes it, so the default flows through this token
+     * and is overridable via CSS. */
+    --gadget-ui-overlay-bg: rgba(0, 0, 0, 0.5);
+    --gadget-ui-overlay-fg: inherit;
+
+    /* Sidebar. Single border token used by both the wrapper and the
+     * toggle handle (which has three borders matching the wrapper). */
+    --gadget-ui-sidebar-border: silver;
 }
 
 div.gadgetui-bubble span {
     font-size: 13px;
 }
 
-/* CollapsiblePane — still hardcoded until its own pass; will get its
- * own --gadget-ui-collapsiblePane-* token set then. */
+/* CollapsiblePane — themed via --gadget-ui-collapsiblePane-* tokens.
+ * Defaults preserve the original silver/black look (identical to
+ * FloatingPane); split so the two can be themed independently. */
 div.gadget-ui-collapsiblePane {
     padding: 0px;
-    border-radius: 5px;
-    border: 1px solid silver;
+    border-radius: var(--gadget-ui-collapsiblePane-radius);
+    border: 1px solid var(--gadget-ui-collapsiblePane-border);
+    background-color: var(--gadget-ui-collapsiblePane-bg);
+    color: var(--gadget-ui-collapsiblePane-fg);
     overflow: hidden;
 }
 
@@ -62,10 +111,10 @@ div.gadget-ui-collapsiblePane > div:nth-child(2) {
 div.gadget-ui-collapsiblePane-header {
     padding: 2px 0px 2px 0.5em;
     text-align: left;
-    border-radius: 5px 5px 0 0;
+    border-radius: var(--gadget-ui-collapsiblePane-radius) var(--gadget-ui-collapsiblePane-radius) 0 0;
     border: 1px solid transparent;
-    background-color: silver;
-    color: black;
+    background-color: var(--gadget-ui-collapsiblePane-header-bg);
+    color: var(--gadget-ui-collapsiblePane-header-fg);
     font-weight: bold;
     overflow: hidden;
     display: flex;
@@ -191,7 +240,7 @@ div.gadgetui-showModal {
 }
 
 div.gadgetui-sidebar {
-    border: 1px solid silver;
+    border: 1px solid var(--gadget-ui-sidebar-border);
     position: relative;
     top: 0;
     bottom: 0;
@@ -211,9 +260,9 @@ span.gadgetui-sidebar-toggle {
     position: relative;
     right: 0;
     top: 48%;
-    border-left: 1px solid silver;
-    border-top: 1px solid silver;
-    border-bottom: 1px solid silver;
+    border-left: 1px solid var(--gadget-ui-sidebar-border);
+    border-top: 1px solid var(--gadget-ui-sidebar-border);
+    border-bottom: 1px solid var(--gadget-ui-sidebar-border);
     padding-top: 4px;
     border-radius: 0.25em 0 0 0.25em;
     cursor: pointer;
@@ -303,7 +352,7 @@ div.gadget-ui-menu {
 }
 
 .gadget-ui-tabs-h {
-    background-color: #ccc;
+    background-color: var(--gadget-ui-tabs-bar-bg);
     padding: 0 0.5em;
     margin-top: 0.25em;
     display: flex;
@@ -313,8 +362,8 @@ div.gadget-ui-menu {
 .gadget-ui-tabs-h div.gadget-ui-tab-h {
     display: inline-block;
     padding: 0.5em 1em 0 1em;
-    background-color: #777;
-    color: white;
+    background-color: var(--gadget-ui-tab-bg);
+    color: var(--gadget-ui-tab-fg);
     margin: 0.5em 0.5em 0 0.5em;
     font-weight: bold;
     border-radius: 0.25em 0.25em 0 0;
@@ -323,14 +372,14 @@ div.gadget-ui-menu {
 }
 
 .gadget-ui-tabs-h div.gadget-ui-tab-h:hover {
-    background-color: #999;
+    background-color: var(--gadget-ui-tab-hover-bg);
 }
 
 .gadget-ui-tabs-h div.gadget-ui-tab-h-active {
     display: inline-block;
     padding: 0.5em 1em 0 1em;
-    background-color: #999;
-    color: white;
+    background-color: var(--gadget-ui-tab-active-bg);
+    color: var(--gadget-ui-tab-active-fg);
     margin: 0.5em 0.5em 0 0.5em;
     font-weight: bold;
     border-radius: 0.25em 0.25em 0 0;
@@ -338,7 +387,7 @@ div.gadget-ui-menu {
 }
 
 .gadget-ui-tabs-v {
-    background-color: #ccc;
+    background-color: var(--gadget-ui-tabs-bar-bg);
     padding: 0;
     display: block;
 }
@@ -346,8 +395,8 @@ div.gadget-ui-menu {
 .gadget-ui-tabs-v div.gadget-ui-tab-v {
     display: block;
     padding: 0.5em 0.5em 0 1em;
-    background-color: #777;
-    color: white;
+    background-color: var(--gadget-ui-tab-bg);
+    color: var(--gadget-ui-tab-fg);
     margin: 0.5em 0 0 0.5em;
     font-weight: bold;
     border-radius: 0;
@@ -357,14 +406,14 @@ div.gadget-ui-menu {
 }
 
 .gadget-ui-tabs-v div.gadget-ui-tab-v:hover {
-    background-color: #999;
+    background-color: var(--gadget-ui-tab-hover-bg);
 }
 
 .gadget-ui-tabs-v div.gadget-ui-tab-v-active {
     display: block;
     padding: 0.5em 0.5em 0 1em;
-    background-color: #999;
-    color: white;
+    background-color: var(--gadget-ui-tab-active-bg);
+    color: var(--gadget-ui-tab-active-fg);
     margin: 0.5em 0 0 0.5em;
     font-weight: bold;
     border-radius: 0;
@@ -375,13 +424,13 @@ div.gadget-ui-menu {
 .gadgetui-progressbar-progressbox {
     display: flex;
     padding: 0.25em 0.5em;
-    background: #999;
-    color: #fff;
+    background: var(--gadget-ui-progressbar-bg);
+    color: var(--gadget-ui-progressbar-fg);
     align-items: center;
 }
 
 .gadgetui-progressbar-label {
-    color: white;
+    color: var(--gadget-ui-progressbar-fg);
     padding-right: 0.5em;
     white-space: nowrap;
 }
@@ -389,13 +438,13 @@ div.gadget-ui-menu {
 .gadgetui-progressbar-container {
     position: relative;
     flex: 1;
-    background: #ddd;
+    background: var(--gadget-ui-progressbar-track-bg);
     height: 1.5em;
     overflow: hidden;
 }
 
 .gadget-ui-progressbar {
-    background: #4caf50;
+    background: var(--gadget-ui-progressbar-fill);
     height: 100%;
     transition: width 0.3s ease;
 }
@@ -409,7 +458,7 @@ div.gadget-ui-menu {
     display: flex;
     align-items: center;
     justify-content: center;
-    color: #333;
+    color: var(--gadget-ui-progressbar-status-fg);
     font-weight: bold;
     font-size: smaller;
     pointer-events: none;
@@ -476,6 +525,7 @@ div.gadget-ui-menu {
     top: 50%;
     transform: translateY(-50%);
     cursor: pointer;
+    color: var(--gadget-ui-lightbox-control-fg);
     z-index: 3; /* Above both images */
 }
 
@@ -485,6 +535,7 @@ div.gadget-ui-menu {
     top: 50%;
     transform: translateY(-50%);
     cursor: pointer;
+    color: var(--gadget-ui-lightbox-control-fg);
     z-index: 3; /* Above both images */
 }
 
@@ -505,6 +556,16 @@ div.gadget-ui-menu {
 
 .gadgetui-hidden {
     display: none;
+}
+
+/* Overlay — anchor-tracking dim layer. Position/size are set inline by
+ * JS (driven by the anchor's getBoundingClientRect + ResizeObserver), so
+ * only the visual chrome lives here. Background flows through a token
+ * so consumers can theme without `!important`, since the JS no longer
+ * applies an inline background-color unless one was explicitly passed. */
+.gadgetui-overlay {
+    background-color: var(--gadget-ui-overlay-bg);
+    color: var(--gadget-ui-overlay-fg);
 }
 
 .gadgetui-lightbox-modal-imagecontainer {

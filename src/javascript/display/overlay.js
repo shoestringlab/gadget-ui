@@ -7,6 +7,7 @@ export class Overlay extends Component {
 		this.config(options);
 		this.addControl();
 		this.addBindings();
+		this._observeForRemoval();
 
 		// Show overlay by default after initialization
 		if (this.autoShow) {
@@ -14,10 +15,28 @@ export class Overlay extends Component {
 		}
 	}
 
-	events = ["shown", "hidden", "destroyed", "contentChanged"];
+	// Events fired (call .on(name, handler) to subscribe):
+	//   "shown"          — show() called
+	//   "hidden"         — hide() called
+	//   "contentChanged" — setContent() called; args: { content }
+	//   "click"          — overlay clicked (only when !clickThrough);
+	//                      args: { originalEvent }
+	//   "mouseenter"     — args: { originalEvent }
+	//   "mouseleave"     — args: { originalEvent }
+	//   "removed"        — destroy() ran (manual destroy(), or
+	//                      MutationObserver auto-destroy on anchor removal)
+	// (Previous `events = ["shown","hidden","destroyed","contentChanged"]`
+	//  class field overwrote Component's `this.events` listener dict AND
+	//  was out of sync with what's actually fired — removed. "destroyed"
+	//  renamed to "removed" to match the pattern across components.)
 
 	config(options = {}) {
-		this.backgroundColor = options.backgroundColor || "rgba(0, 0, 0, 0.5)";
+		// Track whether the consumer explicitly passed a backgroundColor.
+		// When they didn't, we leave the inline `background-color` off
+		// entirely so the CSS rule's `var(--gadget-ui-overlay-bg)` can
+		// drive it — that's what makes the new token themeable without
+		// requiring `!important` from consumer CSS.
+		this.backgroundColor = options.backgroundColor;
 		this.class = options.class || false;
 		this.autoShow = options.autoShow !== false;
 		this.clickThrough = options.clickThrough || false;
@@ -25,6 +44,12 @@ export class Overlay extends Component {
 		this.content = options.content || "";
 		this.size = options.size || null;
 		this.position = options.position || null; // 'top', 'left', 'right', 'bottom', or null
+		// portal: true mounts the overlay on document.body instead of
+		// the anchor's parent. Escapes any `overflow:hidden` /
+		// stacking-context / transformed-ancestor problem the consumer's
+		// view tree imposes. Position/size still track the anchor via
+		// ResizeObserver + scroll listener.
+		this.portal = options.portal === true;
 	}
 
 	addControl() {
@@ -45,7 +70,14 @@ export class Overlay extends Component {
 		s.setProperty("left", `${left}px`, "important");
 		s.setProperty("width", `${width}px`, "important");
 		s.setProperty("height", `${height}px`, "important");
-		s.setProperty("background-color", this.backgroundColor);
+		// Only set background-color inline when the consumer explicitly
+		// passed it — otherwise let the CSS rule's
+		// `var(--gadget-ui-overlay-bg)` take over. Inline beats class
+		// without `!important`, so doing this unconditionally would
+		// prevent themers from overriding the default.
+		if (this.backgroundColor !== undefined) {
+			s.setProperty("background-color", this.backgroundColor);
+		}
 		s.setProperty("z-index", String(this.getMaxZIndex() + this.zIndexOffset));
 		s.setProperty("pointer-events", this.clickThrough ? "none" : "auto");
 
@@ -57,7 +89,11 @@ export class Overlay extends Component {
 			this.overlayElement.innerHTML = this.content;
 		}
 
-		this.element.parentNode.appendChild(this.overlayElement);
+		if (this.portal) {
+			document.body.appendChild(this.overlayElement);
+		} else {
+			this.element.parentNode.appendChild(this.overlayElement);
+		}
 
 		this.lastRect = rect;
 		this.setupResizeObserver();
@@ -119,18 +155,42 @@ export class Overlay extends Component {
 	addBindings() {
 		if (!this.overlayElement) return;
 
+		// Cache each listener as an instance prop so destroy() can
+		// removeEventListener with the same reference. (When portaled to
+		// body, the overlay can outlive the anchor's normal DOM
+		// lifecycle, so symmetric cleanup matters more than in the
+		// non-portal case where the listeners would die with the DOM.)
 		if (!this.clickThrough) {
-			this.overlayElement.addEventListener("click", (e) => {
+			this._onClick = (e) => {
 				this.fireEvent("click", { originalEvent: e });
-			});
+			};
+			this.overlayElement.addEventListener("click", this._onClick);
 		}
 
-		this.overlayElement.addEventListener("mouseenter", (e) => {
+		this._onMouseEnter = (e) => {
 			this.fireEvent("mouseenter", { originalEvent: e });
-		});
+		};
+		this.overlayElement.addEventListener("mouseenter", this._onMouseEnter);
 
-		this.overlayElement.addEventListener("mouseleave", (e) => {
+		this._onMouseLeave = (e) => {
 			this.fireEvent("mouseleave", { originalEvent: e });
+		};
+		this.overlayElement.addEventListener("mouseleave", this._onMouseLeave);
+	}
+
+	// Auto-destroy when the anchor leaves the DOM. Important: under
+	// portal mode the overlay lives on document.body, so it would
+	// otherwise outlive its anchor when a framework re-renders the
+	// consumer's view. Even without portal, the anchor's removal is
+	// what should trigger cleanup (the overlay tracks the anchor's
+	// rect, not its own). Same pattern as the other components.
+	_observeForRemoval() {
+		this._observer = new MutationObserver(() => {
+			if (!document.contains(this.element)) this.destroy();
+		});
+		this._observer.observe(document.body, {
+			childList: true,
+			subtree: true,
 		});
 	}
 
@@ -149,14 +209,38 @@ export class Overlay extends Component {
 	}
 
 	destroy() {
+		if (this._destroyed) return;
+		this._destroyed = true;
+
+		if (this._observer) {
+			this._observer.disconnect();
+			this._observer = null;
+		}
 		if (this.resizeObserver) {
 			this.resizeObserver.disconnect();
 		}
 		if (this.scrollHandler) {
 			window.removeEventListener("scroll", this.scrollHandler, true);
 		}
-		if (this.overlayElement?.parentNode) {
-			this.overlayElement.parentNode.removeChild(this.overlayElement);
+		if (this.overlayElement) {
+			if (this._onClick) {
+				this.overlayElement.removeEventListener("click", this._onClick);
+			}
+			if (this._onMouseEnter) {
+				this.overlayElement.removeEventListener(
+					"mouseenter",
+					this._onMouseEnter,
+				);
+			}
+			if (this._onMouseLeave) {
+				this.overlayElement.removeEventListener(
+					"mouseleave",
+					this._onMouseLeave,
+				);
+			}
+			if (this.overlayElement.parentNode) {
+				this.overlayElement.parentNode.removeChild(this.overlayElement);
+			}
 		}
 
 		this.overlayElement = null;
@@ -164,7 +248,7 @@ export class Overlay extends Component {
 		this.resizeObserver = null;
 		this.scrollHandler = null;
 
-		this.fireEvent("destroyed");
+		this.fireEvent("removed");
 	}
 
 	isVisible() {
