@@ -21,14 +21,15 @@ export class Dialog extends FloatingPane {
 		this.addButtons();
 	}
 
-	events = ["showPrevious", "showNext"];
+	// Events fired (inherited from FloatingPane): "minimized", "maximized",
+	// "moved", "closed", "removed". The previous `events = ["showPrevious",
+	// "showNext"]` declaration was a stale copy-paste from Lightbox; Dialog
+	// has never fired those. Removed to avoid misleading consumers and to
+	// stop overwriting Component's `this.events` listener dict.
 
 	addButtons() {
-		const css = setStyle;
-
 		this.buttonDiv = document.createElement("div");
-		css(this.buttonDiv, "text-align", "center");
-		css(this.buttonDiv, "padding", "0.5em");
+		this.buttonDiv.classList.add("gadgetui-dialog-buttons");
 
 		this.buttons.forEach((button) => {
 			const btn = document.createElement("button");
@@ -47,7 +48,13 @@ export class Dialog extends FloatingPane {
 	}
 
 	destroy() {
-		super.destroy(); // Call the destroy method of the parent class
-		this.element.removeChild(this.buttonDiv); // Remove the button div if necessary
+		// If the caller provided their own element, leave it clean (no
+		// residual buttonDiv) so it can be reused after destroy. When
+		// Dialog created the element itself the whole subtree is about
+		// to be detached anyway — this is a no-op but safe.
+		if (this.buttonDiv && this.buttonDiv.parentNode) {
+			this.buttonDiv.parentNode.removeChild(this.buttonDiv);
+		}
+		super.destroy();
 	}
 }

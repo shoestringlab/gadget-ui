@@ -284,15 +284,12 @@ export function draggable(selector, handle) {
 		x_elem = 0,
 		y_elem = 0; // Stores top, left values (edge) of the element
 
-	// Will be called when user starts dragging an element
 	function _drag_init(elem) {
-		// Store the object of the element which needs to be moved
 		selected = elem;
 		x_elem = x_pos - selected.offsetLeft;
 		y_elem = y_pos - selected.offsetTop;
 	}
 
-	// Will be called when user dragging an element
 	function _move_elem(e) {
 		x_pos = document.all ? window.event.clientX : e.pageX;
 		y_pos = document.all ? window.event.clientY : e.pageY;
@@ -302,43 +299,54 @@ export function draggable(selector, handle) {
 		}
 	}
 
-	// Destroy the object when we are done
-	function _destroy(event) {
-		console.log(event);
+	function _drag_end() {
+		// Only fire when a drag was actually in progress — otherwise every
+		// document mouseup (random clicks anywhere on the page) would emit
+		// a drag_end event.
+		if (selected === null) return;
 		var myEvent = new CustomEvent("drag_end", {
 			detail: {
 				top: getStyle(selector, "top"),
 				left: getStyle(selector, "left"),
 			},
 		});
-
-		// Trigger it!
 		selector.dispatchEvent(myEvent);
 		selected = null;
 	}
 
-	// Bind the functions...
 	const dragTarget = handle || selector;
-	dragTarget.onmousedown = function (e) {
-		// If a handle is specified, check if the click is on an interactive element
+
+	function _drag_start(e) {
+		// If a handle is specified, allow interaction with form elements
+		// inside it instead of starting a drag.
 		if (handle) {
 			const target = e.target;
-			// Allow interaction with form elements
 			if (
 				target.tagName === "INPUT" ||
 				target.tagName === "TEXTAREA" ||
 				target.tagName === "SELECT" ||
 				target.tagName === "BUTTON"
 			) {
-				return true;
+				return;
 			}
 		}
 		_drag_init(selector);
-		return false;
-	};
+		e.preventDefault();
+	}
 
-	document.onmousemove = _move_elem;
-	document.onmouseup = _destroy;
+	// addEventListener (not DOM-Level-0 .onmousedown) so multiple
+	// draggable() instances coexist without clobbering each other's
+	// document-level handlers, AND so we can hand back a destroy()
+	// that does symmetric removeEventListener cleanup.
+	dragTarget.addEventListener("mousedown", _drag_start);
+	document.addEventListener("mousemove", _move_elem);
+	document.addEventListener("mouseup", _drag_end);
+
+	return function destroyDraggable() {
+		dragTarget.removeEventListener("mousedown", _drag_start);
+		document.removeEventListener("mousemove", _move_elem);
+		document.removeEventListener("mouseup", _drag_end);
+	};
 }
 
 export function parseFont(font) {

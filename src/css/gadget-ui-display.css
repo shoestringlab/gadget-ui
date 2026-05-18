@@ -5,35 +5,61 @@
     --gadget-ui-menu-hover-bg: #ccc;
     --gadget-ui-lightbox-bg: rgba(0, 0, 0, 0.8);
     --gadget-ui-popover-bg: #fff;
+
+    /* FloatingPane (and Dialog which extends it). Header is the drag
+     * handle / title bar; bg/fg style the panel surface. CollapsiblePane
+     * shares the same DOM shape but gets its own token set in a later
+     * pass so the two can be themed independently. */
+    --gadget-ui-floatingPane-bg: transparent;
+    --gadget-ui-floatingPane-fg: inherit;
+    --gadget-ui-floatingPane-border: silver;
+    --gadget-ui-floatingPane-radius: 5px;
+    --gadget-ui-floatingPane-header-bg: silver;
+    --gadget-ui-floatingPane-header-fg: black;
+
+    /* Dialog button row. Buttons default to `inherit` so the host page's
+     * own button styles win unless a consumer explicitly themes them via
+     * these tokens. */
+    --gadget-ui-dialog-buttons-padding: 0.5em;
+    --gadget-ui-dialog-button-bg: inherit;
+    --gadget-ui-dialog-button-fg: inherit;
+
+    /* Modal. Backdrop is the dimmed full-viewport overlay; bg/fg/border
+     * style the inner modal window. */
+    --gadget-ui-modal-backdrop-bg: rgba(0, 0, 0, 0.5);
+    --gadget-ui-modal-bg: #fff;
+    --gadget-ui-modal-fg: inherit;
+    --gadget-ui-modal-border: silver;
+
+    /* Popover. --gadget-ui-popover-bg was added in 12.2.5; the rest of
+     * the surface chrome (fg/border/radius/padding/shadow) joins it here.
+     * Shadow defaults to `none` so existing visuals are unchanged;
+     * consumers wanting a lift can set e.g. `0 4px 12px rgba(0,0,0,0.15)`. */
+    --gadget-ui-popover-fg: inherit;
+    --gadget-ui-popover-border: silver;
+    --gadget-ui-popover-radius: 0.25em;
+    --gadget-ui-popover-padding: 1em;
+    --gadget-ui-popover-shadow: none;
 }
 
 div.gadgetui-bubble span {
     font-size: 13px;
 }
 
-div.gadget-ui-collapsiblePane,
-div.gadget-ui-floatingPane {
+/* CollapsiblePane — still hardcoded until its own pass; will get its
+ * own --gadget-ui-collapsiblePane-* token set then. */
+div.gadget-ui-collapsiblePane {
     padding: 0px;
     border-radius: 5px;
     border: 1px solid silver;
     overflow: hidden;
 }
 
-div.gadget-ui-floatingPane {
-    position: absolute;
-}
-
-div.gadget-ui-collapsiblePane > div:nth-child(2),
-div.gadget-ui-floatingPane > div:nth-child(2) {
+div.gadget-ui-collapsiblePane > div:nth-child(2) {
     padding: 0.5em;
 }
 
-div.gadget-ui-floatingPane > div:nth-child(2) {
-    overflow: auto;
-}
-
-div.gadget-ui-collapsiblePane-header,
-div.gadget-ui-floatingPane-header {
+div.gadget-ui-collapsiblePane-header {
     padding: 2px 0px 2px 0.5em;
     text-align: left;
     border-radius: 5px 5px 0 0;
@@ -46,12 +72,61 @@ div.gadget-ui-floatingPane-header {
     justify-content: space-between;
 }
 
-div.gadget-ui-collapsiblePane-header div,
+div.gadget-ui-collapsiblePane-header div {
+    float: right;
+    display: inline;
+    padding-right: 0.25em;
+    margin-top: 0.1em;
+}
+
+/* FloatingPane — themed via --gadget-ui-floatingPane-* tokens. Defaults
+ * preserve the original silver/black look. */
+div.gadget-ui-floatingPane {
+    padding: 0px;
+    border-radius: var(--gadget-ui-floatingPane-radius);
+    border: 1px solid var(--gadget-ui-floatingPane-border);
+    background-color: var(--gadget-ui-floatingPane-bg);
+    color: var(--gadget-ui-floatingPane-fg);
+    overflow: hidden;
+    position: absolute;
+}
+
+div.gadget-ui-floatingPane > div:nth-child(2) {
+    padding: 0.5em;
+    overflow: auto;
+}
+
+div.gadget-ui-floatingPane-header {
+    padding: 2px 0px 2px 0.5em;
+    text-align: left;
+    border-radius: var(--gadget-ui-floatingPane-radius) var(--gadget-ui-floatingPane-radius) 0 0;
+    border: 1px solid transparent;
+    background-color: var(--gadget-ui-floatingPane-header-bg);
+    color: var(--gadget-ui-floatingPane-header-fg);
+    font-weight: bold;
+    overflow: hidden;
+    display: flex;
+    justify-content: space-between;
+}
+
 div.gadget-ui-floatingPane-header div {
     float: right;
     display: inline;
     padding-right: 0.25em;
     margin-top: 0.1em;
+}
+
+/* Dialog — extends FloatingPane; only the button row and individual
+ * buttons need Dialog-specific rules. Inline styles in addButtons() have
+ * been moved here so consumers can override via CSS. */
+.gadgetui-dialog-buttons {
+    text-align: center;
+    padding: var(--gadget-ui-dialog-buttons-padding);
+}
+
+.gadgetui-dialog-button {
+    background-color: var(--gadget-ui-dialog-button-bg);
+    color: var(--gadget-ui-dialog-button-fg);
 }
 
 p.gadgetui-bubble-speech {
@@ -80,7 +155,7 @@ div.gadgetui-modal {
     top: 0;
     width: 100%;
     height: 100%;
-    background-color: rgba(0, 0, 0, 0.5);
+    background-color: var(--gadget-ui-modal-backdrop-bg);
     opacity: 0;
     visibility: hidden;
     transform: scale(1.1);
@@ -93,8 +168,9 @@ div.gadgetui-modal {
 div.gadgetui-modalWindow {
     padding: 1em;
     border-radius: 0.25em;
-    background: #fff;
-    border: 1px solid silver;
+    background: var(--gadget-ui-modal-bg);
+    color: var(--gadget-ui-modal-fg);
+    border: 1px solid var(--gadget-ui-modal-border);
     margin-left: auto;
     margin-right: auto;
     margin-top: 100px;
@@ -448,11 +524,20 @@ div.gadget-ui-menu {
     margin: 0 0.5em;
 }
 
+/* Popover. The `top: 100px; left: 50%; transform: translateX(-5%)`
+ * defaults are the original (pre-12.3.0) placeholder positioning and
+ * stay in place for back-compat — 39 consumer call sites rely on them.
+ * When the JS-side anchor/portal API is opted into, JS overrides these
+ * via inline `position: fixed; top: ...; left: ...; transform: none;`.
+ * 13.0.0 plans to rip these defaults and switch to viewport-centered
+ * for the no-anchor case. */
 div.gadgetui-popover {
-    padding: 1em;
-    border-radius: 0.25em;
+    padding: var(--gadget-ui-popover-padding);
+    border-radius: var(--gadget-ui-popover-radius);
     background: var(--gadget-ui-popover-bg);
-    border: 1px solid silver;
+    color: var(--gadget-ui-popover-fg);
+    border: 1px solid var(--gadget-ui-popover-border);
+    box-shadow: var(--gadget-ui-popover-shadow);
     z-index: 5; /* Above modal */
     position: absolute;
     top: 100px;

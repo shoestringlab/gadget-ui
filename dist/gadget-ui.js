@@ -324,15 +324,12 @@ var gadgetui = (function () {
 			x_elem = 0,
 			y_elem = 0; // Stores top, left values (edge) of the element
 
-		// Will be called when user starts dragging an element
 		function _drag_init(elem) {
-			// Store the object of the element which needs to be moved
 			selected = elem;
 			x_elem = x_pos - selected.offsetLeft;
 			y_elem = y_pos - selected.offsetTop;
 		}
 
-		// Will be called when user dragging an element
 		function _move_elem(e) {
 			x_pos = document.all ? window.event.clientX : e.pageX;
 			y_pos = document.all ? window.event.clientY : e.pageY;
@@ -342,43 +339,54 @@ var gadgetui = (function () {
 			}
 		}
 
-		// Destroy the object when we are done
-		function _destroy(event) {
-			console.log(event);
+		function _drag_end() {
+			// Only fire when a drag was actually in progress — otherwise every
+			// document mouseup (random clicks anywhere on the page) would emit
+			// a drag_end event.
+			if (selected === null) return;
 			var myEvent = new CustomEvent("drag_end", {
 				detail: {
 					top: getStyle(selector, "top"),
 					left: getStyle(selector, "left"),
 				},
 			});
-
-			// Trigger it!
 			selector.dispatchEvent(myEvent);
 			selected = null;
 		}
 
-		// Bind the functions...
 		const dragTarget = handle || selector;
-		dragTarget.onmousedown = function (e) {
-			// If a handle is specified, check if the click is on an interactive element
+
+		function _drag_start(e) {
+			// If a handle is specified, allow interaction with form elements
+			// inside it instead of starting a drag.
 			if (handle) {
 				const target = e.target;
-				// Allow interaction with form elements
 				if (
 					target.tagName === "INPUT" ||
 					target.tagName === "TEXTAREA" ||
 					target.tagName === "SELECT" ||
 					target.tagName === "BUTTON"
 				) {
-					return true;
+					return;
 				}
 			}
 			_drag_init(selector);
-			return false;
-		};
+			e.preventDefault();
+		}
 
-		document.onmousemove = _move_elem;
-		document.onmouseup = _destroy;
+		// addEventListener (not DOM-Level-0 .onmousedown) so multiple
+		// draggable() instances coexist without clobbering each other's
+		// document-level handlers, AND so we can hand back a destroy()
+		// that does symmetric removeEventListener cleanup.
+		dragTarget.addEventListener("mousedown", _drag_start);
+		document.addEventListener("mousemove", _move_elem);
+		document.addEventListener("mouseup", _drag_end);
+
+		return function destroyDraggable() {
+			dragTarget.removeEventListener("mousedown", _drag_start);
+			document.removeEventListener("mousemove", _move_elem);
+			document.removeEventListener("mouseup", _drag_end);
+		};
 	}
 
 	function parseFont(font) {
@@ -1217,7 +1225,16 @@ var gadgetui = (function () {
 			this.setup(options);
 		}
 
-		//FloatingPane.prototype.events = ["minimized", "maximized", "moved", "closed"];
+		// Events fired (call .on(name, handler) to subscribe):
+		//   "minimized" / "maximized" — shrinker toggled
+		//   "moved"                    — drag completed
+		//   "closed"                   — user clicked the X
+		//   "removed"                  — destroy() ran (X click, manual destroy(),
+		//                                or MutationObserver auto-destroy on
+		//                                wrapper removal)
+		// (Component#events is the listener dict, not metadata, so this isn't a
+		//  runtime declaration — keep it as comment until the base class
+		//  separates the two.)
 
 		setup(options) {
 			this.setMessage();
@@ -1262,6 +1279,7 @@ var gadgetui = (function () {
 				this.element,
 			).left;
 			this.addBindings();
+			this._observeForRemoval();
 		}
 
 		setMessage() {
@@ -1275,9 +1293,13 @@ var gadgetui = (function () {
 		}
 
 		addBindings() {
-			draggable(this.wrapper, this.header);
+			// Cache the draggable cleanup + each click handler so destroy() can
+			// take them back off symmetrically. Inline arrow listeners were the
+			// previous pattern but they can't be removed later (every call
+			// creates a fresh reference).
+			this._dragDestroy = draggable(this.wrapper, this.header);
 
-			this.wrapper.addEventListener("drag_end", (event) => {
+			this._onDragEnd = (event) => {
 				this.top = event.detail.top;
 				this.left = event.detail.left;
 				this.relativeOffsetLeft = getRelativeParentOffset(
@@ -1285,27 +1307,73 @@ var gadgetui = (function () {
 				).left;
 
 				this.fireEvent("moved", event);
-			});
+			};
+			this.wrapper.addEventListener("drag_end", this._onDragEnd);
 
 			if (this.enableShrink) {
-				this.shrinker.addEventListener("click", (event) => {
+				this._onShrinkerClick = (event) => {
 					event.stopPropagation();
 					this.minimized ? this.expand() : this.minimize();
-				});
+				};
+				this.shrinker.addEventListener("click", this._onShrinkerClick);
 			}
 
 			if (this.enableClose) {
-				this.closer.addEventListener("click", (event) => {
+				this._onCloserClick = (event) => {
 					event.stopPropagation();
 					this.close();
-				});
+				};
+				this.closer.addEventListener("click", this._onCloserClick);
 			}
+		}
+
+		// In portal mode the wrapper outlives the original anchor's normal DOM
+		// lifecycle; even outside portal mode, a framework-driven parent
+		// re-render can rip the wrapper out from under us without calling
+		// close() or destroy(). Either way, watch for the wrapper leaving the
+		// DOM and self-destruct so draggable listeners + the observer itself
+		// don't leak. (Matches the Menu v12.2.4 auto-destroy pattern.)
+		_observeForRemoval() {
+			this._observer = new MutationObserver(() => {
+				if (!document.contains(this.wrapper)) this.destroy();
+			});
+			this._observer.observe(document.body, {
+				childList: true,
+				subtree: true,
+			});
 		}
 
 		close() {
 			this.fireEvent("closed");
+			this.destroy();
+		}
 
-			this.wrapper.parentNode.removeChild(this.wrapper);
+		destroy() {
+			if (this._destroyed) return;
+			this._destroyed = true;
+
+			if (this._dragDestroy) {
+				this._dragDestroy();
+				this._dragDestroy = null;
+			}
+			if (this._onDragEnd && this.wrapper) {
+				this.wrapper.removeEventListener("drag_end", this._onDragEnd);
+			}
+			if (this._onShrinkerClick && this.shrinker) {
+				this.shrinker.removeEventListener("click", this._onShrinkerClick);
+			}
+			if (this._onCloserClick && this.closer) {
+				this.closer.removeEventListener("click", this._onCloserClick);
+			}
+			if (this._observer) {
+				this._observer.disconnect();
+				this._observer = null;
+			}
+			if (this.wrapper && this.wrapper.parentNode) {
+				this.wrapper.parentNode.removeChild(this.wrapper);
+			}
+
+			this.fireEvent("removed");
 		}
 
 		addHeader() {
@@ -1380,12 +1448,24 @@ var gadgetui = (function () {
 		addControl() {
 			const fp = document.createElement("div");
 			fp.classList.add(this.class || "gadget-ui-floatingPane");
-
 			fp.draggable = true;
-			this.element.parentNode.insertBefore(fp, this.element);
-			this.wrapper = this.element.previousSibling;
-			this.element.parentNode.removeChild(this.element);
-			fp.appendChild(this.element);
+
+			// portal: true detaches the wrapper from the element's original
+			// parent and mounts it on document.body, escaping any
+			// `overflow:hidden` / stacking-context ancestor the consumer's
+			// view tree imposes. The original element still ends up inside
+			// the wrapper either way; the difference is which DOM subtree
+			// owns the wrapper.
+			if (this.portal) {
+				this.element.parentNode.removeChild(this.element);
+				document.body.appendChild(fp);
+				fp.appendChild(this.element);
+			} else {
+				this.element.parentNode.insertBefore(fp, this.element);
+				this.element.parentNode.removeChild(this.element);
+				fp.appendChild(this.element);
+			}
+			this.wrapper = fp;
 		}
 
 		expand() {
@@ -1489,6 +1569,7 @@ var gadgetui = (function () {
 			this.right = options.right;
 			this.class = options.class || false;
 			this.headerClass = options.headerClass || false;
+			this.portal = options.portal === true;
 			//this.featherPath = options.featherPath || "/node_modules/feather-icons";
 			this.minimized = false;
 			this.relativeOffsetLeft = 0;
@@ -1529,14 +1610,15 @@ var gadgetui = (function () {
 			this.addButtons();
 		}
 
-		events = ["showPrevious", "showNext"];
+		// Events fired (inherited from FloatingPane): "minimized", "maximized",
+		// "moved", "closed", "removed". The previous `events = ["showPrevious",
+		// "showNext"]` declaration was a stale copy-paste from Lightbox; Dialog
+		// has never fired those. Removed to avoid misleading consumers and to
+		// stop overwriting Component's `this.events` listener dict.
 
 		addButtons() {
-			const css = setStyle;
-
 			this.buttonDiv = document.createElement("div");
-			css(this.buttonDiv, "text-align", "center");
-			css(this.buttonDiv, "padding", "0.5em");
+			this.buttonDiv.classList.add("gadgetui-dialog-buttons");
 
 			this.buttons.forEach((button) => {
 				const btn = document.createElement("button");
@@ -1555,8 +1637,14 @@ var gadgetui = (function () {
 		}
 
 		destroy() {
-			super.destroy(); // Call the destroy method of the parent class
-			this.element.removeChild(this.buttonDiv); // Remove the button div if necessary
+			// If the caller provided their own element, leave it clean (no
+			// residual buttonDiv) so it can be reused after destroy. When
+			// Dialog created the element itself the whole subtree is about
+			// to be detached anyway — this is a no-op but safe.
+			if (this.buttonDiv && this.buttonDiv.parentNode) {
+				this.buttonDiv.parentNode.removeChild(this.buttonDiv);
+			}
+			super.destroy();
 		}
 	}
 
@@ -2332,13 +2420,20 @@ var gadgetui = (function () {
 			this.config(options);
 			this.addControl();
 			this.addBindings();
+			this._observeForRemoval();
 
 			if (this.autoOpen) {
 				this.open();
 			}
 		}
 
-		events = ["opened", "closed"];
+		// Events fired (call .on(name, handler) to subscribe):
+		//   "opened"  — open() was called (or autoOpen at construction)
+		//   "closed"  — close() was called
+		//   "removed" — destroy() ran (manual destroy() or MutationObserver
+		//               auto-destroy on wrapper / original-parent removal)
+		// (Previous `events = ["opened","closed"]` class field overwrote
+		//  Component's `this.events` listener dict with an array — removed.)
 
 		addControl() {
 			this.wrapper = document.createElement("div");
@@ -2347,7 +2442,21 @@ var gadgetui = (function () {
 			}
 			this.wrapper.classList.add("gadgetui-modal");
 
-			this.element.parentNode.insertBefore(this.wrapper, this.element);
+			// Remember the element's original location so destroy() can put
+			// it (sans injected close button) back where it came from.
+			this._originalParent = this.element.parentNode;
+			this._originalNextSibling = this.element.nextSibling;
+
+			// portal: true mounts the wrapper on document.body so the modal
+			// escapes any transformed / `overflow:hidden` ancestor that would
+			// otherwise constrain its `position:fixed` containing block or
+			// clip its visual coverage. Element is moved into the wrapper
+			// either way; the difference is where the wrapper lives.
+			if (this.portal) {
+				document.body.appendChild(this.wrapper);
+			} else {
+				this.element.parentNode.insertBefore(this.wrapper, this.element);
+			}
 			this.element.parentNode.removeChild(this.element);
 			this.wrapper.appendChild(this.element);
 
@@ -2366,11 +2475,33 @@ var gadgetui = (function () {
 		}
 
 		addBindings() {
+			// Cache the close click handler so destroy() can remove it
+			// symmetrically. An inline arrow listener (the previous pattern)
+			// can't be removed later because each call creates a fresh ref.
 			const close = this.element.querySelector('a[name="close"]');
-			close.addEventListener("click", (event) => {
+			this._onCloseClick = (event) => {
 				event.stopPropagation();
 				event.preventDefault();
 				this.close();
+			};
+			close.addEventListener("click", this._onCloseClick);
+		}
+
+		// Auto-destroy when either the wrapper or the element's original
+		// parent leaves the DOM — covers framework re-renders that rip the
+		// modal (non-portal) or its controlling view (portal) without going
+		// through close(). Matches the Menu v12.2.4 / FloatingPane pattern.
+		_observeForRemoval() {
+			this._observer = new MutationObserver(() => {
+				const wrapperGone = !document.contains(this.wrapper);
+				const anchorGone =
+					this._originalParent &&
+					!document.contains(this._originalParent);
+				if (wrapperGone || anchorGone) this.destroy();
+			});
+			this._observer.observe(document.body, {
+				childList: true,
+				subtree: true,
 			});
 		}
 
@@ -2385,12 +2516,44 @@ var gadgetui = (function () {
 		}
 
 		destroy() {
-			this.element.parentNode.removeChild(this.element);
-			this.wrapper.parentNode.insertBefore(this.element, this.wrapper);
-			this.wrapper.parentNode.removeChild(this.wrapper);
-			this.element.removeChild(
-				this.element.querySelector(".gadgetui-right-align"),
-			);
+			if (this._destroyed) return;
+			this._destroyed = true;
+
+			if (this._observer) {
+				this._observer.disconnect();
+				this._observer = null;
+			}
+
+			const closeAnchor = this.element.querySelector('a[name="close"]');
+			if (closeAnchor && this._onCloseClick) {
+				closeAnchor.removeEventListener("click", this._onCloseClick);
+			}
+
+			// Pull element out of the wrapper, strip the injected close
+			// button so the consumer's element is clean, then put it back in
+			// its original DOM location. If the original parent has since
+			// been removed (framework re-render → MutationObserver triggered
+			// us), the element ends up orphaned in the detached parent —
+			// that's the consumer's reference to manage.
+			if (this.element.parentNode) {
+				this.element.parentNode.removeChild(this.element);
+			}
+			const closeSpan = this.element.querySelector(".gadgetui-right-align");
+			if (closeSpan) this.element.removeChild(closeSpan);
+			if (this._originalParent) {
+				if (this._originalNextSibling) {
+					this._originalParent.insertBefore(
+						this.element,
+						this._originalNextSibling,
+					);
+				} else {
+					this._originalParent.appendChild(this.element);
+				}
+			}
+			if (this.wrapper && this.wrapper.parentNode) {
+				this.wrapper.parentNode.removeChild(this.wrapper);
+			}
+
 			this.fireEvent("removed");
 		}
 
@@ -2402,6 +2565,7 @@ var gadgetui = (function () {
 				"/node_modules/feather-icons/dist/icons/x-circle.svg";
 			this.autoOpen = options.autoOpen !== false; // Default to true unless explicitly false
 			this.iconType = options.iconType || "img";
+			this.portal = options.portal === true;
 		}
 	}
 
@@ -2735,28 +2899,108 @@ var gadgetui = (function () {
 			this.config(options);
 			this.addControl();
 			this.addBindings();
+			this._observeForRemoval();
 
 			if (this.autoOpen) {
 				this.open();
 			}
 		}
 
-		events = ["opened", "closed"];
+		// Events fired (call .on(name, handler) to subscribe):
+		//   "opened"  — open() was called (or autoOpen at construction)
+		//   "closed"  — close() was called
+		//   "removed" — destroy() ran (manual destroy(), or MutationObserver
+		//               auto-destroy on element / anchor removal)
+		// (Previous `events = ["opened","closed"]` class field overwrote
+		//  Component's `this.events` listener dict with an array — removed.)
 
 		addControl() {
 			if (this.class) {
 				this.element.classList.add(this.class);
 			}
-
 			this.element.classList.add("gadgetui-popover");
+
+			// Track the element's original DOM location so portal-mode
+			// destroy can return it to where the consumer put it.
+			this._originalParent = this.element.parentNode;
+			this._originalNextSibling = this.element.nextSibling;
+
+			// portal: true detaches the element from its current parent and
+			// mounts it on document.body. Escapes any `overflow:hidden` /
+			// stacking-context / transformed-ancestor problem the consumer's
+			// view tree imposes. Without portal, the element stays where the
+			// consumer placed it.
+			if (this.portal && this.element.parentNode) {
+				this.element.parentNode.removeChild(this.element);
+				document.body.appendChild(this.element);
+			}
 		}
 
 		addBindings() {
-			// No close button, so no bindings needed
+			// Only need scroll/resize repositioning when we're driving
+			// position from an anchor's rect. The no-anchor default uses
+			// static CSS (top:100px; left:50%) which doesn't care about
+			// viewport changes.
+			if (!this.anchor) return;
+
+			// Capture phase so we catch scrolls from nested scrollable
+			// containers (those don't bubble to window). Matches Menu's
+			// pattern for portaled dropdowns.
+			this._onScroll = () => this._positionRelativeToAnchor();
+			window.addEventListener("scroll", this._onScroll, {
+				passive: true,
+				capture: true,
+			});
+			this._onResize = () => this._positionRelativeToAnchor();
+			window.addEventListener("resize", this._onResize, { passive: true });
+		}
+
+		// Auto-destroy when either the popover element or the anchor leaves
+		// the DOM (e.g. framework re-render of the controlling view). Same
+		// pattern as Modal / FloatingPane.
+		_observeForRemoval() {
+			this._observer = new MutationObserver(() => {
+				const elGone = !document.contains(this.element);
+				const anchorGone = this.anchor && !document.contains(this.anchor);
+				if (elGone || anchorGone) this.destroy();
+			});
+			this._observer.observe(document.body, {
+				childList: true,
+				subtree: true,
+			});
+		}
+
+		// Position the popover relative to its anchor's viewport rect.
+		// Overrides the CSS defaults (position:absolute; top:100px; left:50%;
+		// transform:translateX(-5%)) via inline styles. Requires the popover
+		// to be visible — offsetWidth/Height are 0 while visibility:hidden,
+		// so open() calls this after applying the .gadgetui-showPopover class.
+		_positionRelativeToAnchor() {
+			if (!this.anchor) return;
+			const rect = this.anchor.getBoundingClientRect();
+			const el = this.element;
+			el.style.position = "fixed";
+			el.style.transform = "none";
+			if (this.placement === "top") {
+				el.style.top = rect.top - el.offsetHeight + "px";
+			} else {
+				el.style.top = rect.bottom + "px";
+			}
+			if (this.align === "right") {
+				el.style.left = rect.right - el.offsetWidth + "px";
+			} else if (this.align === "center") {
+				el.style.left =
+					rect.left + (rect.width - el.offsetWidth) / 2 + "px";
+			} else {
+				el.style.left = rect.left + "px";
+			}
 		}
 
 		open() {
 			this.element.classList.add("gadgetui-showPopover");
+			// Position after the show-class flips visibility, so
+			// offsetWidth/Height are measurable.
+			if (this.anchor) this._positionRelativeToAnchor();
 			this.fireEvent("opened");
 		}
 
@@ -2766,15 +3010,58 @@ var gadgetui = (function () {
 		}
 
 		destroy() {
-			this.element.parentNode.removeChild(this.element);
-			//this.wrapper.parentNode.insertBefore(this.element, this.wrapper);
-			//this.wrapper.parentNode.removeChild(this.wrapper);
+			if (this._destroyed) return;
+			this._destroyed = true;
+
+			if (this._observer) {
+				this._observer.disconnect();
+				this._observer = null;
+			}
+			if (this._onScroll) {
+				window.removeEventListener("scroll", this._onScroll, {
+					capture: true,
+				});
+				this._onScroll = null;
+			}
+			if (this._onResize) {
+				window.removeEventListener("resize", this._onResize);
+				this._onResize = null;
+			}
+
+			if (this.element && this.element.parentNode) {
+				this.element.parentNode.removeChild(this.element);
+			}
+			// Return the element to its original DOM location for consumer
+			// reuse (only meaningful in portal mode — without portal, the
+			// element was never moved). If the original parent has since
+			// been removed (framework re-render → MutationObserver triggered
+			// us), the element ends up orphaned in that detached parent.
+			if (this.portal && this._originalParent) {
+				if (this._originalNextSibling) {
+					this._originalParent.insertBefore(
+						this.element,
+						this._originalNextSibling,
+					);
+				} else {
+					this._originalParent.appendChild(this.element);
+				}
+			}
+
 			this.fireEvent("removed");
 		}
 
 		config(options) {
 			this.class = options.class || false;
 			this.autoOpen = options.autoOpen !== false; // Default to true unless explicitly false
+			// Optional anchor-relative positioning. Without `anchor`, the
+			// popover uses the CSS placeholder defaults (top:100px etc.) for
+			// back-compat with pre-12.3.0 callers.
+			this.anchor = options.anchor || null;
+			this.placement = options.placement === "top" ? "top" : "bottom";
+			this.align = ["left", "right", "center"].includes(options.align)
+				? options.align
+				: "left";
+			this.portal = options.portal === true;
 		}
 	}
 

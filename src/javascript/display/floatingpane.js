@@ -9,7 +9,16 @@ export class FloatingPane extends Component {
 		this.setup(options);
 	}
 
-	//FloatingPane.prototype.events = ["minimized", "maximized", "moved", "closed"];
+	// Events fired (call .on(name, handler) to subscribe):
+	//   "minimized" / "maximized" — shrinker toggled
+	//   "moved"                    — drag completed
+	//   "closed"                   — user clicked the X
+	//   "removed"                  — destroy() ran (X click, manual destroy(),
+	//                                or MutationObserver auto-destroy on
+	//                                wrapper removal)
+	// (Component#events is the listener dict, not metadata, so this isn't a
+	//  runtime declaration — keep it as comment until the base class
+	//  separates the two.)
 
 	setup(options) {
 		this.setMessage();
@@ -54,6 +63,7 @@ export class FloatingPane extends Component {
 			this.element,
 		).left;
 		this.addBindings();
+		this._observeForRemoval();
 	}
 
 	setMessage() {
@@ -67,9 +77,13 @@ export class FloatingPane extends Component {
 	}
 
 	addBindings() {
-		const dragger = draggable(this.wrapper, this.header);
+		// Cache the draggable cleanup + each click handler so destroy() can
+		// take them back off symmetrically. Inline arrow listeners were the
+		// previous pattern but they can't be removed later (every call
+		// creates a fresh reference).
+		this._dragDestroy = draggable(this.wrapper, this.header);
 
-		this.wrapper.addEventListener("drag_end", (event) => {
+		this._onDragEnd = (event) => {
 			this.top = event.detail.top;
 			this.left = event.detail.left;
 			this.relativeOffsetLeft = getRelativeParentOffset(
@@ -77,27 +91,73 @@ export class FloatingPane extends Component {
 			).left;
 
 			this.fireEvent("moved", event);
-		});
+		};
+		this.wrapper.addEventListener("drag_end", this._onDragEnd);
 
 		if (this.enableShrink) {
-			this.shrinker.addEventListener("click", (event) => {
+			this._onShrinkerClick = (event) => {
 				event.stopPropagation();
 				this.minimized ? this.expand() : this.minimize();
-			});
+			};
+			this.shrinker.addEventListener("click", this._onShrinkerClick);
 		}
 
 		if (this.enableClose) {
-			this.closer.addEventListener("click", (event) => {
+			this._onCloserClick = (event) => {
 				event.stopPropagation();
 				this.close();
-			});
+			};
+			this.closer.addEventListener("click", this._onCloserClick);
 		}
+	}
+
+	// In portal mode the wrapper outlives the original anchor's normal DOM
+	// lifecycle; even outside portal mode, a framework-driven parent
+	// re-render can rip the wrapper out from under us without calling
+	// close() or destroy(). Either way, watch for the wrapper leaving the
+	// DOM and self-destruct so draggable listeners + the observer itself
+	// don't leak. (Matches the Menu v12.2.4 auto-destroy pattern.)
+	_observeForRemoval() {
+		this._observer = new MutationObserver(() => {
+			if (!document.contains(this.wrapper)) this.destroy();
+		});
+		this._observer.observe(document.body, {
+			childList: true,
+			subtree: true,
+		});
 	}
 
 	close() {
 		this.fireEvent("closed");
+		this.destroy();
+	}
 
-		this.wrapper.parentNode.removeChild(this.wrapper);
+	destroy() {
+		if (this._destroyed) return;
+		this._destroyed = true;
+
+		if (this._dragDestroy) {
+			this._dragDestroy();
+			this._dragDestroy = null;
+		}
+		if (this._onDragEnd && this.wrapper) {
+			this.wrapper.removeEventListener("drag_end", this._onDragEnd);
+		}
+		if (this._onShrinkerClick && this.shrinker) {
+			this.shrinker.removeEventListener("click", this._onShrinkerClick);
+		}
+		if (this._onCloserClick && this.closer) {
+			this.closer.removeEventListener("click", this._onCloserClick);
+		}
+		if (this._observer) {
+			this._observer.disconnect();
+			this._observer = null;
+		}
+		if (this.wrapper && this.wrapper.parentNode) {
+			this.wrapper.parentNode.removeChild(this.wrapper);
+		}
+
+		this.fireEvent("removed");
 	}
 
 	addHeader() {
@@ -172,12 +232,24 @@ export class FloatingPane extends Component {
 	addControl() {
 		const fp = document.createElement("div");
 		fp.classList.add(this.class || "gadget-ui-floatingPane");
-
 		fp.draggable = true;
-		this.element.parentNode.insertBefore(fp, this.element);
-		this.wrapper = this.element.previousSibling;
-		this.element.parentNode.removeChild(this.element);
-		fp.appendChild(this.element);
+
+		// portal: true detaches the wrapper from the element's original
+		// parent and mounts it on document.body, escaping any
+		// `overflow:hidden` / stacking-context ancestor the consumer's
+		// view tree imposes. The original element still ends up inside
+		// the wrapper either way; the difference is which DOM subtree
+		// owns the wrapper.
+		if (this.portal) {
+			this.element.parentNode.removeChild(this.element);
+			document.body.appendChild(fp);
+			fp.appendChild(this.element);
+		} else {
+			this.element.parentNode.insertBefore(fp, this.element);
+			this.element.parentNode.removeChild(this.element);
+			fp.appendChild(this.element);
+		}
+		this.wrapper = fp;
 	}
 
 	expand() {
@@ -281,6 +353,7 @@ export class FloatingPane extends Component {
 		this.right = options.right;
 		this.class = options.class || false;
 		this.headerClass = options.headerClass || false;
+		this.portal = options.portal === true;
 		//this.featherPath = options.featherPath || "/node_modules/feather-icons";
 		this.minimized = false;
 		this.relativeOffsetLeft = 0;
