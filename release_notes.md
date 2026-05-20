@@ -1,6 +1,34 @@
 
 ***Release Notes***
 
+12.3.4
+======
+
+Refactor only — no behavior change. The inline-icon markup that lives in `FloatingPane`, `Modal`, `Lightbox`, and `Sidebar` (eight `iconType === "img" ? ... : ...` ternaries across four files after the 12.3.1-12.3.3 chain of fixes) is now centralized in a single `buildIconMarkup({ type, iconClass, url, viewBox, alt, width, height })` helper in `gadget-ui.util.js`.
+
+Each component imports the helper and calls it instead of building the markup inline. The default 16×16 size and `"0 0 24 24"` viewBox are baked into the helper's defaults; consumer overrides via `options.iconViewBox` continue to flow through.
+
+The motivation: the 12.3.1, 12.3.2, and 12.3.3 fixes each had to patch the same problem in multiple places. The next fix lands in one place.
+
+12.3.3
+======
+
+Extends the 12.3.1/12.3.2 `iconType: "svg"` fix to `Modal`, `Lightbox`, and `Sidebar` — they had the same bug: inline SVG markup with no `width`/`height` or `viewBox`, rendering icons at the browser default (~300×150) or clipping the symbol against its 24-unit natural coordinate space.
+
+Fixed sites:
+- `Modal.addControl()` — the close X.
+- `Lightbox.addControl()` — the prev / next chevrons (two SVG sites).
+- `Sidebar.addControl()` and `Sidebar.setChevron()` — the toggle chevron (two SVG sites, since the icon is rebuilt on minimize/maximize).
+
+Each now emits `width="16" height="16" viewBox="0 0 24 24"` on the outer `<svg>`. The new `iconViewBox` option from 12.3.2 is exposed on all three components for non-feather icon sets.
+
+12.3.2
+======
+
+Follow-up to 12.3.1's icon-size fix: setting `width`/`height` on the outer `<svg>` made the icon stop rendering huge, but without a `viewBox` the `<use>`d symbol still drew at its natural 24-unit coordinate size inside the 16-unit frame, clipping the bottom-right of the icon.
+
+Fix adds `viewBox="0 0 24 24"` (feather-icons coordinate space) to the inline SVG markup in `FloatingPane.addHeader()`, `expand()`, and `minimize()`. New `iconViewBox` option overrides the default for consumers using non-feather icon sets — e.g. `iconViewBox: "0 0 16 16"` for Bootstrap Icons, `"0 0 8 8"` for Open Iconic.
+
 12.3.1
 ======
 
@@ -8,7 +36,7 @@ Two bug fixes around dialog rendering.
 
 **`Dialog` `options.width` was silently dropped when a caller passed their own element** (the `new Dialog(myEl, { width: "900px" })` form), because `FloatingPane.config()` reads `this.width = getStyle(this.element, "width")` instead of honoring the option directly. Dialog only applied the option in its auto-create branch (`new Dialog(null, {...})`), leaving the explicit-element branch reading whatever computed width the host element happened to have — usually the body width on a freshly-appended div, so dialogs rendered ~full-screen-wide and any caller-side `options.width` had no effect. Fix is a one-line addition to `Dialog`'s explicit-element branch — apply `setStyle(element, "width", options.width)` before `super()` runs, mirroring what the auto-create branch already does. Gated on `if (options.width)` so consumers who pass an element with their own CSS-driven width are unaffected.
 
-**`iconType: "svg"` rendered close/shrink icons at the inline-SVG default size (~300×150).** `<svg><use href="..."/></svg>` without explicit width/height attributes has no intrinsic dimensions; if the consumer's `.feather` (or other `iconClass`) CSS rule didn't catch the SVG via the class selector — or was beaten by specificity — the icon rendered enormous. The `img` icon path sized correctly because images carry natural dimensions. Fix adds explicit `width="16" height="16"` attributes to the inline SVG markup in `FloatingPane.addHeader`. Consumer CSS targeting the icon class can still override via the class selector — the attributes are presentation-level and lose to any CSS rule.
+**`iconType: "svg"` rendered close/shrink icons at the inline-SVG default size (~300×150).** `<svg><use href="..."/></svg>` without explicit width/height attributes has no intrinsic dimensions; if the consumer's `.feather` (or other `iconClass`) CSS rule didn't catch the SVG via the class selector — or was beaten by specificity — the icon rendered enormous. The `img` icon path sized correctly because images carry natural dimensions. Fix adds explicit `width="16" height="16"` attributes to the inline SVG markup in `FloatingPane.addHeader()`. Consumer CSS targeting the icon class can still override via the class selector. (12.3.2 follows up with the related `viewBox` clipping issue.)
 
 12.3.0
 ======

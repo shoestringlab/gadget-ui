@@ -559,6 +559,44 @@ export function delay(handler, delay) {
 	return setTimeout(handlerProxy, delay || 0);
 }
 
+// Shared inline-icon markup builder. Used by every display component
+// that lets consumers pass an icon URL + iconType ("img" | "svg"):
+// FloatingPane (and its Dialog subclass), Modal, Lightbox, Sidebar.
+//
+// Why a helper: the "img" branch is trivial, but the "svg" branch has
+// three load-bearing attributes that all four components need to get
+// right — width, height, and viewBox. Without explicit width/height
+// the browser falls back to ~300×150 (giant icon). Without viewBox the
+// <use>'d symbol draws at its natural coordinate size and gets clipped
+// against the outer frame. Getting any one of them wrong was the
+// 12.3.1/12.3.2/12.3.3 chain of bug fixes — centralizing here means
+// the next fix lands in one place.
+//
+// Params:
+//   type      — "img" | "svg" (component's `iconType` option)
+//   iconClass — class to put on the rendered element (defaults to "feather")
+//   url       — image src or SVG symbol reference
+//   viewBox   — SVG coordinate space, defaults to "0 0 24 24" (feather-icons);
+//               override for other icon sets (e.g. "0 0 16 16" Bootstrap Icons)
+//   alt       — optional alt text for img mode (Lightbox uses "Previous"/"Next")
+//   width     — defaults to 16; rarely needs to be overridden
+//   height    — defaults to 16
+export function buildIconMarkup({
+	type,
+	iconClass,
+	url,
+	viewBox = "0 0 24 24",
+	alt,
+	width = 16,
+	height = 16,
+}) {
+	if (type === "img") {
+		const altAttr = alt ? ` alt="${alt}"` : "";
+		return `<img class="${iconClass}" src="${url}"${altAttr}/>`;
+	}
+	return `<svg class="${iconClass}" width="${width}" height="${height}" viewBox="${viewBox}"><use xlink:href="${url}"/></svg>`;
+}
+
 export function contains(child, parent) {
 	var node = child.parentNode;
 	while (node != null) {

@@ -33,6 +33,10 @@ export class Lightbox extends Component {
 			"/node_modules/feather-icons/dist/icons/chevron-right.svg";
 		this.iconClass = options.iconClass || "feather";
 		this.iconType = options.iconType || "img";
+		// Coordinate space of the referenced icon symbol (for iconType
+		// "svg"). Default matches feather-icons. Override for other
+		// icon sets — see FloatingPane.config() for examples.
+		this.iconViewBox = options.iconViewBox || "0 0 24 24";
 	}
 
 	addControl() {
@@ -56,14 +60,20 @@ export class Lightbox extends Component {
 		this.spanNext = document.createElement("span");
 		this.spanPrevious.classList.add("gadgetui-lightbox-previousControl");
 		this.spanNext.classList.add("gadgetui-lightbox-nextControl");
-		this.spanPrevious.innerHTML =
-			this.iconType === "img"
-				? `<img class="${this.iconClass}" src="${this.leftIcon}" alt="Previous">`
-				: `<svg class="${this.iconClass}"><use xlink:href="${this.leftIcon}"/></svg>`;
-		this.spanNext.innerHTML =
-			this.iconType === "img"
-				? `<img class="${this.iconClass}" src="${this.rightIcon}" alt="Next">`
-				: `<svg class="${this.iconClass}"><use xlink:href="${this.rightIcon}"/></svg>`;
+		this.spanPrevious.innerHTML = buildIconMarkup({
+			type: this.iconType,
+			iconClass: this.iconClass,
+			url: this.leftIcon,
+			viewBox: this.iconViewBox,
+			alt: "Previous",
+		});
+		this.spanNext.innerHTML = buildIconMarkup({
+			type: this.iconType,
+			iconClass: this.iconClass,
+			url: this.rightIcon,
+			viewBox: this.iconViewBox,
+			alt: "Next",
+		});
 
 		this.element.appendChild(this.spanPrevious);
 		this.element.appendChild(this.imageContainer);

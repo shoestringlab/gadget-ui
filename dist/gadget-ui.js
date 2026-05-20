@@ -599,6 +599,44 @@ var gadgetui = (function () {
 		return setTimeout(handlerProxy, delay || 0);
 	}
 
+	// Shared inline-icon markup builder. Used by every display component
+	// that lets consumers pass an icon URL + iconType ("img" | "svg"):
+	// FloatingPane (and its Dialog subclass), Modal, Lightbox, Sidebar.
+	//
+	// Why a helper: the "img" branch is trivial, but the "svg" branch has
+	// three load-bearing attributes that all four components need to get
+	// right — width, height, and viewBox. Without explicit width/height
+	// the browser falls back to ~300×150 (giant icon). Without viewBox the
+	// <use>'d symbol draws at its natural coordinate size and gets clipped
+	// against the outer frame. Getting any one of them wrong was the
+	// 12.3.1/12.3.2/12.3.3 chain of bug fixes — centralizing here means
+	// the next fix lands in one place.
+	//
+	// Params:
+	//   type      — "img" | "svg" (component's `iconType` option)
+	//   iconClass — class to put on the rendered element (defaults to "feather")
+	//   url       — image src or SVG symbol reference
+	//   viewBox   — SVG coordinate space, defaults to "0 0 24 24" (feather-icons);
+	//               override for other icon sets (e.g. "0 0 16 16" Bootstrap Icons)
+	//   alt       — optional alt text for img mode (Lightbox uses "Previous"/"Next")
+	//   width     — defaults to 16; rarely needs to be overridden
+	//   height    — defaults to 16
+	function buildIconMarkup$1({
+		type,
+		iconClass,
+		url,
+		viewBox = "0 0 24 24",
+		alt,
+		width = 16,
+		height = 16,
+	}) {
+		if (type === "img") {
+			const altAttr = alt ? ` alt="${alt}"` : "";
+			return `<img class="${iconClass}" src="${url}"${altAttr}/>`;
+		}
+		return `<svg class="${iconClass}" width="${width}" height="${height}" viewBox="${viewBox}"><use xlink:href="${url}"/></svg>`;
+	}
+
 	function contains(child, parent) {
 		var node = child.parentNode;
 		while (node != null) {
@@ -797,6 +835,7 @@ var gadgetui = (function () {
 		Id: Id,
 		addStyle: addStyle,
 		bind: bind,
+		buildIconMarkup: buildIconMarkup$1,
 		checkBrowser: checkBrowser,
 		contains: contains,
 		createElement: createElement,
@@ -1511,17 +1550,6 @@ var gadgetui = (function () {
 				this.headerClass || "gadget-ui-floatingPane-header",
 			);
 
-			// SVG icons rendered via `<svg><use href="..."/></svg>` have NO
-			// intrinsic size — without explicit width/height attributes (or
-			// a CSS rule that catches the .iconClass selector), browsers
-			// fall back to the inline-SVG default of ~300×150, which makes
-			// the close/shrink icons render absurdly large. Img icons size
-			// from their natural file dimensions and don't have this
-			// problem. Set explicit width/height attributes on the SVG so
-			// the icons stay sensible by default; consumer CSS targeting
-			// the icon class can still override via the class selector.
-			const SVG_ICON_SIZE = 16;
-
 			if (this.enableShrink) {
 				this.shrinker = document.createElement("span");
 				this.shrinker.setAttribute("name", "maxmin");
@@ -1529,12 +1557,12 @@ var gadgetui = (function () {
 				css(this.shrinker, "right", "20px");
 				css(this.shrinker, "margin-right", ".5em");
 
-				const shrinkIcon =
-					this.iconType === "img"
-						? `<img class="${this.iconClass}" src="${this.minimizeIcon}"/>`
-						: `<svg class="${this.iconClass}" width="${SVG_ICON_SIZE}" height="${SVG_ICON_SIZE}"><use xlink:href="${this.minimizeIcon}"/></svg>`;
-
-				this.shrinker.innerHTML = shrinkIcon;
+				this.shrinker.innerHTML = buildIconMarkup$1({
+					type: this.iconType,
+					iconClass: this.iconClass,
+					url: this.minimizeIcon,
+					viewBox: this.iconViewBox,
+				});
 				this.header.appendChild(this.shrinker);
 			}
 
@@ -1544,12 +1572,12 @@ var gadgetui = (function () {
 				const span = document.createElement("span");
 				span.setAttribute("name", "closeIcon");
 
-				const icon =
-					this.iconType === "img"
-						? `<img class="${this.iconClass}" src="${this.closeIcon}"/>`
-						: `<svg class="${this.iconClass}" width="${SVG_ICON_SIZE}" height="${SVG_ICON_SIZE}"><use xlink:href="${this.closeIcon}"/></svg>`;
-
-				span.innerHTML = icon;
+				span.innerHTML = buildIconMarkup$1({
+					type: this.iconType,
+					iconClass: this.iconClass,
+					url: this.closeIcon,
+					viewBox: this.iconViewBox,
+				});
 				this.header.appendChild(span);
 
 				Object.assign(span.style, {
@@ -1614,10 +1642,12 @@ var gadgetui = (function () {
 				),
 				10,
 			);
-			const icon =
-				this.iconType === "img"
-					? `<img class="${this.iconClass}" src="${this.minimizeIcon}"/>`
-					: `<svg class="${this.iconClass}"><use xlink:href="${this.minimizeIcon}"/></svg>`;
+			const icon = buildIconMarkup$1({
+				type: this.iconType,
+				iconClass: this.iconClass,
+				url: this.minimizeIcon,
+				viewBox: this.iconViewBox,
+			});
 
 			if (typeof Velocity !== "undefined" && this.animate) {
 				Velocity(
@@ -1653,10 +1683,12 @@ var gadgetui = (function () {
 
 		minimize() {
 			const css = setStyle;
-			const icon =
-				this.iconType === "img"
-					? `<img class="${this.iconClass}" src="${this.maximizeIcon}"/>`
-					: `<svg class="${this.iconClass}"><use xlink:href="${this.maximizeIcon}"/></svg>`;
+			const icon = buildIconMarkup$1({
+				type: this.iconType,
+				iconClass: this.iconClass,
+				url: this.maximizeIcon,
+				viewBox: this.iconViewBox,
+			});
 
 			css(this.element, "overflow", "hidden");
 
@@ -1715,6 +1747,11 @@ var gadgetui = (function () {
 
 			this.iconClass = options.iconClass || "feather";
 			this.iconType = options.iconType || "img";
+			// Coordinate space of the referenced icon symbol (for iconType
+			// "svg"). Default matches feather-icons (24×24). Override for
+			// other icon sets, e.g. "0 0 16 16" for Bootstrap Icons,
+			// "0 0 8 8" for Open Iconic.
+			this.iconViewBox = options.iconViewBox || "0 0 24 24";
 			this.closeIcon =
 				options.closeIcon ||
 				"/node_modules/feather-icons/dist/icons/x-circle.svg";
@@ -2024,6 +2061,10 @@ var gadgetui = (function () {
 				"/node_modules/feather-icons/dist/icons/chevron-right.svg";
 			this.iconClass = options.iconClass || "feather";
 			this.iconType = options.iconType || "img";
+			// Coordinate space of the referenced icon symbol (for iconType
+			// "svg"). Default matches feather-icons. Override for other
+			// icon sets — see FloatingPane.config() for examples.
+			this.iconViewBox = options.iconViewBox || "0 0 24 24";
 		}
 
 		addControl() {
@@ -2047,14 +2088,20 @@ var gadgetui = (function () {
 			this.spanNext = document.createElement("span");
 			this.spanPrevious.classList.add("gadgetui-lightbox-previousControl");
 			this.spanNext.classList.add("gadgetui-lightbox-nextControl");
-			this.spanPrevious.innerHTML =
-				this.iconType === "img"
-					? `<img class="${this.iconClass}" src="${this.leftIcon}" alt="Previous">`
-					: `<svg class="${this.iconClass}"><use xlink:href="${this.leftIcon}"/></svg>`;
-			this.spanNext.innerHTML =
-				this.iconType === "img"
-					? `<img class="${this.iconClass}" src="${this.rightIcon}" alt="Next">`
-					: `<svg class="${this.iconClass}"><use xlink:href="${this.rightIcon}"/></svg>`;
+			this.spanPrevious.innerHTML = buildIconMarkup({
+				type: this.iconType,
+				iconClass: this.iconClass,
+				url: this.leftIcon,
+				viewBox: this.iconViewBox,
+				alt: "Previous",
+			});
+			this.spanNext.innerHTML = buildIconMarkup({
+				type: this.iconType,
+				iconClass: this.iconClass,
+				url: this.rightIcon,
+				viewBox: this.iconViewBox,
+				alt: "Next",
+			});
 
 			this.element.appendChild(this.spanPrevious);
 			this.element.appendChild(this.imageContainer);
@@ -2681,10 +2728,12 @@ var gadgetui = (function () {
 			this.element.parentNode.removeChild(this.element);
 			this.wrapper.appendChild(this.element);
 
-			const icon =
-				this.iconType === "img"
-					? `<img class="${this.iconClass}" src="${this.closeIcon}"/>`
-					: `<svg class="${this.iconClass}"><use xlink:href="${this.closeIcon}"/></svg>`;
+			const icon = buildIconMarkup$1({
+				type: this.iconType,
+				iconClass: this.iconClass,
+				url: this.closeIcon,
+				viewBox: this.iconViewBox,
+			});
 
 			this.element.classList.add("gadgetui-modalWindow");
 			this.element.innerHTML = `
@@ -2786,6 +2835,10 @@ var gadgetui = (function () {
 				"/node_modules/feather-icons/dist/icons/x-circle.svg";
 			this.autoOpen = options.autoOpen !== false; // Default to true unless explicitly false
 			this.iconType = options.iconType || "img";
+			// Coordinate space of the referenced icon symbol (for iconType
+			// "svg"). Default matches feather-icons. Override for other
+			// icon sets — see FloatingPane.config() for examples.
+			this.iconViewBox = options.iconViewBox || "0 0 24 24";
 			this.portal = options.portal === true;
 		}
 	}
@@ -3398,6 +3451,10 @@ var gadgetui = (function () {
 			this.toggleTitle = options.toggleTitle || "Toggle Sidebar";
 			this.iconClass = options.iconClass || "feather";
 			this.iconType = options.iconType || "img";
+			// Coordinate space of the referenced icon symbol (for iconType
+			// "svg"). Default matches feather-icons. Override for other
+			// icon sets — see FloatingPane.config() for examples.
+			this.iconViewBox = options.iconViewBox || "0 0 24 24";
 			this.leftIcon =
 				options.leftIcon ||
 				"/node_modules/feather-icons/dist/icons/chevron-left.svg";
@@ -3418,10 +3475,12 @@ var gadgetui = (function () {
 			this.span.classList.add("gadgetui-right-align");
 			this.span.classList.add("gadgetui-sidebar-toggle");
 
-			this.span.innerHTML =
-				this.iconType === "img"
-					? `<img class="${this.iconClass}" src="${this.leftIcon}">`
-					: `<svg class="${this.iconClass}"><use xlink:href="${this.leftIcon}"/></svg>`;
+			this.span.innerHTML = buildIconMarkup$1({
+				type: this.iconType,
+				iconClass: this.iconClass,
+				url: this.leftIcon,
+				viewBox: this.iconViewBox,
+			});
 
 			this.selector.parentNode.insertBefore(this.wrapper, this.selector);
 			this.selector.parentNode.removeChild(this.selector);
@@ -3509,10 +3568,12 @@ var gadgetui = (function () {
 			const chevron = minimized ? this.rightIcon : this.leftIcon;
 			const svg = this.wrapper.querySelector("span");
 
-			svg.innerHTML =
-				this.iconType === "img"
-					? `<img class="${this.iconClass}" src="${chevron}">`
-					: `<svg class="${this.iconClass}"><use xlink:href="${chevron}"/></svg>`;
+			svg.innerHTML = buildIconMarkup$1({
+				type: this.iconType,
+				iconClass: this.iconClass,
+				url: chevron,
+				viewBox: this.iconViewBox,
+			});
 		}
 
 		destroy() {

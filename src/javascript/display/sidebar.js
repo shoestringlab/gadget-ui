@@ -1,4 +1,5 @@
 import { Component } from '../../objects/component.js';
+import { buildIconMarkup } from '../gadget-ui.util.js';
 
 export class Sidebar extends Component {
 	constructor(selector, options = {}) {
@@ -28,6 +29,10 @@ export class Sidebar extends Component {
 		this.toggleTitle = options.toggleTitle || "Toggle Sidebar";
 		this.iconClass = options.iconClass || "feather";
 		this.iconType = options.iconType || "img";
+		// Coordinate space of the referenced icon symbol (for iconType
+		// "svg"). Default matches feather-icons. Override for other
+		// icon sets — see FloatingPane.config() for examples.
+		this.iconViewBox = options.iconViewBox || "0 0 24 24";
 		this.leftIcon =
 			options.leftIcon ||
 			"/node_modules/feather-icons/dist/icons/chevron-left.svg";
@@ -48,10 +53,12 @@ export class Sidebar extends Component {
 		this.span.classList.add("gadgetui-right-align");
 		this.span.classList.add("gadgetui-sidebar-toggle");
 
-		this.span.innerHTML =
-			this.iconType === "img"
-				? `<img class="${this.iconClass}" src="${this.leftIcon}">`
-				: `<svg class="${this.iconClass}"><use xlink:href="${this.leftIcon}"/></svg>`;
+		this.span.innerHTML = buildIconMarkup({
+			type: this.iconType,
+			iconClass: this.iconClass,
+			url: this.leftIcon,
+			viewBox: this.iconViewBox,
+		});
 
 		this.selector.parentNode.insertBefore(this.wrapper, this.selector);
 		this.selector.parentNode.removeChild(this.selector);
@@ -139,10 +146,12 @@ export class Sidebar extends Component {
 		const chevron = minimized ? this.rightIcon : this.leftIcon;
 		const svg = this.wrapper.querySelector("span");
 
-		svg.innerHTML =
-			this.iconType === "img"
-				? `<img class="${this.iconClass}" src="${chevron}">`
-				: `<svg class="${this.iconClass}"><use xlink:href="${chevron}"/></svg>`;
+		svg.innerHTML = buildIconMarkup({
+			type: this.iconType,
+			iconClass: this.iconClass,
+			url: chevron,
+			viewBox: this.iconViewBox,
+		});
 	}
 
 	destroy() {

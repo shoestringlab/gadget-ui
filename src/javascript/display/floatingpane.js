@@ -1,5 +1,5 @@
 import { Component } from '../../objects/component.js';
-import { getNumberValue, getStyle, textWidth, setStyle, getRelativeParentOffset, draggable, getMaxZIndex, getOffset } from '../gadget-ui.util.js';
+import { getNumberValue, getStyle, textWidth, setStyle, getRelativeParentOffset, draggable, getMaxZIndex, getOffset, buildIconMarkup } from '../gadget-ui.util.js';
 
 export class FloatingPane extends Component {
 	constructor(element, options) {
@@ -169,17 +169,6 @@ export class FloatingPane extends Component {
 			this.headerClass || "gadget-ui-floatingPane-header",
 		);
 
-		// SVG icons rendered via `<svg><use href="..."/></svg>` have NO
-		// intrinsic size — without explicit width/height attributes (or
-		// a CSS rule that catches the .iconClass selector), browsers
-		// fall back to the inline-SVG default of ~300×150, which makes
-		// the close/shrink icons render absurdly large. Img icons size
-		// from their natural file dimensions and don't have this
-		// problem. Set explicit width/height attributes on the SVG so
-		// the icons stay sensible by default; consumer CSS targeting
-		// the icon class can still override via the class selector.
-		const SVG_ICON_SIZE = 16;
-
 		if (this.enableShrink) {
 			this.shrinker = document.createElement("span");
 			this.shrinker.setAttribute("name", "maxmin");
@@ -187,12 +176,12 @@ export class FloatingPane extends Component {
 			css(this.shrinker, "right", "20px");
 			css(this.shrinker, "margin-right", ".5em");
 
-			const shrinkIcon =
-				this.iconType === "img"
-					? `<img class="${this.iconClass}" src="${this.minimizeIcon}"/>`
-					: `<svg class="${this.iconClass}" width="${SVG_ICON_SIZE}" height="${SVG_ICON_SIZE}"><use xlink:href="${this.minimizeIcon}"/></svg>`;
-
-			this.shrinker.innerHTML = shrinkIcon;
+			this.shrinker.innerHTML = buildIconMarkup({
+				type: this.iconType,
+				iconClass: this.iconClass,
+				url: this.minimizeIcon,
+				viewBox: this.iconViewBox,
+			});
 			this.header.appendChild(this.shrinker);
 		}
 
@@ -202,12 +191,12 @@ export class FloatingPane extends Component {
 			const span = document.createElement("span");
 			span.setAttribute("name", "closeIcon");
 
-			const icon =
-				this.iconType === "img"
-					? `<img class="${this.iconClass}" src="${this.closeIcon}"/>`
-					: `<svg class="${this.iconClass}" width="${SVG_ICON_SIZE}" height="${SVG_ICON_SIZE}"><use xlink:href="${this.closeIcon}"/></svg>`;
-
-			span.innerHTML = icon;
+			span.innerHTML = buildIconMarkup({
+				type: this.iconType,
+				iconClass: this.iconClass,
+				url: this.closeIcon,
+				viewBox: this.iconViewBox,
+			});
 			this.header.appendChild(span);
 
 			Object.assign(span.style, {
@@ -272,10 +261,12 @@ export class FloatingPane extends Component {
 			),
 			10,
 		);
-		const icon =
-			this.iconType === "img"
-				? `<img class="${this.iconClass}" src="${this.minimizeIcon}"/>`
-				: `<svg class="${this.iconClass}"><use xlink:href="${this.minimizeIcon}"/></svg>`;
+		const icon = buildIconMarkup({
+			type: this.iconType,
+			iconClass: this.iconClass,
+			url: this.minimizeIcon,
+			viewBox: this.iconViewBox,
+		});
 
 		if (typeof Velocity !== "undefined" && this.animate) {
 			Velocity(
@@ -311,10 +302,12 @@ export class FloatingPane extends Component {
 
 	minimize() {
 		const css = setStyle;
-		const icon =
-			this.iconType === "img"
-				? `<img class="${this.iconClass}" src="${this.maximizeIcon}"/>`
-				: `<svg class="${this.iconClass}"><use xlink:href="${this.maximizeIcon}"/></svg>`;
+		const icon = buildIconMarkup({
+			type: this.iconType,
+			iconClass: this.iconClass,
+			url: this.maximizeIcon,
+			viewBox: this.iconViewBox,
+		});
 
 		css(this.element, "overflow", "hidden");
 
@@ -373,6 +366,11 @@ export class FloatingPane extends Component {
 
 		this.iconClass = options.iconClass || "feather";
 		this.iconType = options.iconType || "img";
+		// Coordinate space of the referenced icon symbol (for iconType
+		// "svg"). Default matches feather-icons (24×24). Override for
+		// other icon sets, e.g. "0 0 16 16" for Bootstrap Icons,
+		// "0 0 8 8" for Open Iconic.
+		this.iconViewBox = options.iconViewBox || "0 0 24 24";
 		this.closeIcon =
 			options.closeIcon ||
 			"/node_modules/feather-icons/dist/icons/x-circle.svg";

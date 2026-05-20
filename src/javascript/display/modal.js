@@ -1,4 +1,5 @@
 import { Component } from '../../objects/component.js';
+import { buildIconMarkup } from '../gadget-ui.util.js';
 
 export class Modal extends Component {
 	constructor(element, options = {}) {
@@ -47,10 +48,12 @@ export class Modal extends Component {
 		this.element.parentNode.removeChild(this.element);
 		this.wrapper.appendChild(this.element);
 
-		const icon =
-			this.iconType === "img"
-				? `<img class="${this.iconClass}" src="${this.closeIcon}"/>`
-				: `<svg class="${this.iconClass}"><use xlink:href="${this.closeIcon}"/></svg>`;
+		const icon = buildIconMarkup({
+			type: this.iconType,
+			iconClass: this.iconClass,
+			url: this.closeIcon,
+			viewBox: this.iconViewBox,
+		});
 
 		this.element.classList.add("gadgetui-modalWindow");
 		this.element.innerHTML = `
@@ -152,6 +155,10 @@ export class Modal extends Component {
 			"/node_modules/feather-icons/dist/icons/x-circle.svg";
 		this.autoOpen = options.autoOpen !== false; // Default to true unless explicitly false
 		this.iconType = options.iconType || "img";
+		// Coordinate space of the referenced icon symbol (for iconType
+		// "svg"). Default matches feather-icons. Override for other
+		// icon sets — see FloatingPane.config() for examples.
+		this.iconViewBox = options.iconViewBox || "0 0 24 24";
 		this.portal = options.portal === true;
 	}
 }
