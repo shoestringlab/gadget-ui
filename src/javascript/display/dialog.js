@@ -6,6 +6,20 @@ export class Dialog extends FloatingPane {
 		const css = setStyle;
 
 		if (element) {
+			// Asymmetry fix (12.3.1): apply options.width to the
+			// caller-provided element too, mirroring the auto-create
+			// branch below. FloatingPane.config() reads
+			// `this.width = getStyle(this.element, "width")` rather than
+			// honoring options.width directly — so without this set,
+			// the wrapper sizes to whatever computed width the host
+			// element naturally has (often the body width on a
+			// freshly-appended div), and the options.width passed by
+			// the caller is silently dropped. Gating on `if (options.width)`
+			// keeps existing consumers who only pass an element and
+			// expect their element's own CSS to drive width unaffected.
+			if (options.width) {
+				css(element, "width", options.width);
+			}
 			super(element, options);
 		} else {
 			const dv = document.createElement("div");

@@ -1,6 +1,15 @@
 
 ***Release Notes***
 
+12.3.1
+======
+
+Two bug fixes around dialog rendering.
+
+**`Dialog` `options.width` was silently dropped when a caller passed their own element** (the `new Dialog(myEl, { width: "900px" })` form), because `FloatingPane.config()` reads `this.width = getStyle(this.element, "width")` instead of honoring the option directly. Dialog only applied the option in its auto-create branch (`new Dialog(null, {...})`), leaving the explicit-element branch reading whatever computed width the host element happened to have — usually the body width on a freshly-appended div, so dialogs rendered ~full-screen-wide and any caller-side `options.width` had no effect. Fix is a one-line addition to `Dialog`'s explicit-element branch — apply `setStyle(element, "width", options.width)` before `super()` runs, mirroring what the auto-create branch already does. Gated on `if (options.width)` so consumers who pass an element with their own CSS-driven width are unaffected.
+
+**`iconType: "svg"` rendered close/shrink icons at the inline-SVG default size (~300×150).** `<svg><use href="..."/></svg>` without explicit width/height attributes has no intrinsic dimensions; if the consumer's `.feather` (or other `iconClass`) CSS rule didn't catch the SVG via the class selector — or was beaten by specificity — the icon rendered enormous. The `img` icon path sized correctly because images carry natural dimensions. Fix adds explicit `width="16" height="16"` attributes to the inline SVG markup in `FloatingPane.addHeader`. Consumer CSS targeting the icon class can still override via the class selector — the attributes are presentation-level and lose to any CSS rule.
+
 12.3.0
 ======
 

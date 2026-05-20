@@ -7,10 +7,9 @@ Gadget-ui is a UI component library that has a built-in model and data-binding m
 
 ### Current Release
 
-v 12.3.0
+v 12.3.1
 
-Significant release just landed. This release serves two main purposes - to finish the migration of color styles to :root vars, and to standardize positioning and lifecycle for all components. There are several bug fixes included, see the release notes for all the details. 
-
+Two small bug fixes in Dialog and FloatingPane. See release notes.
 
 ## Installation
 

@@ -169,6 +169,17 @@ export class FloatingPane extends Component {
 			this.headerClass || "gadget-ui-floatingPane-header",
 		);
 
+		// SVG icons rendered via `<svg><use href="..."/></svg>` have NO
+		// intrinsic size — without explicit width/height attributes (or
+		// a CSS rule that catches the .iconClass selector), browsers
+		// fall back to the inline-SVG default of ~300×150, which makes
+		// the close/shrink icons render absurdly large. Img icons size
+		// from their natural file dimensions and don't have this
+		// problem. Set explicit width/height attributes on the SVG so
+		// the icons stay sensible by default; consumer CSS targeting
+		// the icon class can still override via the class selector.
+		const SVG_ICON_SIZE = 16;
+
 		if (this.enableShrink) {
 			this.shrinker = document.createElement("span");
 			this.shrinker.setAttribute("name", "maxmin");
@@ -179,7 +190,7 @@ export class FloatingPane extends Component {
 			const shrinkIcon =
 				this.iconType === "img"
 					? `<img class="${this.iconClass}" src="${this.minimizeIcon}"/>`
-					: `<svg class="${this.iconClass}"><use xlink:href="${this.minimizeIcon}"/></svg>`;
+					: `<svg class="${this.iconClass}" width="${SVG_ICON_SIZE}" height="${SVG_ICON_SIZE}"><use xlink:href="${this.minimizeIcon}"/></svg>`;
 
 			this.shrinker.innerHTML = shrinkIcon;
 			this.header.appendChild(this.shrinker);
@@ -194,7 +205,7 @@ export class FloatingPane extends Component {
 			const icon =
 				this.iconType === "img"
 					? `<img class="${this.iconClass}" src="${this.closeIcon}"/>`
-					: `<svg class="${this.iconClass}"><use xlink:href="${this.closeIcon}"/></svg>`;
+					: `<svg class="${this.iconClass}" width="${SVG_ICON_SIZE}" height="${SVG_ICON_SIZE}"><use xlink:href="${this.closeIcon}"/></svg>`;
 
 			span.innerHTML = icon;
 			this.header.appendChild(span);
