@@ -1,6 +1,49 @@
 
 ***Release Notes***
 
+12.6.0
+======
+
+New component: `Slideshow` — a rotating slide carousel.
+
+**Slide sources** (pick one):
+- *Existing markup* — pass a target element that already contains child elements; each child becomes a slide.
+- *Template + data* — pass a `template` function (an ES template-literal function, `(item, index) => htmlString`) plus a `data` array, or a `datasource` function returning a `Promise` of an array. Each item renders through the template into a slide.
+
+**Options:**
+- `transition` — `"slide"` (default, a moving track), `"fade"`, or `"none"` (instant).
+- `direction` — for the slide transition: `"horizontal"` (default) or `"vertical"`.
+- `interval` — ms between slides while autoplaying (default `5000`).
+- `transitionDuration` — ms for the transition animation (default `600`).
+- `autoplay` (default `true`), `loop` (default `true`), `pauseOnHover` (default `true`).
+- `showControls` (default `true`) — prev/next arrows; `showIndicators` (default `true`) — clickable dots.
+- `startIndex` (default `0`).
+- `width` / `height` — number → px, string → verbatim (e.g. `"600px"`, `"80%"`); omitted fills the host element.
+
+**Methods:** `next()`, `prev()`, `goTo(index)`, `play()`, `pause()`, `regenerate(data)` (rebuild from new data), `destroy()`.
+
+**Events** (subscribe with `.on(name, handler)`): `"rendered"`, `"slideChanged"` (`{ index }`), `"removed"`.
+
+Implementation notes: the slide transition uses a flex track sized to the viewport in pixels and translated with `translate3d`, kept in sync on resize via a `ResizeObserver`. Seamless looping is done with cloned first/last slides — advancing onto a clone animates, then snaps to the matching real slide with no transition on `transitionend`. Fade/none stack the slides and cross-fade via opacity, looping by index. Autoplay pauses on hover (when enabled), and the component auto-destroys (clearing its timer and observers) when its element leaves the DOM, matching `Lightbox`/`Modal`. New CSS classes are namespaced under `.gadgetui-slideshow-*`, with control/indicator colors themeable via `--gadget-ui-slideshow-*` custom properties.
+
+12.5.0
+======
+
+Feature. `Lightbox` gains `width` and `height` options that size the scroll area independently of the images.
+
+- `width` / `height` — the scroll-area (viewport) dimensions. A number is treated as pixels; a string passes through verbatim (e.g. `"1000px"`, `"80%"`). When omitted, the component fills its host element as before.
+
+In **scroll mode** each image now fills the cross axis and keeps its **natural aspect ratio** along the scroll axis, so the viewport size is decoupled from the image size:
+
+- Scrolling **left/right**, the image height fills the area height and each image's width is its natural (aspect-correct) width; `width` sets how wide the visible strip is, which can differ from any single image's width.
+- Scrolling **up/down**, the image width fills the area width and each image's height is natural; `height` sets the visible strip height, independent of image heights.
+
+Because images are no longer forced to a uniform scroll-axis size, the seamless-wrap distance is now measured from the images' actual rendered sizes. Measurement runs on image `load` (and immediately, for cached images) and on container resize via the existing `ResizeObserver`; the load listeners are torn down in `destroy()`.
+
+A new `.gadgetui-lightbox-scrollmode` class on the element drops the slideshow's 95% side-control gutter so the scroll viewport spans the full element width (scroll mode hides the prev/next controls anyway).
+
+Backward compatibility: slideshow mode is unchanged. Scroll-mode consumers that previously relied on each image being cropped to the container width will now see images at their natural aspect ratio along the scroll axis — set the area `height` (left/right) or `width` (up/down) to control image scale.
+
 12.4.0
 ======
 

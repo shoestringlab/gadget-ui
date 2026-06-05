@@ -1,0 +1,137 @@
+<!doctype html>
+<html>
+	<head>
+		<title>gadget-ui Slideshow Test</title>
+		<link rel="stylesheet" href="/dist/gadget-ui.css" />
+
+		<script src="slideshow.js" type="module"></script>
+
+		<style>
+			body {
+				font-family: system-ui, -apple-system, sans-serif;
+				margin: 2rem;
+				color: #222;
+				max-width: 760px;
+			}
+			h1 {
+				font-size: 1.6rem;
+			}
+			h2 {
+				font-size: 1.1rem;
+				margin-top: 2.5rem;
+				border-bottom: 1px solid #ddd;
+				padding-bottom: 0.3rem;
+			}
+
+			/* Each demo host gets a fixed box; the Slideshow fills it. The
+			   datasource demo (#ss-datasource) omits a CSS height to show the
+			   `height` option doing the sizing instead. */
+			.demo {
+				width: 600px;
+				height: 360px;
+				border: 1px solid #ccc;
+				border-radius: 8px;
+			}
+			.demo-w {
+				width: 600px;
+				border: 1px solid #ccc;
+				border-radius: 8px;
+			}
+
+			.controls {
+				margin: 0.6rem 0;
+				display: flex;
+				gap: 8px;
+			}
+			.controls button {
+				padding: 6px 12px;
+				cursor: pointer;
+			}
+
+			/* Template slide content. */
+			.slide-card {
+				position: relative;
+				width: 100%;
+				height: 100%;
+			}
+			.slide-card img {
+				width: 100%;
+				height: 100%;
+				object-fit: cover;
+				display: block;
+			}
+			.slide-card .caption {
+				position: absolute;
+				bottom: 0;
+				left: 0;
+				right: 0;
+				padding: 12px 16px;
+				background: linear-gradient(transparent, rgba(0, 0, 0, 0.75));
+				color: #fff;
+			}
+
+			/* Plain child slides for the fade demo. */
+			.panel {
+				width: 100%;
+				height: 100%;
+				display: flex;
+				align-items: center;
+				justify-content: center;
+				font-size: 2rem;
+				color: #fff;
+			}
+			.p1 { background: #3b82f6; }
+			.p2 { background: #10b981; }
+			.p3 { background: #ef4444; }
+
+			#log {
+				font-family: monospace;
+				font-size: 12px;
+				white-space: pre;
+				background: #f5f5f5;
+				border: 1px solid #e0e0e0;
+				border-radius: 6px;
+				padding: 8px;
+				height: 90px;
+				overflow: auto;
+				width: 584px;
+			}
+		</style>
+	</head>
+
+	<body>
+		<h1>gadget-ui.display.Slideshow</h1>
+		<p>
+			Five instances exercising both slide sources, every transition,
+			both directions, autoplay/controls/indicators, an async datasource,
+			and the <code>height</code> option.
+		</p>
+
+		<h2>1. Template + data — slide (horizontal), autoplay + controls</h2>
+		<div id="ss-template" class="demo"></div>
+		<div class="controls">
+			<button id="prev">Prev</button>
+			<button id="next">Next</button>
+			<button id="pause">Pause</button>
+			<button id="play">Play</button>
+			<button id="goto">Go to slide 3</button>
+		</div>
+		<div id="log"></div>
+
+		<h2>2. Existing child divs — fade</h2>
+		<div id="ss-children" class="demo">
+			<div class="panel p1">Slide One</div>
+			<div class="panel p2">Slide Two</div>
+			<div class="panel p3">Slide Three</div>
+		</div>
+
+		<h2>3. Template + data — slide (vertical)</h2>
+		<div id="ss-vertical" class="demo"></div>
+
+		<h2>4. Async datasource — fade, sized by the <code>height</code> option</h2>
+		<div id="ss-datasource" class="demo-w"></div>
+
+		<h2>5. transition: "none" (instant), no controls or indicators</h2>
+		<div id="ss-none" class="demo"></div>
+	</body>
+</html>

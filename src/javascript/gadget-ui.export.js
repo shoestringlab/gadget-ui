@@ -11,6 +11,7 @@ import { Overlay } from './display/overlay.js';
 import { Popover } from './display/popover.js';
 import { ProgressBar } from './display/progressbar.js';
 import { Sidebar } from './display/sidebar.js';
+import { Slideshow } from './display/slideshow.js';
 import { Tabs } from './display/tabs.js';
 
 // Input components
@@ -49,6 +50,7 @@ export {
 	Popover,
 	ProgressBar,
 	Sidebar,
+	Slideshow,
 	Tabs,
 	Autosuggest,
 	ComboBox,
@@ -81,6 +83,7 @@ export const gadgetui = {
 		Popover,
 		ProgressBar,
 		Sidebar,
+		Slideshow,
 		Tabs,
 	},
 	input: {

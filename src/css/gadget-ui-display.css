@@ -523,6 +523,12 @@ div.gadget-ui-menu {
  * the component translates via requestAnimationFrame. Positioned absolutely
  * so it overflows the container (which clips it via overflow: hidden) while
  * the single-image slideshow markup stays hidden. */
+/* Scroll mode has no prev/next side controls, so the clipping viewport uses
+ * the full element width rather than the slideshow's 95% gutter. */
+.gadgetui-lightbox-scrollmode .gadgetui-lightbox-image-container {
+    width: 100%;
+}
+
 .gadgetui-lightbox-scroll-track {
     position: absolute;
     top: 0;
@@ -593,6 +599,114 @@ div.gadget-ui-menu {
 
 .gadgetui-hidden {
     display: none;
+}
+
+/* Slideshow — rotating slide carousel. The host element clips the viewport;
+ * "slide" mode moves a flex track (the component sizes each slide to the
+ * viewport in px and translates by px), while "fade"/"none" stack the slides
+ * and cross-fade via opacity. */
+.gadgetui-slideshow {
+    position: relative;
+    overflow: hidden;
+}
+
+.gadgetui-slideshow-viewport {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+}
+
+.gadgetui-slideshow-track {
+    width: 100%;
+    height: 100%;
+}
+
+.gadgetui-slideshow-mode-slide {
+    display: flex;
+    will-change: transform;
+}
+
+.gadgetui-slideshow-mode-slide.gadgetui-slideshow-horizontal {
+    flex-direction: row;
+}
+
+.gadgetui-slideshow-mode-slide.gadgetui-slideshow-vertical {
+    flex-direction: column;
+}
+
+.gadgetui-slideshow-mode-slide .gadgetui-slideshow-slide {
+    flex: 0 0 auto;
+}
+
+.gadgetui-slideshow-mode-fade .gadgetui-slideshow-slide,
+.gadgetui-slideshow-mode-none .gadgetui-slideshow-slide {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+}
+
+.gadgetui-slideshow-mode-fade .gadgetui-slideshow-slide.gadgetui-slideshow-active,
+.gadgetui-slideshow-mode-none .gadgetui-slideshow-slide.gadgetui-slideshow-active {
+    opacity: 1;
+}
+
+.gadgetui-slideshow-control {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 3;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    padding: 0;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    color: var(--gadget-ui-slideshow-control-fg, #fff);
+}
+
+.gadgetui-slideshow-control-prev {
+    left: 8px;
+}
+
+.gadgetui-slideshow-control-next {
+    right: 8px;
+}
+
+.gadgetui-slideshow-control svg {
+    width: 24px;
+    height: 24px;
+}
+
+.gadgetui-slideshow-indicators {
+    position: absolute;
+    bottom: 10px;
+    left: 0;
+    right: 0;
+    z-index: 3;
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+}
+
+.gadgetui-slideshow-indicator {
+    width: 10px;
+    height: 10px;
+    padding: 0;
+    border: none;
+    border-radius: 50%;
+    background: var(--gadget-ui-slideshow-indicator, rgba(255, 255, 255, 0.5));
+    cursor: pointer;
+}
+
+.gadgetui-slideshow-indicator.gadgetui-slideshow-active {
+    background: var(--gadget-ui-slideshow-indicator-active, #fff);
 }
 
 /* Overlay — anchor-tracking dim layer. Position/size are set inline by

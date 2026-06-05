@@ -44,6 +44,15 @@ export class Lightbox extends Component {
 			? options.direction
 			: "left";
 
+		// Explicit scroll-area dimensions. A number is treated as pixels; a
+		// string is used verbatim (e.g. "1000px", "80%"). When omitted the
+		// component fills its host element as before. In scroll mode these
+		// size the visible viewport independently of the images, which keep
+		// their natural aspect ratio along the scroll axis — so e.g. a
+		// left/right scroll area can be wider than any single image.
+		this.width = options.width;
+		this.height = options.height;
+
 		this.enableModal = options.enableModal ?? true;
 		this.leftIcon =
 			options.leftIcon ||
@@ -59,8 +68,21 @@ export class Lightbox extends Component {
 		this.iconViewBox = options.iconViewBox || "0 0 24 24";
 	}
 
+	// Normalize a width/height option to a CSS length. Numbers become px;
+	// strings pass through verbatim.
+	_cssSize(value) {
+		return typeof value === "number" ? `${value}px` : value;
+	}
+
 	addControl() {
 		this.element.classList.add("gadgetui-lightbox");
+
+		if (this.width != null) {
+			this.element.style.width = this._cssSize(this.width);
+		}
+		if (this.height != null) {
+			this.element.style.height = this._cssSize(this.height);
+		}
 
 		this.imageContainer = document.createElement("div");
 		this.imageContainer.classList.add("gadgetui-lightbox-image-container");
@@ -239,10 +261,17 @@ export class Lightbox extends Component {
 	// Build the continuous track used by scroll mode. The images are laid
 	// out edge-to-edge and duplicated once so the track can wrap seamlessly:
 	// once a full set has scrolled past, we shift the offset back by one set
-	// width onto the identical copy without a visible jump.
+	// width onto the identical copy without a visible jump. Each image fills
+	// the cross axis and keeps its natural aspect ratio along the scroll axis,
+	// so the scroll-area size (width/height options) is independent of the
+	// image sizes.
 	_buildScrollTrack() {
 		const horizontal =
 			this.scrollDirection === "left" || this.scrollDirection === "right";
+
+		// No prev/next side controls in scroll mode, so the viewport can use
+		// the full element width (overrides the slideshow container's 95%).
+		this.element.classList.add("gadgetui-lightbox-scrollmode");
 
 		this.scrollTrack = document.createElement("div");
 		this.scrollTrack.classList.add("gadgetui-lightbox-scroll-track");
@@ -271,35 +300,38 @@ export class Lightbox extends Component {
 		this.spanPrevious.classList.add("gadgetui-hidden");
 		this.spanNext.classList.add("gadgetui-hidden");
 
-		this._sizeScrollTrack();
+		// The wrap distance depends on the images' rendered sizes, which are
+		// only known once they load. Remeasure on each load (and immediately,
+		// to cover already-cached images).
+		this._onScrollImgLoad = () => this._measureScrollUnit();
+		this._scrollImgs.forEach((img) =>
+			img.addEventListener("load", this._onScrollImgLoad),
+		);
+		this._measureScrollUnit();
 
-		// Keep each image matched to the viewport (and the wrap distance
-		// correct) as the container resizes.
+		// The cross-axis fill is height/width: 100%, so a container resize
+		// changes each image's natural size along the scroll axis too — keep
+		// the wrap distance in sync.
 		this._scrollResizeObserver = new ResizeObserver(() =>
-			this._sizeScrollTrack(),
+			this._measureScrollUnit(),
 		);
 		this._scrollResizeObserver.observe(this.imageContainer);
 	}
 
-	// Size each track image to the scroll axis of the container and recompute
-	// the per-set wrap distance.
-	_sizeScrollTrack() {
+	// Recompute the per-set wrap distance from the images' actual rendered
+	// sizes along the scroll axis (they keep their natural aspect ratio, so
+	// they are not assumed to be uniform).
+	_measureScrollUnit() {
 		if (!this._scrollImgs || !this.images.length) return;
 		const horizontal =
 			this.scrollDirection === "left" || this.scrollDirection === "right";
-		const size = horizontal
-			? this.imageContainer.clientWidth
-			: this.imageContainer.clientHeight;
-		if (!size) return;
 
-		this._scrollImgs.forEach((img) => {
-			if (horizontal) {
-				img.style.width = `${size}px`;
-			} else {
-				img.style.height = `${size}px`;
-			}
-		});
-		this._scrollUnit = size * this.images.length;
+		let unit = 0;
+		for (let i = 0; i < this.images.length; i++) {
+			const img = this._scrollImgs[i];
+			unit += horizontal ? img.offsetWidth : img.offsetHeight;
+		}
+		if (unit > 0) this._scrollUnit = unit;
 	}
 
 	_startScroll() {
@@ -311,7 +343,7 @@ export class Lightbox extends Component {
 		const negative =
 			this.scrollDirection === "left" || this.scrollDirection === "up";
 
-		if (!this._scrollUnit) this._sizeScrollTrack();
+		if (!this._scrollUnit) this._measureScrollUnit();
 
 		// Start positioned so there's always a full set ahead in the travel
 		// direction: at 0 when moving negative, at -unit when moving positive.
@@ -383,6 +415,12 @@ export class Lightbox extends Component {
 		if (this._scrollResizeObserver) {
 			this._scrollResizeObserver.disconnect();
 			this._scrollResizeObserver = null;
+		}
+
+		if (this._onScrollImgLoad && this._scrollImgs) {
+			this._scrollImgs.forEach((img) =>
+				img.removeEventListener("load", this._onScrollImgLoad),
+			);
 		}
 
 		// Stop the slideshow interval and any scroll RAF before tearing down
