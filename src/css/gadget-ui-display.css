@@ -519,6 +519,43 @@ div.gadget-ui-menu {
     transform: translateX(0); /* Slide to center */
 }
 
+/* Scroll mode (animateMode: "scroll") — a continuous track of images that
+ * the component translates via requestAnimationFrame. Positioned absolutely
+ * so it overflows the container (which clips it via overflow: hidden) while
+ * the single-image slideshow markup stays hidden. */
+.gadgetui-lightbox-scroll-track {
+    position: absolute;
+    top: 0;
+    left: 0;
+    display: flex;
+    will-change: transform;
+}
+
+.gadgetui-lightbox-scroll-horizontal {
+    flex-direction: row;
+    height: 100%;
+}
+
+.gadgetui-lightbox-scroll-vertical {
+    flex-direction: column;
+    width: 100%;
+}
+
+.gadgetui-lightbox-scroll-image {
+    flex: 0 0 auto;
+    object-fit: cover;
+}
+
+/* Each image is sized on the scroll axis inline by JS (to the container's
+ * width/height); the cross axis fills the container here. */
+.gadgetui-lightbox-scroll-horizontal .gadgetui-lightbox-scroll-image {
+    height: 100%;
+}
+
+.gadgetui-lightbox-scroll-vertical .gadgetui-lightbox-scroll-image {
+    width: 100%;
+}
+
 .gadgetui-lightbox-previousControl {
     position: absolute;
     left: 0px;

@@ -1,6 +1,32 @@
 
 ***Release Notes***
 
+12.4.0
+======
+
+Feature. `Lightbox` gains an `animateMode` option to choose how the images cycle:
+
+- `animateMode: "slideshow"` (default) — the existing behavior, unchanged: one image swaps for the next on the `time` interval with a slide transition, and the prev/next controls and modal zoom remain available.
+- `animateMode: "scroll"` — the images are laid out edge-to-edge in a continuous track that scrolls past the viewport at a constant speed, like a filmstrip.
+
+Scroll mode adds two options (ignored in slideshow mode):
+
+- `speed` — scroll rate in **pixels per second**. Default `40`.
+- `direction` — `"left"` (default), `"right"`, `"up"`, or `"down"`. Left/right scroll horizontally; up/down scroll vertically.
+
+Implementation notes: the track duplicates the image set once so it wraps seamlessly — when a full set has scrolled past, the offset shifts back by one set-width onto the identical copy with no visible jump. Movement is driven by `requestAnimationFrame` (time-delta based, so the speed is frame-rate independent), and a `ResizeObserver` keeps each image sized to the container and the wrap distance correct across resizes. In scroll mode the single-image slideshow elements, the prev/next controls, and the modal zoom are skipped, since none of them map onto a continuously moving track. `stopAnimation()` and `destroy()` cancel the animation frame and disconnect the observer alongside the existing slideshow teardown.
+
+New CSS classes (`.gadgetui-lightbox-scroll-track` and its `-horizontal` / `-vertical` / `-image` variants) ship in `gadget-ui-display.css`. The cross-axis sizing lives in CSS; the scroll-axis size is applied inline by the component.
+
+Fully backward compatible — existing `Lightbox` consumers that don't pass `animateMode` get the slideshow behavior exactly as before.
+
+12.3.5
+======
+
+Bug fix. The 12.3.4 refactor extracted `buildIconMarkup` from four display components into `gadget-ui.util.js`, but the import statement was added to only three of them — `Lightbox` was missed. Result: any consumer instantiating a `Lightbox` against the 12.3.4 bundle threw `ReferenceError: buildIconMarkup is not defined` at render time (the IDP home view caught it).
+
+Fix is one line — adding `import { buildIconMarkup } from '../gadget-ui.util.js';` to `src/javascript/display/lightbox.js`. Modal, FloatingPane, and Sidebar already had it.
+
 12.3.4
 ======
 
