@@ -50,12 +50,7 @@ export class Menu extends Component {
         element.setAttribute("data-id", item.dataId);
       }
 
-      if (item.image?.length) {
-        const imgEl = document.createElement("img");
-        imgEl.src = item.image;
-        imgEl.classList.add("gadget-ui-menu-icon");
-        element.appendChild(imgEl);
-      }
+      this.addIcon(element, item);
 
       if (
         item.link &&
@@ -92,14 +87,10 @@ export class Menu extends Component {
       menuEl.classList.add("gadget-ui-menu");
       menuEl.innerText = menuData.label || "";
 
-      if (menuData.image?.length) {
-        const imgEl = document.createElement("img");
-        imgEl.src = menuData.image;
-        imgEl.classList.add("gadget-ui-menu-icon");
-        menuEl.appendChild(imgEl);
-      }
+      this.addIcon(menuEl, menuData);
 
       const dropdownEl = processMenuItem(menuData.menuItem, menuEl);
+      this._applyDropdownSizing(dropdownEl);
 
       if (this.portal) {
         // Top-level dropdown moves to body; nested submenus stay inside it
@@ -122,6 +113,31 @@ export class Menu extends Component {
     });
 
     if (this.portal) this._observeAnchor();
+  }
+
+  // Append an icon to a menu / menu-item element from a `source` definition.
+  // A `svg` field (raw <svg> markup) is rendered as a real inline SVG element,
+  // so it inherits currentColor and is styleable with CSS; an `image` field
+  // (a URL) is rendered as an <img>. `svg` wins when both are present. Both
+  // carry the shared `gadget-ui-menu-icon` class so existing styling applies.
+  addIcon(element, source) {
+    if (source.svg?.length) {
+      const tpl = document.createElement("template");
+      tpl.innerHTML = source.svg.trim();
+      const svgEl = tpl.content.firstElementChild;
+      if (svgEl) {
+        svgEl.classList.add("gadget-ui-menu-icon");
+        element.appendChild(svgEl);
+        return;
+      }
+    }
+
+    if (source.image?.length) {
+      const imgEl = document.createElement("img");
+      imgEl.src = source.image;
+      imgEl.classList.add("gadget-ui-menu-icon");
+      element.appendChild(imgEl);
+    }
   }
 
   addBindings() {
@@ -316,8 +332,36 @@ export class Menu extends Component {
     // when the trigger sits near the right side of a panel and a left-aligned
     // dropdown would overflow into adjacent UI).
     this.dropdownAlign = options.dropdownAlign === "right" ? "right" : "left";
+    // Optional explicit sizing for the dropdown panel, applied as inline styles
+    // so they win over the stylesheet (including the mobile min-width). Each
+    // accepts a number (treated as px) or any CSS length string; omit to leave
+    // sizing to CSS. Useful for icon-only menus where the default min-width is
+    // far too wide, and to make the panel width deterministic so right-aligned
+    // portal positioning lands precisely.
+    this.dropdownWidth = options.dropdownWidth;
+    this.dropdownMinWidth = options.dropdownMinWidth;
+    this.dropdownMaxWidth = options.dropdownMaxWidth;
     this.portaledDropdowns = [];
     this.observer = null;
+  }
+
+  // Normalize a size option to a CSS string: numbers become px, strings pass
+  // through, null/undefined yields null (meaning "leave to the stylesheet").
+  _cssSize(value) {
+    if (value === null || value === undefined) return null;
+    return typeof value === "number" ? `${value}px` : String(value);
+  }
+
+  // Apply the optional dropdownWidth/minWidth/maxWidth inline styles to a
+  // dropdown panel element. Inline styles override the stylesheet, so a
+  // consumer can e.g. pass dropdownMinWidth: 0 to defeat the mobile min-width.
+  _applyDropdownSizing(dropdownEl) {
+    const width = this._cssSize(this.dropdownWidth);
+    const minWidth = this._cssSize(this.dropdownMinWidth);
+    const maxWidth = this._cssSize(this.dropdownMaxWidth);
+    if (width !== null) dropdownEl.style.width = width;
+    if (minWidth !== null) dropdownEl.style.minWidth = minWidth;
+    if (maxWidth !== null) dropdownEl.style.maxWidth = maxWidth;
   }
 
   // Find the dropdown element associated with a top-level toggle, regardless

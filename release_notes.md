@@ -1,6 +1,17 @@
 
 ***Release Notes***
 
+12.7.0
+======
+
+`Menu` gains two additions, both backward-compatible.
+
+**Inline SVG icons.** Menu items — and the top-level toggle — accept a new `svg` field: a raw `<svg>` markup string, rendered as a real inline SVG element rather than an `<img>`. Unlike `image` (a URL rendered as `<img>`), an inline SVG inherits `currentColor` and is fully styleable with CSS, so icons follow the surrounding theme. `image` continues to work unchanged; `svg` takes precedence when both are supplied, and both carry the shared `gadget-ui-menu-icon` class. Icon creation now goes through a single `addIcon(element, source)` helper used by both the toggle and the dropdown items.
+
+**Dropdown sizing options.** Three new options control the dropdown panel's width: `dropdownWidth`, `dropdownMinWidth`, and `dropdownMaxWidth`. Each accepts a number (treated as px) or any CSS length string, and is applied as an inline style on the dropdown so it overrides the stylesheet — including the mobile `min-width`. This is useful for icon-only menus, where the default min-width is far too wide, and to make the panel width deterministic so a right-aligned (portal) dropdown positions precisely against its trigger. Omit them to leave sizing to CSS; default behavior is unchanged.
+
+Implementation notes: inline SVG markup is parsed through a `<template>` element so it materializes as a proper namespaced `<svg>` node. The sizing options are normalized by a `_cssSize` helper (number → `"<n>px"`, string verbatim, null/undefined → no inline style) and applied to the top-level dropdown panel in `generateMenu` via `_applyDropdownSizing`.
+
 12.6.0
 ======
 
