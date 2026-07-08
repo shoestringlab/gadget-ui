@@ -1,6 +1,33 @@
 
 ***Release Notes***
 
+12.8.0
+======
+
+**Autosuggest**: inline trigger mode for textareas/inputs
+
+Add a caret-anchored inline autocomplete mode driven by a trigger string
+(e.g. “@” for mentions, “[@” for citations), complementing the existing
+createAtCursor (contentEditable) mode.
+
+When trigger is set on a <textarea>/<input>:
+
+- the term is the text typed after the trigger up to the caret (ended by
+any char outside termPattern);
+
+- the suggestion menu floats at the caret (mirror-div caret coordinates)
+on document.body, without wrapping the host element;
+
+- selecting an item replaces trigger + term in the field value with the
+item’s value (or insertRenderer(item)), restores the caret, and
+fires an input event so host listeners observe the change;
+
+- the top match is pre-highlighted so Enter selects it.
+
+New options: trigger, termPattern, insertRenderer. CSS adds the inline
+menu (scroll/shadow) + keyboard-focus item style. Existing modes are
+unchanged.
+
 12.7.0
 ======
 
