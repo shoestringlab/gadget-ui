@@ -399,6 +399,7 @@ div.gadgetui-autosuggest-menu {
 div.gadgetui-autosuggest-item {
 	display: block;
 	padding-left: 10px;
+	cursor: pointer;
 }
 
 div.gadgetui-autosuggest-item:hover {
@@ -406,4 +407,19 @@ div.gadgetui-autosuggest-item:hover {
 	color: var(--gadget-ui-input-menu-hover-fg);
 	border-top: 1px solid var(--gadget-ui-input-menu-border);
 	border-bottom: 1px solid var(--gadget-ui-input-menu-border);
+}
+
+/* Keyboard-highlighted item (Up/Down/auto-focus). */
+div.gadgetui-autosuggest-item.ui-state-focus {
+	color: var(--gadget-ui-input-menu-hover-fg);
+	background: var(--gadget-ui-input-menu-hover-bg, rgba(127, 127, 127, 0.18));
+}
+
+/* Inline (caret-anchored) menu: floats over content and scrolls. */
+div.gadgetui-autosuggest-menu-inline {
+	max-height: 240px;
+	overflow-y: auto;
+	min-width: 200px;
+	border-radius: 4px;
+	box-shadow: 0 2px 10px rgba(0, 0, 0, 0.25);
 }

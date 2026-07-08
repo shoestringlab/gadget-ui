@@ -4930,6 +4930,13 @@ var gadgetui = (function () {
 		}
 
 		addControl() {
+			// Inline mode leaves the field in place (no wrapper) — the menu floats
+			// at the caret on document.body — so the host layout is untouched.
+			if (this.inline) {
+				this.wrapper = this.element;
+				return;
+			}
+
 			this.wrapper = document.createElement("div");
 			if (this.width) setStyle(this.wrapper, "width", this.width);
 			this.wrapper.classList.add("gadgetui-autosuggest-input");
@@ -4995,7 +5002,15 @@ var gadgetui = (function () {
 				this.menu = { element: div };
 			}
 
-			this.wrapper.appendChild(div);
+			if (this.inline) {
+				// Float the menu at the caret; keep it out of the host's flow.
+				div.classList.add("gadgetui-autosuggest-menu-inline");
+				setStyle(div, "position", "fixed");
+				setStyle(div, "z-index", "10000");
+				document.body.appendChild(div);
+			} else {
+				this.wrapper.appendChild(div);
+			}
 		}
 
 		initSource() {
@@ -5207,13 +5222,17 @@ var gadgetui = (function () {
 					});
 				}
 
-				this._value(item.value);
-				this.term = this._value();
+				if (this.inline) {
+					this._inlineReplace(item);
+				} else {
+					this._value(item.value);
+					this.term = this._value();
+				}
 				this.close(event);
 				this.selectedItem = item;
 
 				//if (!this.checkForDuplicate(item))
-				this.handler(item);
+				if (this.handler) this.handler(item);
 				this.fireEvent("menuselect", event);
 			});
 		}
@@ -5303,6 +5322,10 @@ var gadgetui = (function () {
 		_searchTimeout(event) {
 			clearTimeout(this.searching);
 			this.searching = delay(() => {
+				if (this.inline) {
+					this._inlineSearch(event);
+					return;
+				}
 				const termChanged = this.term !== this.element.value;
 				const menuVisible = this.menu.element.style.display !== "none";
 				const modifierKey =
@@ -5313,6 +5336,100 @@ var gadgetui = (function () {
 					this.search(null, event);
 				}
 			}, this.delay);
+		}
+
+		// ── Inline trigger mode ──────────────────────────────────────────────
+		// Examine the text before the caret; return { start, term, caret } when the
+		// caret is inside an active trigger context, else null.
+		_inlineContext() {
+			const el = this.element;
+			if (typeof el.selectionStart !== "number") return null;
+			const caret = el.selectionStart;
+			const before = el.value.slice(0, caret);
+			const start = before.lastIndexOf(this.trigger);
+			if (start === -1) return null;
+			const term = before.slice(start + this.trigger.length);
+			for (const ch of term) {
+				if (!this.termPattern.test(ch)) return null; // space/"]"/etc. ends it
+			}
+			return { start, term, caret };
+		}
+
+		_inlineSearch(event) {
+			const ctx = this._inlineContext();
+			if (!ctx) {
+				this._inlineActive = null;
+				this.close(event);
+				return;
+			}
+			this._inlineActive = ctx;
+			this.term = ctx.term;
+			if (ctx.term.length < this.minLength) {
+				this.close(event);
+				return;
+			}
+			this._search(ctx.term);
+		}
+
+		// Replace `trigger + term` in the field value with the selected insertion.
+		_inlineReplace(item) {
+			const ctx = this._inlineActive;
+			if (!ctx) return;
+			const el = this.element;
+			const insert = this.insertRenderer ? this.insertRenderer(item) : item.value;
+			el.value = el.value.slice(0, ctx.start) + insert + el.value.slice(ctx.caret);
+			const pos = ctx.start + insert.length;
+			el.focus();
+			try {
+				el.setSelectionRange(pos, pos);
+			} catch (e) {
+				/* noop */
+			}
+			this._inlineActive = null;
+			// Let host listeners (autosave, undo, model bind) observe the change.
+			el.dispatchEvent(new Event("input", { bubbles: true }));
+		}
+
+		// Viewport coordinates of the caret in a textarea/input, via a mirror div
+		// that replicates the field's box + typography.
+		_caretCoords() {
+			const el = this.element;
+			const caret =
+				typeof el.selectionStart === "number" ? el.selectionStart : el.value.length;
+			const cs = window.getComputedStyle(el);
+			const div = document.createElement("div");
+			const s = div.style;
+			[
+				"boxSizing", "width", "paddingTop", "paddingRight", "paddingBottom",
+				"paddingLeft", "borderTopWidth", "borderRightWidth", "borderBottomWidth",
+				"borderLeftWidth", "fontFamily", "fontSize", "fontWeight", "fontStyle",
+				"lineHeight", "letterSpacing", "textTransform", "textAlign",
+			].forEach((p) => {
+				s[p] = cs[p];
+			});
+			s.position = "absolute";
+			s.visibility = "hidden";
+			s.whiteSpace = "pre-wrap";
+			s.wordWrap = "break-word";
+			s.overflow = "hidden";
+			s.top = "0";
+			s.left = "-9999px";
+			div.textContent = el.value.slice(0, caret);
+			const marker = document.createElement("span");
+			marker.textContent = el.value.slice(caret) || ".";
+			div.appendChild(marker);
+			document.body.appendChild(div);
+			const spanTop = marker.offsetTop;
+			const spanLeft = marker.offsetLeft;
+			document.body.removeChild(div);
+			const rect = el.getBoundingClientRect();
+			const lineHeight =
+				parseFloat(cs.lineHeight) || parseFloat(cs.fontSize) * 1.2 || 16;
+			return {
+				top: rect.top + spanTop - el.scrollTop,
+				left: rect.left + spanLeft - el.scrollLeft,
+				lineHeight,
+			};
 		}
 
 		search(value, event) {
@@ -5415,6 +5532,19 @@ var gadgetui = (function () {
 			} else {
 				// Standard display
 				div.style.display = "block";
+			}
+
+			if (this.inline) {
+				// Float the menu just below the caret line, and pre-highlight the top
+				// match so Enter picks it without arrowing.
+				const c = this._caretCoords();
+				div.style.top = c.top + c.lineHeight + "px";
+				div.style.left = c.left + "px";
+				const first = div.querySelector(".gadgetui-autosuggest-item");
+				if (first) {
+					first.classList.add("ui-state-focus");
+					this.menu.active = first;
+				}
 			}
 
 			this._resizeMenu();
@@ -5672,6 +5802,20 @@ var gadgetui = (function () {
 			this.elementType = options.elementType || "span"; // Type of element to create (span, div, etc.)
 			this.usePopover = options.usePopover || false;
 			this.popoverOptions = options.popoverOptions || {};
+
+			// Inline trigger mode: when `trigger` is set and the component is bound to
+			// a <textarea> or <input>, suggestions are driven by the text typed after
+			// the trigger up to the caret (e.g. trigger "@" for mentions, "[@" for
+			// citations), the menu floats at the caret, and selecting an item replaces
+			// `trigger + term` in the field's value. `termPattern` is the set of chars
+			// that count as part of the term; anything else (space, "]", newline)
+			// ends the term. On select, the region is replaced with the item's
+			// `value` (or `insertRenderer(item)` when provided).
+			this.trigger = options.trigger || null;
+			this.inline = this.trigger != null;
+			this.termPattern =
+				options.termPattern || /[A-Za-z0-9_:.#/&+?~-]/;
+			this.insertRenderer = options.insertRenderer || null;
 		}
 	}
 
