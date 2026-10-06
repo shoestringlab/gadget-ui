@@ -5,7 +5,7 @@ gadget-ui
 
 This repo is now hosted at:
 
-["Peopoli Git"](https://git.peopoli.com/code/gadget-ui)
+[Peopoli Git](https://git.peopoli.com/code/gadget-ui)
 
 ***License***
 
